@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+dist/
+build/
+out/
+n8n-corpus/
+phase2-output/
+batch-report.json
+download-report.json

@@ -1,0 +1,153 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "learn-json-basics-with-an-interactive-step-by-step-tutorial-for-beginners",
+    "name": "🎓 Learn JSON basics with an interactive step-by-step tutorial for beginners",
+    "description": "## How it works\n\nThis workflow is an interactive, hands-on tutorial designed to teach you the absolute basics of JSON (JavaScript Object Notation) and, more importantly, how to use it within n8n. It's perfect for beginners who are new to automation and data structures.\n\nThe tutorial is structured as a series of simple steps. Each node introduces a new, fundamental concept of JSON:\n\n1.  **Key/Value Pairs:** The basic building block of all JSON.\n2.  **Data Types:** It then walks you through the most common data types one by one:\n    *   **String** (text)\n    *   **Number** (integers and decimals)\n    *   **Boolean** (`true` or `false`)\n    *   **Null** (representing \"nothing\")\n    *   **Array** (an ordered list of items)\n    *   **Object** (a collection of key/value pairs)\n3.  **Using JSON with Expressions:** The most important step! It shows you how to dynamically pull data from a previous node into a new one using n8n's expressions (`{{ }}`).\n4.  **Final Exam:** A final node puts everything together, building a complete JSON object by referencing data from all the previous steps.\n\nEach node has a detailed sticky note explaining the concept in simple terms.\n\n## Set up steps\n\n**Setup time: 0 minutes!**\n\nThis is a tutorial workflow, so there is no setup required.\n\n1.  Simply click the **\"Execute Workflow\"** button to run it.\n2.  Follow the instructions in the main sticky note: click on each node in order, from top to bottom.\n3.  For each node, observe the output in the right-hand panel and read the sticky note next to it to understand what you're seeing.\n\nBy the end, you'll have a solid understanding of what JSON is and how to work with it in your own n8n workflows.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Engineering",
+      "n8n-converted"
+    ],
+    "author": "Converted from n8n",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Execute_to_Start": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "String": {
+          "type": "Compose",
+          "inputs": {
+            "json_example_string": "This is a simple string. In JSON, it's always enclosed in double quotes."
+          },
+          "runAfter": {
+            "Key_Value": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Key_Value": {
+          "type": "Compose",
+          "inputs": {
+            "key": "value",
+            "another_key": "another_value"
+          },
+          "runAfter": {}
+        },
+        "Number": {
+          "type": "Compose",
+          "inputs": {
+            "json_example_integer": 10,
+            "json_example_float": 12.5
+          },
+          "runAfter": {
+            "String": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Boolean": {
+          "type": "Compose",
+          "inputs": {
+            "json_example_boolean": false
+          },
+          "runAfter": {
+            "Number": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Array": {
+          "type": "Compose",
+          "inputs": {
+            "json_example_array": "[\"first element\", 2, false, null]"
+          },
+          "runAfter": {
+            "Null": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Object": {
+          "type": "Compose",
+          "inputs": {
+            "json_example_object": "{\"key\":\"value\",\"array\":[1,2,3],\"boolean\":false,\"integer\":123,\"sub_object\":{\"sub_key\":\"Find me!\"}}"
+          },
+          "runAfter": {
+            "Array": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Null": {
+          "type": "Compose",
+          "inputs": {
+            "json_example_null": {}
+          },
+          "runAfter": {
+            "Boolean": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Using_JSON_Expressions": {
+          "type": "Compose",
+          "inputs": {
+            "message": "Hello, the number from the tutorial is: @{body('Number')?['json_example_integer']}",
+            "sub_key": "@body('Object')?['json_example_object']?['sub_object']?['sub_key']",
+            "array_second_item": "@body('Object')?['json_example_object']?['array'][1]"
+          },
+          "runAfter": {
+            "Object": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Final_Exam": {
+          "type": "Compose",
+          "inputs": {
+            "summary_string": "@body('String')?['json_example_string']",
+            "summary_number": "@body('Number')?['json_example_integer']",
+            "summary_boolean": "@body('Boolean')?['json_example_boolean']",
+            "summary_null": "@body('Null')?['json_example_null']",
+            "summary_array": "@body('Array')?['json_example_array']",
+            "summary_object": "@body('Object')?['json_example_object']"
+          },
+          "runAfter": {
+            "Using_JSON_Expressions": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Execute_to_Start",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

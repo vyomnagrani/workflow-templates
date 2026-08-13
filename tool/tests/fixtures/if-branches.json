@@ -1,0 +1,130 @@
+{
+  "name": "Branching workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "1",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "active",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      },
+      "id": "2",
+      "name": "Is Active",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [200, 0]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "name": "route",
+              "value": "active"
+            }
+          ]
+        }
+      },
+      "id": "3",
+      "name": "Active Route",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [400, -100]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "name": "route",
+              "value": "inactive"
+            }
+          ]
+        }
+      },
+      "id": "4",
+      "name": "Inactive Route",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [400, 100]
+    },
+    {
+      "parameters": {},
+      "id": "5",
+      "name": "Continue",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [600, 0]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Is Active",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Active": {
+      "main": [
+        [
+          {
+            "node": "Active Route",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Inactive Route",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Active Route": {
+      "main": [
+        [
+          {
+            "node": "Continue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inactive Route": {
+      "main": [
+        [
+          {
+            "node": "Continue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

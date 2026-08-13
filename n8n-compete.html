@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>n8n vs Azure Logic Apps Automation</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #b11f4b;
+  --cp-accent-hover: #9a1a41;
+  --cp-accent-soft: rgba(177, 31, 75, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+  --cp-overlay: rgba(255, 255, 255, 0.8);
+  --cp-panel: rgba(255, 255, 255, 0.86);
+  --cp-panel-strong: rgba(255, 255, 255, 0.96);
+  --cp-sheen: rgba(255, 255, 255, 0.55);
+  --cp-highlight: rgba(177, 31, 75, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #fd8ea1;
+  --cp-accent-hover: #fb7b91;
+  --cp-accent-soft: rgba(253, 142, 161, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  --cp-overlay: rgba(41, 41, 41, 0.88);
+  --cp-panel: rgba(41, 41, 41, 0.72);
+  --cp-panel-strong: rgba(41, 41, 41, 0.96);
+  --cp-sheen: rgba(255, 255, 255, 0.04);
+  --cp-highlight: rgba(253, 142, 161, 0.12);
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--cp-bg);color:var(--cp-text);font:16px/1.5 "Segoe UI",Aptos,Calibri,-apple-system,BlinkMacSystemFont,sans-serif}
+a{color:var(--cp-link)}h1,h2,h3{line-height:1.15;margin-top:0}h1{font-size:clamp(2.4rem,6vw,4.8rem);letter-spacing:-.055em;max-width:950px}h2{font-size:clamp(1.7rem,3vw,2.5rem);letter-spacing:-.035em}h3{font-size:1.08rem;margin-bottom:8px}p{margin:0 0 12px}
+.shell{width:min(1180px,calc(100% - 32px));margin:auto}.hero{padding:72px 0 44px;border-bottom:1px solid var(--cp-border)}.eyebrow{color:var(--cp-accent);font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:.76rem;margin-bottom:18px}.dek{max-width:900px;font-size:1.2rem;color:var(--cp-text-muted)}.meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:28px;color:var(--cp-text-soft);font-size:.86rem}
+nav{position:sticky;top:0;z-index:10;background:var(--cp-panel-strong);border-bottom:1px solid var(--cp-border);overflow:auto;white-space:nowrap}nav .shell{display:flex;gap:22px;padding:13px 0}nav a{color:var(--cp-text-muted);text-decoration:none;font-size:.84rem;font-weight:650}
+section{padding:56px 0;border-bottom:1px solid var(--cp-border)}.grid2,.grid3,.grid4{display:grid;gap:16px}.grid2{grid-template-columns:repeat(2,1fr)}.grid3{grid-template-columns:repeat(3,1fr)}.grid4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:16px;padding:22px;box-shadow:0 0 2px var(--cp-border),0 1px 2px var(--cp-border)}.tag{display:inline-block;border-radius:.625rem;padding:4px 9px;background:var(--cp-accent-soft);color:var(--cp-accent);font-size:.74rem;font-weight:700;margin-bottom:12px}.good{border-top:4px solid var(--cp-success)}.warn{border-top:4px solid var(--cp-warning)}.risk{border-top:4px solid var(--cp-danger)}
+.callout{margin:22px 0;background:var(--cp-accent-soft);border-left:4px solid var(--cp-accent);padding:18px 20px;border-radius:.625rem;font-weight:600}.score{font-size:2rem;font-weight:800;color:var(--cp-accent)}.muted{color:var(--cp-text-muted);font-size:.85rem}.table{overflow:auto;border:1px solid var(--cp-border);border-radius:16px;background:var(--cp-surface)}table{width:100%;border-collapse:collapse;min-width:850px}th,td{padding:13px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--cp-border)}th{background:var(--cp-surface-soft);font-size:.77rem;text-transform:uppercase;letter-spacing:.06em}tr:last-child td{border:0}.adv{color:var(--cp-success);font-weight:700}.dis{color:var(--cp-danger);font-weight:700}.mid{color:var(--cp-warning);font-weight:700}ul{padding-left:20px;margin:8px 0}li{margin:6px 0}
+.brief{background:var(--cp-bg-elevated)}.page{background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:16px;padding:36px;margin-bottom:24px;box-shadow:0 0 2px var(--cp-border),0 1px 2px var(--cp-border)}.page h2{color:var(--cp-accent)}.priority{display:grid;grid-template-columns:44px 1fr;gap:14px}.num{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;background:var(--cp-accent);color:var(--cp-accent-fg);font-weight:800}.sources ol{columns:2;column-gap:36px}.sources li{break-inside:avoid;font-size:.85rem;margin-bottom:8px}
+@media(max-width:850px){.grid2,.grid3,.grid4{grid-template-columns:1fr}.sources ol{columns:1}.page{padding:22px}}
+@media print{nav,.full,.sources,footer{display:none}.brief{padding:0;border:0}.brief>.shell>h2,.brief>.shell>.muted{display:none}.page{border:0;box-shadow:none;border-radius:0;min-height:96vh;margin:0;padding:16mm 13mm;page-break-after:always}.page:last-child{page-break-after:auto}a{color:var(--cp-text);text-decoration:none}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="shell">
+<div class="eyebrow">Competitive product assessment · August 2026</div>
+<h1>n8n vs. Azure Logic Apps Automation</h1>
+<p class="dek">Where n8n is winning, where Logic Apps Automation has structural advantage, and what Microsoft should improve before the market defines LAA as powerful—but harder to discover, learn, and buy.</p>
+<div class="meta"><span>Audience: LAA product leadership</span><span>Research: official product pages, docs, tutorials, blogs, pricing, and selected independent coverage</span><span>Research cutoff: August 11, 2026</span></div>
+</div></header>
+<nav><div class="shell"><a href="#verdict">Verdict</a><a href="#position">Positioning</a><a href="#features">Features</a><a href="#learning">Learning</a><a href="#pricing">Pricing</a><a href="#brief">Two-page brief</a><a href="#sources">Sources</a></div></nav>
+
+<main class="full">
+<section id="verdict"><div class="shell">
+<h2>Executive verdict</h2>
+<div class="grid3">
+<article class="card good"><span class="tag">n8n advantage</span><h3>Adoption and developer affinity</h3><p>n8n turns an idea into a runnable workflow quickly through an approachable canvas, visible node data, easy code escape hatches, self-hosting, a free Community edition, and a huge public template marketplace. Its marketing speaks directly to builders.</p></article>
+<article class="card good"><span class="tag">LAA advantage</span><h3>Governed agentic orchestration</h3><p>LAA has the stronger architecture for long-running, AI-heavy enterprise workflows: native and Foundry agents, MCP/A2A, sandboxes, knowledge grounding, 1,400+ connectors, Azure networking, monitoring, identity, and dedicated compute that scales to zero.</p></article>
+<article class="card warn"><span class="tag">Competitive reality</span><h3>n8n sells a product; LAA sells a thesis</h3><p>n8n makes value tangible before signup. LAA is differentiated but preview-stage: pricing is unpublished, terminology is complex, public examples are limited, and its best learning content is split across multiple Microsoft properties.</p></article>
+</div>
+<div class="callout">The central risk is not that n8n has better enterprise infrastructure. It is that n8n makes flexible automation feel obvious, ownable, and economically legible—while LAA asks prospects to understand a new category and Azure product-family boundaries before they can value the differentiation.</div>
+<div class="grid4"><div class="card"><div class="score">9/10</div><span class="muted">n8n: time to first value</span></div><div class="card"><div class="score">9/10</div><span class="muted">LAA: enterprise control</span></div><div class="card"><div class="score">9/10</div><span class="muted">n8n: ecosystem discovery</span></div><div class="card"><div class="score">10/10</div><span class="muted">LAA: agentic ambition</span></div></div>
+</div></section>
+
+<section id="position"><div class="shell">
+<h2>Positioning and narrative</h2>
+<div class="grid2">
+<article class="card"><span class="tag">n8n</span><h3>“AI workflow automation” for technical teams</h3><ul><li><strong>Promise:</strong> visual speed without giving up code or control.</li><li><strong>Identity:</strong> a builder’s tool—visual where useful, programmable where necessary.</li><li><strong>Proof:</strong> testimonials, templates, integrations, tutorials, community, source-visible core, self-hosting.</li><li><strong>Competitive frame:</strong> more flexible than no-code tools and more economical than per-step billing.</li></ul></article>
+<article class="card"><span class="tag">LAA</span><h3>Dynamic workflows that reason and adapt at runtime</h3><ul><li><strong>Promise:</strong> automate ambiguous, exception-heavy work that fixed workflows cannot model.</li><li><strong>Identity:</strong> workflow-first, agent-aware orchestration for developers and AI builders.</li><li><strong>Proof:</strong> agent runtime, MCP/A2A, model hosting, connectors, knowledge, sandboxes, governance.</li><li><strong>Competitive frame:</strong> agentic adaptability without surrendering enterprise control.</li></ul></article>
+</div>
+<div class="table" style="margin-top:20px"><table><thead><tr><th>Dimension</th><th>n8n</th><th>LAA</th><th>PM implication</th></tr></thead><tbody>
+<tr><td>Five-second clarity</td><td class="adv">Strong</td><td class="mid">Moderate</td><td>“AI workflow automation” is familiar. “Dynamic probabilistic orchestration” needs explanation.</td></tr>
+<tr><td>Category differentiation</td><td>Flexible automation</td><td class="adv">Governed dynamic orchestration</td><td>LAA can own a valuable category if it proves when runtime planning beats fixed flows.</td></tr>
+<tr><td>Social proof</td><td class="adv">Extensive</td><td class="dis">Early</td><td>LAA urgently needs public design-partner stories, examples, and measured outcomes.</td></tr>
+<tr><td>Economic promise</td><td class="adv">Transparent entry prices and free self-hosting</td><td class="dis">Automation price card unpublished</td><td>Pricing uncertainty weakens every acquisition claim.</td></tr>
+</tbody></table></div>
+</div></section>
+
+<section id="features"><div class="shell">
+<h2>Feature comparison</h2>
+<div class="table"><table><thead><tr><th>Capability</th><th>n8n</th><th>Azure Logic Apps Automation</th><th>Advantage</th></tr></thead><tbody>
+<tr><td>Visual authoring</td><td>Mature canvas, expressions, branching, loops, sub-workflows, visible data.</td><td>Modern designer, deep control flow, draft/publish, synchronized JSON.</td><td class="mid">Near parity; n8n more proven.</td></tr>
+<tr><td>Natural-language authoring</td><td>AI-assisted workflow generation is central to current positioning.</td><td>Assistant generates and edits the same schema used by the designer.</td><td class="adv">LAA architecture; maturity TBD.</td></tr>
+<tr><td>Code</td><td>JavaScript/Python Code nodes, custom/community nodes, self-hosted packages.</td><td>Inline JavaScript/Python, raw JSON, full code-first and custom code.</td><td class="mid">n8n openness; LAA governance.</td></tr>
+<tr><td>Agents</td><td>Agent nodes, model choice, tools, memory, RAG, human approval.</td><td>Native and Foundry agents, typed tools, bounded iterations, MCP/A2A, structured outputs.</td><td class="adv">LAA</td></tr>
+<tr><td>Execution sandbox</td><td>Code nodes/task runners; isolation depends on deployment and tier.</td><td>Code Interpreter plus isolated microVM sandboxes with repos and skills.</td><td class="adv">LAA</td></tr>
+<tr><td>Knowledge</td><td>Composable RAG using vector DB, loaders, embeddings, and model nodes.</td><td>Managed Azure AI Search, Foundry IQ, document upload, and Work IQ sources.</td><td class="adv">LAA managed; n8n portable.</td></tr>
+<tr><td>Connectivity</td><td>Hundreds of official nodes, community nodes, HTTP/API, custom nodes.</td><td>1,400+ connectors with deep Microsoft, Azure, SAP, B2B, and hybrid coverage.</td><td class="adv">LAA enterprise breadth.</td></tr>
+<tr><td>Templates</td><td>11,000+ publicly browsable community workflows.</td><td>Templates exist, but no comparably visible public creator marketplace.</td><td class="adv">n8n decisively.</td></tr>
+<tr><td>Debugging</td><td>Node data, partial runs, pinned data, history, retries, debug-in-editor.</td><td>Live draft streaming, inputs/outputs, stack traces, rerun, agent/tool chat traces.</td><td class="mid">Strong both; LAA leads agent trace.</td></tr>
+<tr><td>Long-running workflows</td><td>Wait/webhook/human-loop patterns, deployment-dependent durability.</td><td>Stateful long-running Logic Apps runtime.</td><td class="adv">LAA</td></tr>
+<tr><td>Deployment</td><td>Cloud or free/paid self-hosted; Docker/Kubernetes/private infrastructure.</td><td>Dedicated scale-to-zero Azure compute, VNet/private endpoint, VS Code/local options.</td><td class="mid">n8n sovereignty; LAA Azure isolation.</td></tr>
+<tr><td>Governance</td><td>SSO, projects/RBAC, Git environments, secrets, logs—often paid-tier gated.</td><td>Azure RBAC, identity, policy, network isolation, tracing, App Insights, SIEM.</td><td class="adv">LAA</td></tr>
+</tbody></table></div>
+</div></section>
+<section id="learning"><div class="shell">
+<h2>Documentation, tutorials, and product experience</h2>
+<div class="grid3">
+<article class="card good"><span class="tag">n8n advantage</span><h3>Learning funnel and examples</h3><p>n8n combines product docs, Academy courses with exercises and certificates, official tutorials, community forum content, deployment guides, enterprise playbooks, and more than 11,000 public workflows. Templates operate simultaneously as education, SEO, acquisition, proof, and community participation.</p></article>
+<article class="card good"><span class="tag">LAA advantage</span><h3>Agent operations and debugging</h3><p>LAA’s preview documentation is technically strong. Its quickstart follows create–draft–test–inspect–publish; agent docs explain native versus Foundry agents, tool schemas, iteration bounds, Code Interpreter, sandboxes, knowledge grounding, and full tool-call traces.</p></article>
+<article class="card risk"><span class="tag">LAA risk</span><h3>Fragmented journey</h3><p>Learning is split across Microsoft Learn, auto.azure.com, Tech Community, broader Logic Apps docs, and related Foundry/Copilot Studio content. A prospect also has to understand Automation versus Standard, Consumption, Power Automate, and Copilot Studio.</p></article>
+</div>
+<div class="callout">LAA’s documentation quality is not the main gap. The gap is packaging: too few end-to-end, copyable, outcome-led assets that begin with a business problem and end with a production-ready, governed deployment.</div>
+<div class="table"><table><thead><tr><th>Learning surface</th><th>n8n</th><th>LAA</th><th>LAA opportunity</th></tr></thead><tbody>
+<tr><td>First workflow</td><td>Docs, templates, cloud trial, free self-hosting</td><td>Strong portal quickstart</td><td>Provide a guided sample with mock connectors, data, and model allowance.</td></tr>
+<tr><td>Structured curriculum</td><td>Academy, exercises, quizzes, badges, certificates</td><td>Microsoft Learn ecosystem; Automation path is nascent</td><td>Launch LAA Builder and Production Operator learning paths.</td></tr>
+<tr><td>Example density</td><td class="adv">11,000+ public workflows</td><td class="dis">Limited visible public Automation catalog</td><td>Create a gallery with runnable templates, cost estimates, and safety controls.</td></tr>
+<tr><td>Community flywheel</td><td>Creator templates and forum tutorials</td><td>Tech Community and Q&amp;A</td><td>Enable template publishing, remixing, ratings, verified creators, and partner collections.</td></tr>
+<tr><td>Production guidance</td><td>Enterprise playbooks plus deployment docs</td><td>Strong Azure platform documentation</td><td>Unify workflow, agent, identity, network, evaluation, observability, and cost playbooks.</td></tr>
+</tbody></table></div>
+</div></section>
+
+<section id="pricing"><div class="shell">
+<h2>Pricing and commercial model</h2>
+<div class="grid2">
+<article class="card"><span class="tag">n8n</span><h3>Simple unit and visible entry points</h3><p>Official pricing uses monthly workflow executions rather than steps. Annual-billing prices surfaced in August 2026 are approximately <strong>€20/month Starter</strong> for 2,500 executions, <strong>€50/month Pro</strong> for 10,000, <strong>€667/month Business</strong> for 40,000 self-hosted executions, and custom Enterprise pricing. Self-hosted Community is free.</p><p class="muted">The strategic advantages are the persistent free edition, visible starting prices, and the intuitive “one workflow run equals one execution” meter.</p></article>
+<article class="card"><span class="tag">LAA</span><h3>Preview uncertainty</h3><p>Microsoft’s official Logic Apps pricing documentation currently applies to <strong>Consumption and Standard</strong>, not the new Automation offer. Consumption meters actions and connector executions; Standard charges reserved compute plus managed connectors. Automation promises dedicated compute that scales to zero, but no final public Automation price card was found.</p><p class="muted">This report does not treat speculative third-party Automation prices as fact.</p></article>
+</div>
+<div class="grid3" style="margin-top:16px">
+<article class="card risk"><h3>Unpriced differentiation is weak</h3><p>Customers need representative costs for an agent loop, connectors, sandbox time, model tokens, knowledge retrieval, retries, long-running state, and monitoring.</p></article>
+<article class="card warn"><h3>n8n wins experimentation</h3><p>The Community edition lets teams prove value before procurement. LAA needs a meaningful durable free developer tier or bundled Azure credits.</p></article>
+<article class="card good"><h3>LAA can win TCO</h3><p>For Azure-standardized enterprises, integrated identity, networking, monitoring, connectors, and fewer separately operated components can outweigh a higher raw meter.</p></article>
+</div>
+</div></section>
+
+<section><div class="shell">
+<h2>Strategic implications for LAA</h2>
+<div class="grid2">
+<article class="card"><div class="priority"><div class="num">1</div><div><h3>Sell outcomes before architecture</h3><p>Lead with exception-heavy scenarios—procurement, case triage, service recovery, compliance review—then show dynamic planning and governance as the reason they work.</p></div></div></article>
+<article class="card"><div class="priority"><div class="num">2</div><div><h3>Turn templates into acquisition</h3><p>Build a public gallery with animated runs, required services, permissions, estimated costs, risk controls, evaluations, and one-click sandbox deployment.</p></div></div></article>
+<article class="card"><div class="priority"><div class="num">3</div><div><h3>Make the portfolio feel unified</h3><p>Start from user intent and recommend Automation, Standard, Consumption, or Copilot Studio without forcing buyers to learn internal boundaries.</p></div></div></article>
+<article class="card"><div class="priority"><div class="num">4</div><div><h3>Productize production readiness</h3><p>Add a dashboard for identity, secrets, exposure, tool permissions, iteration bounds, approvals, PII, evaluations, alerts, budgets, and deployment state.</p></div></div></article>
+<article class="card"><div class="priority"><div class="num">5</div><div><h3>Own agent economics</h3><p>Expose per-run cost and latency by model, tool, connector, sandbox, retry, and retrieval. Add regression evaluations and budget-aware agent policies.</p></div></div></article>
+<article class="card"><div class="priority"><div class="num">6</div><div><h3>Build public customer proof</h3><p>Measure exception resolution time, automation completion rate, human escalation, unit cost, and operational effort—not just workflows created.</p></div></div></article>
+</div>
+</div></section>
+</main>
+<section id="brief" class="brief"><div class="shell">
+<h2>Two-page executive report</h2><p class="muted">Print this file to output only the following two pages.</p>
+
+<article class="page">
+<div class="eyebrow">Page 1 · Competitive position</div>
+<h2>n8n wins the builder; LAA can win the governed enterprise</h2>
+<p><strong>Bottom line.</strong> n8n is currently the stronger product-led competitor: it is easier to understand, try, learn, extend, and advocate for. Azure Logic Apps Automation has the more differentiated enterprise architecture for dynamic agentic workflows, but preview status, portfolio complexity, sparse public examples, and unpublished pricing suppress that advantage.</p>
+<div class="grid2">
+<div><h3>Where n8n is better</h3><ul>
+<li><strong>Time to value:</strong> approachable canvas, data inspection, code escape hatches, cloud trial, and free self-hosting.</li>
+<li><strong>Product-led ecosystem:</strong> 11,000+ workflows, community nodes, forum tutorials, Academy, blogs, and creator content.</li>
+<li><strong>Developer trust:</strong> fair-code identity, deployment choice, JavaScript/Python, custom nodes, and generic API support.</li>
+<li><strong>Economic clarity:</strong> public entry pricing and one execution per workflow run—not per step.</li>
+<li><strong>Message simplicity:</strong> “AI workflow automation for technical teams” is immediately legible.</li>
+</ul></div>
+<div><h3>Where LAA is better</h3><ul>
+<li><strong>Agent orchestration:</strong> runtime planning, native and Foundry agents, typed tools, MCP/A2A, structured output, and bounded loops.</li>
+<li><strong>Enterprise connectivity:</strong> 1,400+ connectors with deep Microsoft, Azure, SAP, B2B, messaging, and hybrid coverage.</li>
+<li><strong>Governance:</strong> Azure identity, RBAC, policy, VNets, private endpoints, tracing, and SIEM integration.</li>
+<li><strong>Operational AI:</strong> tool traces, chat reconstruction, knowledge services, sandboxes, long-running state, and human intervention.</li>
+<li><strong>Category:</strong> governed dynamic automation for ambiguous work is more defensible than generic trigger/action automation.</li>
+</ul></div>
+</div>
+<div class="callout"><strong>Positioning recommendation:</strong> stop leading with “probabilistic orchestration.” Lead with valuable exceptions that fixed workflows cannot handle, and make governance the proof—not the headline.</div>
+<h3>Key perception risk</h3><p>n8n can be perceived as “the flexible tool I can start using today.” LAA risks being perceived as “the advanced Azure option I need an architecture meeting to understand.” The remedy is a simpler acquisition journey, tangible proof, and transparent economics.</p>
+</article>
+
+<article class="page">
+<div class="eyebrow">Page 2 · Product priorities</div>
+<h2>Top three things LAA should fix</h2>
+<div class="card risk"><div class="priority"><div class="num">1</div><div><h3>Publish simple pricing and a durable free developer tier</h3><p>Define the Automation billing unit and show complete sample costs, including models, connectors, sandboxes, knowledge retrieval, retries, state, and monitoring. Add real-time cost-by-run visibility and budgets. A persistent free tier is necessary to compete with n8n Community and let internal champions prove value before procurement.</p></div></div></div>
+<div class="card warn" style="margin-top:14px"><div class="priority"><div class="num">2</div><div><h3>Create a public template and learning flywheel</h3><p>Launch hundreds of production-grade, one-click templates organized by role, industry, and system. Include runnable mock data, architecture, permissions, estimated cost, safety controls, and evaluation criteria. Pair this with Automation-specific Learn paths, workshops, certificates, partner content, and community publishing/remixing.</p></div></div></div>
+<div class="card good" style="margin-top:14px"><div class="priority"><div class="num">3</div><div><h3>Unify the portfolio and production experience</h3><p>Give users one front door that recommends Automation, Standard, Consumption, or Copilot Studio based on the scenario. Add a production-readiness panel covering identity, networking, secrets, tool permissions, evaluations, approvals, observability, deployment gates, and cost limits.</p></div></div></div>
+<h3 style="margin-top:22px">12-month success measures</h3>
+<div class="grid2"><ul><li>Landing page to first successful run in under 10 minutes.</li><li>500+ public verified templates and 50 partner/customer collections.</li><li>Published calculator plus per-run actual cost visibility.</li><li>Cross-portfolio recommendation in under five questions.</li></ul><ul><li>Production-readiness score used by most published enterprise workflows.</li><li>Agent evaluation and regression gates integrated into draft/publish.</li><li>Customer proof of reduced exception time and operational effort.</li><li>Growing acquisition share from templates, tutorials, and community.</li></ul></div>
+<div class="callout"><strong>Strategic conclusion:</strong> LAA should not try to out-n8n n8n on openness or community history. It should match n8n’s approachability and learning velocity, then win on governed agentic execution, enterprise integration, safety, and total cost of ownership.</div>
+</article>
+</div></section>
+
+<section id="sources" class="sources"><div class="shell">
+<h2>Selected sources</h2><ol>
+<li><a href="https://n8n.io/">n8n product homepage</a></li>
+<li><a href="https://n8n.io/pricing/">n8n plans and pricing</a></li>
+<li><a href="https://n8n.io/features/">n8n features</a></li>
+<li><a href="https://n8n.io/workflows/">n8n workflow library</a></li>
+<li><a href="https://docs.n8n.io/">n8n documentation</a></li>
+<li><a href="https://docs.n8n.io/choose-how-to-use-n8n.md">n8n deployment and editions</a></li>
+<li><a href="https://docs.n8n.io/learning-paths.md">n8n Academy learning paths</a></li>
+<li><a href="https://blog.n8n.io/">n8n blog</a></li>
+<li><a href="https://community.n8n.io/c/tutorials/28">n8n community tutorials</a></li>
+<li><a href="https://learn.microsoft.com/en-us/azure/logic-apps/automation/dynamic-workflow-automation-introduction">LAA overview</a></li>
+<li><a href="https://learn.microsoft.com/en-us/azure/logic-apps/automation/compare-automation-services">Microsoft automation comparison</a></li>
+<li><a href="https://auto.azure.com/docs/features/overview/">LAA feature map</a></li>
+<li><a href="https://auto.azure.com/docs/getting-started/quickstart/">LAA quickstart</a></li>
+<li><a href="https://auto.azure.com/docs/features/visual-designer/">LAA visual designer</a></li>
+<li><a href="https://auto.azure.com/docs/features/ai-assistant/">LAA AI assistant</a></li>
+<li><a href="https://auto.azure.com/docs/features/agents/">LAA agents</a></li>
+<li><a href="https://auto.azure.com/docs/features/runs-and-monitoring/">LAA monitoring</a></li>
+<li><a href="https://techcommunity.microsoft.com/blog/integrationsonazureblog/whats-new-in-azure-logic-apps-at-microsoft-build-2026/4524685">Logic Apps at Build 2026</a></li>
+<li><a href="https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-pricing">Logic Apps metering and billing</a></li>
+<li><a href="https://azure.microsoft.com/en-us/pricing/details/logic-apps/">Azure Logic Apps pricing</a></li>
+</ol><p class="muted">LAA is in preview and can change rapidly. No final public Automation price card was found at the research cutoff; speculative third-party prices were excluded.</p>
+</div></section>
+<footer><div class="shell" style="padding:32px 0;color:var(--cp-text-muted);font-size:.82rem">Prepared as a product strategy assessment for Azure Logic Apps Automation.</div></footer>
+</body>
+</html>

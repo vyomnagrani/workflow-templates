@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>n8n and LAA JSON Schema Mapping</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #b11f4b;
+  --cp-accent-hover: #9a1a41;
+  --cp-accent-soft: rgba(177, 31, 75, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+  --cp-overlay: rgba(255, 255, 255, 0.8);
+  --cp-panel: rgba(255, 255, 255, 0.86);
+  --cp-panel-strong: rgba(255, 255, 255, 0.96);
+  --cp-sheen: rgba(255, 255, 255, 0.55);
+  --cp-highlight: rgba(177, 31, 75, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #fd8ea1;
+  --cp-accent-hover: #fb7b91;
+  --cp-accent-soft: rgba(253, 142, 161, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  --cp-overlay: rgba(41, 41, 41, 0.88);
+  --cp-panel: rgba(41, 41, 41, 0.72);
+  --cp-panel-strong: rgba(41, 41, 41, 0.96);
+  --cp-sheen: rgba(255, 255, 255, 0.04);
+  --cp-highlight: rgba(253, 142, 161, 0.12);
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--cp-bg);color:var(--cp-text);font:15px/1.5 "Segoe UI",Aptos,Calibri,-apple-system,BlinkMacSystemFont,sans-serif}
+a{color:var(--cp-link)}code{font-family:Consolas,"Courier New",Courier,monospace;background:var(--cp-surface-soft);border:1px solid var(--cp-border);border-radius:6px;padding:1px 5px}h1,h2,h3{line-height:1.15;margin-top:0}h1{font-size:clamp(2.2rem,5vw,4.3rem);letter-spacing:-.05em;max-width:1000px}h2{font-size:clamp(1.55rem,3vw,2.3rem);letter-spacing:-.03em}h3{font-size:1.05rem;margin-bottom:8px}.shell{width:min(1420px,calc(100% - 32px));margin:auto}.hero{padding:64px 0 40px;border-bottom:1px solid var(--cp-border)}.eyebrow{color:var(--cp-accent);font-weight:700;text-transform:uppercase;letter-spacing:.12em;font-size:.75rem}.dek{max-width:1000px;font-size:1.16rem;color:var(--cp-text-muted)}
+nav{position:sticky;top:0;z-index:5;background:var(--cp-panel-strong);border-bottom:1px solid var(--cp-border);overflow:auto;white-space:nowrap}nav .shell{display:flex;gap:20px;padding:12px 0}nav a{text-decoration:none;color:var(--cp-text-muted);font-weight:650;font-size:.83rem}section{padding:48px 0;border-bottom:1px solid var(--cp-border)}
+.grid2,.grid3,.grid4{display:grid;gap:16px}.grid2{grid-template-columns:repeat(2,1fr)}.grid3{grid-template-columns:repeat(3,1fr)}.grid4{grid-template-columns:repeat(4,1fr)}.card{background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:16px;padding:20px;box-shadow:0 0 2px var(--cp-border),0 1px 2px var(--cp-border)}.tag{display:inline-block;background:var(--cp-accent-soft);color:var(--cp-accent);border-radius:.625rem;padding:4px 9px;font-size:.72rem;font-weight:700;margin-bottom:10px}.callout{background:var(--cp-accent-soft);border-left:4px solid var(--cp-accent);border-radius:.625rem;padding:17px 20px;margin:20px 0}.small{color:var(--cp-text-muted);font-size:.83rem}
+.table-wrap{overflow:auto;border:1px solid var(--cp-border);border-radius:16px;background:var(--cp-surface)}table{width:100%;border-collapse:collapse;min-width:1250px}th,td{padding:11px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--cp-border)}th{position:sticky;top:43px;z-index:3;background:var(--cp-surface-soft);font-size:.74rem;text-transform:uppercase;letter-spacing:.05em}td:first-child{font-family:Consolas,"Courier New",Courier,monospace;font-size:.83rem;font-weight:650}tr:last-child td{border-bottom:0}.yes{color:var(--cp-success);font-weight:700}.partial{color:var(--cp-warning);font-weight:700}.no{color:var(--cp-danger);font-weight:700}.controls{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 16px}.controls input,.controls select{font:inherit;color:var(--cp-text);background:var(--cp-surface);border:1px solid var(--cp-border-strong);border-radius:.625rem;padding:9px 11px}.controls input{min-width:320px;flex:1}.pill{white-space:nowrap}.source-list{columns:2}.source-list li{break-inside:avoid;margin:7px 0}
+@media(max-width:850px){.grid2,.grid3,.grid4{grid-template-columns:1fr}.source-list{columns:1}.controls input{min-width:100%}}
+@media print{nav,.controls{display:none}th{position:static}section{padding:22px 0}.table-wrap{overflow:visible;border:0}table{min-width:0;font-size:9px}th,td{padding:5px}.card{break-inside:avoid}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="shell">
+<div class="eyebrow">Schema-level comparison · August 2026</div>
+<h1>n8n workflow JSON vs. LAA app/workflow template JSON</h1>
+<p class="dek">A field-by-field mapping of the n8n workflow serialization model to Azure Logic Apps Automation’s <code>AutoTemplate v1</code> envelope and embedded Workflow Definition Language, including exact equivalents, partial analogues, and fields unique to each platform.</p>
+</div></header>
+<nav><div class="shell"><a href="#model">Mental model</a><a href="#mapping">n8n field mapping</a><a href="#laa-only">LAA-only fields</a><a href="#node-config">Node/action configuration</a><a href="#conclusion">Conclusions</a><a href="#sources">Sources</a></div></nav>
+
+<main>
+<section id="model"><div class="shell">
+<h2>The fundamental difference</h2>
+<div class="grid3">
+<article class="card"><span class="tag">n8n</span><h3>Editor graph serialization</h3><p>An n8n export stores nodes as an array plus a separate edge map. It includes canvas coordinates, editor notes, credential references, workflow settings, test pinning, and sometimes instance-managed lifecycle metadata.</p></article>
+<article class="card"><span class="tag">LAA workflow</span><h3>Declarative executable definition</h3><p>LAA stores named triggers and actions as objects. Dependencies live on each action through <code>runAfter</code>; nesting represents conditions, loops, scopes, and agent tools. Canvas coordinates are not part of the executable definition.</p></article>
+<article class="card"><span class="tag">LAA template</span><h3>Portable testable bundle</h3><p><code>AutoTemplate v1</code> wraps the workflow with gallery metadata, sample trigger output, per-action mocks, and connector requirements. This is broader than an n8n workflow export because it packages a guided test experience.</p></article>
+</div>
+<div class="callout"><strong>Scope note:</strong> “Every n8n parameter” here means every documented/current field in the workflow envelope, <code>INode</code>, <code>IConnections</code>, <code>IWorkflowSettings</code>, and workflow groups. Both platforms also have polymorphic operation inputs: <code>nodes[].parameters</code> in n8n and <code>triggers/actions.*.inputs</code> in LAA. Those connector-specific properties are effectively unbounded catalogs and are compared structurally rather than pretending one static table can enumerate every Slack, SQL, SAP, HTTP, or AI-model field.</div>
+<div class="grid4">
+<div class="card"><h3>Identity</h3><p>n8n puts workflow and node IDs in the payload. LAA template identity is gallery metadata; executable action identity is the property key.</p></div>
+<div class="card"><h3>Graph</h3><p>n8n: centralized <code>connections</code>. LAA: decentralized <code>runAfter</code> plus structural nesting.</p></div>
+<div class="card"><h3>Testing</h3><p>n8n: <code>pinData</code>. LAA: sample trigger plus per-action mocks or <code>runForReal</code>.</p></div>
+<div class="card"><h3>Runtime policy</h3><p>n8n emphasizes workflow save/timeout/error defaults. LAA exposes per-trigger/action concurrency, retry, secure data, pagination, limits, and typed outputs.</p></div>
+</div>
+</div></section>
+
+<section id="mapping"><div class="shell">
+<h2>Full n8n-to-LAA field mapping</h2>
+<div class="controls"><input id="search" type="search" placeholder="Filter fields, meanings, or equivalents…"><select id="status"><option value="">All equivalence levels</option><option value="Exact">Exact</option><option value="Partial">Partial</option><option value="None">No equivalent</option></select><select id="area"><option value="">All n8n areas</option></select></div>
+<div class="table-wrap"><table><thead><tr><th>n8n JSON path</th><th>Allowed value</th><th>What it configures</th><th>Closest LAA path</th><th>Equivalence</th><th>Important difference</th></tr></thead><tbody id="mappingRows"></tbody></table></div>
+<p class="small" id="mappingCount"></p>
+</div></section>
+
+<section id="laa-only"><div class="shell">
+<h2>LAA settings with no direct n8n JSON equivalent</h2>
+<div class="table-wrap"><table><thead><tr><th>LAA JSON path</th><th>Allowed value</th><th>What it configures</th><th>Closest n8n concept</th><th>Why it is LAA-specific</th></tr></thead><tbody id="laaRows"></tbody></table></div>
+</div></section>
+
+<section id="node-config"><div class="shell">
+<h2>Polymorphic node/action configuration</h2>
+<div class="grid2">
+<article class="card"><span class="tag">n8n nodes[].parameters</span><h3>Node package owns the schema</h3><p>The <code>type</code> and <code>typeVersion</code> select a node implementation. That node declares its own resource, operation, authentication, fields, collections, display conditions, defaults, and expression support. The exported JSON stores only chosen values—not the field schema itself.</p><p><strong>Practical result:</strong> custom/community nodes can introduce arbitrary configuration shapes. n8n is more open-ended, but portability depends on the destination instance having the same node package and version.</p></article>
+<article class="card"><span class="tag">LAA triggers/actions inputs</span><h3>Operation type and connector contract own the schema</h3><p><code>type</code>, connector <code>apiId</code>/<code>operationId</code>, or service-provider identifiers determine the expected <code>inputs</code>. WDL also gives common structural fields such as <code>runAfter</code>, <code>runtimeConfiguration</code>, <code>retryPolicy</code>, <code>splitOn</code>, and nested <code>actions</code>.</p><p><strong>Practical result:</strong> LAA is more explicit about orchestration and runtime policy in JSON; connector portability depends on declared app-scoped connection references being satisfied at import.</p></article>
+</div>
+<div class="table-wrap" style="margin-top:16px"><table><thead><tr><th>Configuration concern</th><th>n8n representation</th><th>LAA representation</th><th>Difference</th></tr></thead><tbody>
+<tr><td>Operation selection</td><td><code>node.type</code>, <code>typeVersion</code>, usually <code>parameters.resource</code>/<code>operation</code></td><td><code>action.type</code>, <code>kind</code>, connector <code>apiId</code>/<code>operationId</code></td><td>LAA operation identity is commonly explicit in the connection host; n8n often stores it within parameters.</td></tr>
+<tr><td>Dynamic values</td><td>Expressions such as <code>={{ $json.id }}</code> inside parameters</td><td>WDL expressions such as <code>@body('Step')?['id']</code>; Auto templates also show <code>${…}</code> import syntax</td><td>Both allow runtime binding almost anywhere; expression languages and scope rules differ.</td></tr>
+<tr><td>Ordering</td><td>Global <code>connections</code> edge graph</td><td>Per-action <code>runAfter</code> status dependency</td><td>LAA can directly gate on Succeeded, Failed, Skipped, TimedOut, etc.; n8n primarily routes through outputs/error behavior.</td></tr>
+<tr><td>Branching</td><td>Multiple output indexes and IF/Switch node connections</td><td>Nested <code>actions</code>, <code>else</code>, Switch cases, scopes</td><td>n8n graph edges carry branch identity; LAA’s hierarchy carries it.</td></tr>
+<tr><td>Retries</td><td><code>retryOnFail</code>, <code>maxTries</code>, <code>waitBetweenTries</code></td><td><code>retryPolicy.type/count/interval/minimumInterval/maximumInterval</code></td><td>LAA natively supports fixed/exponential policies; n8n exposes simpler retry controls.</td></tr>
+<tr><td>Concurrency</td><td>Mostly node-specific or instance/workflow execution settings</td><td><code>runtimeConfiguration.concurrency</code> on triggers/actions/loops</td><td>LAA exposes local concurrency and waiting-run queues directly in WDL.</td></tr>
+<tr><td>Secrets</td><td><code>credentials</code> references; optional redaction policy and external-secret features</td><td>App-scoped <code>connections</code>, secure workflow parameter types, <code>secureData</code> runtime configuration</td><td>LAA can declare secret type and input/output history suppression in the workflow contract.</td></tr>
+<tr><td>Mocking</td><td><code>pinData[nodeName]</code> supplies fixed node data during editor testing</td><td>Template <code>mocks[actionName]</code> supplies status, HTTP-like outputs, or <code>runForReal</code></td><td>LAA mocks model success/failure and hybrid live/mock runs more explicitly.</td></tr>
+<tr><td>AI agent</td><td>Agent node parameters, connected model/memory/tool sub-nodes via typed graph connections</td><td><code>type:"Agent"</code>, model configurations, messages, history reduction, harness, <code>limit</code>, nested <code>tools</code>, parameter schemas</td><td>LAA agent orchestration is a structured action subtree; n8n composes the agent from graph nodes.</td></tr>
+</tbody></table></div>
+</div></section>
+
+<section id="conclusion"><div class="shell">
+<h2>What this means in practice</h2>
+<div class="grid3">
+<article class="card"><h3>n8n JSON is more editor-portable</h3><p>It preserves visual layout, notes, grouping, node packages, selected parameter values, and test pinning. A workflow can look substantially the same after import—assuming node types and credentials exist.</p></article>
+<article class="card"><h3>LAA JSON is more deployment/runtime explicit</h3><p>It has first-class workflow parameters and outputs, status-aware dependencies, nested orchestration, secure-data settings, local concurrency, rich retry policies, mock outcomes, trigger fixtures, and declared connection requirements.</p></article>
+<article class="card"><h3>Neither is a complete application backup</h3><p>n8n exports reference credentials rather than embedding secrets. LAA templates declare connector types but require users to create/authenticate app-scoped connections; project/app RBAC, sandboxes, environment variables, and ownership are outside the template envelope.</p></article>
+</div>
+<div class="callout"><strong>Bottom line:</strong> n8n optimizes the JSON for a visual automation editor and an extensible node ecosystem. LAA optimizes for a declarative, governable execution contract and a gallery template that can be safely demonstrated with fixtures. The largest LAA-only strengths are typed runtime/deployment configuration and test bundles; the largest n8n-only strengths are canvas fidelity, node-level UX metadata, open node extensibility, persistent workflow state, and editor-oriented execution controls.</div>
+</div></section>
+
+<section id="sources"><div class="shell"><h2>Primary sources</h2><ol class="source-list">
+<li><a href="https://github.com/n8n-io/n8n/blob/master/packages/workflow/src/interfaces.ts">n8n workflow interfaces: INode, IWorkflowSettings, IWorkflowBase, IConnections</a></li>
+<li><a href="https://github.com/n8n-io/n8n/blob/master/packages/%40n8n/api-types/src/dto/workflows/base-workflow.dto.ts">n8n workflow create/update DTO and accepted fields</a></li>
+<li><a href="https://github.com/n8n-io/n8n/blob/master/packages/%40n8n/db/src/entities/workflow-entity.ts">n8n persisted workflow entity</a></li>
+<li><a href="https://docs.n8n.io/build/manage-workflows/export-and-import">n8n export and import documentation</a></li>
+<li><a href="https://github.com/Azure/ProjectAutoTemplates">Azure Project Auto Templates repository</a></li>
+<li><a href="https://github.com/Azure/ProjectAutoTemplates/blob/main/schemas/template.schema.json">AutoTemplate v1 envelope schema</a></li>
+<li><a href="https://github.com/Azure/ProjectAutoTemplates/blob/main/templates/tool-invoice-flow/manifest.json">LAA agent template example</a></li>
+<li><a href="https://github.com/Azure/ProjectAutoTemplates/blob/main/templates/support-email-triage/manifest.json">LAA managed-connector template example</a></li>
+<li><a href="https://learn.microsoft.com/en-us/azure/logic-apps/workflow-definition-language-schema">Workflow Definition Language schema reference</a></li>
+<li><a href="https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-workflow-actions-triggers">Logic Apps trigger/action schema reference</a></li>
+<li><a href="https://auto.azure.com/docs/features/workflows/">LAA workflows and code view</a></li>
+<li><a href="https://auto.azure.com/docs/features/projects-and-applications/">LAA project/application hierarchy</a></li>
+</ol><p class="small">Caveat: LAA is in preview. Its public template repository notes that the pinned 2016 WDL schema predates newer types including Agent, ServiceProvider, and ApiConnectionNotification; the real portal/runtime accepts extensions not yet fully represented by the older schema.</p></div></section>
+</main>
+<script>
+const M=[
+["Workflow","id","string","Stable workflow identifier used by the n8n instance and API.","metadata.id (template only)","Partial","LAA template ID identifies the gallery artifact, not the deployed workflow resource; the executable definition has no embedded workflow ID."],
+["Workflow","name","string, 1–128 chars","Human-readable workflow name.","metadata.name; application/workflow resource name outside definition","Partial","Template display name is portable, but deployed workflow naming is handled by the LAA application/import operation rather than WDL."],
+["Workflow","description","string or null","Human explanation of the workflow.","metadata.description; action.description","Partial","LAA template has a required gallery description; WDL has descriptions on operations but no standard workflow-level description field."],
+["Workflow","active","boolean","Legacy/current activation state: whether production triggers run.","Draft/published state outside template","Partial","LAA publish state is resource lifecycle metadata and is intentionally not imported as part of AutoTemplate."],
+["Workflow","isArchived","boolean","Soft-deletes/archives the workflow while preserving it.","None","None","LAA template JSON does not encode archive state."],
+["Workflow","createdAt","date-time","Instance-managed creation timestamp.","App/workflow metadata outside template","Partial","Both services track dates, but LAA does not allow templates to set them."],
+["Workflow","updatedAt","date-time","Instance-managed last-modified timestamp.","App/workflow metadata outside template","Partial","Tracked by both platforms but not portable/configurable in LAA template JSON."],
+["Workflow","nodes","INode[]","Complete ordered list of visual steps and their editor/runtime configuration.","workflow.definition.triggers + actions","Exact","Equivalent capability, different representation: n8n array entries versus LAA named object properties and nested structures."],
+["Workflow","connections","IConnections object","Directed graph mapping source outputs to destination inputs.","actions.*.runAfter + nested actions/else/tools","Partial","n8n centralizes graph edges and port indexes; LAA distributes dependencies and encodes structured control flow by nesting."],
+["Workflow","settings","IWorkflowSettings or null","Workflow-wide execution, persistence, timeout, caller, MCP, telemetry, and redaction defaults.","Workflow kind + trigger/action runtimeConfiguration + app settings","Partial","LAA spreads policy across workflow, operation, application, and platform layers; no single equivalent object."],
+["Workflow","staticData","object","Backend-owned persistent workflow/node state such as poll cursors and webhook registrations.","Connector/runtime state outside workflow definition","Partial","Both runtimes persist internal state, but LAA does not expose it as importable template JSON."],
+["Workflow","pinData","object keyed by node name","Pinned sample node output for editor testing without rerunning upstream work.","trigger + mocks","Partial","LAA fixtures model sample trigger output and per-action success/failure HTTP-like outputs; n8n pins native item/binary output by node."],
+["Workflow","versionId","string/UUID","Identifier for a saved workflow version.","contentVersion; draft/published version metadata","Partial","contentVersion is author-chosen definition metadata, not a platform revision ID."],
+["Workflow","activeVersionId","string/UUID or null","Points to the production-active version.","Published version outside template","Partial","LAA tracks published state, but the template cannot choose an existing resource version."],
+["Workflow","versionCounter","integer","Monotonic instance-managed version count.","None","None","No portable LAA template field."],
+["Workflow","meta","object or null","Frontend/builder metadata and migration/UI context.","metadata (template); operation metadata","Partial","LAA metadata has a constrained template-card schema or operation-specific hints, not arbitrary workflow frontend metadata."],
+["Workflow","nodeGroups","array","Visual groups with ID, name, node membership, and description.","Scope action (runtime)","Partial","LAA Scope changes execution hierarchy; n8n groups can be purely visual and do not change runtime semantics."],
+["Workflow","tags","string IDs or tag objects","Instance-level categorization and search labels.","metadata.tags","Exact","Both support tags, though n8n tags attach to the installed workflow while LAA tags describe the portable template card."],
+["Workflow","parentFolderId","string","Places the workflow in an n8n project folder.","Project/application hierarchy outside template","Partial","LAA import target selects project/app; the template cannot set project/app membership."],
+["Workflow","hash","string","Checksum/content identity used by save/update flows.","None","None","No documented AutoTemplate field; repository validation occurs externally."],
+["Workflow","uiContext","string","Records UI origin/context for builder flows.","None","None","No equivalent portable LAA setting."],
+["Workflow","aiBuilderAssisted","boolean","Marks that AI builder assisted workflow creation.","None","None","LAA assistant history exists in product UX but is not declared in AutoTemplate v1."],
+["Workflow","expectedChecksum","string","Optimistic concurrency/version-control guard on update.","None","None","LAA resource APIs may use ETags, but AutoTemplate has no user-set checksum field."],
+["Workflow","autosaved","boolean","Signals autosave behavior/context during API update.","Draft autosave outside template","Partial","LAA drafts auto-save, but this is not configurable in template JSON."],
+
+["Node","nodes[].id","string","Stable node identity independent of display name.","Action/trigger property key","Partial","LAA uses the JSON property name as identity; no separate opaque ID is required in WDL."],
+["Node","nodes[].name","string","Display name and connection-reference key.","Trigger/action property key","Exact","Both names are used by expressions and dependency references; renaming can affect references."],
+["Node","nodes[].type","string","Selects the installed node implementation/package.","type + kind; connector apiId/operationId","Exact","Both select executable behavior, but n8n names packages while LAA combines WDL type and typed connector operation."],
+["Node","nodes[].typeVersion","number","Pins the node schema/behavior version.","contentVersion or connector operation version","Partial","LAA has no universal per-action schema version. Connector/API versions may appear inside operation inputs."],
+["Node","nodes[].position","[x,y]","Preserves canvas placement.","None","None","LAA executable/template JSON does not expose visual coordinates; designer layout is derived or stored elsewhere."],
+["Node","nodes[].disabled","boolean","Prevents a node from executing while keeping it on canvas.","None / remove action","None","No standard WDL action-level disabled flag in the public template format."],
+["Node","nodes[].notes","string","Free-form node documentation.","action.description or metadata","Partial","LAA description is executable-definition documentation; no equivalent rich editor sticky-note field."],
+["Node","nodes[].notesInFlow","boolean","Controls whether notes display directly on canvas.","None","None","Canvas presentation setting has no LAA JSON equivalent."],
+["Node","nodes[].retryOnFail","boolean","Enables automatic node retry.","inputs.retryPolicy.type","Exact","LAA uses explicit policy type such as None, Fixed, or Exponential."],
+["Node","nodes[].maxTries","integer","Maximum node attempts.","inputs.retryPolicy.count","Exact","Same intent; platform limits/default counting can differ."],
+["Node","nodes[].waitBetweenTries","milliseconds","Fixed delay between attempts.","inputs.retryPolicy.interval","Exact","LAA uses ISO 8601 duration and can additionally set min/max for exponential backoff."],
+["Node","nodes[].alwaysOutputData","boolean","Emits an empty item when the node would return no data so downstream nodes still run.","None","None","LAA dependency execution is status-based; an empty successful output does not need an artificial item, but identical item-stream behavior is unavailable."],
+["Node","nodes[].executeOnce","boolean","Runs once using only the first incoming item rather than once per item.","Foreach structure or action placement outside loop","Partial","LAA expresses iteration structurally; there is no generic per-action execute-once toggle."],
+["Node","nodes[].onError","continueErrorOutput | continueRegularOutput | stopWorkflow","Routes or stops after a node error.","runAfter status arrays + Scope/Terminate","Partial","LAA has richer status-aware downstream scheduling but no identical three-value node property."],
+["Node","nodes[].continueOnFail","boolean (legacy)","Legacy behavior to continue workflow after node failure.","runAfter including Failed/TimedOut","Partial","LAA explicitly selects statuses for each downstream dependency."],
+["Node","nodes[].customTelemetryTags","object","Adds node-level custom telemetry span attributes.","trackedProperties","Partial","LAA trackedProperties records selected runtime values; platform telemetry dimensions are configured differently."],
+["Node","nodes[].parameters","object, node-defined","All operation-specific selected values, including expressions.","inputs; expression; foreach; recurrence; parameters","Exact","Both are polymorphic. n8n schema comes from the installed node; LAA schema comes from WDL action type or connector operation."],
+["Node","nodes[].credentials","map of credential type to {id,name}","References reusable credentials needed by the node.","inputs.host.connection.referenceName + template connections","Exact","Both reference—not embed—credentials. LAA templates declare connector class/API and require authentication at import."],
+["Node","nodes[].webhookId","string","Stable webhook identity used by webhook-capable nodes.","Request trigger callback/resource identity outside definition","Partial","LAA creates endpoint/callback identity from the deployed trigger rather than a portable webhook ID."],
+["Node","nodes[].extendsCredential","string","Declares credential inheritance/extension behavior for specialized nodes.","None","None","No public AutoTemplate equivalent."],
+["Node","nodes[].rewireOutputLogTo","connection type","Redirects output logging for special connection types.","None","None","n8n internal/editor execution feature without documented LAA counterpart."],
+["Node","nodes[].forceCustomOperation","{resource,operation}","Forces a custom operation, mainly for evaluation/test-runner behavior.","None","None","No general LAA template override; operation is declared directly."],
+
+["Connection","connections.<source>","object keyed by source node name","Identifies the node whose outputs are wired.","actions.<destination>.runAfter or nesting","Partial","LAA dependency is declared by the destination action, reversing where the edge is stored."],
+["Connection","connections.<source>.<type>","connection-type key such as main or AI-specific type","Selects the source output channel/data contract.","Structured action/tool/model/memory relationships","Partial","n8n supports extensible typed ports; LAA uses action hierarchy and action-specific properties."],
+["Connection","connections.<source>.<type>[outputIndex]","array slot","Selects a particular source output/branch index.","If/Switch nested branch or case","Partial","LAA names structural branches rather than indexing generic output ports."],
+["Connection","connection.node","string","Destination node name.","Destination action containing runAfter","Exact","Same graph relationship represented from opposite ends."],
+["Connection","connection.type","connection type","Selects the destination input channel.","Action-specific nesting/property","Partial","LAA does not expose a universal typed input-port field."],
+["Connection","connection.index","integer","Selects destination input index for multi-input nodes.","None / action-specific parameters","None","LAA WDL has no general multi-input-port index."],
+
+["Settings","settings.timezone","DEFAULT or timezone string","Workflow timezone for schedules and date operations.","Recurrence timeZone; app/platform timezone","Partial","LAA generally configures timezone on recurrence triggers rather than as one universal workflow default."],
+["Settings","settings.errorWorkflow","DEFAULT or workflow ID","Invokes another workflow when execution fails.","runAfter failure branch + Workflow action","Partial","LAA composes explicit failure paths; it lacks one global error-workflow pointer in the template schema."],
+["Settings","settings.callerIds","string","Allowlist of workflows permitted to call this workflow.","App/workflow permissions outside definition","Partial","LAA uses Azure/app permissions and callable workflow contracts, not an embedded caller-ID list."],
+["Settings","settings.callerPolicy","any | none | workflowsFromAList","Controls sub-workflow invocation policy.","App/project RBAC and endpoint access","Partial","LAA authorization is resource/identity based rather than workflow-list policy."],
+["Settings","settings.saveDataErrorExecution","all | none | DEFAULT","Controls persistence of failed execution data.","Stateful kind + secureData","Partial","LAA stateful mode retains run history; secureData suppresses sensitive inputs/outputs, but success/error retention is not the same setting."],
+["Settings","settings.saveDataSuccessExecution","all | none | DEFAULT","Controls persistence of successful execution data.","Stateful/Stateless kind","Partial","LAA chooses workflow persistence mode rather than separate success retention."],
+["Settings","settings.saveManualExecutions","boolean or DEFAULT","Controls retention of manually triggered test runs.","Draft monitoring behavior outside definition","Partial","LAA captures draft runs but template JSON does not configure retention."],
+["Settings","settings.saveExecutionProgress","boolean or DEFAULT","Persists step progress so executions can resume/recover.","kind: Stateful","Partial","Stateful is broader and provides durable history/replay/long-running execution."],
+["Settings","settings.executionTimeout","seconds","Maximum total workflow execution time.","Agent/action limit.timeout; platform limits","Partial","LAA public JSON exposes limits on some actions (notably Agent/Until) rather than one universal template-level timeout."],
+["Settings","settings.executionOrder","v0 | v1","Selects n8n execution ordering semantics.","runAfter + structural order","Partial","LAA ordering is explicit in the graph and does not expose compatibility modes."],
+["Settings","settings.binaryMode","separate | combined","Controls binary-data handling/transport mode.","runtimeConfiguration.contentTransfer.transferMode","Partial","LAA supports chunked transfer on applicable operations, not n8n’s instance binary-storage representation."],
+["Settings","settings.timeSavedPerExecution","number","User-entered business impact estimate for reporting.","None","None","No LAA workflow template ROI metadata field."],
+["Settings","settings.timeSavedMode","fixed | dynamic","How saved-time impact is calculated.","None","None","No equivalent LAA template field."],
+["Settings","settings.availableInMCP","boolean","Exposes the n8n workflow as an MCP tool.","MCP server/tool configuration outside or within LAA tooling","Partial","LAA supports MCP, but AutoTemplate v1 has no generic workflow-level expose-as-MCP boolean."],
+["Settings","settings.credentialResolverId","string","Selects a dynamic credential resolver.","Connection/auth policy outside template","Partial","LAA connections can use managed identity/OAuth/key, but resolver selection is not part of the portable template envelope."],
+["Settings","settings.redactionPolicy","policy object/value","Controls execution-data redaction.","runtimeConfiguration.secureData","Partial","LAA can hide operation inputs/outputs in history; n8n redaction is a workflow policy with different rules."],
+["Settings","settings.customTelemetryTags","array of {key,value}","Adds workflow-level custom trace/span attributes.","trackedProperties / Azure Monitor dimensions","Partial","LAA tracked properties are operation outputs for monitoring, not an identical workflow tag list."],
+
+["Group","nodeGroups[].id","string","Stable identity for a visual group.","Scope action name","Partial","Scope is executable; an n8n group may be visual only."],
+["Group","nodeGroups[].name","string","Group label.","Scope property key","Partial","Same labeling intent but different runtime effect."],
+["Group","nodeGroups[].nodeIds","string[]","Declares which nodes appear inside the visual group.","Scope.actions nested object","Partial","LAA membership is structural nesting, not an ID list."],
+["Group","nodeGroups[].description","string","Documents the group.","Scope.description","Exact","Both can document the grouped block, though LAA Scope affects orchestration."],
+];
+
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function statusClass(s){return s==="Exact"?"yes":s==="Partial"?"partial":"no"}
+const areas=[...new Set(M.map(r=>r[0]))];document.getElementById("area").insertAdjacentHTML("beforeend",areas.map(a=>`<option>${esc(a)}</option>`).join(""));
+function drawMapping(){
+ const q=document.getElementById("search").value.toLowerCase(),st=document.getElementById("status").value,ar=document.getElementById("area").value;
+ const rows=M.filter(r=>(!q||r.join(" ").toLowerCase().includes(q))&&(!st||r[5]===st)&&(!ar||r[0]===ar));
+ document.getElementById("mappingRows").innerHTML=rows.map(r=>`<tr><td><span class="pill">${esc(r[1])}</span><br><span class="small">${esc(r[0])}</span></td><td>${esc(r[2])}</td><td>${esc(r[3])}</td><td><code>${esc(r[4])}</code></td><td class="${statusClass(r[5])}">${esc(r[5])}</td><td>${esc(r[6])}</td></tr>`).join("");
+ document.getElementById("mappingCount").textContent=`Showing ${rows.length} of ${M.length} n8n fields.`;
+}
+["search","status","area"].forEach(id=>document.getElementById(id).addEventListener(id==="search"?"input":"change",drawMapping));
+</script>
+<script>
+const L=[
+["$schema","URI","Validates the AutoTemplate envelope against JSON Schema.","No root workflow-schema declaration","The n8n export format is typed by application code rather than carrying a schema URI."],
+["kind","constant AutoTemplate","Identifies the bundle kind to the LAA gallery/importer.","No equivalent","n8n import infers a workflow payload from shape/API context."],
+["apiVersion","constant v1","Versions the template envelope contract.","Node typeVersion only","n8n has per-node behavior versions but no root export-envelope version."],
+["metadata.id","non-empty string","Stable URL-safe gallery template identity.","workflow id","n8n ID identifies an installed workflow, not a reusable gallery artifact."],
+["metadata.name","non-empty string","Template card display name.","name","Close equivalent."],
+["metadata.description","non-empty string","Required one-to-two sentence gallery description.","description","n8n description is optional and belongs to the workflow itself."],
+["metadata.category","non-empty string[]","One or more gallery categories.","tags","n8n has tags but no distinct required category taxonomy."],
+["metadata.tags","string[]","Search/filter labels for the gallery.","tags","Close equivalent."],
+["metadata.featuredConnectors","non-empty connector ID[]","Surfaces connector badges/dependencies on the template card.","Derived from node.type / credentials","n8n does not separately declare a curated connector list."],
+["metadata.author","non-empty string","Template author/organization.","No workflow author field","Ownership/sharing is stored separately in n8n."],
+["metadata.source","string such as builtin/community","Declares template provenance.","No equivalent","n8n marketplace provenance is not encoded in a normal workflow export."],
+["workflow.definition.$schema","fixed WDL schema URI","Declares executable workflow language/schema.","No equivalent","n8n relies on installed TypeScript node/interface contracts."],
+["workflow.definition.contentVersion","version string","Author-controlled workflow-definition version for deployment confirmation.","versionId / versionCounter","n8n versions are platform-managed revisions, not semantic content version."],
+["workflow.definition.parameters","typed parameter definitions","Declares reusable runtime/deployment values with type, default, allowed values, secure types, and descriptions.","No root typed parameter contract","n8n expressions can use variables/environment data, but the workflow JSON lacks an equivalent typed input parameter declaration."],
+["parameters.*.type","int/float/string/bool/array/object/securestring/secureobject","Enforces the runtime parameter type and secret handling.","Node parameter schema outside export","n8n node schemas type individual fields, but exported workflow-level values have no portable type contract."],
+["parameters.*.defaultValue","same as declared type","Supplies the default runtime value.","Selected node parameter values","n8n values are embedded directly rather than separated into declaration and supplied value."],
+["parameters.*.allowedValues","array","Restricts accepted parameter values.","Node option schema outside export","n8n can constrain node fields in node code, not in exported workflow JSON."],
+["parameters.*.metadata.description","string","Documents a runtime parameter.","Node property descriptions outside export","The n8n export does not carry field-level schema documentation."],
+["workflow.definition.outputs","typed output definitions","Declares named workflow return values and types.","Node outputs inferred; webhook response node","n8n lacks a root typed output contract in normal workflow JSON."],
+["outputs.*.type","scalar/array/object/secure type","Declares output data type.","No equivalent","n8n node output shape is generally dynamic."],
+["outputs.*.value","literal or expression","Computes the workflow output.","Last-node data / Respond to Webhook","n8n behavior is graph-driven rather than a root output declaration."],
+["workflow.definition.staticResults","named mock definitions","Provides action mock output/status referenced by runtimeConfiguration.","pinData","WDL static results are runtime-definition mocks; AutoTemplate also has an outer mocks layer."],
+["trigger.name","trigger key","Selects which workflow trigger the fixture exercises.","pinData key / trigger node name","n8n pinning is per node; it does not have a dedicated root trigger fixture."],
+["trigger.outputs.method","string","Prefills the draft-test HTTP method.","Manual test input outside export","LAA template packages the sample invocation."],
+["trigger.outputs.headers","object","Prefills sample trigger headers.","No direct equivalent","n8n can pin trigger output, but has no standardized request fixture envelope."],
+["trigger.outputs.queries","object","Prefills sample query parameters.","No direct equivalent","Same distinction as headers."],
+["trigger.outputs.body","any JSON","Prefills sample trigger body.","pinData on trigger node","Closest equivalent, but LAA separates trigger request fixture from action mocks."],
+["mocks.<action>.runForReal","true","Opts a specific action out of mocking during template test.","No direct equivalent","n8n pinned data causes a node to use fixed data; hybrid live/mock selection is implicit and editor-dependent."],
+["mocks.<action>.status","Succeeded or Failed","Forces mock action status.","No equivalent in pinData","n8n pinData represents output items, not an explicit execution status."],
+["mocks.<action>.outputs.statusCode","non-empty string","Provides HTTP-like mock status code.","Pinned JSON field by convention","LAA standardizes this field in the template schema."],
+["mocks.<action>.outputs.body","any JSON","Provides mock action body.","pinData[node]","Close equivalent for JSON content."],
+["mocks.<action>.outputs.headers","object","Provides mock response headers.","Pinned JSON/binary metadata by convention","LAA gives headers a standard location."],
+["connections.<name>.connectorType","shared | inapp | agent","Declares whether import must create/reuse a managed, built-in, or agent connection.","credentials type / node type","n8n references a credential but does not classify all workflow integration dependencies in one manifest."],
+["connections.<name>.apiId","connector API path","Identifies the connector/service provider required by import.","node.type and credential type","LAA templates explicitly declare import-time connection requirements."],
+["trigger/action key","unique property name","Serves as operation identity for expressions and runAfter.","nodes[].id + name","LAA unifies human/reference identity in one key."],
+["triggers.*.conditions","expression array","Prevents workflow creation unless trigger conditions pass.","IF node after trigger","LAA can filter before instantiating the run."],
+["triggers.*.splitOn","expression","Debatches an array into separate workflow runs.","Split Out / loop nodes","LAA controls run-instance creation at the trigger."],
+["triggers.*.recurrence","frequency/interval/schedule/timeZone","Defines trigger polling/schedule timing.","Schedule Trigger parameters + workflow timezone","Similar behavior, but LAA recurrence is standardized WDL."],
+["runtimeConfiguration.concurrency.runs","integer","Limits simultaneous workflow/action/loop runs.","Instance concurrency / node-specific options","LAA exposes local concurrency in workflow JSON."],
+["runtimeConfiguration.concurrency.maximumWaitingRuns","integer","Caps queued runs while concurrency is saturated.","No workflow JSON equivalent","n8n queue behavior is deployment/instance configuration."],
+["runtimeConfiguration.paginationPolicy.minimumItemCount","integer","Requests connector pagination until at least the target item count.","Node-specific returnAll/limit/pagination","LAA standardizes a common runtime pagination policy."],
+["runtimeConfiguration.contentTransfer.transferMode","Chunked","Enables chunked content transfer.","binaryMode (partial)","LAA sets operation transport; n8n binaryMode controls binary representation/storage strategy."],
+["runtimeConfiguration.secureData.properties","inputs/outputs list","Suppresses selected action/trigger data from run history.","redactionPolicy","LAA places protection directly on an operation and can explicitly secure inputs/outputs."],
+["trackedProperties","object/expressions","Promotes selected action values for telemetry and diagnostics.","customTelemetryTags","LAA tracks dynamic runtime values, not only static tag strings."],
+["runAfter.<action>","status[]","Runs the destination only after specific statuses such as Succeeded, Failed, Skipped, or TimedOut.","connections + onError","More granular status-aware orchestration than n8n’s common edge model."],
+["action.description","string","Documents an executable action/tool.","node.notes","Similar, but n8n separately controls note visibility."],
+["action.metadata","any connector/designer metadata","Stores operation hints such as Swagger path templates.","node meta/parameters (partial)","LAA permits operation metadata close to the action."],
+["action.operationOptions","string","Changes specialized runtime semantics for supported operations.","Node-specific options","No universal n8n field."],
+["If.actions / If.else.actions","nested action maps","Defines executable true/false subgraphs structurally.","IF node output indexes + connections","LAA preserves branch hierarchy in JSON."],
+["Scope.actions","nested action map","Groups actions for runtime status and error handling.","nodeGroups","n8n node groups are primarily visual; LAA Scope is executable."],
+["Foreach.foreach + actions","expression + nested actions","Declares item iteration and loop body.","Loop Over Items node and connections","LAA loop semantics are directly visible in the definition."],
+["Until.expression + limit","expression, count, timeout","Repeats nested actions until condition or bounds.","Loop nodes plus workflow timeout","LAA exposes explicit loop safeguards in the action."],
+["Agent.modelConfigurations","map of connection references","Declares one or more model connections.","Connected Chat Model nodes","LAA keeps models inside the Agent action configuration."],
+["Agent.parameters.messages","role/content array","Defines agent system/user conversation inputs.","Agent node prompt parameters","Close behavior; different composition model."],
+["Agent.parameters.agentModelType","model-provider type","Selects the agent model family.","Model node type","n8n uses a separately connected model node."],
+["Agent.agentModelSettings.agentHistoryReductionSettings","reduction type/token limit","Controls context-history compaction.","Memory node/model options (partial)","LAA exposes this as native agent runtime policy."],
+["Agent.agentModelSettings.agentHarness","harness type and input files","Attaches an isolated execution environment and file inputs.","No direct workflow-template equivalent","n8n code/task runners are not declared as a reusable project sandbox with repo/skill configuration in workflow JSON."],
+["Agent.limit.count / timeout","integer / ISO duration","Bounds agent iterations and wall-clock time.","Agent node max iterations + workflow timeout","LAA groups safety bounds on the agent action."],
+["Agent.tools.<name>.description","string","Explains a callable tool to the model.","Tool node description/metadata","Similar capability, LAA encodes tool subtree inside the agent."],
+["Agent.tools.<name>.agentParameterSchema","JSON Schema","Types and documents model-generated tool arguments.","Node input schema outside export","LAA carries the tool-call contract in the portable workflow JSON."],
+["Agent.tools.<name>.actions","nested action map","Defines the workflow implementation of an agent tool.","AI tool connections to nodes/sub-workflows","LAA tool implementation is structurally nested; n8n uses typed graph connections."],
+];
+document.getElementById("laaRows").innerHTML=L.map(r=>`<tr><td><code>${esc(r[0])}</code></td><td>${esc(r[1])}</td><td>${esc(r[2])}</td><td>${esc(r[3])}</td><td>${esc(r[4])}</td></tr>`).join("");
+drawMapping();
+</script>
+</body>
+</html>

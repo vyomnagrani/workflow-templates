@@ -1,0 +1,65 @@
+{
+  "id": "workflow-1",
+  "name": "Fetch customer",
+  "description": "Fetches a customer from an HTTP API.",
+  "active": false,
+  "nodes": [
+    {
+      "id": "trigger-1",
+      "name": "When clicking Execute Workflow",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {}
+    },
+    {
+      "id": "http-1",
+      "name": "Get Customer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "https://example.test/customers/42",
+        "headerParameters": {
+          "parameters": [
+            { "name": "Accept", "value": "application/json" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "set-1",
+      "name": "Select Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [480, 0],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "name": "customerId", "value": "={{ $json.id }}" },
+            { "name": "customerName", "value": "={{ $json.name }}" }
+          ]
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When clicking Execute Workflow": {
+      "main": [[{ "node": "Get Customer", "type": "main", "index": 0 }]]
+    },
+    "Get Customer": {
+      "main": [[{ "node": "Select Fields", "type": "main", "index": 0 }]]
+    }
+  },
+  "pinData": {
+    "When clicking Execute Workflow": [
+      { "json": { "customerId": 42 } }
+    ],
+    "Get Customer": [
+      { "json": { "id": 42, "name": "Ada" } }
+    ]
+  },
+  "settings": {}
+}
+

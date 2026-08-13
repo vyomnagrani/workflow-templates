@@ -1,0 +1,192 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "send-a-daily-product-newsletter-with-google-sheets-and-gmail",
+    "name": "Send a daily product newsletter with Google Sheets and Gmail",
+    "description": "## Quick Overview\nThis workflow runs daily at 08:00, pulls products scheduled for today from Google Sheets, generates an HTML newsletter email, and sends it to each subscriber via Gmail.\n\n## How it works\n1. Runs every day at 08:00 on a schedule.\n2. Reads all rows from the `newsletter_products` sheet in Google Sheets.\n3. Keeps only products whose `send_date` matches today’s date and stops if none are found.\n4. Builds an HTML email and subject line containing a card for each product (image, description, and optional referral link).\n5. Reads the subscriber list from the `newsletter_recipients` sheet in Google Sheets.\n6. Sends the generated newsletter to each recipient individually using Gmail.\n\n## Setup\n1. Create or copy a Google Sheets document with `newsletter_products` (including a `send_date` column) and `newsletter_recipients` (including an `email` column).\n2. Add a Google Sheets OAuth2 credential in n8n and paste your Google Sheet ID into the Config step.\n3. Add a Gmail OAuth2 credential and confirm the sender mailbox to use for sending the newsletter.\n4. Add products and recipients to the sheet, run a test execution, and adjust the schedule/timezone if needed before activating.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Social Media",
+      "n8n-converted"
+    ],
+    "author": "Converted from n8n",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/gmail",
+      "/managedApis/googlesheet",
+      "connectionProviders/inlineCode",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Daily_at_08_00": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Config": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.trigger.outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// ========================================\n// CONFIGURATION — edit only this node\n// ========================================\n// sheetId: Your Google Sheet ID (from the URL between /d/ and /edit)\nconst sheetId = 'YOUR-GOOGLE-SHEET-ID';\n\nreturn [{ json: { sheetId } }];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {}
+        },
+        "Read_Products": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent(first(body('Config'))?['sheetId']))}/tables/@{encodeURIComponent(encodeURIComponent('newsletter_products'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Config": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Filter_by_Today": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Read_Products'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst today = new Date().toISOString().split('T')[0];\nconst result = [];\nconst allItems = $input.all();\nfor (let i = 0; i < allItems.length; i++) {\n  const item = allItems[i];\n  const raw = item.json.send_date;\n  if (raw) {\n    try {\n      const normalized = new Date(raw).toISOString().split('T')[0];\n      if (normalized === today) {\n        result.push({ json: item.json });\n      }\n    } catch (e) {}\n  }\n}\nreturn result;\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Read_Products": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Products_Found": {
+          "type": "If",
+          "expression": {
+            "greater": [
+              "={{ $input.all().length }}",
+              0
+            ]
+          },
+          "actions": {
+            "Build_HTML_Email": {
+              "type": "JavaScriptCode",
+              "inputs": {
+                "code": "const __inputRaw = workflowContext.trigger.outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst items = $input.all();\nconst today = new Date();\nconst days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];\nconst months = ['January','February','March','April','May','June','July','August','September','October','November','December'];\nconst weekday = days[today.getDay()];\nconst dateStr = today.getDate() + ' ' + months[today.getMonth()] + ' ' + today.getFullYear();\nconst products = items.map(i => i.json);\nconst count = products.length;\nconst cards = [];\nfor (let i = 0; i < products.length; i++) {\n  const p = products[i];\n  const hasRef = p.referral_link && p.referral_link.trim() !== '';\n  let card = '<div style=\"margin-bottom:24px;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;\">';\n  if (p.image_url) { card += '<div style=\"padding:12px 12px 0;\"><img src=\"' + p.image_url + '\" style=\"width:100%;max-height:220px;object-fit:contain;display:block;\" alt=\"' + p.product_name + '\" /></div>'; }\n  card += '<div style=\"padding:10px 14px 12px;\">';\n  card += '<h2 style=\"margin:0 0 4px;font-size:15px;color:#111;\">' + p.product_name + '</h2>';\n  card += '<p style=\"margin:0 0 10px;color:#666;line-height:1.4;font-size:13px;\">' + p.description + '</p>';\n  if (hasRef) {\n    card += '<a href=\"' + p.referral_link + '\" style=\"display:inline-block;background:#000;color:#fff;padding:7px 16px;border-radius:6px;text-decoration:none;font-size:13px;\">Learn more →</a>';\n  }\n  card += '</div></div>';\n  cards.push(card);\n}\nconst productCards = cards.join('');\nconst h1text = count + ' new product' + (count > 1 ? 's' : '') + ' for you today';\nconst html = '<!DOCTYPE html><html><head><meta charset=\"utf-8\"></head><body style=\"margin:0;padding:0;background:#f9fafb;\"><div style=\"max-width:600px;margin:0 auto;padding:24px;font-family:-apple-system,sans-serif;\"><h1 style=\"margin:0 0 24px;font-size:24px;color:#111;\">' + h1text + '</h1>' + productCards + '<p style=\"margin-top:32px;font-size:12px;color:#999;\">You are receiving this because you subscribed to our product newsletter.</p></div></body></html>';\nconst subject = count + ' new product' + (count > 1 ? 's' : '') + ' for you – ' + weekday + ', ' + dateStr;\nreturn [{ json: { html, subject } }];\n})();\nreturn { body: __unwrap(__result) };"
+              },
+              "runAfter": {}
+            },
+            "Read_Recipients": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "referenceName": "googlesheet_#workflowname#"
+                  }
+                },
+                "method": "post",
+                "path": "/datasets/@{encodeURIComponent(encodeURIComponent(first(body('Config'))?['sheetId']))}/tables/@{encodeURIComponent(encodeURIComponent('newsletter_recipients'))}/items",
+                "body": {}
+              },
+              "metadata": {
+                "flowSystemMetadata": {
+                  "swaggerOperationId": "PostItem"
+                }
+              },
+              "runAfter": {
+                "Build_HTML_Email": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Prepare_per_Recipient": {
+              "type": "JavaScriptCode",
+              "inputs": {
+                "code": "const __inputRaw = workflowContext.actions['Read_Recipients'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst template = __node('Build_HTML_Email').first().json;\nconst recipients = $input.all();\nconst result = [];\nfor (let i = 0; i < recipients.length; i++) {\n  const email = recipients[i].json.email;\n  if (!email) continue;\n  result.push({ json: { to: email, subject: template.subject, html: template.html } });\n}\nreturn result;\n})();\nreturn { body: __unwrap(__result) };"
+              },
+              "runAfter": {
+                "Read_Recipients": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Send_Newsletter": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "referenceName": "gmail_#workflowname#"
+                  }
+                },
+                "method": "post",
+                "path": "/v2/Mail",
+                "body": {
+                  "To": "@body('Prepare_per_Recipient')?['to']",
+                  "Subject": "@body('Prepare_per_Recipient')?['subject']",
+                  "Body": "@body('Prepare_per_Recipient')?['html']"
+                }
+              },
+              "metadata": {
+                "flowSystemMetadata": {
+                  "swaggerOperationId": "SendEmailV2"
+                }
+              },
+              "runAfter": {
+                "Prepare_per_Recipient": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "Filter_by_Today": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Daily_at_08_00",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    },
+    "gmail_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/gmail"
+    }
+  }
+}
