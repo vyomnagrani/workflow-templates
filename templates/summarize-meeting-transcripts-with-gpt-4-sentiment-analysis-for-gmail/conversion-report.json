@@ -1,0 +1,114 @@
+{
+  "sourceWorkflowName": "Summarize meeting transcripts with GPT-4 & sentiment analysis for Gmail",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 10,
+  "totalNodes": 18,
+  "coverage": 0.5556,
+  "diagnostics": [
+    {
+      "code": "TRIGGER_MISSING",
+      "message": "No supported n8n trigger was found.",
+      "severity": "warning",
+      "node_name": null,
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleDriveTrigger.",
+      "severity": "warning",
+      "node_name": "Google Drive Trigger",
+      "node_type": "n8n-nodes-base.googleDriveTrigger",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.extractFromFile.",
+      "severity": "warning",
+      "node_name": "Extract from File",
+      "node_type": "n8n-nodes-base.extractFromFile",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleDrive.",
+      "severity": "warning",
+      "node_name": "Download file",
+      "node_type": "n8n-nodes-base.googleDrive",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.extractFromFile.",
+      "severity": "warning",
+      "node_name": "Extract from File1",
+      "node_type": "n8n-nodes-base.extractFromFile",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleDrive.",
+      "severity": "warning",
+      "node_name": "Download file1",
+      "node_type": "n8n-nodes-base.googleDrive",
+      "json_path": null
+    },
+    {
+      "code": "MERGE_SEMANTICS_UNSUPPORTED",
+      "message": "This Merge node requires mode-specific data and synchronization semantics that cannot be represented by runAfter alone.",
+      "severity": "warning",
+      "node_name": "Merge",
+      "node_type": "n8n-nodes-base.merge",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Merge",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.agent.",
+      "severity": "warning",
+      "node_name": "AI Agent",
+      "node_type": "@n8n/n8n-nodes-langchain.agent",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "AI Agent",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOpenAi.",
+      "severity": "warning",
+      "node_name": "OpenAI Chat Model",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Data Validation",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Data Preparation",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    }
+  ]
+}

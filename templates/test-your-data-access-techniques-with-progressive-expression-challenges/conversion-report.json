@@ -1,0 +1,202 @@
+{
+  "sourceWorkflowName": "🧑‍🎓 Test your data access techniques with progressive expression challenges",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 50,
+  "totalNodes": 62,
+  "coverage": 0.8065,
+  "diagnostics": [
+    {
+      "code": "IF_REGION_UNSUPPORTED",
+      "message": "IF branches overlap or have external inputs, so nesting them would change behavior.",
+      "severity": "warning",
+      "node_name": "Check - Array Access",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "IF_REGION_UNSUPPORTED",
+      "message": "IF branches overlap or have external inputs, so nesting them would change behavior.",
+      "severity": "warning",
+      "node_name": "Check - Nested Object",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "IF_REGION_UNSUPPORTED",
+      "message": "IF branches overlap or have external inputs, so nesting them would change behavior.",
+      "severity": "warning",
+      "node_name": "Check - Array of Objects",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "IF_REGION_UNSUPPORTED",
+      "message": "IF branches overlap or have external inputs, so nesting them would change behavior.",
+      "severity": "warning",
+      "node_name": "Check - JS Function",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "IF_REGION_UNSUPPORTED",
+      "message": "IF branches overlap or have external inputs, so nesting them would change behavior.",
+      "severity": "warning",
+      "node_name": "Check - Final",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =",
+      "severity": "warning",
+      "node_name": "Test - Basic Access",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =",
+      "severity": "warning",
+      "node_name": "Test - Array Access",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.if is not safely supported.",
+      "severity": "warning",
+      "node_name": "Check - Array Access",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.stopAndError.",
+      "severity": "warning",
+      "node_name": "Error - Array Access",
+      "node_type": "n8n-nodes-base.stopAndError",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =",
+      "severity": "warning",
+      "node_name": "Test - Nested Object",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.if is not safely supported.",
+      "severity": "warning",
+      "node_name": "Check - Nested Object",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.stopAndError.",
+      "severity": "warning",
+      "node_name": "Error - Nested Object",
+      "node_type": "n8n-nodes-base.stopAndError",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =",
+      "severity": "warning",
+      "node_name": "Test - Array of Objects",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.if is not safely supported.",
+      "severity": "warning",
+      "node_name": "Check - Array of Objects",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.stopAndError.",
+      "severity": "warning",
+      "node_name": "Error - Array of Objects",
+      "node_type": "n8n-nodes-base.stopAndError",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =",
+      "severity": "warning",
+      "node_name": "Test - JS Function",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.if is not safely supported.",
+      "severity": "warning",
+      "node_name": "Check - JS Function",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.stopAndError.",
+      "severity": "warning",
+      "node_name": "Error - JS Function",
+      "node_type": "n8n-nodes-base.stopAndError",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =",
+      "severity": "warning",
+      "node_name": "Test - Final",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.if is not safely supported.",
+      "severity": "warning",
+      "node_name": "Check - Final",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.stopAndError.",
+      "severity": "warning",
+      "node_name": "Error - Final",
+      "node_type": "n8n-nodes-base.stopAndError",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.html.",
+      "severity": "warning",
+      "node_name": "🎉 SUCCESS 🎉",
+      "node_type": "n8n-nodes-base.html",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.stopAndError.",
+      "severity": "warning",
+      "node_name": "Error - Basic Access",
+      "node_type": "n8n-nodes-base.stopAndError",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ !$('Test - Basic Access').isExecuted || $('Test - Basic Access').params.assignments.assignments[0].value.includes('.city') }}",
+      "severity": "warning",
+      "node_name": "Check - Basic Access",
+      "node_type": null,
+      "json_path": null
+    }
+  ]
+}

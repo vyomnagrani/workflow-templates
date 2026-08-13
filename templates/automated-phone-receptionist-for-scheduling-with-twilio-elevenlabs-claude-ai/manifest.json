@@ -1,0 +1,236 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "automated-phone-receptionist-for-scheduling-with-twilio-elevenlabs-claude-ai",
+    "name": "Automated phone receptionist for scheduling with Twilio, ElevenLabs & Claude AI",
+    "description": "**Schedule appointments from phone calls with AI using Twilio and ElevenLabs**\n\nThis n8n template creates an intelligent phone receptionist that handles incoming calls, answers FAQs, and schedules appointments to Google Calendar. The system uses Twilio for phone handling, ElevenLabs for voice AI and basic conversations, and n8n for complex scheduling logic—keeping responses snappy by only invoking the workflow when calendar operations are needed.\n\n**Who's it for**\n\nBusinesses that need automated phone scheduling: service companies, clinics, consultants, or any business that takes appointments by phone. Perfect for reducing administrative overhead while maintaining a professional caller experience.\n\n**Good to know**\n\nRedis memory is essential—without it, the AI must reparse entire conversations causing severe lag in voice responses\n\nClaude 3.5 Sonnet is recommended for best scheduling results\n\nTypical response times: ElevenLabs-only responses &lt;1s, n8n tool calls 2-4s\n\nAll placeholder values must be customized or scheduling will fail\n\n**How it works**\n\nTwilio receives incoming calls and forwards to ElevenLabs voice AI\n\nElevenLabs handles casual conversation and FAQ responses instantly\n\nWhen calendar operations are needed, ElevenLabs calls your n8n webhook\n\nn8n checks Google Calendar availability using your business rules\n\nClaude AI agent processes the request, collects required information, and schedules appointments\nRedis maintains conversation context across the call\n\nCalendar invites are automatically sent to customers\n\n**How to set up**\n\nConnect Twilio to ElevenLabs: In Twilio Console, set your phone number webhook to your ElevenLabs agent URL\n\nConfigure ElevenLabs tools: Add \"Client Tools\" in ElevenLabs that point to your n8n webhook for checking availability, creating appointments, and updating appointments\n\nSet n8n webhook path: Replace REPLACE ME in the \"Webhook: Receive User Request\" node with a secure endpoint (e.g., /elevenlabs-voice-scheduler)\n\nConfigure Google Calendar: Replace all REPLACE ME instances with your Calendar ID in the three calendar nodes (Check Availability, Create Appointment, Update Event)\n\nSet up Redis: Configure connection details in the \"Redis Chat Memory\" node\n\nCustomize scheduling prompt: In the \"Voice AI Agent\" node, replace all bracketed placeholders with your business details:\n\n[TIMEZONE], [START_TIME], [END_TIME], [OPERATING_DAYS], [BLOCKED_DAYS]\n[MINIMUM_LEAD_TIME], [APPOINTMENT_DURATION], [SERVICE_TYPE]\n[REQUIRED_FIELDS], [REQUIRED_NOTES_FIELDS]\n\n\nTest: Make a test call to verify availability checking, information collection, and appointment creation\n\n**Requirements**\n\nTwilio account with phone number\nElevenLabs Conversational AI account\nGoogle Calendar with OAuth2 credentials\nRedis instance (for session management)\nAnthropic API key (for Claude AI)",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Support Chatbot",
+      "AI Chatbot",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Webhook_Receive_User_Request_ElevenLabs": {
+          "type": "Request",
+          "kind": "Http",
+          "inputs": {
+            "method": "POST"
+          }
+        }
+      },
+      "actions": {
+        "Webhook_Return_AI_Response_ElevenLabs": {
+          "type": "Response",
+          "kind": "Http",
+          "inputs": {
+            "statusCode": 200,
+            "body": ""
+          },
+          "runAfter": {
+            "Voice_AI_Agent": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Calendar_Check_Availability": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Calendar: Check Availability",
+            "n8nNodeType": "n8n-nodes-base.googleCalendarTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Before', ``, 'string') }}",
+              "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', ``, 'string') }}",
+              "calendar": {
+                "__rl": true,
+                "mode": "id",
+                "value": "=REPLACE ME"
+              },
+              "operation": "getAll",
+              "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}"
+            }
+          },
+          "runAfter": {}
+        },
+        "Calendar_Create_Appointment": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Calendar: Create Appointment",
+            "n8nNodeType": "n8n-nodes-base.googleCalendarTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+              "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+              "calendar": {
+                "__rl": true,
+                "mode": "id",
+                "value": "=REPLACE ME"
+              },
+              "additionalFields": {
+                "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}",
+                "attendees": [
+                  "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('attendees0_Attendees', ``, 'string') }}"
+                ],
+                "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+                "sendUpdates": "all"
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Reasoning_Tool_LangChain": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Reasoning Tool (LangChain)",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.toolThink",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "Anthropic_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Anthropic Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "claude-3-5-sonnet-20241022",
+                "cachedResultName": "Claude Sonnet 3.5 (New)"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Voice_AI_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Voice AI Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=# n8n Scheduling Assistant\n\n## CONTEXT\n- Current time: {{ $now }} [TIMEZONE]\n- Session ID: {{ $json.body.sessionId }}\n- User utterance: {{ $json.body.utterance }}\n- Caller's phone number: {{ $json.body.system_caller_id }}\n- Full conversation: {{ $json.body.call_log }}\n\n## TOOLS\n1. think - ALWAYS use first to analyze state\n2. get_availability - Check calendar ([APPOINTMENT_DURATION]-min slots)\n3. create_appointment - Book appointment\n4. update_appointment - Modify existing appointment\n\n## VOICE RULES\n- ONE short sentence per response\n- Spell email handles pre-domain with hyphens: j-o-h-n-@-gmail.com\n- Spell phone numbers with hyphens: +-1-4-0-8-3-4-0-3-2-6-5\n- Be concise and natural\n\n## BOOKING FLOW\n\n### 1. TIME SELECTION\n**User wants to schedule but no specific time:**\n- Check availability and offer: \"I have [earliest slot] or [second earliest slot] available. Which works better?\"\n\n**User suggests specific time:**\n- Check availability\n- Hours are [START_TIME]-[END_TIME], [OPERATING_DAYS] | NEVER ALLOW BOOKING NOR SUGGEST BOOKING [BLOCKED_DAYS] EVEN FOR AN EMERGENCY\n- Never allow booking of a time within the next [MINIMUM_LEAD_TIME] minutes EVEN FOR AN EMERGENCY\n- If available: \"[Time] works. Want to book it?\"\n- If conflict: \"That's taken. I have [earlier] or [later] available.\"\n\n### 2. COLLECT INFORMATION\n**First, check call_log for any previously mentioned info ([REQUIRED_FIELDS])**\n\n**After time confirmed, ask ONLY for missing info:**\n- If nothing in history: \"Great! I need [REQUIRED_FIELDS_NATURAL_LANGUAGE].\"\n- If some info exists: \"Great! I just need [missing items].\"\n\n**If user provides partial info:**\n\"Thanks! I still need [missing items].\"\n\n### 3. CONFIRM EVERYTHING\n**Once all info collected:**\n\"Let me confirm - [spell email], service at [address], and is this the best phone number to reach you at {{ $json.body.system_caller_id }}?\"\n\n**User must say yes/correct to proceed**\n\n### 4. BOOK APPOINTMENT\n**After confirmation:**\n1. Create appointment with all details from call_log:\n   - Title: \"[SERVICE_TYPE] - [PRIMARY_IDENTIFIER]\"\n   - Duration: [APPOINTMENT_DURATION] minutes\n   - Always include in the notes: [REQUIRED_NOTES_FIELDS]\n   - When scheduling an appointment, always include the customer's email address as an attendee so they receive the calendar invite\n\n2. Response: \"Perfect! Your appointment is booked for [day] at [time]. Is there anything else I can help you with today?\"\n\n## APPOINTMENT UPDATES\nIf user wants changes after booking:\n- Use update_appointment (not create)\n- Confirm the change: \"Updated to [new details].\"\n\n## CRITICAL RULES\n✓ ALWAYS use think first\n✓ ALWAYS collect all required fields: [REQUIRED_FIELDS_LIST]\n✓ ALWAYS spell email for confirmation\n✓ ALWAYS end with \"anything else I can help with?\"\n✓ NEVER book without explicit confirmation\n✓ NEVER create duplicate appointments\n\n## DO NOT\n- Ask for information multiple times\n- Say \"I'll confirm\" repeatedly\n- Book overlapping appointments\n- Skip any of the required fields",
+              "options": {},
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "Redis_Chat_Memory": [
+              "Succeeded"
+            ],
+            "Anthropic_Chat_Model": [
+              "Succeeded"
+            ],
+            "Reasoning_Tool_LangChain": [
+              "Succeeded"
+            ],
+            "Calendar_Check_Availability": [
+              "Succeeded"
+            ],
+            "Calendar_Create_Appointment": [
+              "Succeeded"
+            ],
+            "Update_an_event_in_Google_Calendar": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Update_an_event_in_Google_Calendar": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update an event in Google Calendar",
+            "n8nNodeType": "n8n-nodes-base.googleCalendarTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+              "calendar": {
+                "__rl": true,
+                "mode": "id",
+                "value": "=REPLACE ME"
+              },
+              "operation": "update",
+              "updateFields": {},
+              "useDefaultReminders": "="
+            }
+          },
+          "runAfter": {}
+        },
+        "Redis_Chat_Memory": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Redis Chat Memory",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "sessionKey": "={{ $json.body.sessionId }}",
+              "sessionIdType": "customKey",
+              "contextWindowLength": 20
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Webhook_Receive_User_Request_ElevenLabs",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

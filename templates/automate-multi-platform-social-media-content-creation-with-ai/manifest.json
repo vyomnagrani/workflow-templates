@@ -1,0 +1,997 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "automate-multi-platform-social-media-content-creation-with-ai",
+    "name": "✨🤖Automate Multi-Platform Social Media Content Creation with AI",
+    "description": "# Automate Multi-Platform Social Media Content Creation with AI\n\n## Who is this for?  \n**Social Media Managers** and **Digital Marketers** seeking to streamline content production across 7+ platforms (X/Twitter, Instagram, LinkedIn, Facebook, TikTok, Threads, YouTube Shorts) using AI-powered automation.\n\n## What problem does this solve?  \nCreating platform-optimized content at scale while maintaining brand consistency across multiple channels, reducing manual work by 80% through AI generation and automated publishing.\n\n## What this workflow does  \n1. **AI Content Generation**:  \n   - Uses GPT-4/Gemini to create platform-specific posts  \n   - Automatically generates hashtags, CTAs, and emoji placement  \n   - Supports image/video suggestions and image creation using OpenAI or Pollinations.ai\n   - Uses SERP api to search for relavent content\n\n2. **Approval Workflow**:  \n   - Sends formatted HTML emails for human review  \n   - Implements double-approval system with Gmail integration  \n\n3. **Cross-Platform Publishing**:  \n   - One-click deployment to:  \n     - Instagram/Facebook (via Graph API)  \n     - X/Twitter (Official API)  \n     - LinkedIn (Sales Navigator integration)  \n\n## Setup  \n1. **Credentials**:  \n   - OpenAI API key  \n   - Google Gemini API  \n   - Social media platform tokens (X, LinkedIn, Facebook)  \n   - ImgBB for image hosting  \n   - Gmail\n   - SERP API\n   - Telegram\n\n2. **Configuration**:  \n   - Update all \"your-unique-id\" placeholders in API nodes  \n   - Set email recipients in Gmail nodes  \n   - Customize AI prompts \n\n3. **Customization**:  \n   - Adjust character limits per platform  \n   - Modify approval thresholds  \n   - Add/remove social platforms as needed  \n\n## How to customize  \n- **Content Style**: Edit prompt templates in the \"Social Media Content Factory\" agent node  \n- **Approval Process**: Modify email templates  \n- **Analytics**: Connect to Google Sheets for performance tracking  \n- **Image Generation**: Switch between Pollinations.ai/DALL-E/Midjourney  \n\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Social Media",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/gmail",
+      "/managedApis/telegrambotip",
+      "connectionProviders/Http",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Social_Media_Content": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Social Media Content",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "schemaType": "manual",
+              "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n\t\t\"name\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n\t\t\"description\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n\t\t\"platform_posts\": {\n\t\t\t\"type\": \"object\",\n\t\t\t\"properties\": {\n\t\t\t\t\"LinkedIn\": {\n\t\t\t\t\t\"type\": \"object\",\n\t\t\t\t\t\"properties\": {\n                        \"image_suggestion\": {\n                  \t\t\t\"type\": \"string\"\n                  \t\t},\n\t\t\t\t\t\t\"post\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"hashtags\": {\n\t\t\t\t\t\t\t\"type\": \"array\",\n\t\t\t\t\t\t\t\"items\": {\n\t\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"call_to_action\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t\"Instagram\": {\n\t\t\t\t\t\"type\": \"object\",\n\t\t\t\t\t\"properties\": {\n\t\t\t\t\t\t\"image_suggestion\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"caption\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"hashtags\": {\n\t\t\t\t\t\t\t\"type\": \"array\",\n\t\t\t\t\t\t\t\"items\": {\n\t\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"emojis\": {\n\t\t\t\t\t\t\t\"type\": \"array\",\n\t\t\t\t\t\t\t\"items\": {\n\t\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"call_to_action\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t\"Facebook\": {\n\t\t\t\t\t\"type\": \"object\",\n\t\t\t\t\t\"properties\": {\n\t\t\t\t\t\t\"post\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"hashtags\": {\n\t\t\t\t\t\t\t\"type\": \"array\",\n\t\t\t\t\t\t\t\"items\": {\n\t\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"call_to_action\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"image_suggestion\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t\"X-Twitter\": {\n\t\t\t\t\t\"type\": \"object\",\n\t\t\t\t\t\"properties\": {\n                        \"video_suggestion\": {\n                \t\t\t\"type\": \"string\"\n                \t\t},\n                        \"image_suggestion\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"post\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"hashtags\": {\n\t\t\t\t\t\t\t\"type\": \"array\",\n\t\t\t\t\t\t\t\"items\": {\n\t\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"character_limit\": {\n\t\t\t\t\t\t\t\"type\": \"integer\"\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n                \"TikTok\": {\n                \t\"type\": \"object\",\n                \t\"properties\": {\n                \t\t\"video_suggestion\": {\n                \t\t\t\"type\": \"string\"\n                \t\t},\n                \t\t\"caption\": {\n                \t\t\t\"type\": \"string\"\n                \t\t},\n                \t\t\"hashtags\": {\n                \t\t\t\"type\": \"array\",\n                \t\t\t\"items\": {\n                \t\t\t\t\"type\": \"string\"\n                \t\t\t}\n                \t\t},\n                \t\t\"call_to_action\": {\n                \t\t\t\"type\": \"string\"\n                \t\t}\n                \t}\n                },\n                \"Threads\": {\n                \t\"type\": \"object\",\n                \t\"properties\": {\n                       \"image_suggestion\": {\n\t\t\t\t\t\t\t\"type\": \"string\"\n\t\t\t\t\t\t},\n                \t\t\"text_post\": {\n                \t\t\t\"type\": \"string\"\n                \t\t},\n                \t\t\"hashtags\": {\n                \t\t\t\"type\": \"array\",\n                \t\t\t\"items\": {\n                \t\t\t\t\"type\": \"string\"\n                \t\t\t}\n                \t\t},\n                \t\t\"call_to_action\": {\n                \t\t\t\"type\": \"string\"\n                \t\t}\n                \t}\n                },\n                \"YouTube_Shorts\": {\n                  \t\"type\": \"object\",\n                  \t\"properties\": {\n                  \t\t\"video_suggestion\": {\n                  \t\t\t\"type\": \"string\"\n                  \t\t},\n                  \t\t\"title\": {\n                  \t\t\t\"type\": \"string\"\n                  \t\t},\n                          \"description\": {\n                              \"type\": \"string\"\n                          },\n                          \"hashtags\": {\n                              \"type\": \"array\",\n                              \"items\": {\n                                  \"type\": \"string\"\n                              }\n                          },\n                          \"call_to_action\": {\n                              \"type\": \"string\"\n                          }\n                      }\n                  }\n\t\t\t}\n\t\t},\n\t\t\"additional_notes\": {\n\t\t\t\"type\": \"string\"\n\t\t}\n\t}\n}\n"
+            }
+          },
+          "runAfter": {}
+        },
+        "Google_Gemini_LLM": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Gemini LLM",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "temperature": 0.4
+              },
+              "modelName": "models/gemini-2.0-flash-exp"
+            }
+          },
+          "runAfter": {}
+        },
+        "gpt_4o_mini": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "gpt-4o-mini",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini",
+                "cachedResultName": "gpt-4o-mini"
+              },
+              "options": {
+                "responseFormat": "text"
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "gpt_4o": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "gpt-4o",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o",
+                "cachedResultName": "gpt-4o"
+              },
+              "options": {
+                "responseFormat": "text"
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "gpt_4o_LLM": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "gpt-4o LLM",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o",
+                "cachedResultName": "gpt-4o"
+              },
+              "options": {
+                "responseFormat": "text"
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "pollinations_ai": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://image.pollinations.ai/prompt/@{body('Social_Media_Content_Factory')?['output']?['description']?['replaceAll'](' ','-').replaceAll(',','').replaceAll('.','')}"
+          },
+          "runAfter": {}
+        },
+        "gpt_4o_mini1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "gpt-4o-mini1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini",
+                "cachedResultName": "gpt-4o-mini"
+              },
+              "options": {
+                "responseFormat": "text"
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "gpt_4o_mini2": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "gpt-4o-mini2",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini",
+                "cachedResultName": "gpt-4o-mini"
+              },
+              "options": {
+                "responseFormat": "text"
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Gmail_User_for_Approval": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Gmail User for Approval",
+            "n8nNodeType": "n8n-nodes-base.gmail",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "sendTo": "={{ $env.EMAIL_ADDRESS_JOE }} ",
+              "message": "={{ $json.output }}",
+              "options": {
+                "limitWaitTime": {
+                  "values": {
+                    "resumeUnit": "minutes",
+                    "resumeAmount": 45
+                  }
+                }
+              },
+              "subject": "=🔥FOR APPROVAL🔥{{ $('Social Media Content Factory').item.json.output.name }} - {{ $('Social Media Content Factory').item.json.output.description }}",
+              "operation": "sendAndWait",
+              "approvalOptions": {
+                "values": {
+                  "approvalType": "double"
+                }
+              }
+            }
+          },
+          "runAfter": {
+            "Prepare_Content_Review_Email": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Approve_Final_Post_Content": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Approve Final Post Content",
+            "n8nNodeType": "n8n-nodes-base.gmail",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "sendTo": "={{ $env.EMAIL_ADDRESS_JOE }} ",
+              "message": "=<html>\n<body style=\"margin:0; padding:0; font-family: Arial, sans-serif; background-color: #f5f5f5;\">\n  <div style=\"max-width: 600px; margin: 0 auto; padding: 20px;\">\n\n    <h2 style=\"font-size:20px; color:#333; margin:0 0 15px 0;\">LinkedIn</h2>\n      \n    <!-- LinkedIn Card -->\n    <div style=\"background: #ffffff; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);\">\n\n      <!-- Card Header Image -->\n      <div style=\"height: 200px; overflow: hidden; border-radius: 8px 8px 0 0;\">\n        <img src=\"{{ $json.data.medium.url }}\" alt=\"Featured Image\" style=\"width: 100%; height: 100%; object-fit: cover;\">\n      </div>\n\n      <!-- Card Content -->\n      <div style=\"padding: 25px;\">\n\n        <p style=\"font-size:16px; color:#555; line-height: 1.6; margin-bottom: 15px;\">\n          {{ $('Social Media Content Factory').item.json.output.platform_posts.LinkedIn.post }}\n        </p>\n        \n        <div style=\"margin: 15px 0;\">\n          <span style=\"display: inline-block; background: #f0f0f0; padding: 4px 8px; margin: 2px; border-radius: 4px; font-size:12px; color:#333;\">\n            {{ $('Social Media Content Factory').item.json.output.platform_posts.LinkedIn.hashtags }}\n          </span>\n        </div>\n\n        <p style=\"font-size:14px; color:#1a0dab; font-weight: 600; margin:15px 0 0 0;\">\n          {{ $('Social Media Content Factory').item.json.output.platform_posts.LinkedIn.call_to_action }}\n        </p>\n      </div>\n    </div>\n  </div>\n</body>\n</html>\n",
+              "options": {
+                "limitWaitTime": {
+                  "values": {
+                    "resumeUnit": "minutes",
+                    "resumeAmount": 45
+                  }
+                }
+              },
+              "subject": "=🔥FOR APPROVAL🔥 New LinkedIn Post",
+              "operation": "sendAndWait",
+              "approvalOptions": {
+                "values": {
+                  "approvalType": "double"
+                }
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Submit_Social_Post_Details": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Submit Social Post Details",
+            "n8nNodeType": "n8n-nodes-base.formTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "buttonLabel": "Automatically Generate Social Media Content"
+              },
+              "formTitle": "workflows.diy",
+              "formFields": {
+                "values": [
+                  {
+                    "fieldLabel": "Topic",
+                    "placeholder": "Provide a concise and clear title or main topic for your post (e.g., \"New Product Launch,\" \"Exciting Company Update\"). This helps the AI accurately capture the focus of your content.",
+                    "requiredField": true
+                  },
+                  {
+                    "fieldLabel": "Keywords or Hashtags (optional)",
+                    "placeholder": "Include any specific keywords or hashtags you'd like the AI to incorporate into the post. This ensures the content aligns with your branding and campaign objectives.",
+                    "requiredField": "={{ false }}"
+                  },
+                  {
+                    "fieldLabel": "Link (optional)",
+                    "placeholder": "=Provide the URL of any product, service, form, support page, or other resource. This link will be included in the generated post to direct your audience to the relevant content.\n"
+                  }
+                ]
+              },
+              "responseMode": "lastNode",
+              "formDescription": "=Welcome to the workflows.diy AI-Powered Assistant!\n\nThis tool is designed to streamline and enhance your social media content creation process.\n\nSimply provide key inputs like a topic or title and an optional image, and our intelligent agent will generate engaging, platform-specific post descriptions tailored to your audience. \n\nWhether you're a marketer, business owner, or influencer, this assistant saves you time while delivering professional-quality content optimized for maximum impact.\n\n"
+            }
+          },
+          "runAfter": {}
+        },
+        "Social_Media_Content_Factory": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Social Media Content Factory",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=You are a **content creation AI** for workflows.diy, a leading creator of **n8n workflow automation solutions and AI Agentic workflows**.\n\nYour goal is to craft **engaging, platform-specific content** for LinkedIn, Instagram, Facebook, Twitter (X), TikTok, Threads, and YouTube Shorts. Each post must align with the platform’s audience preferences, tone, and style while reflecting workflows.diy's expertise. The content should provide **value-driven insights**, tutorials, reviews, and discussions that resonate with tech professionals, automation enthusiasts, businesses, and n8n users.\n\n### Key Objectives:\n1. **Platform Optimization**: Tailor content format, tone, and hashtags to suit each platform’s algorithm and audience engagement patterns.\n2. **SEO & Hashtags**: Use a mix of general automation hashtags and trending platform-specific hashtags to maximize reach.\n3. **Engagement Focus**: Create content that sparks interaction through tutorials, comparisons, reviews, or thought-provoking discussions.\n4. **Consistency**: Maintain a professional yet approachable tone across all platforms while adapting to audience needs.\n5. **Data-Driven Strategy**: Analyze trends and performance data to refine content strategy and hashtag usage.\n\n### General Hashtags:\n#workflowsdiy #n8n #automation #AIWorkflows #WorkflowAutomation #TechSolutions\n\n---\n\n### Platform-Specific Guidelines:\n\n#### 1. LinkedIn\n   - **Style**: Professional and insightful.\n   - **Tone**: Business-oriented; focus on automation use cases, industry insights, and community impact.\n   - **Content Length**: 3-4 sentences; concise but detailed.\n   - **Hashtags**: #Innovation #Automation #WorkflowSolutions #DigitalTransformation #Leadership\n   - **Call to Action (CTA)**: Encourage comments or visits to workflows.diy’s website for more insights.\n\n#### 2. Instagram\n   - **Style**: Visual storytelling with creative captions.\n   - **Tone**: Inspirational and engaging; use emojis for relatability.\n   - **Content Length**: 2-3 sentences paired with eye-catching visuals (e.g., infographics or workflow demos).\n   - **Visuals**: Showcase milestones (e.g., new workflow launches), tutorials, or product highlights.\n   - **CTA**: Use phrases like \"Swipe to learn more,\" \"Tag your team,\" or \"Check out the link below!\"\n   - **Link Placement**: Add the provided link before hashtags; if no link is provided, use \"Visit our website: https://workflows.diy.\"\n   - **Hashtags**: #AutomationLife #TechInnovation #WorkflowTips #Programming #Engineering\n\n#### 3. Facebook\n   - **Style**: Friendly and community-focused.\n   - **Tone**: Relatable; highlight user success stories or company achievements in automation.\n   - **Content Length**: 2-3 sentences; conversational yet professional.\n   - **Hashtags**: #SmallBusinessAutomation #Entrepreneurship #Leadership #WorkflowInnovation\n   - **CTA**: Encourage likes, shares, comments (e.g., “What’s your favorite automation tip?”).\n\n#### 4. Twitter (X)\n   - **Style**: Concise and impactful.\n   - **Tone**: Crisp and engaging; spark curiosity in 150 characters or less.\n   - **Hashtags**: #WorkflowTrends #AIWorkflows #AutomationTips #NoCodeSolutions\n   - **CTA**: Drive quick engagement through retweets or replies (e.g., “What’s your go-to n8n workflow?”).\n\n#### 5. TikTok\n   - **Style**: Short-form video content with trending audio or effects.\n   - **Tone**: Fun yet informative; focus on quick workflow demos or automation tips.\n   - **Content Length**: 15-60 seconds with captions summarizing the key message.\n   - **Hashtags**: Use trending tech-related hashtags relevant to TikTok’s audience (e.g., #n8nTips).\n   - **CTA**: Encourage viewers to follow workflows.diy for more automation hacks.\n\n#### 6. Threads\n   - **Style**: Conversational and community-driven posts.\n   - **Tone**: Casual yet informative; encourage discussions around automation trends or innovations.\n   - **Content Length**: 1-2 short paragraphs with a question or thought-provoking statement at the end.\n   - **Hashtags**: Similar to Instagram but tailored for trending Threads topics related to automation.\n\n#### 7. YouTube Shorts\n   - **Style**: Short-form video content showcasing quick workflow tutorials or use cases.\n   - **Tone**: Authoritative yet approachable; establish workflows.diy as a leader in n8n automation solutions.\n   - Content Length:\n     - Tutorials/Reviews (long-form): 5-10 minutes\n     - Shorts/Highlights (short-form): Under 1 minute\n   - CTA:** Encourage subscriptions**, likes, comments (e.g., “Subscribe for more workflow tips!”).\n\n---\n\n### Content Creation Workflow:\nFor every post:\n1. Use the following input fields:\n    - Topic/About the Post: {{ $json.Topic }}\n    - Keywords/Focus Areas: {{ $json.formMode }}\n    - Link (optional): {{ $json['Link (optional)'] }}\n2. Adapt the tone/style based on the platform guidelines above.\n\nEnsure every post reflects workflows.diy's mission of delivering high-quality automation insights while maximizing engagement across platforms.\n\nFollow the provided JSON schema for your reponse.\n",
+              "options": {
+                "systemMessage": "=Use the provided tools to research the topic based on latest information.  Todays date is {{ $now }}"
+              },
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "SerpAPI": [
+              "Succeeded"
+            ],
+            "gpt_4o_LLM": [
+              "Succeeded"
+            ],
+            "Social_Media_Content": [
+              "Succeeded"
+            ],
+            "Submit_Social_Post_Details": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Prepare_Content_Review_Email": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Prepare Content Review Email",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=Generate clean, modern HTML email content from the provided JSON data with these requirements:\n- Use table-based layout with inline CSS for email compatibility\n- Create card sections for each platform containing:\n  • Title header (20px) \n  • Post content (16px) \n  • Video/image suggestions (italic 14px)\n  • Hashtag list (inline-block with # prefix)\n  • Emoji preservation where present\n  • Call-to-action (bold 14px)\n- Structure using:\n  • 600px max-width container\n  • 20px padding between cards\n  • Left-aligned text hierarchy\n  • Arial/sans-serif font stack\n  • Email-safe colors (#333 text, #555 secondary)\n- Include all platform-specific elements:\n  ▶ Video/image suggestions in italic\n  ▶ Hashtags as linked search terms\n  ▶ Emojis in original positions\n  ▶ Character limits for Twitter\n  ▶ Platform-specific CTAs\n  ▶ Visual quality reminders\n- Format hashtags as:\n  <span style=\"display: inline-block; background: #f0f0f0; padding: 2px 6px; margin: 2px; border-radius: 4px;\">#tag</span>\n\nInput data: {{ $json.output.toJsonString() }}\n\nRemove ALL code blocks and comments. Output ONLY the raw HTML with:\n- Platform cards in JSON order\n- All data elements represented\n- Mobile-responsive tables\n- W3C-valid markup\n\n## Example HTML:\n<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#fbfcfe;border:1px solid #dbdfe7;border-radius:8px\">\n\t\t<tbody><tr>\n\t\t\t<td align=\"center\" style=\"padding:24px 0\">\n\t\t\t\t<table width=\"448\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:100%;max-width:448px;background-color:#ffffff;border:1px solid #dbdfe7;border-radius:8px;padding:24px\">\n\t\t\t\t\t<tbody><tr>\n\t\t\t\t\t\t<td style=\"text-align:center;padding-top:8px;font-family:Arial,sans-serif;font-size:14px;color:#7e8186\">\n\t\t\t\t\t\t\t<p style=\"white-space:pre-line\"></p><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width:600px;font-family:Arial,sans-serif;color:#333\"><tbody><tr><td style=\"padding:20px\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#f9f9f9;margin-bottom:20px;padding:20px;border-radius:8px\"><tbody><tr><td style=\"font-size:20px;font-weight:bold;padding-bottom:10px\">LinkedIn</td></tr><tr><td style=\"font-size:16px;padding-bottom:10px\">Discover why n8n stands out as the premier workflow automation tool. Its flexibility and open-source nature empower businesses to create custom solutions that drive efficiency and innovation.</td></tr><tr><td style=\"font-size:14px;font-style:italic;padding-bottom:10px\">Video/Image suggestion pending</td></tr><tr><td style=\"padding-bottom:10px\"><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#Innovation</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#Automation</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#<wbr>WorkflowSolutions</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#<wbr>DigitalTransformation</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#<wbr>Leadership</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#workflowsdiy</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#n8n</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#<wbr>AIWorkflows</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#WorkflowAutomation</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\"><wbr>#TechSolutions</span></td></tr><tr><td style=\"font-size:14px;font-weight:bold\">Visit workflows.diy to explore how n8n can transform your business processes!</td></tr></tbody></table><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#f9f9f9;margin-bottom:20px;padding:20px;border-radius:8px\"><tbody><tr><td style=\"font-size:20px;font-weight:bold;padding-bottom:10px\">Instagram</td></tr><tr><td style=\"font-size:14px;font-style:italic;padding-bottom:10px\">Eye-catching infographic comparing n8n to other automation tools, highlighting its unique features.</td></tr><tr><td style=\"font-size:16px;padding-bottom:10px\">n8n: The ultimate workflow automation tool! <img data-emoji=\"💡\" class=\"an1\" alt=\"💡\" aria-label=\"💡\" draggable=\"false\" src=\"https://fonts.gstatic.com/s/e/notoemoji/16.0/1f4a1/32.png\" loading=\"lazy\"> Unlock limitless possibilities with its open-source platform. Boost your productivity and streamline your processes. <img data-emoji=\"💤\" class=\"an1\" alt=\"💤\" aria-label=\"💤\" draggable=\"false\" src=\"https://fonts.gstatic.com/s/e/notoemoji/16.0/1f4a4/32.png\" loading=\"lazy\"></td></tr><tr><td style=\"padding-bottom:10px\"><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#AutomationLife</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#TechInnovation</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\"><wbr>#WorkflowTips</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#Programming</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#<wbr>Engineering</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#workflowsdiy</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#n8n</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#<wbr>AIWorkflows</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#WorkflowAutomation</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\"><wbr>#TechSolutions</span></td></tr><tr><td style=\"font-size:14px;font-weight:bold\">Visit our website: <a href=\"https://n8n.io/\" target=\"_blank\" data-saferedirecturl=\"https://www.google.com/url?q=https://n8n.io/&amp;source=gmail&amp;ust=1741030878129000&amp;usg=AOvVaw1Nr6ek3eGwe94zlbPaJrzT\">https://n8n.io/</a> #AutomationLife #TechInnovation #WorkflowTips #Programming #Engineering</td></tr></tbody></table><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#f9f9f9;margin-bottom:20px;padding:20px;border-radius:8px\"><tbody><tr><td style=\"font-size:20px;font-weight:bold;padding-bottom:10px\">Facebook</td></tr><tr><td style=\"font-size:16px;padding-bottom:10px\">See why businesses are choosing n8n for their workflow automation needs. From its user-friendly interface to its powerful customization options, n8n is revolutionizing how companies approach automation.</td></tr><tr><td style=\"font-size:14px;font-style:italic;padding-bottom:10px\">A visually appealing graphic showcasing n8n's key features and benefits.</td></tr><tr><td style=\"padding-bottom:10px\"><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#SmallBusinessAutomation</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#<wbr>Entrepreneurship</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#Leadership</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#<wbr>WorkflowInnovation</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#<wbr>workflowsdiy</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#n8n</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#AIWorkflows</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#<wbr>WorkflowAutomation</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#<wbr>TechSolutions</span></td></tr><tr><td style=\"font-size:14px;font-weight:bold\">What's your favorite automation tip? Share in the comments!</td></tr></tbody></table><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#f9f9f9;margin-bottom:20px;padding:20px;border-radius:8px\"><tbody><tr><td style=\"font-size:20px;font-weight:bold;padding-bottom:10px\">Twitter</td></tr><tr><td style=\"font-size:16px;padding-bottom:10px\">n8n: The best #WorkflowAutomation tool! Open-source, customizable, and powerful. Transform your business processes today!</td></tr><tr><td style=\"padding-bottom:10px\"><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#WorkflowTrends</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#AIWorkflows</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#<wbr>AutomationTips</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#NoCodeSolutions</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\"><wbr>#workflowsdiy</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#n8n</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#<wbr>TechSolutions</span></td></tr></tbody></table><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#f9f9f9;margin-bottom:20px;padding:20px;border-radius:8px\"><tbody><tr><td style=\"font-size:20px;font-weight:bold;padding-bottom:10px\">TikTok</td></tr><tr><td style=\"font-size:14px;font-style:italic;padding-bottom:10px\">Quick demo showcasing how n8n simplifies complex workflows with its intuitive interface.</td></tr><tr><td style=\"font-size:16px;padding-bottom:10px\">n8n: Your go-to for effortless workflow automation! <img data-emoji=\"✨\" class=\"an1\" alt=\"✨\" aria-label=\"✨\" draggable=\"false\" src=\"https://fonts.gstatic.com/s/e/notoemoji/16.0/2728/32.png\" loading=\"lazy\"></td></tr><tr><td style=\"padding-bottom:10px\"><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#n8nTips</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#workflowsdiy</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#n8n</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#<wbr>AIWorkflows</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#WorkflowAutomation</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\"><wbr>#TechSolutions</span></td></tr><tr><td style=\"font-size:14px;font-weight:bold\">Follow workflows.diy for more automation hacks!</td></tr></tbody></table><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#f9f9f9;margin-bottom:20px;padding:20px;border-radius:8px\"><tbody><tr><td style=\"font-size:20px;font-weight:bold;padding-bottom:10px\">Threads</td></tr><tr><td style=\"font-size:16px;padding-bottom:10px\">n8n is transforming the automation landscape. Its open-source nature and extensive integrations make it a top choice for businesses of all sizes. What are your thoughts on the future of workflow automation?</td></tr><tr><td style=\"padding-bottom:10px\"><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#workflowsdiy</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#n8n</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#AIWorkflows</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#<wbr>WorkflowAutomation</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#<wbr>TechSolutions</span></td></tr><tr><td style=\"font-size:14px;font-weight:bold\">Share your insights below!</td></tr></tbody></table><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color:#f9f9f9;margin-bottom:20px;padding:20px;border-radius:8px\"><tbody><tr><td style=\"font-size:20px;font-weight:bold;padding-bottom:10px\">YouTube Shorts</td></tr><tr><td style=\"font-size:14px;font-style:italic;padding-bottom:10px\">Short tutorial demonstrating how to build a simple automation workflow in n8n.</td></tr><tr><td style=\"font-size:16px;padding-bottom:10px\">Learn why n8n is the top choice for workflow automation. Its open-source platform and powerful features make it a game-changer for businesses.</td></tr><tr><td style=\"padding-bottom:10px\"><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#n8n</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#automation</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#<wbr>workflowautomation</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#nocode</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#<wbr>workflowsdiy</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#AIWorkflows</span><span style=\"display:inline-block;background:#f0f0f0;padding:2px 6px;margin:2px;border-radius:4px\">#<wbr>TechSolutions</span></td></tr><tr><td style=\"font-size:14px;font-weight:bold\">Subscribe for more workflow tips!</td></tr></tbody></table></td></tr></tbody></table><p></p>\n\t\t\t\t\t\t</td>\n\t\t\t\t\t</tr>\n\t\t\t\t</tbody>\n</table>\n",
+              "agent": "conversationalAgent",
+              "options": {},
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "gpt_4o_mini": [
+              "Succeeded"
+            ],
+            "Social_Media_Content_Factory": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Image_Choice": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Image Choice",
+            "n8nNodeType": "n8n-nodes-base.form",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "formTitle": "Generate Post Image",
+                "buttonLabel": "Submit"
+              },
+              "formFields": {
+                "values": [
+                  {
+                    "fieldType": "file",
+                    "fieldLabel": "Upload Image (optional)",
+                    "multipleFiles": false,
+                    "acceptFileTypes": ".jpg, .png, .jpeg"
+                  },
+                  {
+                    "fieldType": "dropdown",
+                    "fieldLabel": "Generate Custom Image using AI Image Generator",
+                    "fieldOptions": {
+                      "values": [
+                        {
+                          "option": "Yes"
+                        },
+                        {
+                          "option": "No"
+                        }
+                      ]
+                    },
+                    "requiredField": true
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Is_Content_Approved": {
+          "type": "If",
+          "expression": {
+            "equals": [
+              "@body('Gmail_User_for_Approval')?['data']?['approved']",
+              true
+            ]
+          },
+          "actions": {
+            "Merge": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Merge",
+                "n8nNodeType": "n8n-nodes-base.merge",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "mode": "combine",
+                  "options": {
+                    "includeUnpaired": true
+                  },
+                  "combineBy": "combineByPosition"
+                }
+              },
+              "runAfter": {
+                "OpenAI": [
+                  "Succeeded"
+                ],
+                "Save_Image_to_imgbb_com3": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Save_Image_to_imgbb_com3": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "https://api.imgbb.com/1/upload",
+                "body": {
+                  "image": null
+                }
+              },
+              "runAfter": {
+                "OpenAI": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Instagram_Image": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "https://graph.facebook.com/v20.0/[your-unique-id]/media"
+              },
+              "runAfter": {
+                "Merge1": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Instragram_Post": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Instragram Post",
+                "n8nNodeType": "n8n-nodes-base.facebookGraphApi",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "edge": "media_publish",
+                  "node": "[your-unique-id]",
+                  "options": {
+                    "queryParameters": {
+                      "parameter": [
+                        {
+                          "name": "creation_id",
+                          "value": "={{ $json.id }}"
+                        },
+                        {
+                          "name": "caption",
+                          "value": "={{ $('Social Media Content Factory').item.json.output.platform_posts.Instagram.caption }}"
+                        }
+                      ]
+                    }
+                  },
+                  "graphApiVersion": "v20.0",
+                  "httpRequestMethod": "POST"
+                }
+              },
+              "runAfter": {
+                "Instagram_Image": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "X_Post": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "X Post",
+                "n8nNodeType": "n8n-nodes-base.twitter",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "text": "={{ $('Social Media Content Factory').item.json.output.platform_posts['X-Twitter'].post }}",
+                  "additionalFields": {}
+                }
+              },
+              "runAfter": {
+                "Is_Approved": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Facebook_Post": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Facebook Post",
+                "n8nNodeType": "n8n-nodes-base.facebookGraphApi",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "edge": "photos",
+                  "node": "[your-unique-id]",
+                  "options": {
+                    "queryParameters": {
+                      "parameter": [
+                        {
+                          "name": "message",
+                          "value": "={{ $('Social Media Content Factory').item.json.output.platform_posts.Facebook.post }}\n\n{{ $('Social Media Content Factory').item.json.output.platform_posts.Facebook.call_to_action }}\n"
+                        },
+                        {
+                          "name": "link",
+                          "value": "={{ $('Social Media Content Factory').item.json.output.platform_posts.Facebook.call_to_action }}"
+                        }
+                      ]
+                    }
+                  },
+                  "sendBinaryData": true,
+                  "graphApiVersion": "v20.0",
+                  "httpRequestMethod": "POST",
+                  "binaryPropertyName": "data"
+                }
+              },
+              "runAfter": {
+                "Merge2": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "LinkedIn_Post": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "LinkedIn Post",
+                "n8nNodeType": "n8n-nodes-base.linkedIn",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "text": "={{ $('Social Media Content Factory').item.json.output.platform_posts.LinkedIn.post }}\n{{ $('Social Media Content Factory').item.json.output.platform_posts.LinkedIn.call_to_action }}\n{{ $('Social Media Content Factory').item.json.output.platform_posts.LinkedIn.hashtags }}\n{{ $('Social Media Content Factory').item.json.output.platform_posts.LinkedIn.call_to_action }}",
+                  "postAs": "organization",
+                  "organization": "12345678",
+                  "additionalFields": {},
+                  "binaryPropertyName": "=data",
+                  "shareMediaCategory": "IMAGE"
+                }
+              },
+              "runAfter": {
+                "Merge2": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "OpenAI": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "OpenAI",
+                "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "prompt": "={{ $('Social Media Content Factory').item.json.output.platform_posts.Instagram.caption }}",
+                  "options": {},
+                  "resource": "image"
+                }
+              },
+              "runAfter": {}
+            },
+            "Merge1": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Merge1",
+                "n8nNodeType": "n8n-nodes-base.merge",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "mode": "combine",
+                  "options": {},
+                  "combineBy": "combineByPosition"
+                }
+              },
+              "runAfter": {
+                "Is_Approved": [
+                  "Succeeded"
+                ],
+                "Save_Image_to_imgbb_com3": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Merge2": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Merge2",
+                "n8nNodeType": "n8n-nodes-base.merge",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "mode": "combine",
+                  "options": {
+                    "includeUnpaired": true
+                  },
+                  "combineBy": "combineByPosition"
+                }
+              },
+              "runAfter": {
+                "OpenAI": [
+                  "Succeeded"
+                ],
+                "Is_Approved": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Aggregate": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Aggregate",
+                "n8nNodeType": "n8n-nodes-base.aggregate",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "aggregate": "aggregateAllItemData"
+                }
+              },
+              "runAfter": {
+                "Merge_Results": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Is_Approved": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Is Approved?",
+                "n8nNodeType": "n8n-nodes-base.if",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "strict"
+                    },
+                    "combinator": "and",
+                    "conditions": [
+                      {
+                        "id": "efe337a1-63e0-4513-873d-421bf41e4868",
+                        "operator": {
+                          "type": "boolean",
+                          "operation": "true",
+                          "singleValue": true
+                        },
+                        "leftValue": "={{ $json.data.approved }}",
+                        "rightValue": ""
+                      }
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "Set_Default_True_2": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Instagram_Result": {
+              "type": "Compose",
+              "inputs": {
+                "Instagram Post Result": "@body('Instragram_Post')"
+              },
+              "runAfter": {
+                "Instragram_Post": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "X_Result": {
+              "type": "Compose",
+              "inputs": {
+                "X Post Result": "@body('X_Post')"
+              },
+              "runAfter": {
+                "X_Post": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Facebook_Result": {
+              "type": "Compose",
+              "inputs": {
+                "Facebook Post Result": "@body('Facebook_Post')"
+              },
+              "runAfter": {
+                "Facebook_Post": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "LinkedIn_Result": {
+              "type": "Compose",
+              "inputs": {
+                "LinkedIn Post Result": "@body('LinkedIn_Post')"
+              },
+              "runAfter": {
+                "LinkedIn_Post": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Merge_Results": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Merge Results",
+                "n8nNodeType": "n8n-nodes-base.merge",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "numberInputs": 4
+                }
+              },
+              "runAfter": {
+                "X_Result": [
+                  "Succeeded"
+                ],
+                "Facebook_Result": [
+                  "Succeeded"
+                ],
+                "LinkedIn_Result": [
+                  "Succeeded"
+                ],
+                "Instagram_Result": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Prepare_Results_Email": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Prepare Results Email",
+                "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "text": "=Parse the social media post results and generate a modern single line HTML table showing platform statuses. For each entry:\n\n-Extract platform name from the JSON key\n-Identify status (Success/Error) based on statusCode or error presence\n-Capture error message if present\n-Format as responsive HTML table with professional styling\n-Ensure email client compatibility with inline CSS\n-Include error handling for invalid JSON formats\n-Remove all line breaks and \\n from response.\n-Avoid any preamble or further explanation and remove all ``` and ```html from response.\n\n## Implementation Example:\nThis solution uses the parsed results from your workflow to generate:\n<table style=\"border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; margin: 20px 0; background-color: #f9f9f9; border: 1px solid #ddd;\">\n    <thead>\n        <tr style=\"background-color: #007bff; color: #fff;\">\n            <th style=\"border: 1px solid #ddd; padding: 12px; text-align: left;\">Platform</th>\n            <th style=\"border: 1px solid #ddd; padding: 12px; text-align: left;\">Status</th>\n            <th style=\"border: 1px solid #ddd; padding: 12px; text-align: left;\">Details</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr style=\"background-color: #ffffff;\">\n            <td style=\"border: 1px solid #ddd; padding: 12px;\">Instagram</td>\n            <td style=\"border: 1px solid #ddd; padding: 12px; color: #dc3545;\">✗ Error</td>\n            <td style=\"border: 1px solid #ddd; padding: 12px;\">Unsupported post request. Object with ID '[your-unique-id]' does not exist, cannot be loaded due to missing permissions.</td>\n        </tr>\n        <tr style=\"background-color: #f8f9fa;\">\n            <td style=\"border: 1px solid #ddd; padding: 12px;\">X (Twitter)</td>\n            <td style=\"border: 1px solid #ddd; padding: 12px; color: #dc3545;\">✗ Error</td>\n            <td style=\"border: 1px solid #ddd; padding: 12px;\">Unable to sign without access token</td>\n        </tr>\n        <tr style=\"background-color: #ffffff;\">\n            <td style=\"border: 1px solid #ddd; padding: 12px;\">Facebook</td>\n            <td style=\"border: 1px solid #ddd; padding: 12px; color: #dc3545;\">✗ Error</td>\n            <td style=\"border: 1px solid #ddd; padding: 12px;\">Unsupported post request. Object with ID '[your-unique-id]' does not exist, cannot be loaded due to missing permissions.</td>\n        </tr>\n        <tr style=\"background-color: #f8f9fa;\">\n            <td style=\"border: 1px solid #ddd; padding: 12px;\">LinkedIn</td>\n            <td style=\"border: 1px solid #ddd; padding: 12px; color: #dc3545;\">✗ Error</td>\n            <td style=\"border: 1px solid #ddd; padding: 12px;\">Unable to sign without access token</td>\n        </tr>\n    </tbody>\n</table>\n\n\nThis is the social media post results: \n{{ $json.data.toJsonString() }}\n",
+                  "agent": "conversationalAgent",
+                  "options": {},
+                  "promptType": "define"
+                }
+              },
+              "runAfter": {
+                "Aggregate": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Prepare_Results_Message": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Prepare Results Message",
+                "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "text": "=Parse the social media post results and generate a brief summary of the results.\n\nThis is the social media post results: \n{{ $json.data.toJsonString() }}\n\n## Example Response:\nThe social media post results indicate multiple errors when attempting to access or post content on various platforms. \n\n1. Instagram: The response shows a 400 status code with an error message indicating that the specific post request is unsupported due to missing permissions or an invalid object ID. \n\n2. X Post: Success\n\n3. Facebook: Success \n\n4. LinkedIn: Also returned an 'Unable to sign without access token' error. \n\nOverall, access token issues and unsupported requests are frequent problems across these social media platforms.\n",
+                  "agent": "conversationalAgent",
+                  "options": {},
+                  "promptType": "define"
+                }
+              },
+              "runAfter": {
+                "Aggregate": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Gmail_Results": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "referenceName": "gmail_#workflowname#"
+                  }
+                },
+                "method": "post",
+                "path": "/v2/Mail",
+                "body": {
+                  "To": "={{ $env.EMAIL_ADDRESS_JOE }} ",
+                  "Subject": "🔥RESULTS🔥 Social Media Factory",
+                  "Body": "@body('Prepare_Results_Email')?['output']"
+                }
+              },
+              "metadata": {
+                "flowSystemMetadata": {
+                  "swaggerOperationId": "SendEmailV2"
+                }
+              },
+              "runAfter": {
+                "Prepare_Results_Email": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Telegram_Results": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "referenceName": "telegrambotip_#workflowname#"
+                  }
+                },
+                "method": "post",
+                "path": "/bot@{encodeURIComponent('REPLACE_WITH_TELEGRAM_BOT_TOKEN')}/sendMessage",
+                "body": {
+                  "chat_id": "={{ $env.TELEGRAM_CHAT_ID }}",
+                  "text": "@body('Prepare_Results_Message')?['output']"
+                }
+              },
+              "metadata": {
+                "flowSystemMetadata": {
+                  "swaggerOperationId": "SendMessage"
+                }
+              },
+              "runAfter": {
+                "Prepare_Results_Message": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Set_Default_True_2": {
+              "type": "Compose",
+              "inputs": {
+                "data": "={\n  \"approved\": true\n}"
+              },
+              "runAfter": {
+                "Merge": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "Gmail_User_for_Approval": [
+              "Succeeded"
+            ]
+          }
+        },
+        "SerpAPI": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "SerpAPI",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.toolSerpApi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Rename_Binary_File": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Rename Binary File",
+            "n8nNodeType": "n8n-nodes-base.code",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsCode": "$input.first().binary.data = $input.first().binary.Upload_Image__optional_\ndelete $input.first().binary.Upload_Image__optional_\nreturn $input.first()"
+            }
+          },
+          "runAfter": {
+            "Image_Choice": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {
+    "Submit_Social_Post_Details": {
+      "status": "Succeeded",
+      "outputs": {
+        "statusCode": "200",
+        "body": {
+          "Topic": "Why n8n is the Best Workflow Automation Tool",
+          "formMode": "test",
+          "submittedAt": "2025-03-02T13:32:20.807-05:00",
+          "Link (optional)": "https://n8n.io/",
+          "Keywords or Hashtags (optional)": "n8n, AIWorkflows, workflows.diy"
+        }
+      }
+    }
+  },
+  "connections": {
+    "gmail_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/gmail"
+    },
+    "telegrambotip_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/telegrambotip"
+    }
+  }
+}

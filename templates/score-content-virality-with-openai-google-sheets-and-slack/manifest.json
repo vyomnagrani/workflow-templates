@@ -1,0 +1,364 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "score-content-virality-with-openai-google-sheets-and-slack",
+    "name": "Score content virality with OpenAI, Google Sheets and Slack",
+    "description": "## Quick Overview\nThis workflow accepts content submissions via webhook or a weekday schedule, pulls historical performance from Google Sheets, fetches trend and audience signals via HTTP APIs, uses OpenAI to predict a 0–100 virality score with recommendations, then notifies the team in Slack or email and logs results back to Google Sheets.\n\n## How it works\n1. Receives new content either from a POST webhook request or on a weekday 9am cron schedule.\n2. Normalizes the incoming fields and validates that required content is present and meets basic quality checks.\n3. Pulls historical post performance from Google Sheets and retrieves current trending-topic data from SerpAPI Google Trends plus audience behavior signals from an external analytics API.\n4. Merges the collected signals and sends them to OpenAI (GPT-4.1-mini) to generate a structured virality assessment and predicted engagement range.\n5. Parses the AI response, enforces score-tier thresholds (HIGH/MODERATE/LOW), and enriches the result with timestamps and IDs.\n6. Sends a Slack webhook notification for HIGH and MODERATE scores or sends a SendGrid email alert with revision guidance for LOW scores.\n7. Appends the full scoring record to a Google Sheets log and, for webhook submissions, returns the score payload in the webhook response.\n\n## Setup\n1. Add OpenAI API credentials for the LangChain agent chat model.\n2. Replace the Google Sheets URLs with your spreadsheet ID and a valid Google Sheets API key (or adapt to OAuth) for both the historical read and log append requests.\n3. Add and configure your trend and analytics data sources by setting the SerpAPI key and the analytics API base URL and bearer token.\n4. Create a Slack incoming webhook and replace YOUR_SLACK_WEBHOOK_PATH in both Slack notification requests.\n5. Configure SendGrid by adding an Authorization header/API key (not included in the request) and updating the from/to email addresses in the email request body.\n6. If using the webhook trigger, copy the production webhook URL and send content payloads containing at least title/body and platform fields.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Market Research",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Webhook_Content_Submitted": {
+          "type": "Request",
+          "kind": "Http",
+          "inputs": {
+            "method": "POST"
+          }
+        },
+        "Schedule_Daily_Content_Queue": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Normalize_Content_Input": {
+          "type": "Compose",
+          "inputs": {
+            "title": "@triggerBody()?['title'] || triggerBody()?['body']?.title || ''",
+            "body": "@triggerBody()?['body_text'] || triggerBody()?['body']?.body_text || triggerBody()?['content'] || ''",
+            "platform": "@triggerBody()?['platform'] || triggerBody()?['body']?.platform || 'twitter'",
+            "content_type": "@triggerBody()?['content_type'] || triggerBody()?['body']?.content_type || 'text'",
+            "target_audience": "@triggerBody()?['target_audience'] || triggerBody()?['body']?.target_audience || 'general'",
+            "proposed_publish_time": "@triggerBody()?['proposed_publish_time'] || new Date().toISOString()",
+            "media_urls": "@triggerBody()?['media_urls'] || []",
+            "submission_id": "@triggerBody()?['submission_id'] || 'sub_' + Date.now()"
+          },
+          "runAfter": {}
+        },
+        "Python_Validate_Content_Input": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Python - Validate Content Input",
+            "n8nNodeType": "n8n-nodes-base.code",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "runOnceForEachItem",
+              "language": "python"
+            }
+          },
+          "runAfter": {
+            "Normalize_Content_Input": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Filter_Valid_Content_Only": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Filter - Valid Content Only",
+            "n8nNodeType": "n8n-nodes-base.filter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true"
+                    },
+                    "leftValue": "={{ $json.is_valid }}"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Python_Validate_Content_Input": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Load_Platform_Config": {
+          "type": "Compose",
+          "inputs": {
+            "platform_config": "@{ 'twitter': { 'optimal_length': 240, 'best_hours': [9,12,17], 'engagement_weight': 0.4 }, 'instagram': { 'optimal_length': 300, 'best_hours': [8,11,19], 'engagement_weight': 0.45 }, 'linkedin': { 'optimal_length': 600, 'best_hours': [8,10,17], 'engagement_weight': 0.35 }, 'facebook': { 'optimal_length': 400, 'best_hours': [13,15,20], 'engagement_weight': 0.3 }, 'tiktok': { 'optimal_length': 150, 'best_hours': [7,11,19], 'engagement_weight': 0.5 }, 'youtube': { 'optimal_length': 500, 'best_hours': [15,17,20], 'engagement_weight': 0.45 }, 'blog': { 'optimal_length': 1500, 'best_hours': [9,10,11], 'engagement_weight': 0.25 } }[body('Filter_Valid_Content_Only')?['platform']?['toLowerCase']()]",
+            "scoring_weights": "={{ { 'trend_alignment': 0.30, 'engagement_prediction': 0.25, 'timing_score': 0.20, 'historical_similarity': 0.15, 'media_bonus': 0.10 } }}"
+          },
+          "runAfter": {
+            "Filter_Valid_Content_Only": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fetch_Historical_Performance_Data": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "=https://sheets.googleapis.com/v4/spreadsheets/YOUR_SHEET_ID/values/HistoricalData!A1:J200?key=YOUR_API_KEY"
+          },
+          "runAfter": {
+            "Load_Platform_Config": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fetch_Trending_Topics_Signals": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.serpapi.com/search.json?engine=google_trends&q=@{encodeURIComponent(body('Load_Platform_Config')?['title'])}&date=now+7-d&api_key=YOUR_SERPAPI_KEY"
+          },
+          "runAfter": {
+            "Load_Platform_Config": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fetch_Audience_Behavior_Signals": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.your-analytics-platform.com/v1/audience-signals?platform=@{body('Load_Platform_Config')?['platform']}&period=7d",
+            "headers": {
+              "Authorization": "Bearer YOUR_ANALYTICS_API_TOKEN"
+            }
+          },
+          "runAfter": {
+            "Load_Platform_Config": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Python_Merge_Normalize_Signals": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Python - Merge & Normalize Signals",
+            "n8nNodeType": "n8n-nodes-base.code",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "runOnceForEachItem",
+              "language": "python"
+            }
+          },
+          "runAfter": {
+            "Fetch_Audience_Behavior_Signals": [
+              "Succeeded"
+            ],
+            "Fetch_Trending_Topics_Signals": [
+              "Succeeded"
+            ],
+            "Fetch_Historical_Performance_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_Rate_Limit_Buffer": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 1,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Python_Merge_Normalize_Signals": [
+              "Succeeded"
+            ]
+          }
+        },
+        "AI_Virality_Score_Analysis": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "AI - Virality Score & Analysis",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=You are an expert social media strategist and data analyst specializing in viral content prediction.\n\nAnalyze the following content submission and data signals, then return a structured JSON virality assessment.\n\n---\nCONTENT SUBMISSION:\nTitle: {{ $json.title }}\nBody: {{ $json.body }}\nPlatform: {{ $json.platform }}\nContent Type: {{ $json.content_type }}\nTarget Audience: {{ $json.target_audience }}\nHas Media: {{ $json.has_media }}\nWord Count: {{ $json.word_count }}\nProposed Publish Time: {{ $json.proposed_publish_time }}\n\n---\nHISTORICAL CONTEXT:\nTotal past posts analysed: {{ $json.historical_posts_count }}\nAverage engagement rate: {{ $json.avg_historical_engagement }}\nTop performing posts (sample): {{ JSON.stringify($json.top_posts.slice(0,3)) }}\n\n---\nCURRENT SIGNALS:\nTrend Index (0–100, higher=more trending): {{ $json.trend_index }}\nAudience Peak Hours: {{ JSON.stringify($json.peak_hours) }}\nAudience Sentiment Index (0–1): {{ $json.sentiment_index }}\nTop Performing Formats Right Now: {{ JSON.stringify($json.top_formats) }}\n\n---\nPLATFORM CONFIG:\n{{ JSON.stringify($json.platform_config) }}\n\nSCORING WEIGHTS:\n{{ JSON.stringify($json.scoring_weights) }}\n\n---\nReturn ONLY a valid JSON object (no markdown, no explanation outside the JSON) with this exact structure:\n{\n  \"virality_score\": <integer 0-100>,\n  \"score_tier\": <\"HIGH\" | \"MODERATE\" | \"LOW\">,\n  \"component_scores\": {\n    \"trend_alignment\": <0-100>,\n    \"engagement_prediction\": <0-100>,\n    \"timing_score\": <0-100>,\n    \"historical_similarity\": <0-100>,\n    \"media_bonus\": <0-100>\n  },\n  \"key_drivers\": [<list of 3-5 top factors driving the score, strings>],\n  \"pattern_matches\": [<list of 2-3 historical patterns this content matches, strings>],\n  \"weaknesses\": [<list of 1-3 things lowering the score, strings>],\n  \"recommendations\": [<list of 2-4 specific actionable improvements, strings>],\n  \"best_publish_time\": <ISO 8601 datetime string for optimal posting>,\n  \"predicted_engagement_range\": { \"low\": <float>, \"high\": <float> },\n  \"confidence\": <\"HIGH\" | \"MEDIUM\" | \"LOW\">\n}",
+              "options": {},
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ],
+            "Wait_Rate_Limit_Buffer": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenAI_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4.1-mini"
+              },
+              "options": {},
+              "builtInTools": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "JS_Parse_Enrich_Score": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Wait_For_Result_From_Ai'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst __results = items.map(item => {\n  const $json = item.json;\n  const $input = {\n    item,\n    first: () => item,\n    last: () => item,\n    all: () => items\n  };\n  return (() => {\nconst item = $input.item.json;\nlet parsed = {};\n\ntry {\n  const raw = item.output || item.response || item.text || '{}';\n  const cleaned = raw.replace(/```json|```/g, '').trim();\n  parsed = JSON.parse(cleaned);\n} catch (e) {\n  // Fallback defaults if AI response parse fails\n  parsed = {\n    virality_score: 50,\n    score_tier: 'MODERATE',\n    component_scores: { trend_alignment: 50, engagement_prediction: 50, timing_score: 50, historical_similarity: 50, media_bonus: 50 },\n    key_drivers: ['Unable to parse AI response — using defaults'],\n    pattern_matches: [],\n    weaknesses: ['AI response parse error'],\n    recommendations: ['Re-run analysis or check AI node output'],\n    best_publish_time: new Date().toISOString(),\n    predicted_engagement_range: { low: 0.01, high: 0.03 },\n    confidence: 'LOW'\n  };\n}\n\nconst score = parsed.virality_score ?? 50;\nconst tier = score >= 75 ? 'HIGH' : score >= 40 ? 'MODERATE' : 'LOW';\n\nreturn {\n  json: {\n    ...item,\n    ...parsed,\n    virality_score: score,\n    score_tier: tier,\n    analysis_timestamp: new Date().toISOString(),\n    scored_submission_id: item.submission_id\n  }\n};\n  })();\n});\nreturn { body: __unwrap(__results) };"
+          },
+          "runAfter": {
+            "Wait_For_Result_From_Ai": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Slack_Notify_High_Virality": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://hooks.slack.com/services/YOUR_SLACK_WEBHOOK_PATH",
+            "body": "{\n  \"text\": \"🟢 *HIGH VIRALITY CONTENT DETECTED* — Score: @{body('JS_Parse_Enrich_Score')?['virality_score']}/100\",\n  \"blocks\": [\n    {\n      \"type\": \"section\",\n      \"text\": {\n        \"type\": \"mrkdwn\",\n        \"text\": \"🟢 *HIGH VIRALITY* — Score: *@{body('JS_Parse_Enrich_Score')?['virality_score']}/100*\\n*Title:* @{body('JS_Parse_Enrich_Score')?['title']}\\n*Platform:* @{body('JS_Parse_Enrich_Score')?['platform']}\\n*Best Publish Time:* @{body('JS_Parse_Enrich_Score')?['best_publish_time']}\\n\\n*Key Drivers:*\\n@{body('JS_Parse_Enrich_Score')?['key_drivers']?['map'](d => '• ' + d).join('\\n')}\"\n      }\n    }\n  ]\n}"
+          },
+          "runAfter": {
+            "JS_Parse_Enrich_Score": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Slack_Notify_Moderate_Virality": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://hooks.slack.com/services/YOUR_SLACK_WEBHOOK_PATH",
+            "body": "{\n  \"text\": \"🟡 *Moderate Virality Content* — Score: @{body('JS_Parse_Enrich_Score')?['virality_score']}/100\",\n  \"blocks\": [\n    {\n      \"type\": \"section\",\n      \"text\": {\n        \"type\": \"mrkdwn\",\n        \"text\": \"🟡 *Moderate Virality* — Score: *@{body('JS_Parse_Enrich_Score')?['virality_score']}/100*\\n*Title:* @{body('JS_Parse_Enrich_Score')?['title']}\\n*Platform:* @{body('JS_Parse_Enrich_Score')?['platform']}\\n\\n*Optional improvements:*\\n@{body('JS_Parse_Enrich_Score')?['recommendations']?['slice'](0,2).map(r => '• ' + r).join('\\n')}\"\n      }\n    }\n  ]\n}"
+          },
+          "runAfter": {
+            "JS_Parse_Enrich_Score": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Email_Low_Virality_Revision_Alert": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.sendgrid.com/v3/mail/send",
+            "body": "{\n  \"personalizations\": [{\"to\": [{\"email\": \"content-team@yourcompany.com\"}]}],\n  \"from\": {\"email\": \"virality-bot@yourcompany.com\", \"name\": \"Virality Predictor\"},\n  \"subject\": \"🔴 Low Virality Alert — Revision Needed: @{body('JS_Parse_Enrich_Score')?['title']}\",\n  \"content\": [{\n    \"type\": \"text/html\",\n    \"value\": \"<h2>Low Virality Score: @{body('JS_Parse_Enrich_Score')?['virality_score']}/100</h2><p><strong>Title:</strong> @{body('JS_Parse_Enrich_Score')?['title']}</p><p><strong>Platform:</strong> @{body('JS_Parse_Enrich_Score')?['platform']}</p><h3>Weaknesses Identified:</h3><ul>@{body('JS_Parse_Enrich_Score')?['weaknesses']?['map'](w => '<li>' + w + '</li>').join('')}</ul><h3>Recommended Improvements:</h3><ul>@{body('JS_Parse_Enrich_Score')?['recommendations']?['map'](r => '<li>' + r + '</li>').join('')}</ul>\"\n  }]\n}"
+          },
+          "runAfter": {
+            "JS_Parse_Enrich_Score": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Log_to_Google_Sheets": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://sheets.googleapis.com/v4/spreadsheets/YOUR_SHEET_ID/values/VirailtyLog!A1:append?valueInputOption=USER_ENTERED",
+            "body": "{\n  \"values\": [[\n    \"@{body('Slack_Notify_High_Virality')?['analysis_timestamp']}\",\n    \"@{body('Slack_Notify_High_Virality')?['scored_submission_id']}\",\n    \"@{body('Slack_Notify_High_Virality')?['title']}\",\n    \"@{body('Slack_Notify_High_Virality')?['platform']}\",\n    \"@{body('Slack_Notify_High_Virality')?['content_type']}\",\n    @{body('Slack_Notify_High_Virality')?['virality_score']},\n    \"@{body('Slack_Notify_High_Virality')?['score_tier']}\",\n    @{body('Slack_Notify_High_Virality')?['component_scores']?['trend_alignment']},\n    @{body('Slack_Notify_High_Virality')?['component_scores']?['engagement_prediction']},\n    @{body('Slack_Notify_High_Virality')?['component_scores']?['timing_score']},\n    @{body('Slack_Notify_High_Virality')?['component_scores']?['historical_similarity']},\n    @{body('Slack_Notify_High_Virality')?['component_scores']?['media_bonus']},\n    \"@{body('Slack_Notify_High_Virality')?['key_drivers']?['join'](' | ')}\",\n    \"@{body('Slack_Notify_High_Virality')?['weaknesses']?['join'](' | ')}\",\n    \"@{body('Slack_Notify_High_Virality')?['recommendations']?['join'](' | ')}\",\n    \"@{body('Slack_Notify_High_Virality')?['best_publish_time']}\",\n    @{body('Slack_Notify_High_Virality')?['predicted_engagement_range']?['low']},\n    @{body('Slack_Notify_High_Virality')?['predicted_engagement_range']?['high']},\n    \"@{body('Slack_Notify_High_Virality')?['confidence']}\"\n  ]]\n}"
+          },
+          "runAfter": {
+            "Slack_Notify_High_Virality": [
+              "Succeeded"
+            ],
+            "Slack_Notify_Moderate_Virality": [
+              "Succeeded"
+            ],
+            "Email_Low_Virality_Revision_Alert": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Webhook_Response_Return_Score": {
+          "type": "Response",
+          "kind": "Http",
+          "inputs": {
+            "statusCode": 200,
+            "body": "{\n  \"submission_id\": \"@{body('Log_to_Google_Sheets')?['scored_submission_id']}\",\n  \"virality_score\": @{body('Log_to_Google_Sheets')?['virality_score']},\n  \"score_tier\": \"@{body('Log_to_Google_Sheets')?['score_tier']}\",\n  \"component_scores\": @{JSON.stringify(body('Log_to_Google_Sheets')?['component_scores'])},\n  \"key_drivers\": @{JSON.stringify(body('Log_to_Google_Sheets')?['key_drivers'])},\n  \"pattern_matches\": @{JSON.stringify(body('Log_to_Google_Sheets')?['pattern_matches'])},\n  \"weaknesses\": @{JSON.stringify(body('Log_to_Google_Sheets')?['weaknesses'])},\n  \"recommendations\": @{JSON.stringify(body('Log_to_Google_Sheets')?['recommendations'])},\n  \"best_publish_time\": \"@{body('Log_to_Google_Sheets')?['best_publish_time']}\",\n  \"predicted_engagement_range\": @{JSON.stringify(body('Log_to_Google_Sheets')?['predicted_engagement_range'])},\n  \"confidence\": \"@{body('Log_to_Google_Sheets')?['confidence']}\",\n  \"analysis_timestamp\": \"@{body('Log_to_Google_Sheets')?['analysis_timestamp']}\"\n}"
+          },
+          "runAfter": {
+            "Log_to_Google_Sheets": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_For_Result_From_Ai": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 1,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "AI_Virality_Score_Analysis": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Webhook_Content_Submitted",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

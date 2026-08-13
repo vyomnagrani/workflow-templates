@@ -1,0 +1,90 @@
+{
+  "sourceWorkflowName": "Lead generation system: Google Maps to email scraper with Google Sheets export",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 12,
+  "totalNodes": 19,
+  "coverage": 0.6316,
+  "diagnostics": [
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.removeDuplicates.",
+      "severity": "warning",
+      "node_name": "Remove Duplicates",
+      "node_type": "n8n-nodes-base.removeDuplicates",
+      "json_path": null
+    },
+    {
+      "code": "LOOP_SEMANTICS_UNSUPPORTED",
+      "message": "This n8n loop requires a bounded LAA Foreach/Until region; batch size, reset, and loop-back behavior must be preserved explicitly.",
+      "severity": "warning",
+      "node_name": "Loop Over Items",
+      "node_type": "n8n-nodes-base.splitInBatches",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.limit.",
+      "severity": "warning",
+      "node_name": "Limit",
+      "node_type": "n8n-nodes-base.limit",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.splitOut.",
+      "severity": "warning",
+      "node_name": "Split Out",
+      "node_type": "n8n-nodes-base.splitOut",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Extract Emails",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Extract URLs",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Scrape Site",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.filter.",
+      "severity": "warning",
+      "node_name": "Filter Out Empties",
+      "node_type": "n8n-nodes-base.filter",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.filter.",
+      "severity": "warning",
+      "node_name": "Filter Google URLs",
+      "node_type": "n8n-nodes-base.filter",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.removeDuplicates.",
+      "severity": "warning",
+      "node_name": "Remove Duplicates (2)",
+      "node_type": "n8n-nodes-base.removeDuplicates",
+      "json_path": null
+    }
+  ]
+}

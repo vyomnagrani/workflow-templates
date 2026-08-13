@@ -1,0 +1,210 @@
+{
+  "sourceWorkflowName": "Analyze Facebook Ads & send insights to Google Sheets with Gemini AI",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 22,
+  "totalNodes": 34,
+  "coverage": 0.6471,
+  "diagnostics": [
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Stringify Everything",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatGoogleGemini.",
+      "severity": "warning",
+      "node_name": "Google Gemini Chat Model",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.outputParserStructured.",
+      "severity": "warning",
+      "node_name": "Structured Output Parser",
+      "node_type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.splitOut.",
+      "severity": "warning",
+      "node_name": "Split Out",
+      "node_type": "n8n-nodes-base.splitOut",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Google Sheets operation 'appendOrUpdate' is not safely equivalent to a single LAA connector action.",
+      "severity": "warning",
+      "node_name": "Sending Raw Data To A Google Sheet",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.googleSheets is not safely supported.",
+      "severity": "warning",
+      "node_name": "Sending Raw Data To A Google Sheet",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.nocoDb.",
+      "severity": "warning",
+      "node_name": "Getting Long-Term Token",
+      "node_type": "n8n-nodes-base.nocoDb",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Does it Need A Token Refresh?",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Splitting Out In Table Format",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.sort.",
+      "severity": "warning",
+      "node_name": "Sorting Based on Spends",
+      "node_type": "n8n-nodes-base.sort",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.filter.",
+      "severity": "warning",
+      "node_name": "Filtering Only For Sales Campaigns",
+      "node_type": "n8n-nodes-base.filter",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =https://graph.facebook.com/v22.0/act_XXXXXX/insights",
+      "severity": "warning",
+      "node_name": "Getting Data For the Past 28 Days Segemented Per Campaign Adset and Ad",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.chainLlm.",
+      "severity": "warning",
+      "node_name": "Senior Facebook Ads Media Buyer",
+      "node_type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Senior Facebook Ads Media Buyer",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Senior Facebook Ads Media Buyer",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "MERGE_SEMANTICS_UNSUPPORTED",
+      "message": "This Merge node requires mode-specific data and synchronization semantics that cannot be represented by runAfter alone.",
+      "severity": "warning",
+      "node_name": "Combining Ad Data and Benchmarking Data",
+      "node_type": "n8n-nodes-base.merge",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Combining Ad Data and Benchmarking Data",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Google Sheets operation 'update' is not safely equivalent to a single LAA connector action.",
+      "severity": "warning",
+      "node_name": "Updating Ad Insights Into Google Sheets",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.googleSheets is not safely supported.",
+      "severity": "warning",
+      "node_name": "Updating Ad Insights Into Google Sheets",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Calculating End Date of Token1",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.nocoDb.",
+      "severity": "warning",
+      "node_name": "Updating Token",
+      "node_type": "n8n-nodes-base.nocoDb",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Calculate Account Benchmarks",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Stringify Benchmark Data",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Aggregate Metrics by Ad Creative",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.aggregate.",
+      "severity": "warning",
+      "node_name": "Combine Ad & Benchmark Data for LLM",
+      "node_type": "n8n-nodes-base.aggregate",
+      "json_path": null
+    }
+  ]
+}

@@ -1,0 +1,202 @@
+{
+  "sourceWorkflowName": "Find top-performing Instagram Reels & save insights to Notion with Gemini & Apify",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 24,
+  "totalNodes": 36,
+  "coverage": 0.6667,
+  "diagnostics": [
+    {
+      "code": "IF_REGION_UNSUPPORTED",
+      "message": "IF branches overlap or have external inputs, so nesting them would change behavior.",
+      "severity": "warning",
+      "node_name": "Is Uploaded And Active?",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "SWITCH_REGION_UNSUPPORTED",
+      "message": "Switch branches overlap or have external inputs, so nesting them would change behavior.",
+      "severity": "warning",
+      "node_name": "Switch",
+      "node_type": "n8n-nodes-base.switch",
+      "json_path": null
+    },
+    {
+      "code": "SWITCH_NESTED_UNSUPPORTED",
+      "message": "Switch nodes nested inside another compiled branch region require manual review.",
+      "severity": "warning",
+      "node_name": "Is Created?",
+      "node_type": "n8n-nodes-base.switch",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.notion.",
+      "severity": "warning",
+      "node_name": "Get Sources",
+      "node_type": "n8n-nodes-base.notion",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Variables",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Apify Payload",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.switch is not safely supported.",
+      "severity": "warning",
+      "node_name": "Switch",
+      "node_type": "n8n-nodes-base.switch",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Wait",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Wait",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @apify/n8n-nodes-apify.apify.",
+      "severity": "warning",
+      "node_name": "Get dataset items",
+      "node_type": "@apify/n8n-nodes-apify.apify",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @apify/n8n-nodes-apify.apify.",
+      "severity": "warning",
+      "node_name": "Get Status",
+      "node_type": "@apify/n8n-nodes-apify.apify",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @apify/n8n-nodes-apify.apify.",
+      "severity": "warning",
+      "node_name": "Run an Actor",
+      "node_type": "@apify/n8n-nodes-apify.apify",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Map Reels",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.notion.",
+      "severity": "warning",
+      "node_name": "Update Accounts",
+      "node_type": "n8n-nodes-base.notion",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.notion.",
+      "severity": "warning",
+      "node_name": "Get Reels",
+      "node_type": "n8n-nodes-base.notion",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Many to One",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Code",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.notion.",
+      "severity": "warning",
+      "node_name": "Create",
+      "node_type": "n8n-nodes-base.notion",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.notion.",
+      "severity": "warning",
+      "node_name": "Update",
+      "node_type": "n8n-nodes-base.notion",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.if is not safely supported.",
+      "severity": "warning",
+      "node_name": "Is Uploaded And Active?",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Format Response",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.switch is not safely supported.",
+      "severity": "warning",
+      "node_name": "Is Created?",
+      "node_type": "n8n-nodes-base.switch",
+      "json_path": null
+    },
+    {
+      "code": "LOOP_SEMANTICS_UNSUPPORTED",
+      "message": "This n8n loop requires a bounded LAA Foreach/Until region; batch size, reset, and loop-back behavior must be preserved explicitly.",
+      "severity": "warning",
+      "node_name": "Loop Over Items",
+      "node_type": "n8n-nodes-base.splitInBatches",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Stats",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    }
+  ]
+}

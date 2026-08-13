@@ -1,0 +1,194 @@
+{
+  "sourceWorkflowName": "Financial document extraction from Gmail to Google Sheets",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 15,
+  "totalNodes": 26,
+  "coverage": 0.5769,
+  "diagnostics": [
+    {
+      "code": "IF_REGION_UNSUPPORTED",
+      "message": "IF branches overlap or have external inputs, so nesting them would change behavior.",
+      "severity": "warning",
+      "node_name": "Check for Attachment",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "IF_REGION_UNSUPPORTED",
+      "message": "IF branches overlap or have external inputs, so nesting them would change behavior.",
+      "severity": "warning",
+      "node_name": "Check for Errors",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "TRIGGER_MISSING",
+      "message": "No supported n8n trigger was found.",
+      "severity": "warning",
+      "node_name": null,
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.gmailTrigger.",
+      "severity": "warning",
+      "node_name": "Look for Invoices",
+      "node_type": "n8n-nodes-base.gmailTrigger",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Gmail message/getAll is not mapped to a deterministic LAA action.",
+      "severity": "warning",
+      "node_name": "Get Email Content",
+      "node_type": "n8n-nodes-base.gmail",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.gmail is not safely supported.",
+      "severity": "warning",
+      "node_name": "Get Email Content",
+      "node_type": "n8n-nodes-base.gmail",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.guardrails.",
+      "severity": "warning",
+      "node_name": "Guardrail: Is Finance?",
+      "node_type": "@n8n/n8n-nodes-langchain.guardrails",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Guardrail: Is Finance?",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.filter.",
+      "severity": "warning",
+      "node_name": "Filter Finance Keywords",
+      "node_type": "n8n-nodes-base.filter",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.if is not safely supported.",
+      "severity": "warning",
+      "node_name": "Check for Attachment",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.extractFromFile.",
+      "severity": "warning",
+      "node_name": "Extract PDF Data",
+      "node_type": "n8n-nodes-base.extractFromFile",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.agent.",
+      "severity": "warning",
+      "node_name": "AI Agent (PDF OCR)",
+      "node_type": "@n8n/n8n-nodes-langchain.agent",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed or indexed connection inside an IF branch requires manual review.",
+      "severity": "warning",
+      "node_name": "AI Agent (PDF OCR)",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.agent.",
+      "severity": "warning",
+      "node_name": "AI Agent (Email OCR)",
+      "node_type": "@n8n/n8n-nodes-langchain.agent",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed or indexed connection inside an IF branch requires manual review.",
+      "severity": "warning",
+      "node_name": "AI Agent (Email OCR)",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Validate Extraction",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.if is not safely supported.",
+      "severity": "warning",
+      "node_name": "Check for Errors",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Apply Finance Rules",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $workflow.id }}",
+      "severity": "warning",
+      "node_name": "Log Error to Sheet",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $today }}",
+      "severity": "warning",
+      "node_name": "Log Success Metrics",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ Math.round(($execution.startedAt ? (Date.now() - new Date($execution.startedAt).getTime()) / 1000 : 0)) }}",
+      "severity": "warning",
+      "node_name": "Log Success Metrics",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOpenAi.",
+      "severity": "warning",
+      "node_name": "gpt 4o mini",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatGoogleGemini.",
+      "severity": "warning",
+      "node_name": "Gemini 2.5 flash",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "json_path": null
+    }
+  ]
+}

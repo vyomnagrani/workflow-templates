@@ -1,0 +1,322 @@
+{
+  "sourceWorkflowName": "Automated invoice processing with Telegram, GPT-4o, OCR and SAP integration",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 20,
+  "totalNodes": 29,
+  "coverage": 0.6897,
+  "diagnostics": [
+    {
+      "code": "SWITCH_REGION_UNSUPPORTED",
+      "message": "Switch branches overlap or have external inputs, so nesting them would change behavior.",
+      "severity": "warning",
+      "node_name": "Status?",
+      "node_type": "n8n-nodes-base.switch",
+      "json_path": null
+    },
+    {
+      "code": "TRIGGER_MISSING",
+      "message": "No supported n8n trigger was found.",
+      "severity": "warning",
+      "node_name": null,
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Wait",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.chainLlm.",
+      "severity": "warning",
+      "node_name": "Basic LLM Chain",
+      "node_type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Basic LLM Chain",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Basic LLM Chain",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOpenAi.",
+      "severity": "warning",
+      "node_name": "OpenAI Chat Model",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.splitOut.",
+      "severity": "warning",
+      "node_name": "Split Out",
+      "node_type": "n8n-nodes-base.splitOut",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.telegramTrigger.",
+      "severity": "warning",
+      "node_name": "Callback Waiting Answer",
+      "node_type": "n8n-nodes-base.telegramTrigger",
+      "json_path": null
+    },
+    {
+      "code": "MERGE_SEMANTICS_UNSUPPORTED",
+      "message": "This Merge node requires mode-specific data and synchronization semantics that cannot be represented by runAfter alone.",
+      "severity": "warning",
+      "node_name": "Merge",
+      "node_type": "n8n-nodes-base.merge",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$vars.url_sap",
+      "severity": "warning",
+      "node_name": "Connect to SAP",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $vars.url_sap }}Login",
+      "severity": "warning",
+      "node_name": "Connect to SAP",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$vars.user_sap",
+      "severity": "warning",
+      "node_name": "Connect to SAP",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$vars.password_sap",
+      "severity": "warning",
+      "node_name": "Connect to SAP",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$vars.company_db",
+      "severity": "warning",
+      "node_name": "Connect to SAP",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={\n       \"UserName\": \"{{ $vars.user_sap }}\",\n       \"Password\": \"{{ $vars.password_sap }}\",\n       \"CompanyDB\": \"{{ $vars.company_db }}\"\n}",
+      "severity": "warning",
+      "node_name": "Connect to SAP",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_RESOURCE_REQUIRED",
+      "message": "Google Sheets requires a spreadsheet and worksheet value before import.",
+      "severity": "warning",
+      "node_name": "Get Header",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_RESOURCE_REQUIRED",
+      "message": "Google Sheets requires a spreadsheet and worksheet value before import.",
+      "severity": "warning",
+      "node_name": "Get Row Details",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Generate DocumentLines",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Create JSON",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$vars.url_sap",
+      "severity": "warning",
+      "node_name": "POST PurchaseInvoices",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $vars.url_sap }}PurchaseInvoices",
+      "severity": "warning",
+      "node_name": "POST PurchaseInvoices",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "TELEGRAM_TOKEN_REQUIRED",
+      "message": "Replace the Telegram bot-token placeholder with a secure deployment value before import.",
+      "severity": "warning",
+      "node_name": "PurchaseInvoices created",
+      "node_type": "n8n-nodes-base.telegram",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.telegramTrigger.",
+      "severity": "warning",
+      "node_name": "Trigger Receive Message",
+      "node_type": "n8n-nodes-base.telegramTrigger",
+      "json_path": null
+    },
+    {
+      "code": "TELEGRAM_TOKEN_REQUIRED",
+      "message": "Replace the Telegram bot-token placeholder with a secure deployment value before import.",
+      "severity": "warning",
+      "node_name": "File Received",
+      "node_type": "n8n-nodes-base.telegram",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Telegram file/send requires text and chatId for deterministic conversion.",
+      "severity": "warning",
+      "node_name": "Download File",
+      "node_type": "n8n-nodes-base.telegram",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.telegram is not safely supported.",
+      "severity": "warning",
+      "node_name": "Download File",
+      "node_type": "n8n-nodes-base.telegram",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$vars.llamaindex_apikey",
+      "severity": "warning",
+      "node_name": "Upload File LlamaIndex",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =Bearer {{ $vars.llamaindex_apikey }}",
+      "severity": "warning",
+      "node_name": "Upload File LlamaIndex",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$vars.llamaindex_apikey",
+      "severity": "warning",
+      "node_name": "Validate Status LlamaIndex",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =Bearer {{ $vars.llamaindex_apikey }}",
+      "severity": "warning",
+      "node_name": "Validate Status LlamaIndex",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.switch is not safely supported.",
+      "severity": "warning",
+      "node_name": "Status?",
+      "node_type": "n8n-nodes-base.switch",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$vars.llamaindex_apikey",
+      "severity": "warning",
+      "node_name": "Get Results LlamaIndex",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =Bearer {{ $vars.llamaindex_apikey }}",
+      "severity": "warning",
+      "node_name": "Get Results LlamaIndex",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.outputParserStructured.",
+      "severity": "warning",
+      "node_name": "Structured Output Parser (Example)",
+      "node_type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_RESOURCE_REQUIRED",
+      "message": "Google Sheets requires a spreadsheet and worksheet value before import.",
+      "severity": "warning",
+      "node_name": "Detail",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_RESOURCE_REQUIRED",
+      "message": "Google Sheets requires a spreadsheet and worksheet value before import.",
+      "severity": "warning",
+      "node_name": "Header",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =¿Quieres enviar los datos a SAP?",
+      "severity": "warning",
+      "node_name": "¿Upload to SAP?",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "TELEGRAM_TOKEN_REQUIRED",
+      "message": "Replace the Telegram bot-token placeholder with a secure deployment value before import.",
+      "severity": "warning",
+      "node_name": "¿Upload to SAP?",
+      "node_type": "n8n-nodes-base.telegram",
+      "json_path": null
+    }
+  ]
+}

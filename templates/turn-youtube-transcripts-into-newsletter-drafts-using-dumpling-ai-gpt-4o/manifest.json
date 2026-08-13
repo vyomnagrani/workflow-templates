@@ -1,0 +1,253 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "turn-youtube-transcripts-into-newsletter-drafts-using-dumpling-ai-gpt-4o",
+    "name": "Turn YouTube transcripts into newsletter drafts using Dumpling AI + GPT-4o",
+    "description": "## 🧾 What this workflow does\n\nThis workflow turns YouTube video links into ready-to-edit newsletter drafts using Dumpling AI and GPT-4o. It reads new video URLs from a Google Sheet, extracts their transcripts, summarizes them into email-friendly content, and logs the finished draft back into the same sheet. An email notification is also sent to alert the user once each draft is created.\n\n---\n\n## 👤 Who is this for\n\n- Newsletter writers or marketers repurposing video content  \n- YouTube creators building email follow-ups from videos  \n- Agencies or VAs batching social → email content  \n- Automation users streamlining content workflows\n\n---\n\n## ⚙️ How to set up\n\n### ✅ Requirements\n- **Google Sheet** with the following columns:  \n  - `link` — YouTube video URL  \n  - `blog post` — for saving the generated newsletter draft  \n- Active accounts for:  \n  - Dumpling AI (API for YouTube transcripts)  \n  - OpenAI GPT-4 or GPT-4o  \n  - Google Sheets  \n  - Gmail (OAuth2 credential)\n\n---\n\n### 🔧 Setup steps\n\n1. **Connect all credentials** using n8n's Credential Manager:\n   - Google Sheets (OAuth2)\n   - Dumpling AI (via HTTP Header Auth)\n   - OpenAI\n   - Gmail\n\n2. **Update the sheet ID and tab name** in both Google Sheets nodes.\n\n3. **Customize the GPT-4o prompt** (optional):\n   - Located in the “GPT-4o: Write Newsletter Draft from Transcript” node\n   - You can edit tone, structure, and audience targeting in the system message\n\n4. **Verify email recipient** in the Gmail node and update if needed.\n\n---\n\n## 🧠 How it works\n\n1. The workflow is triggered manually or on schedule.\n2. It pulls YouTube links without drafts from the sheet.\n3. Each video’s transcript is fetched using Dumpling AI.\n4. GPT-4o summarizes the transcript into a clean, friendly newsletter format.\n5. The draft is written back to the same row in Google Sheets.\n6. An email is sent to notify the user that the draft is ready.\n\n---\n\n## 🛠️ Customization ideas\n\n- Send finished drafts to Notion or Airtable instead of Sheets  \n- Generate social media posts from the same transcript  \n- Add automatic review steps using GPT scoring or editing  \n- Trigger this on new form submissions or YouTube uploads instead\n\n---\n\nThis is a fast, AI-powered way to turn long-form video content into clean, polished newsletters — ready to share or schedule with minimal editing.\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/gmail",
+      "/managedApis/googlesheet",
+      "connectionProviders/Http",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger_Start_Workflow": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Read_YouTube_Links_from_Google_Sheets": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_SPREADSHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {}
+        },
+        "Loop_Process_Each_YouTube_Link": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Loop: Process Each YouTube Link",
+            "n8nNodeType": "n8n-nodes-base.splitInBatches",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "reset": false
+              }
+            }
+          },
+          "runAfter": {
+            "Log_Newsletter_Draft_to_Google_Sheets": [
+              "Succeeded"
+            ],
+            "Read_YouTube_Links_from_Google_Sheets": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Dumpling_AI_Get_YouTube_Transcript": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://app.dumplingai.com/api/v1/get-youtube-transcript",
+            "body": {
+              "videoUrl": "@body('Loop_Process_Each_YouTube_Link')?['link']"
+            }
+          },
+          "runAfter": {
+            "Loop_Process_Each_YouTube_Link": [
+              "Succeeded"
+            ]
+          }
+        },
+        "GPT_4o_Write_Newsletter_Draft_from_Transcript": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "GPT-4o: Write Newsletter Draft from Transcript",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "chatgpt-4o-latest",
+                "cachedResultName": "CHATGPT-4O-LATEST"
+              },
+              "options": {},
+              "messages": {
+                "values": [
+                  {
+                    "role": "system",
+                    "content": "\"Here is a transcript from a YouTube video. Please write a clear and engaging newsletter based on this transcript. Summarize the key ideas, insights, and tips shared in the video. Start with a short and catchy introduction that grabs attention. Structure the body of the newsletter with short, readable paragraphs that highlight the most valuable points. End with a simple call to action related to the video topic. Keep the tone friendly and professional, and make sure the content flows naturally for email readers. Do not include time stamps or speaker labels from the transcript. Focus on clarity and value.\"\n\nLet me know if you'd like the prompt tailored to a specific audience or niche."
+                  },
+                  {
+                    "content": "=Transcript: {{ $json.transcript }}"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Dumpling_AI_Get_YouTube_Transcript": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Log_Newsletter_Draft_to_Google_Sheets": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Log Newsletter Draft to Google Sheets",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "link": "={{ $('Read YouTube Links from Google Sheets').item.json.link }}",
+                  "blog post": "={{ $json.message.content }}"
+                },
+                "schema": [
+                  {
+                    "id": "link",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "link",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "blog post",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "blog post",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "link"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "appendOrUpdate",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gid=0",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/182LztuSnqcPeYLtUOIG4LjDs2Nj7sDYS-sjMY90O3PM/edit#gid=0",
+                "cachedResultName": "Sheet1"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/182LztuSnqcPeYLtUOIG4LjDs2Nj7sDYS-sjMY90O3PM/edit?usp=drivesdk",
+                "cachedResultName": "Youtube"
+              }
+            }
+          },
+          "runAfter": {
+            "GPT_4o_Write_Newsletter_Draft_from_Transcript": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_Email_Notification_When_Draft_is_Ready": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "gmail_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/v2/Mail",
+            "body": {
+              "To": "user@example.com",
+              "Subject": "Newsletter Draft Created from YouTube Transcript",
+              "Body": "=Hello,  \nThe newsletter based on the latest YouTube transcript has just been created successfully. You can now review, edit, or schedule it for distribution.  Please check the draft and let me know if anything needs to be adjusted before it goes live."
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendEmailV2"
+            }
+          },
+          "runAfter": {
+            "Loop_Process_Each_YouTube_Link": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger_Start_Workflow",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    },
+    "gmail_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/gmail"
+    }
+  }
+}

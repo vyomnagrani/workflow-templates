@@ -1,0 +1,194 @@
+{
+  "sourceWorkflowName": "Generate AI videos and carousels with Blotato for Instagram and TikTok",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 1,
+  "totalNodes": 13,
+  "coverage": 0.0769,
+  "diagnostics": [
+    {
+      "code": "TRIGGER_MISSING",
+      "message": "No supported n8n trigger was found.",
+      "severity": "warning",
+      "node_name": null,
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @blotato/n8n-nodes-blotato.blotatoTool.",
+      "severity": "warning",
+      "node_name": "Create visual - tweet card carousel",
+      "node_type": "@blotato/n8n-nodes-blotato.blotatoTool",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @blotato/n8n-nodes-blotato.blotatoTool.",
+      "severity": "warning",
+      "node_name": "Create visual - AI image video",
+      "node_type": "@blotato/n8n-nodes-blotato.blotatoTool",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @blotato/n8n-nodes-blotato.blotatoTool.",
+      "severity": "warning",
+      "node_name": "Post to Instagram",
+      "node_type": "@blotato/n8n-nodes-blotato.blotatoTool",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.memoryBufferWindow.",
+      "severity": "warning",
+      "node_name": "Simple Memory",
+      "node_type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOpenAi.",
+      "severity": "warning",
+      "node_name": "OpenAI ChatGPT",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.telegramTrigger.",
+      "severity": "warning",
+      "node_name": "Telegram Trigger",
+      "node_type": "n8n-nodes-base.telegramTrigger",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @blotato/n8n-nodes-blotato.blotatoTool.",
+      "severity": "warning",
+      "node_name": "Create source",
+      "node_type": "@blotato/n8n-nodes-blotato.blotatoTool",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @blotato/n8n-nodes-blotato.blotatoTool.",
+      "severity": "warning",
+      "node_name": "Get source",
+      "node_type": "@blotato/n8n-nodes-blotato.blotatoTool",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @blotato/n8n-nodes-blotato.blotatoTool.",
+      "severity": "warning",
+      "node_name": "Post to TikTok",
+      "node_type": "@blotato/n8n-nodes-blotato.blotatoTool",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @blotato/n8n-nodes-blotato.blotatoTool.",
+      "severity": "warning",
+      "node_name": "Get visual",
+      "node_type": "@blotato/n8n-nodes-blotato.blotatoTool",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.telegramTool.",
+      "severity": "warning",
+      "node_name": "Send notification",
+      "node_type": "n8n-nodes-base.telegramTool",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.agent.",
+      "severity": "warning",
+      "node_name": "Social Media Autopilot",
+      "node_type": "@n8n/n8n-nodes-langchain.agent",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Social Media Autopilot",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Social Media Autopilot",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Social Media Autopilot",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Social Media Autopilot",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Social Media Autopilot",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Social Media Autopilot",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Social Media Autopilot",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Social Media Autopilot",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Social Media Autopilot",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Social Media Autopilot",
+      "node_type": null,
+      "json_path": null
+    }
+  ]
+}

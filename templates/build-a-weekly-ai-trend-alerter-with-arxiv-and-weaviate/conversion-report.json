@@ -1,0 +1,290 @@
+{
+  "sourceWorkflowName": "Build a weekly AI trend alerter with arXiv and Weaviate",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 23,
+  "totalNodes": 46,
+  "coverage": 0.5,
+  "diagnostics": [
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.vectorStoreWeaviate.",
+      "severity": "warning",
+      "node_name": "Weaviate Vector Store",
+      "node_type": "@n8n/n8n-nodes-langchain.vectorStoreWeaviate",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Weaviate Vector Store",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Weaviate Vector Store",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.documentDefaultDataLoader.",
+      "severity": "warning",
+      "node_name": "Default Data Loader",
+      "node_type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Default Data Loader",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.xml.",
+      "severity": "warning",
+      "node_name": "Convert XML to JSON",
+      "node_type": "n8n-nodes-base.xml",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.removeDuplicates.",
+      "severity": "warning",
+      "node_name": "Remove Duplicates",
+      "node_type": "n8n-nodes-base.removeDuplicates",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.memoryBufferWindow.",
+      "severity": "warning",
+      "node_name": "Simple Memory",
+      "node_type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.embeddingsOpenAi.",
+      "severity": "warning",
+      "node_name": "Embeddings OpenAI",
+      "node_type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOpenRouter.",
+      "severity": "warning",
+      "node_name": "OpenRouter Chat Model",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.vectorStoreWeaviate.",
+      "severity": "warning",
+      "node_name": "Weaviate Vector Store1",
+      "node_type": "@n8n/n8n-nodes-langchain.vectorStoreWeaviate",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Weaviate Vector Store1",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.embeddingsOpenAi.",
+      "severity": "warning",
+      "node_name": "Embeddings OpenAI1",
+      "node_type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.dateTime.",
+      "severity": "warning",
+      "node_name": "Date & Time",
+      "node_type": "n8n-nodes-base.dateTime",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.markdown.",
+      "severity": "warning",
+      "node_name": "Markdown",
+      "node_type": "n8n-nodes-base.markdown",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter.",
+      "severity": "warning",
+      "node_name": "Recursive Character Text Splitter1",
+      "node_type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.outputParserStructured.",
+      "severity": "warning",
+      "node_name": "Structured Output Parser",
+      "node_type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOpenRouter.",
+      "severity": "warning",
+      "node_name": "OpenRouter Chat Model1",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.outputParserStructured.",
+      "severity": "warning",
+      "node_name": "Structured Output Parser1",
+      "node_type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Structured Output Parser1",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "MERGE_SEMANTICS_UNSUPPORTED",
+      "message": "This Merge node requires mode-specific data and synchronization semantics that cannot be represented by runAfter alone.",
+      "severity": "warning",
+      "node_name": "Merge",
+      "node_type": "n8n-nodes-base.merge",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Merge",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOpenRouter.",
+      "severity": "warning",
+      "node_name": "OpenRouter Chat Model2",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.dateTime.",
+      "severity": "warning",
+      "node_name": "Get Current Date",
+      "node_type": "n8n-nodes-base.dateTime",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.splitOut.",
+      "severity": "warning",
+      "node_name": "Split Results",
+      "node_type": "n8n-nodes-base.splitOut",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.agent.",
+      "severity": "warning",
+      "node_name": "Enrich Articles with Topic Classification",
+      "node_type": "@n8n/n8n-nodes-langchain.agent",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Enrich Articles with Topic Classification",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Enrich Articles with Topic Classification",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.aggregate.",
+      "severity": "warning",
+      "node_name": "Aggregate Uploaded arXiv IDs",
+      "node_type": "n8n-nodes-base.aggregate",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.agent.",
+      "severity": "warning",
+      "node_name": "Agentic RAG for Trend Analysis",
+      "node_type": "@n8n/n8n-nodes-langchain.agent",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Agentic RAG for Trend Analysis",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Agentic RAG for Trend Analysis",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Agentic RAG for Trend Analysis",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Agentic RAG for Trend Analysis",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.emailSend.",
+      "severity": "warning",
+      "node_name": "Send email",
+      "node_type": "n8n-nodes-base.emailSend",
+      "json_path": null
+    }
+  ]
+}

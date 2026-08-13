@@ -1,0 +1,162 @@
+{
+  "sourceWorkflowName": "Manage Google Calendar events with Zalo Bot, OpenAI, and Gemini",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 9,
+  "totalNodes": 20,
+  "coverage": 0.45,
+  "diagnostics": [
+    {
+      "code": "TRIGGER_MISSING",
+      "message": "No supported n8n trigger was found.",
+      "severity": "warning",
+      "node_name": null,
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleCalendarTool.",
+      "severity": "warning",
+      "node_name": "Delete event",
+      "node_type": "n8n-nodes-base.googleCalendarTool",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleCalendarTool.",
+      "severity": "warning",
+      "node_name": "Get events",
+      "node_type": "n8n-nodes-base.googleCalendarTool",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleCalendarTool.",
+      "severity": "warning",
+      "node_name": "Create Event",
+      "node_type": "n8n-nodes-base.googleCalendarTool",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleCalendarTool.",
+      "severity": "warning",
+      "node_name": "Update Event",
+      "node_type": "n8n-nodes-base.googleCalendarTool",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOpenAi.",
+      "severity": "warning",
+      "node_name": "OpenAI Chat Model",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.googleGemini.",
+      "severity": "warning",
+      "node_name": "Transcribe a recording",
+      "node_type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.agent.",
+      "severity": "warning",
+      "node_name": "Calendar Manage",
+      "node_type": "@n8n/n8n-nodes-langchain.agent",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Calendar Manage",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Calendar Manage",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Calendar Manage",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Calendar Manage",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Calendar Manage",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Calendar Manage",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-zalo-bot-official.zaloBotTrigger.",
+      "severity": "warning",
+      "node_name": "Start",
+      "node_type": "n8n-nodes-zalo-bot-official.zaloBotTrigger",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-zalo-bot-official.zaloBot.",
+      "severity": "warning",
+      "node_name": "Send a chat action",
+      "node_type": "n8n-nodes-zalo-bot-official.zaloBot",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-zalo-bot-official.zaloBot.",
+      "severity": "warning",
+      "node_name": "Send a text message",
+      "node_type": "n8n-nodes-zalo-bot-official.zaloBot",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-zalo-bot-official.zaloBot.",
+      "severity": "warning",
+      "node_name": "Send a text message1",
+      "node_type": "n8n-nodes-zalo-bot-official.zaloBot",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Send a text message1",
+      "node_type": null,
+      "json_path": null
+    }
+  ]
+}

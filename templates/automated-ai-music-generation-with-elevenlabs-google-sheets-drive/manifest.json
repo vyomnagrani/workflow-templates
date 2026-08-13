@@ -1,0 +1,265 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "automated-ai-music-generation-with-elevenlabs-google-sheets-drive",
+    "name": "Automated 🤖🎵 AI music generation with ElevenLabs, Google Sheets & Drive",
+    "description": "🤖🎵 This workflow automates the creation, storage, and cataloging of AI-generated music using the **[Eleven Music API](https://try.elevenlabs.io/ahkbf00hocnu)**, **Google Sheets**, and **Google Drive**.\n\n---\n### **Key Advantages**\n✅ **Fully Automated Music Generation Pipeline**\n\nOnce started, the workflow automatically:\n\n* Reads track parameters\n* Generates music via API\n* Uploads the file\n* Updates your spreadsheet\n  No manual steps needed after initialization.\n\n✅ **Centralized Track Management**\n\nA single Google Sheet acts as your **project control center**, letting you organize:\n\n* Prompts\n* Durations\n* Generated URLs\n  This avoids losing track of files and creates a ready-to-share catalog.\n\n✅ **Seamless Integration with Google Services**\n\nThe workflow:\n\n* Reads instructions from **Google Sheets**\n* Saves the MP3 to **Google Drive**\n* Updates the same Sheet with the final link\n  This ensures everything stays synchronized and easy to access.\n\n✅ **Scalable and Reliable Processing**\n\nThe loop-with-delay mechanism:\n\n* Processes tracks sequentially\n* Prevents API overload\n* Ensures stable execution\n  This is especially helpful when generating multiple long tracks.\n\n✅ **Easy Customization**\n\nBecause the prompts and durations come from Google Sheets:\n\n* You can edit prompts at any time\n* You can add more tracks without modifying the workflow\n* You can clone the Sheet for different projects\n\n✅ **Ideal for Creators and Businesses**\n\nThis workflow is perfect for:\n\n* Content creators generating background music\n* Agencies designing custom soundtracks\n* Businesses needing AI-generated audio assets\n* Automated production pipelines\n\n---\n\n### How It Works\n\nThe process operates as follows:\n\n- The workflow starts manually via the \"Execute workflow\" trigger\n- It retrieves a list of music track requests from a Google Sheets spreadsheet containing track titles, text prompts, and duration specifications\n- The system processes each track request individually through a batch loop\n- For each track, it sends the text prompt and duration to ElevenLabs Music API to generate studio-quality music\n- The generated MP3 file (in 44100 Hz, 128 kbps format) is automatically uploaded to a designated Google Drive folder\n- Once uploaded, the workflow updates the original Google Sheets with the direct URL to the generated music file\n- A 1-minute wait period between each track generation prevents API rate limiting\n- The process continues until all track requests in the spreadsheet have been processed\n\n---\n\n### Set Up Steps\n\n**Prerequisites:**\n- ElevenLabs paid account with Music API access enabled\n- Google Sheets spreadsheet with specific columns: TITLE, PROMPT, DURATION (ms), URL\n- Google Drive folder for storing generated music files\n\n**Configuration Steps:**\n\n1. **ElevenLabs API Setup:**\n   - Enable Music Generation access in your  [ElevenLabs account](https://try.elevenlabs.io/ahkbf00hocnu)\n   - Generate an API key from the ElevenLabs developer dashboard\n   - Configure HTTP Header authentication in n8n with name \"xi-api-key\" and your API value\n\n2. **Google Sheets Preparation:**\n   - Create or clone the music tracking spreadsheet with required columns\n   - Fill in track titles, detailed text prompts, and durations in milliseconds (10,000-300,000 ms)\n   - Configure Google Sheets OAuth credentials in n8n\n   - Update the document ID in the Google Sheets nodes\n\n3. **Google Drive Configuration:**\n   - Create a dedicated folder for music uploads\n   - Set up Google Drive OAuth credentials in n8n\n   - Update the folder ID in the upload node\n\n4. **Workflow Activation:**\n   - Ensure all API credentials are properly configured\n   - Test with a single track entry in the spreadsheet\n   - Verify music generation, upload, and spreadsheet update work correctly\n   - Execute the workflow to process all pending track requests\n\nThe workflow automatically names files with timestamp prefixes (song_yyyyMMdd) and handles the complete lifecycle from prompt to downloadable music file.\n\n---\n\n👉 [Subscribe to my new **YouTube channel**](https://youtube.com/@n3witalia). Here I’ll share videos and Shorts with practical tutorials and **FREE templates for n8n**.\n\n[![image](https://n3wstorage.b-cdn.net/n3witalia/youtube-n8n-cover.jpg)](https://youtube.com/@n3witalia)\n\n---\n\n### **Need help customizing?**  \n[Contact me](mailto:info@n3w.it) for consulting and support or add me on [Linkedin](https://www.linkedin.com/in/davideboizza/).",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "connectionProviders/Http",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "When_clicking_Execute_workflow": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Loop_Over_Items": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Loop Over Items",
+            "n8nNodeType": "n8n-nodes-base.splitInBatches",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Wait": [
+              "Succeeded"
+            ],
+            "Get_tracks": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 1,
+              "unit": "Minute"
+            }
+          },
+          "runAfter": {
+            "Update_Link_tracks": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_tracks": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('10yDGf9Xyx2l-zdd5S1orxZaKbW3_vnONVgRBk_CLrpg'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {}
+        },
+        "Compose_music": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.elevenlabs.io/v1/music",
+            "body": "{\n  \"respect_sections_durations\": true,\n  \"prompt\": \"@{body('Loop_Over_Items')?['PROMPT']}\",\n  \"music_length_ms\": @{body('Loop_Over_Items')?['DURATION (ms)']},\n  \"model_id\": \"music_v1\"\n}"
+          },
+          "runAfter": {
+            "Loop_Over_Items": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_music": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Upload music",
+            "n8nNodeType": "n8n-nodes-base.googleDrive",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "name": "=song_{{$now.format('yyyyLLdd')}}.{{ $binary.data.fileExtension }}",
+              "driveId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "My Drive"
+              },
+              "options": {},
+              "folderId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1tkCr7xdraoZwsHqeLm7FZ4aRWY94oLbZ",
+                "cachedResultUrl": "https://drive.google.com/drive/folders/1tkCr7xdraoZwsHqeLm7FZ4aRWY94oLbZ",
+                "cachedResultName": "n8n"
+              }
+            }
+          },
+          "runAfter": {
+            "Compose_music": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Update_Link_tracks": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update Link tracks",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "URL": "={{ $json.webViewLink }}",
+                  "row_number": "={{ $('Loop Over Items').item.json.row_number }}"
+                },
+                "schema": [
+                  {
+                    "id": "N.",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "N.",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "TITLE",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "TITLE",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "PROMPT",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "PROMPT",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "DURATION (ms)",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "DURATION (ms)",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "URL",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "URL",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "row_number",
+                    "type": "number",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "row_number",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "row_number"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "update",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gid=0",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10yDGf9Xyx2l-zdd5S1orxZaKbW3_vnONVgRBk_CLrpg/edit#gid=0",
+                "cachedResultName": "Foglio1"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "10yDGf9Xyx2l-zdd5S1orxZaKbW3_vnONVgRBk_CLrpg",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10yDGf9Xyx2l-zdd5S1orxZaKbW3_vnONVgRBk_CLrpg/edit?usp=drivesdk",
+                "cachedResultName": "My Music Tracks"
+              }
+            }
+          },
+          "runAfter": {
+            "Upload_music": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "When_clicking_Execute_workflow",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

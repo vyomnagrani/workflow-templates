@@ -1,0 +1,397 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "generate-news-digest-videos-from-wordpress-to-youtube-with-shotstack",
+    "name": "Generate news digest videos from WordPress to YouTube with Shotstack",
+    "description": "# Daily News Digest Video Generator for YouTube Shorts\n\n## Instalations Instructions\n\n[Youtube Instalation Instructions](https://youtu.be/hfc4BRIh3ZU)\n\n## Overview\n\nThis workflow automatically creates and publishes daily news digest videos from WordPress articles to YouTube. It runs every evening at 7 PM, compiling the day's top stories from a news portal into a professionally formatted vertical video (1080x1920px) optimized for social media platforms like YouTube Shorts.\n\n---\n\n## What It Does\n\n### 1. **🕐 Scheduled Trigger**\n- Runs automatically every day at **19:00 (7 PM)**\n\n### 2. **📰 Fetches Today's Articles**\n- Retrieves all published WordPress posts from the current day\n\n### 3. **✅ Validates Content**\n- Ensures there are **at least 3 articles** before proceeding\n\n### 4. **🎬 Video Detection**\n- Scans article content HTML for embedded videos\n- Extracts MP4 URLs from WordPress video players\n- Parses `wp-playlist-script` JSON data\n- Falls back to `<video>` and `&lt;source&gt;` tag detection\n\n### 5. **🧹 Data Processing**\n- **Extracts** article titles, links, and featured media IDs\n- **Decodes HTML entities**: Converts `&#8211;` to `–`, `&quot;` to `\"`, etc.\n- **Fetches featured images** from WordPress Media API\n- **Assigns default images** for articles without featured media\n- **Calculates reading time** per article (3-7 seconds based on word count)\n- **Cleans text**: Removes HTML tags and normalizes whitespace\n\n### 6. **🎥 Video Generation** (via Shotstack API)\n\n#### Intro Slide (3 seconds)\n- Black background\n- Large logo (centered)\n- Title on center\n- Current date in DD-MM-YYYY format\n\n#### News Slides (3-7 seconds each)\nEach article is displayed with:\n- **Background**: Video (if available) or featured image, cropped to fit\n- **Dark overlay**: 40% opacity black layer for text readability\n- **Article headline**: Large white text at top\n- **Small logo**: Top-right corner\n- **Pagination counter**: Bottom-right white badge (e.g., \"1 / 22\")\n- **CTA button**: Centered CTA\n- **Background music**: Subtle looped audio track\n- **Transitions**: Smooth fade in/out between slides\n\n#### Outro Slide (3 seconds)\n- Identical to intro slide\n- Provides clean ending to the video\n\n### 7. **⏳ Processing Wait**\n- Waits **30 seconds** for Shotstack to render the video\n- Polls Shotstack API to verify video completion\n\n### 8. **📥 Download Video**\n- Retrieves the finished MP4 file from Shotstack\n- Downloads video data for YouTube upload\n\n### 9. **📤 YouTube Upload**\nAutomatically uploads to YouTube with:\n- **Title**: `\"Daily Digest - [Day] [Weekday], [Year]\"`\n- **Description**: Same as title\n- **Category**: News & Politics\n- **Made for kids**: Yes\n- **Tags**: `dailydigest`\n\n---\n\n## ✨ Key Features\n\n### Intelligent Content Handling\n- ✅ Automatic video/image detection and intelligent media selection\n- ✅ Dynamic reading time calculation for optimal viewer engagement\n- ✅ HTML entity cleaning for proper text display (WordPress compatibility)\n- ✅ Fallback default images for articles without media\n- ✅ Video background support with automatic muting\n\n### Professional Video Production\n- ✅ Vertical format optimized for mobile viewing (1080x1920px)\n- ✅ Professional branding with logos and consistent styling\n- ✅ Smooth fade transitions between slides\n- ✅ Background music with looping support\n- ✅ Dynamic pagination counters\n- ✅ Call-to-action buttons for engagement\n\n### Customization\n- ✅ Centralized variables for easy branding updates\n- ✅ Configurable logos, colors, and text\n- ✅ Adjustable reading time calculation\n- ✅ Flexible date formatting\n- ✅ Customizable audio track\n\n## 🎯 Use Cases\n\nPerfect for:\n- 📰 **News websites** wanting to repurpose daily articles\n- 📱 **Media outlets** creating social media content\n- 🎥 **Content creators** automating video production\n- 🔄 **Publishers** maximizing content distribution\n- 📊 **Marketing teams** driving traffic from social platforms\n\n---\n\n## 🔧 Customization Options\n\n### Easy Changes\n- Update logos by changing `logo_big` and `logo_small` URLs\n- Modify branding colors via `button_bg_color` variable\n- Adjust button text with `button_text` variable\n- Change video title with `daily_digest_text` variable\n- Update background music by replacing audio URL\n\n### Advanced Customization\n- Adjust reading time formula in `calculateReadingTime()` function\n- Modify date format in `getRomanianDate()` function\n- Change video dimensions (currently 1080x1920)\n- Update font family and sizes\n- Adjust overlay opacity and colors\n- Modify transition effects\n\n---\n\n## 📋 Prerequisites\n\n### Required Credentials\n1. **WordPress API** - Access your WordPress site\n2. **Shotstack API** - API key for video rendering (Stage environment)\n3. **YouTube OAuth2** - Authenticated YouTube account for uploads\n\n\n\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Trice_once_a_day_evenings": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Get_articles_from_today": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get articles from today",
+            "n8nNodeType": "n8n-nodes-base.wordpress",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "after": "={{ (() => { \n  const d = new Date(); \n  d.setHours(0,0,0,0); \n  const pad = n => n.toString().padStart(2,'0'); \n  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} 00:00:00`; \n})() }}",
+                "before": "={{ (() => { \n  const d = new Date(); \n  const pad = n => n.toString().padStart(2,'0'); \n  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; \n})() }}",
+                "status": "publish"
+              },
+              "operation": "getAll",
+              "returnAll": true
+            }
+          },
+          "runAfter": {
+            "Config_Variables": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Check_if_have_enough_articles": {
+          "type": "If",
+          "expression": {
+            "greater": [
+              "={{ $input.all().length }}",
+              2
+            ]
+          },
+          "actions": {
+            "Prepare_json_for_Shotstack": {
+              "type": "JavaScriptCode",
+              "inputs": {
+                "code": "const __inputRaw = workflowContext.actions['Merge_all_articles'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Function to clean HTML entities from text\nfunction cleanText(text) {\n  if (!text) return \"\";\n  return text\n    .replace(/<[^>]*>/g, '')\n    .replace(/&hellip;/g, '...')\n    .replace(/&nbsp;/g, ' ')\n    .replace(/&amp;/g, '&')\n    .replace(/&lt;/g, '<')\n    .replace(/&gt;/g, '>')\n    .replace(/&quot;/g, '\"')\n    .replace(/&#39;/g, \"'\")\n    .replace(/&#8211;/g, '–')\n    .replace(/&#8212;/g, '—')\n    .replace(/&#(\\d+);/g, (_match, dec) => String.fromCharCode(dec))\n    .replace(/\\n/g, ' ')\n    .replace(/\\s+/g, ' ')\n    .trim();\n}\n\n// Calculate reading time based on word count\nfunction calculateReadingTime(text) {\n  const words = text.split(' ').length;\n  const readingTime = 2 + (words * 0.3);\n  return Math.min(Math.max(readingTime, 3), 7);\n}\n\n// Get today's date in numeric format DD-MM-YYYY\nfunction getDateFormat() {\n  const date = new Date();\n  const day = String(date.getDate()).padStart(2, '0');\n  const month = String(date.getMonth() + 1).padStart(2, '0');\n  const year = date.getFullYear();\n  return `${day}-${month}-${year}`;\n}\n\n// Variables\nconst logo_big = __node('Config_Variables').first().json.logo_big;\nconst logo_small = __node('Config_Variables').first().json.logo_small;\nconst daily_digest_text = __node('Config_Variables').first().json.daily_digest_text;\nconst button_text = __node('Config_Variables').first().json.button_text;\nconst button_bg_color = __node('Config_Variables').first().json.button_bg_color;\n\n// Get all items from previous node\nconst allItems = $input.all();\n\n// Transform each item to include video data\nconst transformedItems = allItems.map(item => {\n  const n = item.json;\n  const title = n.title || \"\";\n  const photo_url = n.photo_url || \"\";\n  const video = n.video || null;\n\n  return {\n    clip: {\n      asset: {\n        type: \"image\",\n        src: photo_url\n      },\n      length: 4.5,\n      transition: { in: \"fade\", out: \"fade\" }\n    },\n    overlay: {\n      title: title\n    },\n    video: video\n  };\n});\n\n// Build Shotstack payload\nconst shotstackClips = [];\nconst introBgClips = [];\nconst introLogoClips = [];\nconst introTitleClips = [];\nconst introDateClips = [];\nconst paginationBgClips = [];\nconst paginationTextClips = [];\nconst buttonBgClips = [];\nconst buttonTextClips = [];\nlet currentTime = 0;\n\n// 1. INTRO SLIDE\nconst introLength = 3;\nintroBgClips.push({\n  asset: {\n    type: \"shape\",\n    shape: \"rectangle\",\n    fill: { color: \"#000000\", opacity: 1 },\n    stroke: { color: \"#000000\", width: \"0\" },\n    width: 1080,\n    height: 1920,\n    rectangle: { width: 1080, height: 1920, cornerRadius: 0 }\n  },\n  start: 0,\n  length: introLength,\n  position: \"center\"\n});\n\nintroLogoClips.push({\n  asset: { type: \"image\", src: logo_big },\n  start: 0,\n  length: introLength,\n  position: \"center\",\n  offset: { x: 0, y: -0.1 },\n  scale: 0.05\n});\n\nintroTitleClips.push({\n  asset: {\n    type: \"text\",\n    text: daily_digest_text,\n    font: { color: \"#ffffff\", family: \"Montserrat ExtraBold\", size: \"62\", lineHeight: 1.2 },\n    alignment: { horizontal: \"center\", vertical: \"center\" },\n    width: 800,\n    height: 150\n  },\n  start: 0,\n  length: introLength,\n  position: \"center\",\n  offset: { x: 0, y: 0.05 }\n});\n\nintroDateClips.push({\n  asset: {\n    type: \"text\",\n    text: getDateFormat(),\n    font: { color: \"#cccccc\", family: \"Montserrat ExtraBold\", size: \"28\", lineHeight: 1.2 },\n    alignment: { horizontal: \"center\", vertical: \"center\" },\n    width: 800,\n    height: 200\n  },\n  start: 0,\n  length: introLength,\n  position: \"center\",\n  offset: { x: 0, y: 0.1 }\n});\n\ncurrentTime += introLength;\n\n// 2. NEWS SLIDES\ntransformedItems.forEach((item, index) => {\n  const cleanedTitle = cleanText(item.overlay.title);\n  const duration = calculateReadingTime(cleanedTitle);\n  const baseStart = currentTime;\n  const hasVideo = item.video && item.video.src;\n\n  // Background media (video or image)\n  shotstackClips.push({\n    asset: {\n      type: hasVideo ? \"video\" : \"image\",\n      src: hasVideo ? item.video.src : item.clip.asset.src,\n      ...(hasVideo && { volume: 0 })\n    },\n    start: baseStart,\n    length: duration,\n    fit: \"crop\",\n    position: \"center\",\n    transition: { in: \"fade\", out: \"fade\" }\n  });\n\n  // Dark overlay\n  shotstackClips.push({\n    asset: {\n      type: \"shape\",\n      shape: \"rectangle\",\n      fill: { color: \"#000000\", opacity: 0.4 },\n      stroke: { color: \"#000000\", width: \"0\" },\n      width: 1080,\n      height: 1920,\n      rectangle: { width: 1080, height: 1920, cornerRadius: 0 }\n    },\n    start: baseStart,\n    length: duration,\n    offset: { x: 0, y: 0 },\n    position: \"center\"\n  });\n\n  // Title\n  shotstackClips.push({\n    asset: {\n      type: \"text\",\n      text: cleanedTitle,\n      alignment: { horizontal: \"center\", vertical: \"top\" },\n      font: { color: \"#ffffff\", family: \"Montserrat ExtraBold\", size: \"62\", lineHeight: 1.2 },\n      width: 800,\n      height: 800\n    },\n    start: baseStart + 0.2,\n    length: duration - 0.4,\n    position: \"center\",\n    offset: { x: 0, y: 0.1 }\n  });\n\n  // Logo\n  shotstackClips.push({\n    asset: { type: \"image\", src: logo_small },\n    start: baseStart,\n    length: duration,\n    position: \"topRight\",\n    scale: 0.07,\n    offset: { x: -0.05, y: -0.05 }\n  });\n\n  // Pagination background\n  paginationBgClips.push({\n    asset: {\n      type: \"shape\",\n      shape: \"rectangle\",\n      fill: { color: \"#ffffff\", opacity: 0.95 },\n      stroke: { color: \"#000000\", width: \"0\" },\n      width: 140,\n      height: 60,\n      rectangle: { width: 140, height: 60, cornerRadius: 25 }\n    },\n    start: baseStart + 0.2,\n    length: duration - 0.4,\n    position: \"bottomRight\",\n    offset: { x: -0.08, y: 0.08 }\n  });\n\n  // Pagination text\n  paginationTextClips.push({\n    asset: {\n      type: \"text\",\n      text: `${index + 1} / ${transformedItems.length}`,\n      font: { color: \"#333333\", family: \"Montserrat\", size: \"22\", weight: \"700\" },\n      alignment: { horizontal: \"center\", vertical: \"center\" },\n      width: 140,\n      height: 60\n    },\n    start: baseStart + 0.2,\n    length: duration - 0.4,\n    position: \"bottomRight\",\n    offset: { x: -0.08, y: 0.08 }\n  });\n\n  // Button background\n  buttonBgClips.push({\n    asset: {\n      type: \"shape\",\n      shape: \"rectangle\",\n      fill: { color: button_bg_color, opacity: 1 },\n      stroke: { color: button_bg_color, width: \"0\" },\n      width: 400,\n      height: 70,\n      rectangle: { width: 400, height: 70, cornerRadius: 35 }\n    },\n    start: baseStart + 0.2,\n    length: duration - 0.4,\n    position: \"center\",\n    offset: { x: 0, y: -0.15 }\n  });\n\n  // Button text\n  buttonTextClips.push({\n    asset: {\n      type: \"text\",\n      text: button_text,\n      font: { color: \"#ffffff\", family: \"Montserrat ExtraBold\", size: \"32\" },\n      alignment: { horizontal: \"center\", vertical: \"center\" },\n      width: 400,\n      height: 70\n    },\n    start: baseStart + 0.2,\n    length: duration - 0.4,\n    position: \"center\",\n    offset: { x: 0, y: -0.15 }\n  });\n\n  currentTime += duration;\n});\n\n// 3. OUTRO SLIDE\nconst outroLength = 3;\nintroBgClips.push({\n  asset: {\n    type: \"shape\",\n    shape: \"rectangle\",\n    fill: { color: \"#000000\", opacity: 1 },\n    stroke: { color: \"#000000\", width: \"0\" },\n    width: 1080,\n    height: 1920,\n    rectangle: { width: 1080, height: 1920, cornerRadius: 0 }\n  },\n  start: currentTime,\n  length: outroLength,\n  transition: { in: \"fade\" },\n  position: \"center\"\n});\n\nintroLogoClips.push({\n  asset: { type: \"image\", src: logo_big },\n  start: currentTime,\n  length: outroLength,\n  position: \"center\",\n  offset: { x: 0, y: -0.1 },\n  scale: 0.05,\n  transition: { in: \"fade\" }\n});\n\nintroTitleClips.push({\n  asset: {\n    type: \"text\",\n    text: daily_digest_text,\n    font: { color: \"#ffffff\", family: \"Montserrat ExtraBold\", size: \"56\", lineHeight: 1.1 },\n    alignment: { horizontal: \"center\", vertical: \"center\" },\n    width: 800,\n    height: 200\n  },\n  start: currentTime,\n  length: outroLength,\n  position: \"center\",\n  offset: { x: 0, y: 0.05 },\n  transition: { in: \"fade\" }\n});\n\nintroDateClips.push({\n  asset: {\n    type: \"text\",\n    text: getDateFormat(),\n    font: { color: \"#cccccc\", family: \"Montserrat ExtraBold\", size: \"28\", lineHeight: 1.2 },\n    alignment: { horizontal: \"center\", vertical: \"center\" },\n    width: 800,\n    height: 200\n  },\n  start: currentTime,\n  length: outroLength,\n  position: \"center\",\n  offset: { x: 0, y: 0.1 },\n  transition: { in: \"fade\" }\n});\n\n// Build final payload\nconst shotstackPayload = {\n  timeline: {\n    background: \"#000000\",\n    tracks: [\n      { clips: buttonTextClips },\n      { clips: buttonBgClips },\n      { clips: paginationTextClips },\n      { clips: paginationBgClips },\n      { clips: introLogoClips },\n      { clips: introTitleClips },\n      { clips: introDateClips },\n      { clips: shotstackClips },\n      { clips: introBgClips }\n    ]\n  },\n  output: {\n    format: \"mp4\",\n    size: { width: 1080, height: 1920 },\n    fps: 25\n  }\n};\n\n// Add audio\nconst totalDuration = currentTime + outroLength;\nconst audioLength = 30;\nconst loopsNeeded = Math.ceil(totalDuration / audioLength);\nconst audioTrack = { clips: [] };\n\nfor (let i = 0; i < loopsNeeded; i++) {\n  const audioStart = i * audioLength;\n  const audioClipLength = Math.min(audioLength, totalDuration - audioStart);\n  audioTrack.clips.push({\n    asset: {\n      type: \"audio\",\n      src: __node('Config_Variables').first().json.sound_url,\n      volume: 0.6\n    },\n    start: audioStart,\n    length: audioClipLength\n  });\n}\n\nshotstackPayload.timeline.tracks.push(audioTrack);\n\nreturn [{ json: shotstackPayload }];\n})();\nreturn { body: __unwrap(__result) };"
+              },
+              "runAfter": {
+                "Merge_all_articles": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Shotstack_Submit_Request": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "https://api.shotstack.io/stage/render",
+                "headers": {
+                  "Content-Type": "application/json"
+                },
+                "body": "@JSON.stringify(body('Prepare_json_for_Shotstack'))"
+              },
+              "runAfter": {
+                "Prepare_json_for_Shotstack": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Wait_Shotstack_Works": {
+              "type": "Wait",
+              "inputs": {
+                "interval": {
+                  "count": 30,
+                  "unit": "Second"
+                }
+              },
+              "runAfter": {
+                "If_video_is_ready": [
+                  "Succeeded"
+                ],
+                "Shotstack_Submit_Request": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Assign_Default_Image": {
+              "type": "Compose",
+              "inputs": {
+                "photo_url": "@body('Config_Variables')?['default_photo_url']"
+              },
+              "runAfter": {
+                "Check_for_missing_images": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Check_for_missing_images": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Check for missing images",
+                "n8nNodeType": "n8n-nodes-base.if",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "strict"
+                    },
+                    "combinator": "and",
+                    "conditions": [
+                      {
+                        "id": "bc6a7a5e-6f82-44ae-8ed9-8eff322ae5bc",
+                        "operator": {
+                          "type": "number",
+                          "operation": "equals"
+                        },
+                        "leftValue": "={{ $json.photo_id }}",
+                        "rightValue": 0
+                      }
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "Clean_data_and_assign_fields": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Get_Image": {
+              "type": "Http",
+              "inputs": {
+                "method": "GET",
+                "uri": "https://your-site.com/wp-json/wp/v2/media/@{body('Check_for_missing_images')?['photo_id']}"
+              },
+              "runAfter": {
+                "Check_for_missing_images": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Check_if_have_videos": {
+              "type": "JavaScriptCode",
+              "inputs": {
+                "code": "const __inputRaw = workflowContext.trigger.outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nfunction extractVideoUrl(contentHtml) {\n  if (!contentHtml) return null;\n  try {\n    const scriptMatch = contentHtml.match(/<script type=\"application\\/json\" class=\"wp-playlist-script\">(.*?)<\\/script>/s);\n    if (scriptMatch && scriptMatch[1]) {\n      const playlistData = JSON.parse(scriptMatch[1]);\n      if (playlistData.tracks && playlistData.tracks.length > 0) {\n        return playlistData.tracks[0].src;\n      }\n    }\n    const videoSrcMatch = contentHtml.match(/<video[^>]*src=\"([^\"]+)\"/);\n    if (videoSrcMatch && videoSrcMatch[1]) return videoSrcMatch[1];\n    \n    const sourceMatch = contentHtml.match(/<source[^>]*src=\"([^\"]+)\"/);\n    if (sourceMatch && sourceMatch[1]) return sourceMatch[1];\n  } catch (error) {\n    return null;\n  }\n  return null;\n}\n\n// Process WordPress articles\nconst articles = $input.all();\nreturn articles.map(article => {\n  const content = article.json.content?.rendered;\n  const videoUrl = extractVideoUrl(content);\n  \n  return {\n    json: {\n      ...article.json,\n      video: videoUrl ? { src: videoUrl } : null\n    }\n  };\n});\n})();\nreturn { body: __unwrap(__result) };"
+              },
+              "runAfter": {}
+            },
+            "Clean_data_and_assign_fields": {
+              "type": "Compose",
+              "inputs": {
+                "link": "@body('Check_if_have_videos')?['link']",
+                "title": "@body('Check_if_have_videos')?['title']?['rendered']",
+                "photo_id": "@body('Check_if_have_videos')?['featured_media']",
+                "video": "@body('Check_if_have_videos')?['video']"
+              },
+              "runAfter": {
+                "Check_if_have_videos": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Assign_image_URL": {
+              "type": "Compose",
+              "inputs": {
+                "photo_url": "@body('Get_Image')?['guid']?['rendered']"
+              },
+              "runAfter": {
+                "Get_Image": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Merge_image_url_with_article_details": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Merge image url with article details",
+                "n8nNodeType": "n8n-nodes-base.merge",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "mode": "combine",
+                  "options": {
+                    "includeUnpaired": false
+                  },
+                  "combineBy": "combineByPosition"
+                }
+              },
+              "runAfter": {
+                "Assign_image_URL": [
+                  "Succeeded"
+                ],
+                "Check_for_missing_images": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Merge_all_articles": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Merge all articles",
+                "n8nNodeType": "n8n-nodes-base.merge",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {}
+              },
+              "runAfter": {
+                "Assign_Default_Image": [
+                  "Succeeded"
+                ],
+                "Merge_image_url_with_article_details": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Check_Status": {
+              "type": "Http",
+              "inputs": {
+                "method": "GET",
+                "uri": "https://api.shotstack.io/stage/render/@{body('Wait_Shotstack_Works')?['response']?['id']}"
+              },
+              "runAfter": {
+                "Wait_Shotstack_Works": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "If_video_is_ready": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "If video is ready",
+                "n8nNodeType": "n8n-nodes-base.if",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "strict"
+                    },
+                    "combinator": "and",
+                    "conditions": [
+                      {
+                        "id": "e194250a-6d72-42d0-b85f-189bf6975252",
+                        "operator": {
+                          "type": "string",
+                          "operation": "equals"
+                        },
+                        "leftValue": "={{ $json.response.status }}",
+                        "rightValue": "=done"
+                      }
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "Check_Status": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Upload_video_to_youtube_as": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Upload video to youtube as",
+                "n8nNodeType": "n8n-nodes-base.youTube",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "title": "={{$('Config Variables').first().json.daily_digest_text}} - {{ \n  (function() {\n    const d = new Date();\n    const day = d.getDate();\n    const weekday = [\"Sunday\",\"Monday\",\"Tuesday\",\"Wednesday\",\"Thursday\",\"Friday\",\"Saturday\"][d.getDay()];\n    const year = d.getFullYear();\n    return `${day} ${weekday}, ${year}`;\n  })()\n}}\n",
+                  "options": {
+                    "tags": "dailydigest",
+                    "license": "creativeCommon",
+                    "embeddable": true,
+                    "description": "={{$('Config Variables').first().json.daily_digest_text}} - {{ \n  (function() {\n    const d = new Date();\n    const day = d.getDate();\n    const weekday = [\"Sunday\",\"Monday\",\"Tuesday\",\"Wednesday\",\"Thursday\",\"Friday\",\"Saturday\"][d.getDay()];\n    const year = d.getFullYear();\n    return `${day} ${weekday}, ${year}`;\n  })()\n}}\n",
+                    "defaultLanguage": "ro",
+                    "notifySubscribers": true,
+                    "selfDeclaredMadeForKids": true
+                  },
+                  "resource": "video",
+                  "operation": "upload",
+                  "categoryId": "25",
+                  "regionCode": "MD"
+                }
+              },
+              "runAfter": {
+                "Download_video": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Download_video": {
+              "type": "Http",
+              "inputs": {
+                "method": "GET",
+                "uri": "@body('If_video_is_ready')?['response']?['url']"
+              },
+              "runAfter": {
+                "If_video_is_ready": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "Get_articles_from_today": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Config_Variables": {
+          "type": "Compose",
+          "inputs": {
+            "logo_big": "https://your-domain.com/your-big-image.png",
+            "logo_small": "https://your-domain.com/your-small-image.png",
+            "default_photo_url": "https://your-domain.com/your-default-image.png",
+            "daily_digest_text": "Daily Digest",
+            "button_text": "Read more on your-site.com",
+            "button_bg_color": "#dd9933",
+            "sound_url": "https://getinnovation.dev/sounds/no-comment-minimal-background.wav"
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Trice_once_a_day_evenings",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

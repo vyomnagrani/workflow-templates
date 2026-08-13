@@ -1,0 +1,386 @@
+{
+  "sourceWorkflowName": "Build an All-Source Knowledge Assistant with Claude, RAG, Perplexity, and Drive",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 14,
+  "totalNodes": 40,
+  "coverage": 0.35,
+  "diagnostics": [
+    {
+      "code": "SWITCH_REGION_UNSUPPORTED",
+      "message": "Switch branches overlap or have external inputs, so nesting them would change behavior.",
+      "severity": "warning",
+      "node_name": "Operation",
+      "node_type": "n8n-nodes-base.switch",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.chatTrigger.",
+      "severity": "warning",
+      "node_name": "When chat message received",
+      "node_type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.memoryPostgresChat.",
+      "severity": "warning",
+      "node_name": "Postgres Chat Memory",
+      "node_type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.embeddingsOpenAi.",
+      "severity": "warning",
+      "node_name": "Embeddings OpenAI",
+      "node_type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.rerankerCohere.",
+      "severity": "warning",
+      "node_name": "Reranker Cohere",
+      "node_type": "@n8n/n8n-nodes-langchain.rerankerCohere",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatAnthropic.",
+      "severity": "warning",
+      "node_name": "Anthropic Chat Model",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.postgresTool.",
+      "severity": "warning",
+      "node_name": "structured data",
+      "node_type": "n8n-nodes-base.postgresTool",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.vectorStoreSupabase.",
+      "severity": "warning",
+      "node_name": "General knowledge",
+      "node_type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "General knowledge",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "General knowledge",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleDrive.",
+      "severity": "warning",
+      "node_name": "Download file",
+      "node_type": "n8n-nodes-base.googleDrive",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.documentDefaultDataLoader.",
+      "severity": "warning",
+      "node_name": "Default Data Loader1",
+      "node_type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Default Data Loader1",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter.",
+      "severity": "warning",
+      "node_name": "Recursive Character Text Splitter1",
+      "node_type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.vectorStoreSupabase.",
+      "severity": "warning",
+      "node_name": "Add to Supabase Vector DB",
+      "node_type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Add to Supabase Vector DB",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Add to Supabase Vector DB",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.embeddingsOpenAi.",
+      "severity": "warning",
+      "node_name": "Embeddings OpenAI1",
+      "node_type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.toolThink.",
+      "severity": "warning",
+      "node_name": "Think",
+      "node_type": "@n8n/n8n-nodes-langchain.toolThink",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.executeWorkflowTrigger.",
+      "severity": "warning",
+      "node_name": "When Executed by Another Workflow",
+      "node_type": "n8n-nodes-base.executeWorkflowTrigger",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.mcpTrigger.",
+      "severity": "warning",
+      "node_name": "Google Drive MCP Server",
+      "node_type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Google Drive MCP Server",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Google Drive MCP Server",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleDrive.",
+      "severity": "warning",
+      "node_name": "Download File1",
+      "node_type": "n8n-nodes-base.googleDrive",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.extractFromFile.",
+      "severity": "warning",
+      "node_name": "Extract from PDF",
+      "node_type": "n8n-nodes-base.extractFromFile",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.extractFromFile.",
+      "severity": "warning",
+      "node_name": "Extract from CSV",
+      "node_type": "n8n-nodes-base.extractFromFile",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{\n$input.all()\n  .map(item => item.json.row.map(cell => `\"${cell}\"`).join(','))\n  .join('\\n')\n}}",
+      "severity": "warning",
+      "node_name": "Get CSV Response",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.openAi.",
+      "severity": "warning",
+      "node_name": "Analyse Image",
+      "node_type": "@n8n/n8n-nodes-langchain.openAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.openAi.",
+      "severity": "warning",
+      "node_name": "Transcribe Audio",
+      "node_type": "@n8n/n8n-nodes-langchain.openAi",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $binary.data.mimeType }}",
+      "severity": "warning",
+      "node_name": "FileType",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $binary.data.mimeType }}",
+      "severity": "warning",
+      "node_name": "FileType",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{\n[\n  'image/jpeg',\n  'image/jpg',\n  'image/png',\n  'image/gif'\n].some(mimeType => $binary.data.mimeType === mimeType)\n}}",
+      "severity": "warning",
+      "node_name": "FileType",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $binary.data.mimeType }}",
+      "severity": "warning",
+      "node_name": "FileType",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $binary.data.mimeType }}",
+      "severity": "warning",
+      "node_name": "FileType",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.switch is not safely supported.",
+      "severity": "warning",
+      "node_name": "Operation",
+      "node_type": "n8n-nodes-base.switch",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.toolWorkflow.",
+      "severity": "warning",
+      "node_name": "Read File From GDrive",
+      "node_type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleDriveTool.",
+      "severity": "warning",
+      "node_name": "Search Files from Gdrive",
+      "node_type": "n8n-nodes-base.googleDriveTool",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.mcpClientTool.",
+      "severity": "warning",
+      "node_name": "search  about any doc in google drive",
+      "node_type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.agent.",
+      "severity": "warning",
+      "node_name": "Knowledge Agent",
+      "node_type": "@n8n/n8n-nodes-langchain.agent",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Knowledge Agent",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Knowledge Agent",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Knowledge Agent",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Knowledge Agent",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Knowledge Agent",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Knowledge Agent",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Knowledge Agent",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.perplexityTool.",
+      "severity": "warning",
+      "node_name": "Message a model in Perplexity",
+      "node_type": "n8n-nodes-base.perplexityTool",
+      "json_path": null
+    }
+  ]
+}

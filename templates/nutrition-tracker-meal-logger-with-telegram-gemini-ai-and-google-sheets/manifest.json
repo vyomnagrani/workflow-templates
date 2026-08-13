@@ -1,0 +1,1196 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "nutrition-tracker-meal-logger-with-telegram-gemini-ai-and-google-sheets",
+    "name": "Nutrition tracker & meal logger with Telegram, Gemini AI and Google Sheets",
+    "description": "# 🤖🥗 Telegram Nutrition AI Assistant (Alternative to Cal AI App)\n\n&gt; AI-powered nutrition assistant for Telegram — log meals, set goals, and get personalized daily reports with Google Sheets integration.\n\n## 📋 Description\n\nThis n8n template creates a **Telegram-based Nutrition AI Assistant** 🥑🔥 designed as an **open-source alternative to the Cal AI mobile app**.\nIt allows users to interact with an AI agent via text, voice, or images to track meals, calculate macros, and monitor nutrition goals directly from Telegram.\n\nThe system integrates **Google Sheets** as the database, handling both user profiles and meal logs, while leveraging **Gemini AI** for natural conversation, food recognition, and daily progress reports.\n\n## ✨ Key Features\n\n* 💬 **Multi-input support**: Text, voice messages (transcribed), and food images (AI analysis).\n* 📊 **Macro calculation**: Automatic estimation of calories, proteins, carbs, and fats.\n* 📝 **User-friendly registration**: Simple onboarding without storing personal health data (no weight/height required).\n* 🎯 **Goal tracking**: Users can set and update calorie and protein targets.\n* 📈 **Daily reports**: Personalized progress messages with visual progress bars.\n* 🗂 **Google Sheets integration**:\n\n  * `Profile` table for user targets.\n  * `Meals` table for food logs.\n* 🔄 **Advanced n8n nodes**: Includes use of `Merge`, `Subworkflow`, and `Code` nodes for data processing and report generation.\n\n## 💡 Acknowledgment\n\nInspired by the Cal AI concept 💡 — this template demonstrates how to reproduce its main functionality with **n8n, Telegram, and AI agents** as a flexible, open-source automation workflow.\n\n## 🏷 Tags\n\n* `telegram`\n* `ai-assistant`\n* `nutrition`\n* `meal-tracking`\n* `google-sheets`\n* `food-logging`\n* `voice-transcription`\n* `image-analysis`\n* `daily-reports`\n* `n8n-template`\n* `merge-node`\n* `subworkflow-node`\n* `code-node`\n* `telegram-trigger`\n* `google-gemini`\n\n## 💼 Use Case\n\nUse this template if you want to:\n\n* 🥗 Log meals using **text, images, or voice messages**.\n* 📊 Track nutrition goals (calories, proteins) with daily progress updates.\n* 🤖 Provide a **chat-based nutrition assistant** without building a full app.\n* 🗂 Store structured nutrition data in **Google Sheets** for easy access and analysis.\n\n## 💬 Example User Interactions\n\n* 📸 User sends a photo of a meal → AI analyzes the food and logs calories/macros.\n* 🎤 User sends a voice message → AI transcribes and logs the meal.\n* ⌨️ User types “report” → AI returns a daily nutrition summary with progress bars.\n* 🥅 User says “update my protein goal” → AI updates profile in Google Sheets.\n\n## 🔑 Required Credentials\n\n* Telegram Bot API (Bot Token)\n* Google Sheets API credentials\n* AI Provider API (Google Gemini or compatible LLM)\n\n## ⚙️ Setup Instructions\n\n1. 🗂 Create two Google Sheets tables:\n\n   * **Profile**: `User_ID, Name, Calories_target, Protein_target`\n   * **Meals**: `User_ID, Date, Meal_description, Calories, Proteins, Carbs, Fats`\n2. 🔌 Configure the Telegram Trigger with your bot token.\n3. 🤖 Connect your AI provider credentials (Gemini recommended).\n4. 📑 Connect Google Sheets with your credentials.\n5. ▶️ Deploy the workflow in n8n.\n6. 🎯 Start interacting with your nutrition assistant via Telegram.\n\n## 📌 Extra Notes\n\n* 🟩 **Green section**: Handles Telegram trigger and user check.\n* 🟥 **Red section**: Registers new users and sets goals.\n* 🟦 **Blue section**: Processes text, voice, and images.\n* 🟨 **Yellow section**: Generates nutrition reports.\n* 🟪 **Purple section**: Main AI agent controlling tools and logic.\n\n---\n\n## 💡 Need Assistance?\n\nIf you’d like help customizing or extending this workflow, feel free to reach out:  \n\n📧 Email: [johnsilva11031@gmail.com](mailto:johnsilva11031@gmail.com)  \n🔗 LinkedIn: [John Alejandro Silva Rodríguez](https://www.linkedin.com/in/john-alejandro-silva-rodriguez-48093526b/)\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "AI Chatbot",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "/managedApis/telegrambotip",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Typing": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Typing…",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "chatId": "={{ $json.message.chat.id }}",
+              "operation": "sendChatAction"
+            }
+          },
+          "runAfter": {
+            "Telegram_Trigger": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Gemini_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Gemini Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Simple_Memory": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Simple Memory",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "sessionKey": "={{ $json.chat_id }}",
+              "sessionIdType": "customKey"
+            }
+          },
+          "runAfter": {}
+        },
+        "If": {
+          "type": "If",
+          "expression": {
+            "not": {
+              "empty": [
+                "@body('Registered')?['User_ID']"
+              ]
+            }
+          },
+          "actions": {
+            "Download_Voice_Message": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Download Voice Message",
+                "n8nNodeType": "n8n-nodes-base.telegram",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "fileId": "={{ $('Telegram Trigger').item.json.message.voice.file_id }}",
+                  "resource": "file",
+                  "additionalFields": {}
+                }
+              },
+              "runAfter": {
+                "Input_Message_Router1": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Input_Message_Router1": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Input Message Router1",
+                "n8nNodeType": "n8n-nodes-base.switch",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "rules": {
+                    "values": [
+                      {
+                        "outputKey": "Text",
+                        "conditions": {
+                          "options": {
+                            "version": 2,
+                            "leftValue": "",
+                            "caseSensitive": true,
+                            "typeValidation": "strict"
+                          },
+                          "combinator": "and",
+                          "conditions": [
+                            {
+                              "id": "fcb767ee-565e-4b56-a54e-6f97f739fc24",
+                              "operator": {
+                                "type": "string",
+                                "operation": "exists",
+                                "singleValue": true
+                              },
+                              "leftValue": "={{ $('Telegram Trigger').item.json.message.text }}",
+                              "rightValue": ""
+                            }
+                          ]
+                        },
+                        "renameOutput": true
+                      },
+                      {
+                        "outputKey": "Voice Message",
+                        "conditions": {
+                          "options": {
+                            "version": 2,
+                            "leftValue": "",
+                            "caseSensitive": true,
+                            "typeValidation": "strict"
+                          },
+                          "combinator": "and",
+                          "conditions": [
+                            {
+                              "id": "c1016c40-f8f2-4e08-8ec8-5cdb88f5c87a",
+                              "operator": {
+                                "type": "object",
+                                "operation": "exists",
+                                "singleValue": true
+                              },
+                              "leftValue": "={{ $('Telegram Trigger').item.json.message.voice }}",
+                              "rightValue": ""
+                            }
+                          ]
+                        },
+                        "renameOutput": true
+                      },
+                      {
+                        "outputKey": "Image",
+                        "conditions": {
+                          "options": {
+                            "version": 2,
+                            "leftValue": "",
+                            "caseSensitive": true,
+                            "typeValidation": "strict"
+                          },
+                          "combinator": "and",
+                          "conditions": [
+                            {
+                              "id": "f8150ac7-eea4-4658-8da9-f7a1c88a471d",
+                              "operator": {
+                                "type": "string",
+                                "operation": "exists",
+                                "singleValue": true
+                              },
+                              "leftValue": "={{ $('Telegram Trigger').item.json.message.photo[0].file_id }}",
+                              "rightValue": ""
+                            }
+                          ]
+                        },
+                        "renameOutput": true
+                      }
+                    ]
+                  },
+                  "options": {
+                    "ignoreCase": false,
+                    "fallbackOutput": "extra",
+                    "allMatchingOutputs": true
+                  }
+                }
+              },
+              "runAfter": {}
+            },
+            "get_message_text": {
+              "type": "Compose",
+              "inputs": {
+                "message": "@body('Telegram_Trigger')?['message']?['text']",
+                "chat_id": "@body('Telegram_Trigger')?['message']?['chat']?['id']"
+              },
+              "runAfter": {
+                "Input_Message_Router1": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Download_IMAGE": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Download IMAGE",
+                "n8nNodeType": "n8n-nodes-base.telegram",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "fileId": "={{ $('Telegram Trigger').item.json.message.photo[3]?.file_id || $('Telegram Trigger').item.json.message.photo[2]?.file_id || $('Telegram Trigger').item.json.message.photo[1]?.file_id }}",
+                  "resource": "file",
+                  "additionalFields": {}
+                }
+              },
+              "runAfter": {
+                "Input_Message_Router1": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Analyze_image": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Analyze image",
+                "n8nNodeType": "@n8n/n8n-nodes-langchain.googleGemini",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "text": "=You are a Nutrition Vision Assistant. Think like a food scientist and registered dietitian. Reason silently and do not reveal your steps. From a single food photo, identify the meal components, estimate portion weight in grams per component using geometric/visual cues, then compute total calories, protein, carbs, and fat.\n\nEstimation method (internal only; do not output these steps)\n\nIdentify components: list the main foods (e.g., chicken breast, white rice, mixed salad, sauce).\n\nChoose references: map each component to a standard reference food.\n\nEstimate volume/size: use visible objects for scale (plate ≈ 27 cm diameter, fork tines ≈ 3.5 cm, spoon bowl ≈ 5–6 cm). Approximate shapes (cuboid, cylinder, dome) to get volume in ml (≈ cm³).\n\nConvert to grams (densities, g/ml): meats 1.05; cooked rice 0.66; cooked pasta 0.60; potato/solid starchy veg 0.80; leafy salad 0.15; sauces creamy 1.00; oils 0.91. If the image clearly suggests deep-fried or glossy/oily coating, account for added oil.\n\nMacros & energy per 100 g (reference values):\n\nWhite rice, cooked: 130 kcal, P 2.7, C 28, F 0.3\n\nPasta, cooked: 131 kcal, P 5.0, C 25, F 1.1\n\nChicken breast, cooked skinless: 165 kcal, P 31, C 0, F 3.6\n\nSalmon, cooked: 208 kcal, P 20, C 0, F 13\n\nLean ground beef (≈10% fat), cooked: 217 kcal, P 26, C 0, F 12\n\nBlack beans, cooked: 132 kcal, P 8.9, C 23.7, F 0.5\n\nPotato, baked: 93 kcal, P 2.5, C 21, F 0.1\n\nLettuce/leafy salad: 15 kcal, P 1.4, C 2.9, F 0.2\n\nAvocado: 160 kcal, P 2, C 9, F 15\n\nBread (white): 265 kcal, P 9, C 49, F 3.2\n\nEgg, cooked: 155 kcal, P 13, C 1.1, F 11\n\nCheddar cheese: 403 kcal, P 25, C 1.3, F 33\n\nOlive oil: 884 kcal, P 0, C 0, F 100\n(If a food is not listed, pick the closest standard equivalent.)\n\nHidden oil & sauces: if pan-fried or visibly glossy, add ~1 tablespoon oil = 13.5 g = 120 kcal = 13.5 g fat per clearly coated serving; adjust by visual coverage.\n\nSum totals: compute grams per component × (per-100 g macros/energy) and add all components.\n\nValidation: enforce Calories ≈ 4×Protein + 4×Carbs + 9×Fat. If off by >8%, adjust fat first (oil/sauce most variable), then carbs (starches), keeping protein consistent with visible lean mass.\n\nRounding: round all final totals to integers. Never output ranges or decimals.\n\nOutput rules (must follow exactly)\n\nPlain text only.\n\nUse this exact structure and field order.\n\nValues are numbers only (no units, no “g” or “kcal”), no extra text, no JSON, no notes.\n\nMeal Description: [short description]\nCalories: [number]\nProteins: [number]\nCarbs: [number]\nFat: [number]",
+                  "modelId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "models/gemini-2.5-pro",
+                    "cachedResultName": "models/gemini-2.5-pro"
+                  },
+                  "options": {},
+                  "resource": "image",
+                  "inputType": "binary",
+                  "operation": "analyze"
+                }
+              },
+              "runAfter": {
+                "Fix_mime5": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Analyze_voice_message": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Analyze voice message",
+                "n8nNodeType": "@n8n/n8n-nodes-langchain.googleGemini",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "text": "What's in this audio message from telegram user?",
+                  "modelId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "models/gemini-2.5-pro",
+                    "cachedResultName": "models/gemini-2.5-pro"
+                  },
+                  "options": {},
+                  "resource": "audio",
+                  "inputType": "binary",
+                  "operation": "analyze"
+                }
+              },
+              "runAfter": {
+                "Fix_mime": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "get_message_Audio_Video_message": {
+              "type": "Compose",
+              "inputs": {
+                "message": "Voice message description:@{body('Analyze_voice_message')?['candidates']?.[0]?.content?.parts?.[0]?.text || body('Analyze_voice_message')?['content']?.parts?.[0]?.text}",
+                "chat_id": "@body('Telegram_Trigger')?['message']?['chat']?['id']"
+              },
+              "runAfter": {
+                "Analyze_voice_message": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "get_message_Media_message": {
+              "type": "Compose",
+              "inputs": {
+                "message": "Content:\n@{body('Analyze_image')?['content']?['parts'][0].text}",
+                "chat_id": "@body('Telegram_Trigger')?['message']?['chat']?['id']"
+              },
+              "runAfter": {
+                "Analyze_image": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Fix_mime": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Fix mime",
+                "n8nNodeType": "n8n-nodes-base.code",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "jsCode": "// --- Mapa Extendido de Tipos MIME ---\n// Una lista completa para cubrir la mayoría de los formatos de archivo comunes.\nconst mimeMap = {\n  // --- Formatos de Documentos ---\n  'pdf': 'application/pdf',\n  'txt': 'text/plain',\n  'rtf': 'application/rtf',\n  'csv': 'text/csv',\n  'html': 'text/html',\n  'htm': 'text/html',\n  'json': 'application/json',\n  'xml': 'application/xml', // 'text/xml' también es válido pero 'application/xml' es más común\n  'yaml': 'application/x-yaml',\n  'yml': 'application/x-yaml',\n\n  // --- Formatos de Microsoft Office ---\n  'doc': 'application/msword',\n  'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',\n  'xls': 'application/vnd.ms-excel',\n  'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',\n  'ppt': 'application/vnd.ms-powerpoint',\n  'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',\n  'pub': 'application/vnd.ms-publisher',\n\n  // --- Formatos de OpenOffice / LibreOffice ---\n  'odt': 'application/vnd.oasis.opendocument.text',\n  'ods': 'application/vnd.oasis.opendocument.spreadsheet',\n  'odp': 'application/vnd.oasis.opendocument.presentation',\n  'odg': 'application/vnd.oasis.opendocument.graphics',\n\n  // --- Formatos de Apple iWork ---\n  'pages': 'application/vnd.apple.pages',\n  'numbers': 'application/vnd.apple.numbers',\n  'key': 'application/vnd.apple.keynote',\n\n  // --- Formatos de Imagen ---\n  'png': 'image/png',\n  'jpg': 'image/jpeg',\n  'jpeg': 'image/jpeg',\n  'gif': 'image/gif',\n  'webp': 'image/webp',\n  'svg': 'image/svg+xml',\n  'bmp': 'image/bmp',\n  'ico': 'image/vnd.microsoft.icon',\n  'tif': 'image/tiff',\n  'tiff': 'image/tiff',\n  'heic': 'image/heic',\n  'heif': 'image/heif',\n\n  // --- Formatos de Audio ---\n  'mp3': 'audio/mpeg',\n  'wav': 'audio/wav',\n  'oga': 'audio/ogg',\n  'ogg': 'audio/ogg',\n  'flac': 'audio/flac',\n  'm4a': 'audio/mp4',\n  'aac': 'audio/aac',\n  'opus': 'audio/opus',\n  'wma': 'audio/x-ms-wma',\n  'mid': 'audio/midi',\n  'midi': 'audio/midi',\n\n  // --- Formatos de Video ---\n  'mp4': 'video/mp4',\n  'mov': 'video/quicktime',\n  'webm': 'video/webm',\n  'mpeg': 'video/mpeg',\n  'mpg': 'video/mpeg',\n  'avi': 'video/x-msvideo',\n  'wmv': 'video/x-ms-wmv',\n  'flv': 'video/x-flv',\n  'mkv': 'video/x-matroska',\n\n  // --- Formatos de Archivos y Compresión ---\n  'zip': 'application/zip',\n  'rar': 'application/vnd.rar',\n  '7z': 'application/x-7z-compressed',\n  'tar': 'application/x-tar',\n  'gz': 'application/gzip',\n  'bz2': 'application/x-bzip2',\n\n  // --- Otros Formatos ---\n  'epub': 'application/epub+zip',\n  'ics': 'text/calendar',\n  'vcf': 'text/vcard',\n  'js': 'text/javascript',\n  'css': 'text/css',\n  'sh': 'application/x-sh',\n  'py': 'text/x-python',\n};\n\n// --- Lógica de Procesamiento (sin cambios) ---\n\n// Obtenemos todos los items que llegan al nodo\nconst items = $input.all();\n\n// Iteramos sobre cada item para procesarlo\nfor (const item of items) {\n  // Verificamos que el item tenga datos binarios para procesar\n  if (item.binary && item.binary['data']) {\n    // Obtenemos el nombre del archivo de forma segura\n    const fileName = item.binary['data'].fileName || '';\n    if (!fileName) {\n      continue; // Si no hay nombre de archivo, pasamos al siguiente item\n    }\n\n    // Extraemos la extensión del archivo de forma robusta\n    const extension = fileName.slice((fileName.lastIndexOf(\".\") - 1 >>> 0) + 2).toLowerCase();\n\n    // Buscamos la extensión en nuestro mapa\n    const newMimeType = mimeMap[extension];\n\n    // Si encontramos una coincidencia en el mapa, actualizamos el mimeType\n    if (newMimeType) {\n      if(item.binary['data'].mimeType !== newMimeType) {\n        console.log(`Cambiando mimeType para '${fileName}' de '${item.binary['data'].mimeType}' a '${newMimeType}'.`);\n        item.binary['data'].mimeType = newMimeType;\n      }\n    }\n  }\n}\n\n// Devolvemos todos los items, modificados o no\nreturn items;"
+                }
+              },
+              "runAfter": {
+                "Download_Voice_Message": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Fix_mime5": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Fix mime5",
+                "n8nNodeType": "n8n-nodes-base.code",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "jsCode": "// --- Mapa Extendido de Tipos MIME ---\n// Una lista completa para cubrir la mayoría de los formatos de archivo comunes.\nconst mimeMap = {\n  // --- Formatos de Documentos ---\n  'pdf': 'application/pdf',\n  'txt': 'text/plain',\n  'rtf': 'application/rtf',\n  'csv': 'text/csv',\n  'html': 'text/html',\n  'htm': 'text/html',\n  'json': 'application/json',\n  'xml': 'application/xml', // 'text/xml' también es válido pero 'application/xml' es más común\n  'yaml': 'application/x-yaml',\n  'yml': 'application/x-yaml',\n\n  // --- Formatos de Microsoft Office ---\n  'doc': 'application/msword',\n  'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',\n  'xls': 'application/vnd.ms-excel',\n  'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',\n  'ppt': 'application/vnd.ms-powerpoint',\n  'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',\n  'pub': 'application/vnd.ms-publisher',\n\n  // --- Formatos de OpenOffice / LibreOffice ---\n  'odt': 'application/vnd.oasis.opendocument.text',\n  'ods': 'application/vnd.oasis.opendocument.spreadsheet',\n  'odp': 'application/vnd.oasis.opendocument.presentation',\n  'odg': 'application/vnd.oasis.opendocument.graphics',\n\n  // --- Formatos de Apple iWork ---\n  'pages': 'application/vnd.apple.pages',\n  'numbers': 'application/vnd.apple.numbers',\n  'key': 'application/vnd.apple.keynote',\n\n  // --- Formatos de Imagen ---\n  'png': 'image/png',\n  'jpg': 'image/jpeg',\n  'jpeg': 'image/jpeg',\n  'gif': 'image/gif',\n  'webp': 'image/webp',\n  'svg': 'image/svg+xml',\n  'bmp': 'image/bmp',\n  'ico': 'image/vnd.microsoft.icon',\n  'tif': 'image/tiff',\n  'tiff': 'image/tiff',\n  'heic': 'image/heic',\n  'heif': 'image/heif',\n\n  // --- Formatos de Audio ---\n  'mp3': 'audio/mpeg',\n  'wav': 'audio/wav',\n  'oga': 'audio/ogg',\n  'ogg': 'audio/ogg',\n  'flac': 'audio/flac',\n  'm4a': 'audio/mp4',\n  'aac': 'audio/aac',\n  'opus': 'audio/opus',\n  'wma': 'audio/x-ms-wma',\n  'mid': 'audio/midi',\n  'midi': 'audio/midi',\n\n  // --- Formatos de Video ---\n  'mp4': 'video/mp4',\n  'mov': 'video/quicktime',\n  'webm': 'video/webm',\n  'mpeg': 'video/mpeg',\n  'mpg': 'video/mpeg',\n  'avi': 'video/x-msvideo',\n  'wmv': 'video/x-ms-wmv',\n  'flv': 'video/x-flv',\n  'mkv': 'video/x-matroska',\n\n  // --- Formatos de Archivos y Compresión ---\n  'zip': 'application/zip',\n  'rar': 'application/vnd.rar',\n  '7z': 'application/x-7z-compressed',\n  'tar': 'application/x-tar',\n  'gz': 'application/gzip',\n  'bz2': 'application/x-bzip2',\n\n  // --- Otros Formatos ---\n  'epub': 'application/epub+zip',\n  'ics': 'text/calendar',\n  'vcf': 'text/vcard',\n  'js': 'text/javascript',\n  'css': 'text/css',\n  'sh': 'application/x-sh',\n  'py': 'text/x-python',\n};\n\n// --- Lógica de Procesamiento (sin cambios) ---\n\n// Obtenemos todos los items que llegan al nodo\nconst items = $input.all();\n\n// Iteramos sobre cada item para procesarlo\nfor (const item of items) {\n  // Verificamos que el item tenga datos binarios para procesar\n  if (item.binary && item.binary['data']) {\n    // Obtenemos el nombre del archivo de forma segura\n    const fileName = item.binary['data'].fileName || '';\n    if (!fileName) {\n      continue; // Si no hay nombre de archivo, pasamos al siguiente item\n    }\n\n    // Extraemos la extensión del archivo de forma robusta\n    const extension = fileName.slice((fileName.lastIndexOf(\".\") - 1 >>> 0) + 2).toLowerCase();\n\n    // Buscamos la extensión en nuestro mapa\n    const newMimeType = mimeMap[extension];\n\n    // Si encontramos una coincidencia en el mapa, actualizamos el mimeType\n    if (newMimeType) {\n      if(item.binary['data'].mimeType !== newMimeType) {\n        console.log(`Cambiando mimeType para '${fileName}' de '${item.binary['data'].mimeType}' a '${newMimeType}'.`);\n        item.binary['data'].mimeType = newMimeType;\n      }\n    }\n  }\n}\n\n// Devolvemos todos los items, modificados o no\nreturn items;"
+                }
+              },
+              "runAfter": {
+                "Download_IMAGE": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "get_error_message1": {
+              "type": "Compose",
+              "inputs": {
+                "message": "=It was not possible to process the file.File type not supported.",
+                "chat_id": "@body('Telegram_Trigger')?['message']?['chat']?['id']"
+              },
+              "runAfter": {
+                "Input_Message_Router1": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Send_a_text_message": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "referenceName": "telegrambotip_#workflowname#"
+                  }
+                },
+                "method": "post",
+                "path": "/bot@{encodeURIComponent('REPLACE_WITH_TELEGRAM_BOT_TOKEN')}/sendMessage",
+                "body": {
+                  "chat_id": "@body('Telegram_Trigger')?['message']?['chat']?['id']",
+                  "text": "@body('MarkdownV2')?['message']",
+                  "parse_mode": "MarkdownV2"
+                }
+              },
+              "metadata": {
+                "flowSystemMetadata": {
+                  "swaggerOperationId": "SendMessage"
+                }
+              },
+              "runAfter": {
+                "MarkdownV2": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "MarkdownV2": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "MarkdownV2",
+                "n8nNodeType": "n8n-nodes-base.code",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "jsCode": "/**\n * MarkdownV2-safe formatter + auto-chunker for Telegram (n8n Code node)\n * --------------------------------------------------------------------\n * - Allows: *bold*, _italic_, ||spoiler||, [label](url)\n * - Escapes everything else for Telegram MarkdownV2\n * - Validates/normalizes URLs\n * - Converts \"# Heading\" lines to bold titles\n * - Splits long messages into <= 4096-char chunks (uses a 4000-char budget)\n * - Outputs one item per chunk so the Telegram node sends all parts\n *\n * Recommended: Run this node in \"Run Once for All Items\".\n */\n\nconst MAX_TELEGRAM = 4096;\nconst SAFE_BUDGET = 4000; // small margin to avoid edge overflows\n\n// ============ MarkdownV2 helpers ============\nfunction escapeMarkdownV2(text) {\n  if (!text) return '';\n  return String(text).replace(/([\\\\_*[\\]()~`>#+\\-=|{}.!])/g, '\\\\$1');\n}\n\nfunction escapeForUrl(url) {\n  return String(url).replace(/[)\\\\]/g, '\\\\$&');\n}\n\nfunction normalizeAndValidateUrl(url) {\n  let raw = String(url || '').trim();\n  try {\n    const u = new URL(raw);\n    return u.toString();\n  } catch {}\n  // Try https:// for bare domains\n  const domainLike = /^[a-z0-9.-]+\\.[a-z]{2,}([/:?#].*)?$/i.test(raw);\n  if (domainLike) {\n    try {\n      const u2 = new URL('https://' + raw);\n      return u2.toString();\n    } catch {}\n  }\n  return null;\n}\n\nfunction normalizeHeadings(text) {\n  // Turn \"# Title\" → \"*Title*\"\n  return text.replace(/^(#{1,6})\\s+(.*)$/gm, (m, hashes, title) => `*${title.trim()}*`);\n}\n\nfunction normalizeCommonMd(text) {\n  return String(text)\n    .replace(/\\*\\*([\\s\\S]*?)\\*\\*/g, '*$1*') // **bold** → *bold*\n    .replace(/__([\\s\\S]*?)__/g, '_$1_');    // __italic__ → _italic_\n}\n\n/**\n * Convert incoming text to Telegram-safe MarkdownV2.\n */\nfunction processMarkdownV2Safe(inputText) {\n  if (!inputText) return '';\n\n  let text = normalizeCommonMd(String(inputText));\n  text = normalizeHeadings(text);\n\n  const placeholders = { links: [], bolds: [], italics: [], spoilers: [] };\n\n  // Links: keep safe via placeholders during escaping\n  text = text.replace(/\\[([^\\]\\n]+)\\]\\(([^)]+)\\)/g, (m, label, url) => {\n    const normalizedUrl = normalizeAndValidateUrl(url);\n    if (!normalizedUrl) return escapeMarkdownV2(label);\n    const idx = placeholders.links.length;\n    const ph = `⟬L${idx}⟭`;\n    const safeLabel = escapeMarkdownV2(label);\n    const safeUrl = escapeForUrl(normalizedUrl);\n    placeholders.links.push(`[${safeLabel}](${safeUrl})`);\n    return ph;\n  });\n\n  // Bold\n  text = text.replace(/\\*([\\s\\S]+?)\\*/g, (m, inner) => {\n    const idx = placeholders.bolds.length;\n    const ph = `⟬B${idx}⟭`;\n    placeholders.bolds.push(`*${escapeMarkdownV2(inner)}*`);\n    return ph;\n  });\n\n  // Italic\n  text = text.replace(/_([\\s\\S]+?)_/g, (m, inner) => {\n    const idx = placeholders.italics.length;\n    const ph = `⟬I${idx}⟭`;\n    placeholders.italics.push(`_${escapeMarkdownV2(inner)}_`);\n    return ph;\n  });\n\n  // Spoilers\n  text = text.replace(/\\|\\|([\\s\\S]+?)\\|\\|/g, (m, inner) => {\n    const idx = placeholders.spoilers.length;\n    const ph = `⟬S${idx}⟭`;\n    placeholders.spoilers.push(`||${escapeMarkdownV2(inner)}||`);\n    return ph;\n  });\n\n  // Escape everything else\n  text = escapeMarkdownV2(text);\n\n  // Restore placeholders\n  placeholders.links.forEach((md, i) => { text = text.replace(`⟬L${i}⟭`, md); });\n  placeholders.bolds.forEach((md, i) => { text = text.replace(`⟬B${i}⟭`, md); });\n  placeholders.italics.forEach((md, i) => { text = text.replace(`⟬I${i}⟭`, md); });\n  placeholders.spoilers.forEach((md, i) => { text = text.replace(`⟬S${i}⟭`, md); });\n\n  return text;\n}\n\n// ============ Chunking helpers ============\n/**\n * Split text into Telegram-safe chunks <= maxLen.\n * Prefers paragraph boundaries, then sentence boundaries, then words.\n * Falls back to hard cuts only when unavoidable (e.g., extremely long URL).\n */\nfunction chunkForTelegram(text, maxLen = SAFE_BUDGET) {\n  if (!text || text.length <= maxLen) return [text || ''];\n\n  const parts = [];\n  let buffer = '';\n\n  const flush = () => {\n    if (buffer) {\n      parts.push(buffer);\n      buffer = '';\n    }\n  };\n\n  // 1) Paragraph-level packing\n  const paragraphs = text.split(/\\n{2,}/);\n  for (const pRaw of paragraphs) {\n    const p = pRaw; // keep paragraph as-is\n    const candidate = buffer ? buffer + '\\n\\n' + p : p;\n    if (candidate.length <= maxLen) {\n      buffer = candidate;\n      continue;\n    }\n    if (p.length <= maxLen) {\n      flush();\n      buffer = p;\n      continue;\n    }\n\n    // 2) Sentence-level packing (paragraph is still too big)\n    flush();\n    const sentences = p.split(/(?<=[.!?…])\\s+(?=[^\\s])/u);\n    let sBuf = '';\n    for (const s of sentences) {\n      const sCandidate = sBuf ? sBuf + ' ' + s : s;\n      if (sCandidate.length <= maxLen) {\n        sBuf = sCandidate;\n        continue;\n      }\n      if (s.length <= maxLen) {\n        if (sBuf) parts.push(sBuf);\n        sBuf = s;\n        continue;\n      }\n\n      // 3) Word-level packing (sentence is still too big)\n      if (sBuf) { parts.push(sBuf); sBuf = ''; }\n      let wBuf = '';\n      const words = s.split(/\\s+/);\n      for (const w of words) {\n        const wCandidate = wBuf ? wBuf + ' ' + w : w;\n        if (wCandidate.length <= maxLen) {\n          wBuf = wCandidate;\n          continue;\n        }\n        if (w.length <= maxLen) {\n          if (wBuf) parts.push(wBuf);\n          wBuf = w;\n          continue;\n        }\n        // 4) Hard split (extremely long token, e.g., massive URL)\n        if (wBuf) { parts.push(wBuf); wBuf = ''; }\n        const re = new RegExp(`.{1,${maxLen}}`, 'g');\n        const hardPieces = w.match(re) || [];\n        parts.push(...hardPieces);\n      }\n      if (wBuf) parts.push(wBuf);\n    }\n    if (sBuf) parts.push(sBuf);\n  }\n  if (buffer) parts.push(buffer);\n\n  // Final safety pass: trim chunks that might still exceed MAX_TELEGRAM\n  return parts.flatMap(part => {\n    if (part.length <= MAX_TELEGRAM) return [part];\n    const re = new RegExp(`.{1,${SAFE_BUDGET}}`, 'g');\n    return part.match(re) || [];\n  });\n}\n\n// ============ Main ============\nconst inputItems = $input.all();\nconst out = [];\n\nfor (const item of inputItems) {\n  const j = item.json || {};\n  const raw =\n    j.message ?? j.output ?? j.text ?? j.content ?? '';\n\n  const formatted = processMarkdownV2Safe(raw);\n  const chunks = chunkForTelegram(formatted, SAFE_BUDGET);\n\n  chunks.forEach((chunk, idx) => {\n    out.push({\n      json: {\n        ...j,\n        message: chunk,\n        message_part_index: idx + 1,\n        message_parts_total: chunks.length,\n      },\n      binary: item.binary,\n    });\n  });\n}\n\nreturn out;\n"
+                }
+              },
+              "runAfter": {
+                "Cal_IA_Agent": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Cal_IA_Agent": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Cal IA Agent",
+                "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "text": "={{ $json.message }}",
+                  "options": {
+                    "systemMessage": "=You are Cal AI 🏋️‍♂️🥦, your friendly fitness coach and nutrition orchestrator.\nYour mission is to guide the user with motivation, clarity, and precision while managing their nutrition data. Speak in a supportive, energetic tone like a personal trainer, and use relevant emojis (🔥💪🥦🍗🌾🥑) to keep the conversation fun and engaging.\n\nYou have four tools available:\n\nappendMealData(tool) → store a meal row in Meals sheet.\n\nupdateProfileData(tool) → update the user's profile targets (fields: Name, Calories_target, Protein_target).\n\ngetUserData(tool) → fetch the user's profile info.\n\ngetReport(tool) → generate or fetch the daily report (requires date).\n\n🔑 Rules\n\nThe image analysis is done before reaching you. You will always receive structured info:\nMeal Description: [short description]\nCalories: [number]\nProteins: [number]\nCarbs: [number]\nFat: [number]\n\nWith this info, call appendMealData.\n\nAfter appendMealData success, confirm naturally in a coach style: repeat the meal info using emojis (🔥 Calories, 🍗 Protein, 🌾 Carbs, 🥑 Fat).\n\nEnd confirmations with a quick motivational phrase like:\n\n“Great fuel for your body 💪🔥”\n\n“Another step closer to your goals 🥦🏋️‍♂️”\n\nAlways offer short next-step options:\n👉 “View daily report 📑”\n👉 “Analyze another meal 📸”\n👉 “View or update profile targets ⚙️”\n\n🔄 Profile Update Logic\n\nWhen the user wants to update their profile (Name, Calories_target, or Protein_target):\n\nFirst call getUserData to fetch current profile info.\n\nCompare the requested update with the existing values.\n\nOnly pass the changed fields to updateProfileData (never overwrite unchanged values).\n\nConfirm to the user in a friendly way, e.g.:\n\n“✅ Your Calories_target is now 2200 🔥. Protein_target stays strong at 150 🍗.”\n\n“Profile updated! Let’s crush it 💪🥦.”\n\n📑 Tool Usage Rules\n\ngetUserData → always called first before updating the profile.\n\nupdateProfileData → only include the fields that have changed.\n\ngetReport → only pass the requested date.\n\nKeep all responses short, clear, motivational, and full of energy.\n\n📅 Date: {{ $today.format('yyyy-MM-dd') }}"
+                  },
+                  "promptType": "define"
+                }
+              },
+              "runAfter": {
+                "get_error_message1": [
+                  "Succeeded"
+                ],
+                "get_message_text": [
+                  "Succeeded"
+                ],
+                "get_message_Media_message": [
+                  "Succeeded"
+                ],
+                "get_message_Audio_Video_message": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "Send_a_text_message1": {
+                "type": "ApiConnection",
+                "inputs": {
+                  "host": {
+                    "connection": {
+                      "referenceName": "telegrambotip_#workflowname#"
+                    }
+                  },
+                  "method": "post",
+                  "path": "/bot@{encodeURIComponent('REPLACE_WITH_TELEGRAM_BOT_TOKEN')}/sendMessage",
+                  "body": {
+                    "chat_id": "@body('Telegram_Trigger')?['message']?['chat']?['id']",
+                    "text": "@body('MarkdownV')?['message']",
+                    "parse_mode": "MarkdownV2"
+                  }
+                },
+                "metadata": {
+                  "flowSystemMetadata": {
+                    "swaggerOperationId": "SendMessage"
+                  }
+                },
+                "runAfter": {
+                  "MarkdownV": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "MarkdownV": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "MarkdownV",
+                  "n8nNodeType": "n8n-nodes-base.code",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "jsCode": "/**\n * MarkdownV2-safe formatter + auto-chunker for Telegram (n8n Code node)\n * --------------------------------------------------------------------\n * - Allows: *bold*, _italic_, ||spoiler||, [label](url)\n * - Escapes everything else for Telegram MarkdownV2\n * - Validates/normalizes URLs\n * - Converts \"# Heading\" lines to bold titles\n * - Splits long messages into <= 4096-char chunks (uses a 4000-char budget)\n * - Outputs one item per chunk so the Telegram node sends all parts\n *\n * Recommended: Run this node in \"Run Once for All Items\".\n */\n\nconst MAX_TELEGRAM = 4096;\nconst SAFE_BUDGET = 4000; // small margin to avoid edge overflows\n\n// ============ MarkdownV2 helpers ============\nfunction escapeMarkdownV2(text) {\n  if (!text) return '';\n  return String(text).replace(/([\\\\_*[\\]()~`>#+\\-=|{}.!])/g, '\\\\$1');\n}\n\nfunction escapeForUrl(url) {\n  return String(url).replace(/[)\\\\]/g, '\\\\$&');\n}\n\nfunction normalizeAndValidateUrl(url) {\n  let raw = String(url || '').trim();\n  try {\n    const u = new URL(raw);\n    return u.toString();\n  } catch {}\n  // Try https:// for bare domains\n  const domainLike = /^[a-z0-9.-]+\\.[a-z]{2,}([/:?#].*)?$/i.test(raw);\n  if (domainLike) {\n    try {\n      const u2 = new URL('https://' + raw);\n      return u2.toString();\n    } catch {}\n  }\n  return null;\n}\n\nfunction normalizeHeadings(text) {\n  // Turn \"# Title\" → \"*Title*\"\n  return text.replace(/^(#{1,6})\\s+(.*)$/gm, (m, hashes, title) => `*${title.trim()}*`);\n}\n\nfunction normalizeCommonMd(text) {\n  return String(text)\n    .replace(/\\*\\*([\\s\\S]*?)\\*\\*/g, '*$1*') // **bold** → *bold*\n    .replace(/__([\\s\\S]*?)__/g, '_$1_');    // __italic__ → _italic_\n}\n\n/**\n * Convert incoming text to Telegram-safe MarkdownV2.\n */\nfunction processMarkdownV2Safe(inputText) {\n  if (!inputText) return '';\n\n  let text = normalizeCommonMd(String(inputText));\n  text = normalizeHeadings(text);\n\n  const placeholders = { links: [], bolds: [], italics: [], spoilers: [] };\n\n  // Links: keep safe via placeholders during escaping\n  text = text.replace(/\\[([^\\]\\n]+)\\]\\(([^)]+)\\)/g, (m, label, url) => {\n    const normalizedUrl = normalizeAndValidateUrl(url);\n    if (!normalizedUrl) return escapeMarkdownV2(label);\n    const idx = placeholders.links.length;\n    const ph = `⟬L${idx}⟭`;\n    const safeLabel = escapeMarkdownV2(label);\n    const safeUrl = escapeForUrl(normalizedUrl);\n    placeholders.links.push(`[${safeLabel}](${safeUrl})`);\n    return ph;\n  });\n\n  // Bold\n  text = text.replace(/\\*([\\s\\S]+?)\\*/g, (m, inner) => {\n    const idx = placeholders.bolds.length;\n    const ph = `⟬B${idx}⟭`;\n    placeholders.bolds.push(`*${escapeMarkdownV2(inner)}*`);\n    return ph;\n  });\n\n  // Italic\n  text = text.replace(/_([\\s\\S]+?)_/g, (m, inner) => {\n    const idx = placeholders.italics.length;\n    const ph = `⟬I${idx}⟭`;\n    placeholders.italics.push(`_${escapeMarkdownV2(inner)}_`);\n    return ph;\n  });\n\n  // Spoilers\n  text = text.replace(/\\|\\|([\\s\\S]+?)\\|\\|/g, (m, inner) => {\n    const idx = placeholders.spoilers.length;\n    const ph = `⟬S${idx}⟭`;\n    placeholders.spoilers.push(`||${escapeMarkdownV2(inner)}||`);\n    return ph;\n  });\n\n  // Escape everything else\n  text = escapeMarkdownV2(text);\n\n  // Restore placeholders\n  placeholders.links.forEach((md, i) => { text = text.replace(`⟬L${i}⟭`, md); });\n  placeholders.bolds.forEach((md, i) => { text = text.replace(`⟬B${i}⟭`, md); });\n  placeholders.italics.forEach((md, i) => { text = text.replace(`⟬I${i}⟭`, md); });\n  placeholders.spoilers.forEach((md, i) => { text = text.replace(`⟬S${i}⟭`, md); });\n\n  return text;\n}\n\n// ============ Chunking helpers ============\n/**\n * Split text into Telegram-safe chunks <= maxLen.\n * Prefers paragraph boundaries, then sentence boundaries, then words.\n * Falls back to hard cuts only when unavoidable (e.g., extremely long URL).\n */\nfunction chunkForTelegram(text, maxLen = SAFE_BUDGET) {\n  if (!text || text.length <= maxLen) return [text || ''];\n\n  const parts = [];\n  let buffer = '';\n\n  const flush = () => {\n    if (buffer) {\n      parts.push(buffer);\n      buffer = '';\n    }\n  };\n\n  // 1) Paragraph-level packing\n  const paragraphs = text.split(/\\n{2,}/);\n  for (const pRaw of paragraphs) {\n    const p = pRaw; // keep paragraph as-is\n    const candidate = buffer ? buffer + '\\n\\n' + p : p;\n    if (candidate.length <= maxLen) {\n      buffer = candidate;\n      continue;\n    }\n    if (p.length <= maxLen) {\n      flush();\n      buffer = p;\n      continue;\n    }\n\n    // 2) Sentence-level packing (paragraph is still too big)\n    flush();\n    const sentences = p.split(/(?<=[.!?…])\\s+(?=[^\\s])/u);\n    let sBuf = '';\n    for (const s of sentences) {\n      const sCandidate = sBuf ? sBuf + ' ' + s : s;\n      if (sCandidate.length <= maxLen) {\n        sBuf = sCandidate;\n        continue;\n      }\n      if (s.length <= maxLen) {\n        if (sBuf) parts.push(sBuf);\n        sBuf = s;\n        continue;\n      }\n\n      // 3) Word-level packing (sentence is still too big)\n      if (sBuf) { parts.push(sBuf); sBuf = ''; }\n      let wBuf = '';\n      const words = s.split(/\\s+/);\n      for (const w of words) {\n        const wCandidate = wBuf ? wBuf + ' ' + w : w;\n        if (wCandidate.length <= maxLen) {\n          wBuf = wCandidate;\n          continue;\n        }\n        if (w.length <= maxLen) {\n          if (wBuf) parts.push(wBuf);\n          wBuf = w;\n          continue;\n        }\n        // 4) Hard split (extremely long token, e.g., massive URL)\n        if (wBuf) { parts.push(wBuf); wBuf = ''; }\n        const re = new RegExp(`.{1,${maxLen}}`, 'g');\n        const hardPieces = w.match(re) || [];\n        parts.push(...hardPieces);\n      }\n      if (wBuf) parts.push(wBuf);\n    }\n    if (sBuf) parts.push(sBuf);\n  }\n  if (buffer) parts.push(buffer);\n\n  // Final safety pass: trim chunks that might still exceed MAX_TELEGRAM\n  return parts.flatMap(part => {\n    if (part.length <= MAX_TELEGRAM) return [part];\n    const re = new RegExp(`.{1,${SAFE_BUDGET}}`, 'g');\n    return part.match(re) || [];\n  });\n}\n\n// ============ Main ============\nconst inputItems = $input.all();\nconst out = [];\n\nfor (const item of inputItems) {\n  const j = item.json || {};\n  const raw =\n    j.message ?? j.output ?? j.text ?? j.content ?? '';\n\n  const formatted = processMarkdownV2Safe(raw);\n  const chunks = chunkForTelegram(formatted, SAFE_BUDGET);\n\n  chunks.forEach((chunk, idx) => {\n    out.push({\n      json: {\n        ...j,\n        message: chunk,\n        message_part_index: idx + 1,\n        message_parts_total: chunks.length,\n      },\n      binary: item.binary,\n    });\n  });\n}\n\nreturn out;\n"
+                  }
+                },
+                "runAfter": {
+                  "Register_Agent": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "get_message_register": {
+                "type": "Compose",
+                "inputs": {
+                  "message": "@body('Telegram_Trigger')?['message']?['text']",
+                  "chat_id": "@body('Telegram_Trigger')?['message']?['chat']?['id']"
+                },
+                "runAfter": {}
+              },
+              "Register_Agent": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "Register Agent",
+                  "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "text": "={{ $json.message }}",
+                    "options": {
+                      "systemMessage": "=You are Cal AI 🏋️‍♂️🥦, the friendly fitness & nutrition coach assistant.\nYour single job is to register a new user into the Users table while keeping the tone supportive, clear, and motivational. Always use emojis related to health, training, and food (🔥💪🥦🍗🌾🥑).\n\n🔑 Registration Rules\n\nYou MUST collect these fields:\n\nuser_id (not asked, system provides it)\n\nname\n\ncalories_target\n\nprotein_target\n\n📌 When sending data to the Register User tool, always send numbers only (no units, no text, no emojis) for calories_target and protein_targe\n\nIf the user does not know their numeric targets, do not invent them. Instead, coach them by politely asking for:\n\nweight ⚖️\n\nheight 📏\n\nage 🎂\n\ngoal 🎯 (gain muscle 💪, lose fat 🔥, maintain ⚖️)\n\nBased on this info, calculate precise calorie and protein targets.\n\nOnly when all fields are collected and confirmed → call Register User tool with the final data.\n\n✅ After Successful Registration\n\nSend a short, friendly confirmation like a coach:\n\n“Awesome, champ 💪! Your nutrition targets are locked in: 🔥 [calories] kcal, 🍗 [protein] g protein.”\n\nThen, explain clearly how to use Cal AI:\n\n📸 Send food photos → get instant calories + macros.\n\n⚙️ View or update your targets anytime.\n\n📑 Request daily reports → compare intake vs. targets with charts.\n\n🗣️ Style Guide\n\nAlways keep responses simple, clear, and concise.\n\nSpeak like a friendly trainer/coach who motivates the user.\n\nUse emojis to highlight key concepts.\n\nBe warm, supportive, and practical:\n\n“Let’s get you set up for success 🏋️‍♂️🔥”\n\n“Strong start, [Name]! Targets ready 💪🥦.”"
+                    },
+                    "promptType": "define"
+                  }
+                },
+                "runAfter": {
+                  "get_message_register": [
+                    "Succeeded"
+                  ]
+                }
+              }
+            }
+          },
+          "runAfter": {
+            "Registered": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Registered": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('1Dm_YOUR_AWS_SECRET_KEY_HERE'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Telegram_Trigger": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Gemini_Chat_Model1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Gemini Chat Model1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Simple_Memory1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Simple Memory1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "sessionKey": "={{ $json.chat_id }}",
+              "sessionIdType": "customKey"
+            }
+          },
+          "runAfter": {}
+        },
+        "Get_Meals_Info": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('1Dm_YOUR_AWS_SECRET_KEY_HERE'))}/tables/@{encodeURIComponent(encodeURIComponent('403788598'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Get_report": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_User_Info": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('1Dm_YOUR_AWS_SECRET_KEY_HERE'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Get_report": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Register_User": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Register User",
+            "n8nNodeType": "n8n-nodes-base.googleSheetsTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "Name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Name', ``, 'string') }}",
+                  "User_ID": "={{ $json.chat_id }}",
+                  "Protein_target": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Protein_target', ``, 'string') }}",
+                  "Calories_target": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Calories_target', ``, 'string') }}"
+                },
+                "schema": [
+                  {
+                    "id": "User_ID",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "User_ID",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Name",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "Name",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Calories_target",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "Calories_target",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Protein_target",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "Protein_target",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "ID"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "append",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gid=0",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Dm_YOUR_AWS_SECRET_KEY_HERE/edit#gid=0",
+                "cachedResultName": "Profile"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1Dm_YOUR_AWS_SECRET_KEY_HERE",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Dm_YOUR_AWS_SECRET_KEY_HERE/edit?usp=drivesdk",
+                "cachedResultName": "Cal AI"
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Update_Profile_Data": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update Profile Data",
+            "n8nNodeType": "n8n-nodes-base.googleSheetsTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "Name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Name', ``, 'string') }}",
+                  "User_ID": "={{ $json.chat_id }}",
+                  "Protein_target": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Protein_target', ``, 'string') }}",
+                  "Calories_target": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Calories_target', ``, 'string') }}"
+                },
+                "schema": [
+                  {
+                    "id": "User_ID",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "User_ID",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Name",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "Name",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Calories_target",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "Calories_target",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Protein_target",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "Protein_target",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "User_ID"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "appendOrUpdate",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gid=0",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Dm_YOUR_AWS_SECRET_KEY_HERE/edit#gid=0",
+                "cachedResultName": "Profile"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1Dm_YOUR_AWS_SECRET_KEY_HERE",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Dm_YOUR_AWS_SECRET_KEY_HERE/edit?usp=drivesdk",
+                "cachedResultName": "Cal AI"
+              },
+              "descriptionType": "manual",
+              "toolDescription": "=updateProfileData\nPurpose: Update the user’s profile targets.\nFields that can be updated:\n\nName (string)\n\nCalories_target (string/number)\n\nProtein_target (string/number)\nWhen to use: When the user explicitly asks to update their name, calorie target, or protein target."
+            }
+          },
+          "runAfter": {}
+        },
+        "Get_Profile_Data": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get Profile Data",
+            "n8nNodeType": "n8n-nodes-base.googleSheetsTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "filtersUI": {
+                "values": [
+                  {
+                    "lookupValue": "={{ $json.chat_id }}",
+                    "lookupColumn": "User_ID"
+                  }
+                ]
+              },
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gid=0",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Dm_YOUR_AWS_SECRET_KEY_HERE/edit#gid=0",
+                "cachedResultName": "Profile"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1Dm_YOUR_AWS_SECRET_KEY_HERE",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Dm_YOUR_AWS_SECRET_KEY_HERE/edit?usp=drivesdk",
+                "cachedResultName": "Cal AI"
+              },
+              "descriptionType": "manual",
+              "toolDescription": "=getUserData\nPurpose: Retrieve the user’s profile information.\nInputs: none.\nWhen to use: When the user asks about their profile info or targets."
+            }
+          },
+          "runAfter": {}
+        },
+        "Get_Report": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get Report",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.toolWorkflow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "workflowId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $workflow.id }}"
+              },
+              "description": "getReport\nPurpose: Generate or fetch the user’s daily nutrition report.\nInput required: date (string, format: YYYY-MM-DD).\nWhen to use: When the user asks to see their daily summary or report for a specific date.",
+              "workflowInputs": {
+                "value": {
+                  "Date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Date', ``, 'string') }}",
+                  "User_ID": "={{ $json.chat_id }}"
+                },
+                "schema": [
+                  {
+                    "id": "User_ID",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "User_ID",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Date",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "Date",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Append_Meal_Data": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Append Meal Data",
+            "n8nNodeType": "n8n-nodes-base.googleSheetsTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "Date": "={{ $today.format(\"yyyy-LL-dd\") }}\n",
+                  "Fats": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Fats', ``, 'string') }}",
+                  "Carbs": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Carbs', ``, 'string') }}",
+                  "User_ID": "={{ $json.chat_id }}",
+                  "Calories": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Calories', ``, 'string') }}",
+                  "Proteins": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Proteins', ``, 'string') }}",
+                  "Meal_description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Meal_description', ``, 'string') }}"
+                },
+                "schema": [
+                  {
+                    "id": "User_ID",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "User_ID",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Date",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Date",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Meal_description",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Meal_description",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Calories",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Calories",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Proteins",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Proteins",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Carbs",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Carbs",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Fats",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Fats",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "append",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": 403788598,
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Dm_YOUR_AWS_SECRET_KEY_HERE/edit#gid=403788598",
+                "cachedResultName": "Meals"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1Dm_YOUR_AWS_SECRET_KEY_HERE",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Dm_YOUR_AWS_SECRET_KEY_HERE/edit?usp=drivesdk",
+                "cachedResultName": "Cal AI"
+              },
+              "descriptionType": "manual",
+              "toolDescription": "appendMealData\nPurpose: Store one meal entry into the Meals sheet.\nInputs required:\n\nMeal Description (string)\n\nCalories (number)\n\nProteins (number)\n\nCarbs (number)\n\nFat (number)\nWhen to use: Every time you receive structured meal information from image analysis."
+            }
+          },
+          "runAfter": {}
+        },
+        "Get_Data": {
+          "type": "Compose",
+          "inputs": {
+            "Calories": "@body('Get_Meals_Info')?['Calories']",
+            "Proteins": "@body('Get_Meals_Info')?['Proteins']",
+            "Carbs": "@body('Get_Meals_Info')?['Carbs']",
+            "Fats": "@body('Get_Meals_Info')?['Fats']"
+          },
+          "runAfter": {
+            "Get_Meals_Info": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_chart_message": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get chart message",
+            "n8nNodeType": "n8n-nodes-base.code",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsCode": "/**\n * Nutrition summary → Telegram MarkdownV2 (n8n Code node)\n */\n\nconst MAX_TELEGRAM = 4096;\nconst SAFE_BUDGET = 4000; // margen de seguridad\n\n// ============ Helpers de barras ============\nfunction makeProgressBar(current, target, length = 20) {\n  const ratio = Math.min(current / target, 1);\n  const filled = Math.round(ratio * length);\n  const empty = length - filled;\n  return '█'.repeat(filled) + '░'.repeat(empty);\n}\n\nfunction percent(current, target) {\n  if (!target || target === 0) return 0;\n  return Math.round((current / target) * 100);\n}\n\n// ============ Helpers MarkdownV2 ============\nfunction escapeMarkdownV2(text) {\n  if (!text) return '';\n  return String(text).replace(/([\\\\_*[\\]()~`>#+\\-=|{}.!])/g, '\\\\$1');\n}\n\nfunction escapeForUrl(url) {\n  return String(url).replace(/[)\\\\]/g, '\\\\$&');\n}\n\nfunction normalizeAndValidateUrl(url) {\n  let raw = String(url || '').trim();\n  try {\n    const u = new URL(raw);\n    return u.toString();\n  } catch {}\n  const domainLike = /^[a-z0-9.-]+\\.[a-z]{2,}([/:?#].*)?$/i.test(raw);\n  if (domainLike) {\n    try {\n      const u2 = new URL('https://' + raw);\n      return u2.toString();\n    } catch {}\n  }\n  return null;\n}\n\nfunction normalizeHeadings(text) {\n  return text.replace(/^(#{1,6})\\s+(.*)$/gm, (m, hashes, title) => `*${title.trim()}*`);\n}\n\nfunction normalizeCommonMd(text) {\n  return String(text)\n    .replace(/\\*\\*([\\s\\S]*?)\\*\\*/g, '*$1*')\n    .replace(/__([\\s\\S]*?)__/g, '_$1_');\n}\n\nfunction processMarkdownV2Safe(inputText) {\n  if (!inputText) return '';\n\n  let text = normalizeCommonMd(String(inputText));\n  text = normalizeHeadings(text);\n\n  const placeholders = { links: [], bolds: [], italics: [], spoilers: [] };\n\n  // Links\n  text = text.replace(/\\[([^\\]\\n]+)\\]\\(([^)]+)\\)/g, (m, label, url) => {\n    const normalizedUrl = normalizeAndValidateUrl(url);\n    if (!normalizedUrl) return escapeMarkdownV2(label);\n    const idx = placeholders.links.length;\n    const ph = `⟬L${idx}⟭`;\n    const safeLabel = escapeMarkdownV2(label);\n    const safeUrl = escapeForUrl(normalizedUrl);\n    placeholders.links.push(`[${safeLabel}](${safeUrl})`);\n    return ph;\n  });\n\n  // Bold\n  text = text.replace(/\\*([\\s\\S]+?)\\*/g, (m, inner) => {\n    const idx = placeholders.bolds.length;\n    const ph = `⟬B${idx}⟭`;\n    placeholders.bolds.push(`*${escapeMarkdownV2(inner)}*`);\n    return ph;\n  });\n\n  // Italic\n  text = text.replace(/_([\\s\\S]+?)_/g, (m, inner) => {\n    const idx = placeholders.italics.length;\n    const ph = `⟬I${idx}⟭`;\n    placeholders.italics.push(`_${escapeMarkdownV2(inner)}_`);\n    return ph;\n  });\n\n  // Spoilers\n  text = text.replace(/\\|\\|([\\s\\S]+?)\\|\\|/g, (m, inner) => {\n    const idx = placeholders.spoilers.length;\n    const ph = `⟬S${idx}⟭`;\n    placeholders.spoilers.push(`||${escapeMarkdownV2(inner)}||`);\n    return ph;\n  });\n\n  text = escapeMarkdownV2(text);\n\n  placeholders.links.forEach((md, i) => { text = text.replace(`⟬L${i}⟭`, md); });\n  placeholders.bolds.forEach((md, i) => { text = text.replace(`⟬B${i}⟭`, md); });\n  placeholders.italics.forEach((md, i) => { text = text.replace(`⟬I${i}⟭`, md); });\n  placeholders.spoilers.forEach((md, i) => { text = text.replace(`⟬S${i}⟭`, md); });\n\n  return text;\n}\n\nfunction chunkForTelegram(text, maxLen = SAFE_BUDGET) {\n  if (!text || text.length <= maxLen) return [text || ''];\n\n  const parts = [];\n  let buffer = '';\n\n  const flush = () => {\n    if (buffer) {\n      parts.push(buffer);\n      buffer = '';\n    }\n  };\n\n  const paragraphs = text.split(/\\n{2,}/);\n  for (const p of paragraphs) {\n    const candidate = buffer ? buffer + '\\n\\n' + p : p;\n    if (candidate.length <= maxLen) {\n      buffer = candidate;\n      continue;\n    }\n    if (p.length <= maxLen) {\n      flush();\n      buffer = p;\n      continue;\n    }\n    flush();\n    const sentences = p.split(/(?<=[.!?…])\\s+(?=[^\\s])/u);\n    let sBuf = '';\n    for (const s of sentences) {\n      const sCandidate = sBuf ? sBuf + ' ' + s : s;\n      if (sCandidate.length <= maxLen) {\n        sBuf = sCandidate;\n        continue;\n      }\n      if (s.length <= maxLen) {\n        if (sBuf) parts.push(sBuf);\n        sBuf = s;\n        continue;\n      }\n      if (sBuf) { parts.push(sBuf); sBuf = ''; }\n      let wBuf = '';\n      const words = s.split(/\\s+/);\n      for (const w of words) {\n        const wCandidate = wBuf ? wBuf + ' ' + w : w;\n        if (wCandidate.length <= maxLen) {\n          wBuf = wCandidate;\n          continue;\n        }\n        if (w.length <= maxLen) {\n          if (wBuf) parts.push(wBuf);\n          wBuf = w;\n          continue;\n        }\n        if (wBuf) { parts.push(wBuf); wBuf = ''; }\n        const re = new RegExp(`.{1,${maxLen}}`, 'g');\n        const hardPieces = w.match(re) || [];\n        parts.push(...hardPieces);\n      }\n      if (wBuf) parts.push(wBuf);\n    }\n    if (sBuf) parts.push(sBuf);\n  }\n  if (buffer) parts.push(buffer);\n\n  return parts.flatMap(part => {\n    if (part.length <= MAX_TELEGRAM) return [part];\n    const re = new RegExp(`.{1,${SAFE_BUDGET}}`, 'g');\n    return part.match(re) || [];\n  });\n}\n\n// ============ MAIN ============\nconst inputItems = $input.all();\nconst out = [];\n\nfor (const item of inputItems) {\n  const j = item.json || {};\n\n  // Datos dinámicos\n  const name = j.Name || 'User';\n  const cal = j.Total_Calories || 0;\n  const calTarget = j.Calories_target || 1;\n\n  const prot = j.Total_Proteins || 0;\n  const protTarget = j.Protein_target || 1;\n\n  const carbs = j.Total_Carbs || 0;\n  const fats  = j.Total_Fats || 0;\n\n  // Construcción del mensaje\n  let msg = `*Hello ${name}*\\nHere is your nutrition summary:\\n\\n`;\n\n  msg += `🔥 *Calories*: ${cal}/${calTarget} (${percent(cal, calTarget)}%)\\n`;\n  msg += makeProgressBar(cal, calTarget) + '\\n\\n';\n\n  msg += `🍗 *Protein*: ${prot}/${protTarget} (${percent(prot, protTarget)}%)\\n`;\n  msg += makeProgressBar(prot, protTarget) + '\\n\\n';\n\n  msg += `🌾 *Carbs*: ${carbs} g\\n`;\n  msg += `🥑 *Fats*: ${fats} g\\n`;\n\n  // Formateo seguro\n  const formatted = processMarkdownV2Safe(msg);\n  const chunks = chunkForTelegram(formatted, SAFE_BUDGET);\n\n  chunks.forEach((chunk, idx) => {\n    out.push({\n      json: {\n        ...j,\n        message: chunk,\n        message_part_index: idx + 1,\n        message_parts_total: chunks.length,\n      },\n      binary: item.binary,\n    });\n  });\n}\n\nreturn out;\n"
+            }
+          },
+          "runAfter": {
+            "Merge": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Unify_data": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Get_Data'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Get all input items\nconst items = $input.all();\n\n// Initialize accumulators\nlet totalCalories = 0;\nlet totalProteins = 0;\nlet totalCarbs = 0;\nlet totalFats = 0;\n\n// Sum up each field from every item\nfor (const item of items) {\n  const data = item.json;\n\n  totalCalories += Number(data.Calories || 0);\n  totalProteins += Number(data.Proteins || 0);\n  totalCarbs += Number(data.Carbs || 0);\n  totalFats += Number(data.Fats || 0);\n}\n\n// Return a single result with totals\nreturn [\n  {\n    json: {\n      Total_Calories: totalCalories,\n      Total_Proteins: totalProteins,\n      Total_Carbs: totalCarbs,\n      Total_Fats: totalFats,\n    }\n  }\n];\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Get_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_report": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get report",
+            "n8nNodeType": "n8n-nodes-base.executeWorkflowTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "workflowInputs": {
+                "values": [
+                  {
+                    "name": "User_ID"
+                  },
+                  {
+                    "name": "Date"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Send_back_message": {
+          "type": "Compose",
+          "inputs": {
+            "message": "@body('Get_chart_message')?['message']"
+          },
+          "runAfter": {
+            "Get_chart_message": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Telegram_Trigger": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Telegram Trigger",
+            "n8nNodeType": "n8n-nodes-base.telegramTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "updates": [
+                "message"
+              ],
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Merge": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Merge",
+            "n8nNodeType": "n8n-nodes-base.merge",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "combine",
+              "options": {},
+              "combineBy": "combineByPosition"
+            }
+          },
+          "runAfter": {
+            "Unify_data": [
+              "Succeeded"
+            ],
+            "Get_User_Info": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "telegrambotip_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/telegrambotip"
+    },
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

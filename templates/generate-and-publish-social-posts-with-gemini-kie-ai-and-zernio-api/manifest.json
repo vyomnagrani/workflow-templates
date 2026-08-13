@@ -1,0 +1,603 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "generate-and-publish-social-posts-with-gemini-kie-ai-and-zernio-api",
+    "name": "Generate and publish social posts with Gemini, Kie.ai, and Zernio API",
+    "description": "## Quick overview\nGenerate & publish social media content with Gemini, Kie.ai, and Zernio API\n\n## How it works\n1. Google Gemini (gemini-2.5-flash) generates platform-optimized copy for Facebook, Instagram, LinkedIn, and TikTok, returned as structured JSON with hashtags and a suggested posting time.\n2. Kie.ai Seedream v4 creates a branded 1080x1080 image; the workflow polls the task until the CDN image URL is ready.\n3. The image is uploaded to Zernio: direct multipart upload for files up to 4MB, presigned upload (init + PUT) for larger files up to 5GB.\n4. A post is created on each enabled platform through the Zernio posts endpoint, with the correct platform and accountId mapping, and published immediately.\n5. All platform responses are merged into one success report with ready-to-send messages for Slack, Discord, email, and webhook notifications.\n\n## Setup\n1. Google Gemini (gemini-2.5-flash) generates platform-optimized copy for Facebook, Instagram, LinkedIn, and TikTok, returned as structured JSON with hashtags and a suggested posting time.\n2. Kie.ai Seedream v4 creates a branded 1080x1080 image; the workflow polls the task until the CDN image URL is ready.\n3. The image is uploaded to Zernio: direct multipart upload for files up to 4MB, presigned upload (init + PUT) for larger files up to 5GB.\n4. A post is created on each enabled platform through the Zernio posts endpoint, with the correct platform and accountId mapping, and published immediately.\n5. All platform responses are merged into one success report with ready-to-send messages for Slack, Discord, email, and webhook notifications.\n\n## Requirements\n- Google Gemini (gemini-2.5-flash) generates platform-optimized copy for Facebook, Instagram, LinkedIn, and TikTok, returned as structured JSON with hashtags and a suggested posting time.\n- Kie.ai Seedream v4 creates a branded 1080x1080 image; the workflow polls the task until the CDN image URL is ready.\n- The image is uploaded to Zernio: direct multipart upload for files up to 4MB, presigned upload (init + PUT) for larger files up to 5GB.\n- A post is created on each enabled platform through the Zernio posts endpoint, with the correct platform and accountId mapping, and published immediately.\n- All platform responses are merged into one success report with ready-to-send messages for Slack, Discord, email, and webhook notifications.\n\n## Customization\n- Edit the Gemini prompt to change tone, language, platform mix, or content structure\n- Swap the image model or prompt in the Kie.ai node\n- Replace publishNow with scheduledFor (ISO 8601 UTC) to schedule posts instead of publishing instantly\n- Wire the prepared notification payload into your own Slack, Discord, or email nodes\n- Swap the manual trigger for a Schedule or Webhook trigger for full autopilot\n\n## Additional info\nSticky notes inside the workflow document every section: overview, credentials, content generation, image generation, media upload, publishing logic, notifications, and error handling. Fallback content is included in case Gemini returns unparseable JSON. Estimated cost per run: about $0.02 for one Seedream image, a fraction of a cent for Gemini text, and no per-post cost from Zernio (usage-based pricing). Built by Adrian (RoboMarketing) for the n8n Arena Challenge, September 2025; updated for the Late to Zernio rebrand with the new presigned upload flow.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Social Media",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "When_clicking_Execute_workflow": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Check_Enabled_Platforms": {
+          "type": "If",
+          "expression": {
+            "or": [
+              {
+                "equals": [
+                  "@body('Default_Settings')?['ENABLE_FACEBOOK']",
+                  "true"
+                ]
+              },
+              {
+                "equals": [
+                  "@body('Default_Settings')?['ENABLE_INSTAGRAM']",
+                  "true"
+                ]
+              },
+              {
+                "equals": [
+                  "@body('Default_Settings')?['ENABLE_TIKTOK']",
+                  "true"
+                ]
+              },
+              {
+                "equals": [
+                  "@body('Default_Settings')?['ENABLE_LINKEDIN']",
+                  "true"
+                ]
+              }
+            ]
+          },
+          "actions": {
+            "Gemini_Generate_Content": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+                "body": "{\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\": \"Create social media content for @{triggerBody()?['BUSINESS_TYPE']}. Generate content optimized for:\\n- Facebook: Professional but friendly, 100-150 chars\\n- Instagram: Visual focus, storytelling, include emojis, 125 chars\\n- TikTok: Trendy, Gen-Z friendly, viral potential, 80 chars\\n- LinkedIn: Professional, thought leadership, 120 chars\\n\\nTopic: @{triggerBody()?['CONTENT_TOPIC']}\\n\\nReturn as JSON with keys: topic, facebook, instagram, tiktok, linkedin, hashtags, bestTime\"\n        }\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"temperature\": 0.8,\n    \"maxOutputTokens\": 1024,\n    \"responseMimeType\": \"application/json\"\n  }\n}"
+              },
+              "runAfter": {}
+            },
+            "Parse_Filter_Platforms": {
+              "type": "JavaScriptCode",
+              "inputs": {
+                "code": "const __inputRaw = workflowContext.actions['Gemini_Generate_Content'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Parse Gemini response and extract content\nconst response = $input.first().json;\nlet content = {};\n\ntry {\n  // Gemini API response structure\n  const text = response.candidates[0].content.parts[0].text;\n  content = JSON.parse(text);\n} catch (e) {\n  // Fallback content if parsing fails\n  content = {\n    topic: 'AI Innovation 2025',\n    facebook: '🚀 Discover how AI is transforming businesses in 2025. From automation to insights, the future is here!',\n    instagram: '✨ AI Revolution Alert! 🤖 Swipe to see how artificial intelligence is changing everything we know about tech 💡',\n    tiktok: 'POV: AI just made your job 10x easier 🤯 #AITech #FutureTech',\n    linkedin: 'The convergence of AI and enterprise technology is creating unprecedented opportunities for innovation.',\n    hashtags: '#AI #Innovation #TechTrends #DigitalTransformation #FutureTech',\n    bestTime: '10:00 AM EST'\n  };\n}\n\n// Build platforms array based on enabled platforms\nconst platforms = [];\n\nif (__node('Default_Settings').item.json.ENABLE_FACEBOOK === 'true') {\n  platforms.push({\n    platform: 'facebook',\n    content: content.facebook,\n    enabled: true\n  });\n}\n\nif (__node('Default_Settings').item.json.ENABLE_INSTAGRAM === 'true') {\n  platforms.push({\n    platform: 'instagram',\n    content: content.instagram,\n    enabled: true\n  });\n}\n\nif (__node('Default_Settings').item.json.ENABLE_TIKTOK === 'true') {\n  platforms.push({\n    platform: 'tiktok',\n    content: content.tiktok,\n    enabled: true\n  });\n}\n\nif (__node('Default_Settings').item.json.ENABLE_LINKEDIN === 'true') {\n  platforms.push({\n    platform: 'linkedin',\n    content: content.linkedin,\n    enabled: true\n  });\n}\n\nreturn [{\n  json: {\n    ...content,\n    enabledPlatforms: platforms,\n    platformCount: platforms.length\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+              },
+              "runAfter": {
+                "Gemini_Generate_Content": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Kie_ai_Generate_Image": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "https://api.kie.ai/api/v1/jobs/createTask",
+                "headers": {
+                  "Content-Type": "application/json"
+                },
+                "body": "{\n  \"model\": \"bytedance/seedream-v4-text-to-image\",\n  \"input\": {\n    \"prompt\": \"Create a professional social media image about: @{body('Parse_Filter_Platforms')?['topic']}. Modern tech company style, clean design, blue and white color scheme, suitable for Facebook, Instagram, LinkedIn. Square format 1080x1080.\",\n    \"image_size\": \"square_hd\",\n    \"image_resolution\": \"1K\",\n    \"max_images\": 1\n  }\n}"
+              },
+              "runAfter": {
+                "Parse_Filter_Platforms": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Kie_ai_Obtain_Image": {
+              "type": "Http",
+              "inputs": {
+                "method": "GET",
+                "uri": "https://api.kie.ai/api/v1/jobs/recordInfo?taskId=@{body('Wait_30s')?['data']?['taskId']}"
+              },
+              "runAfter": {
+                "Wait_30s": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Prepare_data": {
+              "type": "JavaScriptCode",
+              "inputs": {
+                "code": "const __inputRaw = workflowContext.actions['Kie_ai_Obtain_Image'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst url = $json.data\n  ? JSON.parse($json.data.resultJson).resultUrls[0]\n  : $json.imageUrl; // dacă ai deja imageUrl\nconst fn = url.split('/').pop() || 'image.bin';\nconst ext = fn.split('.').pop()?.toLowerCase();\nconst ct = (ext === 'png') ? 'image/png'\n        : (ext === 'webp') ? 'image/webp'\n        : (ext === 'gif') ? 'image/gif'\n        : 'image/jpeg';\nreturn [{ json: { imageUrl: url, filename: fn, contentType: ct } }];\n\n})();\nreturn { body: __unwrap(__result) };"
+              },
+              "runAfter": {
+                "Kie_ai_Obtain_Image": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "HTTP_Request_for_content_length": {
+              "type": "Http",
+              "inputs": {
+                "method": "GET",
+                "uri": "@body('Prepare_data')?['imageUrl']"
+              },
+              "runAfter": {
+                "Prepare_data": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "IF_Is_Large": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "IF - Is Large?",
+                "n8nNodeType": "n8n-nodes-base.if",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "strict"
+                    },
+                    "combinator": "or",
+                    "conditions": [
+                      {
+                        "id": "e3f62ead-f07f-4dc3-b6cc-53cc281c06dc",
+                        "operator": {
+                          "type": "number",
+                          "operation": "gt"
+                        },
+                        "leftValue": "={{ Number(\n  $node[\"HTTP Request for content-length\"].json.headers['content-length'] \n  || $node[\"HTTP Request for content-length\"].json.headers['Content-Length'] \n  || 0\n) }}",
+                        "rightValue": 4194304
+                      }
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "HTTP_Request_for_content_length": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "HTTP_Request_for_files_4_MB": {
+              "type": "Http",
+              "inputs": {
+                "method": "GET",
+                "uri": "@body('Prepare_data')?['imageUrl']"
+              },
+              "runAfter": {
+                "IF_Is_Large": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Zernio_Init_Upload_files_4MB": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "https://zernio.com/api/v1/media/presign",
+                "headers": {
+                  "Content-Type": "application/json"
+                },
+                "body": "{\n  \"filename\": \"@{body('Prepare_data')?['filename']}\",\n  \"contentType\": \"@{body('Prepare_data')?['contentType']}\"\n}"
+              },
+              "runAfter": {
+                "IF_Is_Large": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Zernio_Upload_Media_files_4MB": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "https://zernio.com/api/v1/media",
+                "body": {
+                  "files": null
+                }
+              },
+              "runAfter": {
+                "HTTP_Request_for_files_4_MB": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Download_Large_GET": {
+              "type": "Http",
+              "inputs": {
+                "method": "GET",
+                "uri": "@body('Prepare_data')?['imageUrl']"
+              },
+              "runAfter": {
+                "Zernio_Init_Upload_files_4MB": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Upload_to_Storage_PUT": {
+              "type": "Http",
+              "inputs": {
+                "method": "PUT",
+                "uri": "@body('Zernio_Init_Upload_files_4MB')?['uploadUrl']",
+                "headers": {
+                  "Content-Type": "@body('Prepare_data')?['contentType']"
+                }
+              },
+              "runAfter": {
+                "Download_Large_GET": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Success_Notification_Logging": {
+              "type": "JavaScriptCode",
+              "inputs": {
+                "code": "const __inputRaw = workflowContext.actions['Merge'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Collect all Zernio Create Post results from the Merge\nconst items = $input.all();\nconst posts = items.map(i => i.json);\n\n// Helpers\nconst fmtPlatform = p => p?.platforms?.[0] || 'unknown';\nconst fmtId = p => p?._id || 'N/A';\nconst preview = s => (s || '').slice(0, 100) + (s && s.length > 100 ? '…' : '');\n\n// Build per-platform lines\nconst lines = posts.map(p =>\n  `• ${fmtPlatform(p)} - ID: ${fmtId(p)} - \"${preview(p.content)}\"`\n);\n\n// Build unified message\nconst nowLocal = new Date().toLocaleString();\nconst nowISO = new Date().toISOString();\nconst notificationMessage =\n  `🎉 Social Media Posts Published Successfully!\\n\\n` +\n  `📋 Details (${posts.length}):\\n` +\n  lines.join('\\n') +\n  `\\n\\n✅ Workflow completed at ${nowISO}`;\n\n// Structured payload for downstream (webhook/Slack/Discord/Email)\nconst webhookData = {\n  status: 'SUCCESS',\n  count: posts.length,\n  posts: posts.map(p => ({\n    postId: fmtId(p),\n    platform: fmtPlatform(p),\n    contentPreview: preview(p.content),\n    createdAt: p.createdAt || nowISO,\n    userId: p.userId || 'N/A'\n  })),\n  createdAt: nowISO,\n  slackMessage: `✅ Published on: ${posts.map(p => fmtPlatform(p)).join(', ')} | ` +\n                `IDs: ${posts.map(p => fmtId(p)).join(', ')}`,\n  discordMessage: `🚀 **Posts Published (${posts.length})**\\n` +\n                  lines.join('\\n') + `\\n\\n**Time:** ${nowLocal}`,\n  emailSubject: `Social Posts Published (${posts.length})`,\n  emailBody: notificationMessage,\n  webhookNotification: notificationMessage\n};\n\n// Return a single consolidated item\nreturn [{\n  json: {\n    posts,\n    notification: webhookData,\n    webhookMessage: notificationMessage,\n    executionStatus: 'SUCCESS'\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+              },
+              "runAfter": {
+                "Merge": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Respond_to_Webhook": {
+              "type": "Response",
+              "kind": "Http",
+              "inputs": {
+                "statusCode": 200,
+                "body": ""
+              },
+              "runAfter": {
+                "Success_Notification_Logging": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Wait_30s": {
+              "type": "Wait",
+              "inputs": {
+                "interval": {
+                  "count": 30,
+                  "unit": "Second"
+                }
+              },
+              "runAfter": {
+                "Kie_ai_Generate_Image": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Zernio_Create_Post_Facebook": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "https://zernio.com/api/v1/posts",
+                "body": "{\n  \"content\": \"@{body('IF_Facebook')?['facebook']}\\n\\n@{Array.isArray(body('IF_Facebook')?['hashtags']) ? body('IF_Facebook')?['hashtags']?['join'](' ') : body('IF_Facebook')?['hashtags']}\",\n  \"publishNow\": true,\n  \"platforms\": [\n    { \"platform\": \"facebook\", \"accountId\": \"@{body('Default_Settings')?['FACEBOOK_ACCOUNT_ID']}\" }\n  ],\n  \"mediaItems\": [\n    { \"type\": \"image\", \"url\": \"@{body('IF_Facebook')?['publicUrl'] || body('IF_Facebook')?['files']?.[0]?.url || body('IF_Facebook')?['url']}\" }\n  ]\n}"
+              },
+              "runAfter": {
+                "IF_Facebook": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "IF_Facebook": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "IF Facebook",
+                "n8nNodeType": "n8n-nodes-base.if",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "loose"
+                    },
+                    "combinator": "or",
+                    "conditions": [
+                      {
+                        "id": "e3f62ead-f07f-4dc3-b6cc-53cc281c06dc",
+                        "operator": {
+                          "type": "boolean",
+                          "operation": "true",
+                          "singleValue": true
+                        },
+                        "leftValue": "={{ $('Default Settings').item.json.ENABLE_FACEBOOK }}",
+                        "rightValue": ""
+                      }
+                    ]
+                  },
+                  "looseTypeValidation": true
+                }
+              },
+              "runAfter": {
+                "Combine_Content_with_Media": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "IF_Instagram": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "IF Instagram",
+                "n8nNodeType": "n8n-nodes-base.if",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "loose"
+                    },
+                    "combinator": "or",
+                    "conditions": [
+                      {
+                        "id": "e3f62ead-f07f-4dc3-b6cc-53cc281c06dc",
+                        "operator": {
+                          "type": "boolean",
+                          "operation": "true",
+                          "singleValue": true
+                        },
+                        "leftValue": "={{ $('Default Settings').item.json.ENABLE_INSTAGRAM }}",
+                        "rightValue": ""
+                      }
+                    ]
+                  },
+                  "looseTypeValidation": true
+                }
+              },
+              "runAfter": {
+                "Combine_Content_with_Media": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "IF_LinkedIn": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "IF LinkedIn",
+                "n8nNodeType": "n8n-nodes-base.if",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "loose"
+                    },
+                    "combinator": "or",
+                    "conditions": [
+                      {
+                        "id": "e3f62ead-f07f-4dc3-b6cc-53cc281c06dc",
+                        "operator": {
+                          "type": "boolean",
+                          "operation": "true",
+                          "singleValue": true
+                        },
+                        "leftValue": "={{ $('Default Settings').item.json.ENABLE_LINKEDIN }}",
+                        "rightValue": ""
+                      }
+                    ]
+                  },
+                  "looseTypeValidation": true
+                }
+              },
+              "runAfter": {
+                "Combine_Content_with_Media": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "IF_TikTok": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "IF TikTok",
+                "n8nNodeType": "n8n-nodes-base.if",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "loose"
+                    },
+                    "combinator": "or",
+                    "conditions": [
+                      {
+                        "id": "e3f62ead-f07f-4dc3-b6cc-53cc281c06dc",
+                        "operator": {
+                          "type": "boolean",
+                          "operation": "true",
+                          "singleValue": true
+                        },
+                        "leftValue": "={{ $('Default Settings').item.json.ENABLE_TIKTOK }}",
+                        "rightValue": ""
+                      }
+                    ]
+                  },
+                  "looseTypeValidation": true
+                }
+              },
+              "runAfter": {
+                "Combine_Content_with_Media": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Zernio_Create_Post_Instagram": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "https://zernio.com/api/v1/posts",
+                "body": "{\n  \"content\": \"@{body('IF_Instagram')?['instagram']}\\n\\n@{Array.isArray(body('IF_Instagram')?['hashtags']) ? body('IF_Instagram')?['hashtags']?['join'](' ') : body('IF_Instagram')?['hashtags']}\",\n  \"publishNow\": true,\n  \"platforms\": [\n    { \"platform\": \"instagram\", \"accountId\": \"@{body('Default_Settings')?['INSTAGRAM_ACCOUNT_ID']}\" }\n  ],\n  \"mediaItems\": [\n    { \"type\": \"image\", \"url\": \"@{body('IF_Instagram')?['publicUrl'] || body('IF_Instagram')?['files']?.[0]?.url || body('IF_Instagram')?['url']}\" }\n  ]\n}"
+              },
+              "runAfter": {
+                "IF_Instagram": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Zernio_Create_Post_LinkedIn": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "https://zernio.com/api/v1/posts",
+                "body": "{\n  \"content\": \"@{body('IF_LinkedIn')?['linkedin']}\\n\\n@{Array.isArray(body('IF_LinkedIn')?['hashtags']) ? body('IF_LinkedIn')?['hashtags']?['join'](' ') : body('IF_LinkedIn')?['hashtags']}\",\n  \"publishNow\": true,\n  \"platforms\": [\n    { \"platform\": \"linkedin\", \"accountId\": \"@{body('Default_Settings')?['LINKEDIN_ACCOUNT_ID']}\" }\n  ],\n  \"mediaItems\": [\n    { \"type\": \"image\", \"url\": \"@{body('IF_LinkedIn')?['publicUrl'] || body('IF_LinkedIn')?['files']?.[0]?.url || body('IF_LinkedIn')?['url']}\" }\n  ]\n}"
+              },
+              "runAfter": {
+                "IF_LinkedIn": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Zernio_Create_Post_TikTok": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "https://zernio.com/api/v1/posts",
+                "body": "{\n  \"content\": \"@{body('IF_TikTok')?['tiktok']}\\n\\n@{Array.isArray(body('IF_TikTok')?['hashtags']) ? body('IF_TikTok')?['hashtags']?['join'](' ') : body('IF_TikTok')?['hashtags']}\",\n  \"publishNow\": true,\n  \"platforms\": [\n    { \"platform\": \"tiktok\", \"accountId\": \"@{body('Default_Settings')?['TIKTOK_ACCOUNT_ID']}\" }\n  ],\n  \"mediaItems\": [\n    { \"type\": \"image\", \"url\": \"@{body('IF_TikTok')?['publicUrl'] || body('IF_TikTok')?['files']?.[0]?.url || body('IF_TikTok')?['url']}\" }\n  ]\n}"
+              },
+              "runAfter": {
+                "IF_TikTok": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Merge": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Merge",
+                "n8nNodeType": "n8n-nodes-base.merge",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "numberInputs": 4
+                }
+              },
+              "runAfter": {
+                "Zernio_Create_Post_TikTok": [
+                  "Succeeded"
+                ],
+                "Zernio_Create_Post_Facebook": [
+                  "Succeeded"
+                ],
+                "Zernio_Create_Post_LinkedIn": [
+                  "Succeeded"
+                ],
+                "Zernio_Create_Post_Instagram": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Combine_Content_with_Media": {
+              "type": "JavaScriptCode",
+              "inputs": {
+                "code": "const __inputRaw = workflowContext.actions['Normalize_Media_Output'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Combine content data with media URLs\nconst mediaData = $input.first().json;\nconst contentData = __node('Parse_Filter_Platforms').item.json;\n\nreturn [{\n  json: {\n    ...contentData,  // facebook, instagram, hashtags, etc.\n    ...mediaData,    // url, publicUrl, files, etc.\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+              },
+              "runAfter": {
+                "Normalize_Media_Output": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Normalize_Media_Output": {
+              "type": "JavaScriptCode",
+              "inputs": {
+                "code": "const __inputRaw = workflowContext.actions['Upload_to_Storage_PUT'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nlet presign = null;\ntry { presign = __node('Zernio_Init_Upload_files_4MB').item.json; } catch (e) {}\nreturn [{\n  json: {\n    publicUrl:\n      $json.files?.[0]?.url ||\n      $json.publicUrl ||\n      $json.url ||\n      presign?.publicUrl ||\n      __node('Prepare_data').item.json.imageUrl\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+              },
+              "runAfter": {
+                "Upload_to_Storage_PUT": [
+                  "Succeeded"
+                ],
+                "Zernio_Upload_Media_files_4MB": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "Default_Settings": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Default_Settings": {
+          "type": "Compose",
+          "inputs": {
+            "BUSINESS_TYPE": "YOUR_BUSINESS_TYPE",
+            "CONTENT_TOPIC": "YOUR_CONTENT_TOPIC",
+            "ENABLE_FACEBOOK": "true",
+            "FACEBOOK_ACCOUNT_ID": "YOUR_FACEBOOK_ACCOUNT_ID",
+            "ENABLE_INSTAGRAM": "true",
+            "INSTAGRAM_ACCOUNT_ID": "YOUR_INSTAGRAM_ACCOUNT_ID",
+            "ENABLE_LINKEDIN": "false",
+            "LINKEDIN_ACCOUNT_ID": "YOUR_LINKEDIN_ACCOUNT_ID",
+            "ENABLE_TIKTOK": "false",
+            "TIKTOK_ACCOUNT_ID": "YOUR_TIKTOK_ACCOUNT_ID"
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "When_clicking_Execute_workflow",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

@@ -1,0 +1,138 @@
+{
+  "sourceWorkflowName": "Detect Binance USDT volume spikes with GPT-4o, Telegram, and Google Sheets",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 23,
+  "totalNodes": 26,
+  "coverage": 0.8846,
+  "diagnostics": [
+    {
+      "code": "IF_REGION_UNSUPPORTED",
+      "message": "IF branches overlap or have external inputs, so nesting them would change behavior.",
+      "severity": "warning",
+      "node_name": "Check for Volume Spike",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "LOOP_SEMANTICS_UNSUPPORTED",
+      "message": "This n8n loop requires a bounded LAA Foreach/Until region; batch size, reset, and loop-back behavior must be preserved explicitly.",
+      "severity": "warning",
+      "node_name": "Loop Over Coin Pairs",
+      "node_type": "n8n-nodes-base.splitInBatches",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Loop Over Coin Pairs",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Compute Volume Spike",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.if is not safely supported.",
+      "severity": "warning",
+      "node_name": "Check for Volume Spike",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Analyze Book Pressure",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Prepare AI Analysis Prompt",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.openAi.",
+      "severity": "warning",
+      "node_name": "OpenAI Volume Spike Analysis",
+      "node_type": "@n8n/n8n-nodes-langchain.openAi",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Extract AI Analysis Results",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Aggregate Spike Findings",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "TELEGRAM_TOKEN_REQUIRED",
+      "message": "Replace the Telegram bot-token placeholder with a secure deployment value before import.",
+      "severity": "warning",
+      "node_name": "Send Alert via Telegram",
+      "node_type": "n8n-nodes-base.telegram",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Create Alert Summary",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Select Top Performers",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Prepare Data for Logging",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Fetch 1h Kline Data",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Filter USDT Pairs",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    }
+  ]
+}

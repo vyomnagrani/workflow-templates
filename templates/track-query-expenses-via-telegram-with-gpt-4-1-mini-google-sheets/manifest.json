@@ -1,0 +1,469 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "track-query-expenses-via-telegram-with-gpt-4-1-mini-google-sheets",
+    "name": "Track & query expenses via Telegram with GPT-4.1 mini & Google Sheets",
+    "description": "## Description\n\nTrack and query your expenses effortlessly through Telegram using voice or text messages. This AI-powered workflow transcribes voice input via AssemblyAI, processes transactions with a GPT-4.1 mini agent, stores data in Google Sheets with comprehensive timestamp metadata, and responds with both voice and text confirmations.\n\n**Key Features:**\n- **Multi-modal input:** Send expenses via voice messages or text\n- **Intelligent processing:** AI agent automatically categorizes transactions, calculates running balance, and handles multiple expenses in a single message\n- **Conversational queries:** Ask questions like \"What did I spend on food last week?\" \n- **Voice responses:** Get spoken confirmations using OpenAI TTS\n- **Smart alerts:** Automatic Gmail notifications for low balance thresholds\n- **Cost tracking:** Monitors and logs all API usage costs (LLM + TTS) in USD and INR\n\n**Perfect for:**\n- Personal finance management with minimal effort\n- Small business expense tracking with audit trails\n- Shared household or team budgets\n- API cost monitoring for developers\n\nEach transaction includes detailed metadata (timestamps, categories, run IDs, source text) enabling powerful time-based analytics and queries.\n\n**Requirements:** Telegram bot, Google Sheets OAuth, OpenAI API key, AssemblyAI API key, Gmail OAuth (optional)\n\n**Support:** Join [n8n Discord](https://discord.com/invite/n8n) or [Community Forum](https://community.n8n.io/)\nREADME file available at https://drive.google.com/file/d/1mh9FRm7zemdazNpjyEq9uhHSc_9go7PN/view?usp=sharing\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Personal Productivity",
+      "AI Chatbot",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "connectionProviders/Http",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Telegram_Input": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Telegram Input",
+            "n8nNodeType": "n8n-nodes-base.telegramTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "Route_by_Message_Type": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Route by Message Type",
+            "n8nNodeType": "n8n-nodes-base.switch",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "Telegram_Input": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Check_Voice_Quality": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Check Voice Quality",
+            "n8nNodeType": "n8n-nodes-base.switch",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "Route_by_Message_Type": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_Processing_Notification_Voice": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Send Processing Notification (Voice)",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "Check_Voice_Quality": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_Voice_File": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "🎙️ Download Voice File",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "Check_Voice_Quality": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_to_AssemblyAI": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": ""
+          },
+          "runAfter": {
+            "Download_Voice_File": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Start_Transcription": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": ""
+          },
+          "runAfter": {
+            "Upload_to_AssemblyAI": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_Transcription_Result": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": ""
+          },
+          "runAfter": {
+            "Wait_for_Transcription": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Check_Transcription_Status": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Check Transcription Status",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "Get_Transcription_Result": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_Processing_Notification_Text": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Send Processing Notification (Text)",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "Route_by_Message_Type": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Read_Transaction_History": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_SPREADSHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_WORKSHEET'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Check_Transcription_Status": [
+              "Succeeded"
+            ],
+            "Send_Processing_Notification_Text": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Calculate_Starting_Balance": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Calculate Starting Balance",
+            "n8nNodeType": "n8n-nodes-base.code",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "Read_Transaction_History": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Append_Transaction_to_Sheet": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Append Transaction to Sheet",
+            "n8nNodeType": "n8n-nodes-base.googleSheetsTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "Read_Sheet_for_Queries": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Read Sheet for Queries",
+            "n8nNodeType": "n8n-nodes-base.googleSheetsTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "Send_Low_Balance_Alert": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Send Low Balance Alert",
+            "n8nNodeType": "n8n-nodes-base.gmailTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "GPT_4_1_Mini_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "GPT-4.1 Mini Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "Conversation_Memory": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Conversation Memory",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "Generate_Voice_Response": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": ""
+          },
+          "runAfter": {
+            "AI_Expense_Analyzer": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_Voice_to_Telegram": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Send Voice to Telegram",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "Generate_Voice_Response": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_Text_to_Telegram": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Send Text to Telegram",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "Generate_Voice_Response": [
+              "Succeeded"
+            ]
+          }
+        },
+        "AI_Expense_Analyzer": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "AI Expense Analyzer",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "GPT_4_1_Mini_Model": [
+              "Succeeded"
+            ],
+            "Conversation_Memory": [
+              "Succeeded"
+            ],
+            "Read_Sheet_for_Queries": [
+              "Succeeded"
+            ],
+            "Send_Low_Balance_Alert": [
+              "Succeeded"
+            ],
+            "Calculate_Starting_Balance": [
+              "Succeeded"
+            ],
+            "Append_Transaction_to_Sheet": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_for_Transcription": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 1,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Start_Transcription": [
+              "Succeeded"
+            ],
+            "Check_Transcription_Status": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Track_API_Costs": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Track API Costs",
+            "n8nNodeType": "n8n-nodes-base.code",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "AI_Expense_Analyzer": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Log_Cost_to_Sheet": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_SPREADSHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_WORKSHEET'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Track_API_Costs": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

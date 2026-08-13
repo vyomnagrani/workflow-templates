@@ -1,0 +1,942 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "create-fluidx-the-eye-live-camera-sessions-with-sms-email-invites-ai-analysis-and-google-drive",
+    "name": "Create fluidX THE EYE live camera sessions with SMS/email invites, AI analysis, and Google Drive",
+    "description": "### Setup & Instructions — fluidX: Create Session, Analyze & Notify\n\n**Goal:**  \nThis workflow demonstrates the full **fluidX THE EYE** integration — starting a live session, inviting both the **customer** (via SMS) and the **service agent** (via email), and then accessing the media (photos and videos) created during the session.  \nCaptured images are automatically analyzed with AI, uploaded to an external storage (such as **Google Drive**), and a media summary for the session is generated at the end.\n\n![THEEYE.png](fileId:3276)\n\n- The **agent** receives an email with a link to join the live session.  \n- The **customer** receives an SMS with a link to start sharing their camera.  \n- Once both are connected, the agent can view the live feed, and the system automatically stores uploaded images and videos in Google Drive.  \n- When the session ends, the workflow collects all media and creates a complete AI-powered **session summary** (stored and updated in Google Drive).\n\nBelow is an example screenshot from the customer’s phone:  \n![User.jpeg](fileId:3278)\n\n---\n\n### Prerequisites\n- **Developer account:** [https://live.fluidx.digital](https://live.fluidx.digital) (activate the **TEST plan**, €0)\n- **API docs (Swagger):** [fluidX.digital API](https://live.fluidx.digital/api/swagger.html)\n\n---\n\n### 🔐 Required Credentials\n\n**1️⃣ fluidX API key (HTTP Header Auth)**  \n• Credential name in n8n: `fluidx API key`  \n• Header name: `x-api-key`  \n• Header value: `YOUR_API_KEY`\n\n**2️⃣ SMTP account (for outbound email)**  \n• Credential name in n8n: `SMTP account`  \n• Configure `host`, `port`, `username`, and `password` according to your provider  \n• Enable TLS/SSL as required  \n\n**3️⃣ Google Drive account**  \n• Used to store photos, videos, and automatically update the session summary files.  \n\n**4️⃣ OpenAI API (for AI analysis & summary)**\n•Used in the Analyze Images (AI) and Generate Summary parts of the workflow.\n• Credential type: OpenAI\n• Credential name (suggested): OpenAI account \n• API Key: your OpenAI API key\n• Model: e.g. gpt-4.1, gpt-4o, or similar (choose in the OpenAI node settings)\n\n---\n\n### ⚙️ Configuration (in the “Set Config” node)\n- `BASE_URL`: `https://live.fluidx.digital`  \n- `company` / `project` / `billingcode` / `sku`: adjust as needed  \n- `emailAgent`: **set before running** (empty in template)  \n- `phoneNumberUser`: **set before running** (empty in template)\n\n---\n\n### Flow Overview\n`Form Trigger → Create Session → Set Session Vars → Send SMS (User) → Send Email (Agent) → Monitor Media → Analyze Images (AI) → Upload Files to Google Drive → Generate Summary → Update Summary File`\n\nThe workflow starts automatically when a **Form submission** is received.  \nUsers enter the **customer’s phone number** and **agent’s email**, and the system creates a new **fluidX THE EYE session**.  \nAs media is uploaded during the session, the workflow automatically retrieves, stores, analyzes, and summarizes it — providing a complete end-to-end automation example for remote inspection, support, or field-service use cases.\n\n---\n\n### Notes\n- Do not store real personal data inside the template.  \n- Manage API keys and secrets via n8n **Credentials** or environment variables.  \n- Log out of [https://live.fluidx.digital](https://live.fluidx.digital) in the agent’s browser before testing, to ensure a clean invite flow and session creation.\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Support Chatbot",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "On_form_submission": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "On form submission",
+            "n8nNodeType": "n8n-nodes-base.formTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "formTitle": "fluidX digital The Eye Session Invitation",
+              "formFields": {
+                "values": [
+                  {
+                    "fieldLabel": "Agent Email Address",
+                    "placeholder": "user@example.com",
+                    "requiredField": true
+                  },
+                  {
+                    "fieldLabel": "User Phone Number",
+                    "placeholder": "+1234567890"
+                  },
+                  {
+                    "fieldLabel": "User Email Address",
+                    "placeholder": "user@example.com"
+                  }
+                ]
+              },
+              "formDescription": "Agent Email is required. User Phone and User Email are optional — fill in either one (or both) to deliver the invitation. Empty user fields are skipped."
+            }
+          },
+          "runAfter": {}
+        },
+        "Set_Config": {
+          "type": "Compose",
+          "inputs": {
+            "string": [
+              {
+                "name": "BASE_URL",
+                "value": "https://live.fluidx.digital"
+              },
+              {
+                "name": "phoneNumberUser",
+                "value": "@body('On_form_submission')?['User Phone Number']"
+              },
+              {
+                "name": "message",
+                "value": "fluidX.digital TheEye. Your Link: "
+              },
+              {
+                "name": "emailAgent",
+                "value": "@body('On_form_submission')?['Agent Email Address']"
+              },
+              {
+                "name": "emailUser",
+                "value": "@body('On_form_submission')?['User Email Address']"
+              },
+              {
+                "name": "language",
+                "value": "DE"
+              },
+              {
+                "name": "company",
+                "value": "service berlin"
+              },
+              {
+                "name": "project",
+                "value": "fluidX demo"
+              },
+              {
+                "name": "billingcode",
+                "value": "demo-budget"
+              },
+              {
+                "name": "correlationId",
+                "value": "{{$now}}"
+              },
+              {
+                "name": "sku",
+                "value": "THEEYE"
+              }
+            ]
+          },
+          "runAfter": {
+            "On_form_submission": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Set_Session_Vars": {
+          "type": "Compose",
+          "inputs": {
+            "string": [
+              {
+                "name": "sessionId",
+                "value": "@body('fluidX_API_Create_Session')?['revXRSession']?['id']"
+              },
+              {
+                "name": "viewTheEyeUrl",
+                "value": "@body('fluidX_API_Create_Session')?['sessionInfo']?['viewTheEyeUrl']"
+              },
+              {
+                "name": "theEyeUserUrl",
+                "value": "@body('fluidX_API_Create_Session')?['sessionInfo']?['theEyeUserUrl']"
+              },
+              {
+                "name": "folderName",
+                "value": "={{ 'THEEYE_' + $now.toFormat('yyyyLLdd_HHmmss') + '_' + $json.revXRSession.id }}"
+              }
+            ]
+          },
+          "runAfter": {
+            "fluidX_API_Create_Session": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Create_Session_Folder": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Create Session Folder",
+            "n8nNodeType": "n8n-nodes-base.googleDrive",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "name": "={{ $node[\"Set Session Vars\"].json.folderName }}",
+              "driveId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "My Drive",
+                "cachedResultUrl": "https://drive.google.com/drive/my-drive",
+                "cachedResultName": "My Drive"
+              },
+              "options": {},
+              "folderId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "10d6dEoF6GVYGMUW0M1eZiSlDc7JLtaxY",
+                "cachedResultUrl": "https://drive.google.com/drive/folders/10d6dEoF6GVYGMUW0M1eZiSlDc7JLtaxY",
+                "cachedResultName": "THEEYE"
+              },
+              "resource": "folder"
+            }
+          },
+          "runAfter": {
+            "Set_Session_Vars": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_email_to_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Send email to Agent",
+            "n8nNodeType": "n8n-nodes-base.emailSend",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=fluidx.digital View TheEye: Your Link: \n{{ $node[\"Set Session Vars\"].json.viewTheEyeUrl }}",
+              "options": {},
+              "subject": "fluidX.digital View TheEye Link",
+              "toEmail": "={{ $node[\"Set Config\"].json.emailAgent }}",
+              "fromEmail": "user@example.com",
+              "emailFormat": "text"
+            }
+          },
+          "runAfter": {
+            "If_User_Email_Set": [
+              "Succeeded"
+            ]
+          }
+        },
+        "If_Phone_Set": {
+          "type": "If",
+          "expression": {
+            "not": {
+              "empty": [
+                "={{ ($node['Set Config'].json.phoneNumberUser || '').trim() }}"
+              ]
+            }
+          },
+          "actions": {
+            "fluidX_API_Send_SMS_User": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "={{ $node[\"Set Config\"].json.BASE_URL }}/api/fx/ext/sms/send",
+                "body": "={\n  \"phoneNumber\": \"{{ $node[\"Set Config\"].json.phoneNumberUser }}\",\n  \"message\": {{ ($node[\"Set Config\"].json.message + $node[\"Set Session Vars\"].json.theEyeUserUrl).toJsonString() }},\n  \"sessionId\": {{ $node[\"Set Session Vars\"].json.sessionId.toJsonString() }}\n}\n"
+              },
+              "runAfter": {}
+            }
+          },
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "Create_Session_Folder": [
+              "Succeeded"
+            ]
+          }
+        },
+        "If_User_Email_Set": {
+          "type": "If",
+          "expression": {
+            "not": {
+              "empty": [
+                "={{ ($node['Set Config'].json.emailUser || '').trim() }}"
+              ]
+            }
+          },
+          "actions": {
+            "Send_email_to_User": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Send email to User",
+                "n8nNodeType": "n8n-nodes-base.emailSend",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "text": "=fluidx.digital The Eye: Your Session Link:\n{{ $node[\"Set Session Vars\"].json.theEyeUserUrl }}",
+                  "options": {},
+                  "subject": "fluidX.digital The Eye — your session link",
+                  "toEmail": "={{ $node[\"Set Config\"].json.emailUser }}",
+                  "fromEmail": "user@example.com",
+                  "emailFormat": "text"
+                }
+              },
+              "runAfter": {}
+            }
+          },
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "If_Phone_Set": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Split_photoRefs_Item_Lists": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Split photoRefs (Item Lists)",
+            "n8nNodeType": "n8n-nodes-base.itemLists",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldToSplitOut": "=photoRefs"
+            }
+          },
+          "runAfter": {
+            "If_photos": [
+              "Succeeded"
+            ]
+          }
+        },
+        "fluidX_API_Media_Info_HTTP_Request_GET": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "={{ $item(0).$node[\"Set Config\"].json.BASE_URL }}/api/fx/ext/media/info"
+          },
+          "runAfter": {
+            "If_Media_Id": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 15,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "If_new_Image": [
+              "Succeeded"
+            ],
+            "If_photos": [
+              "Succeeded"
+            ],
+            "If_Media_Id": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait1": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 30,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Send_email_to_Agent": [
+              "Succeeded"
+            ]
+          }
+        },
+        "fluidX_API_Create_Session": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "={{ $node[\"Set Config\"].json.BASE_URL }}/api/fx/ext/session/create",
+            "body": "{\n  \"sessionDetails\": {\n    \"company\": @{body('Set_Config')?['company']?['toJsonString']()},\n    \"project\": @{body('Set_Config')?['project']?['toJsonString']()},\n    \"billingcode\": @{body('Set_Config')?['billingcode']?['toJsonString']()},\n    \"correlationId\": \"2025-1234\",\n    \"sku\": @{body('Set_Config')?['sku']?['toJsonString']()}\n  }\n}"
+          },
+          "runAfter": {
+            "Set_Config": [
+              "Succeeded"
+            ]
+          }
+        },
+        "fluidX_API_Get_Session_Info": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "={{ $item(0).$node[\"Set Config\"].json.BASE_URL }}/api/fx/ext/session"
+          },
+          "runAfter": {
+            "Wait": [
+              "Succeeded"
+            ],
+            "Wait1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "If_new_Image": {
+          "type": "If",
+          "expression": {
+            "and": [
+              {
+                "empty": [
+                  "@body('Merge_photoRefs')?['mediaInfo']?['description']"
+                ]
+              },
+              {
+                "equals": [
+                  "",
+                  ""
+                ]
+              }
+            ]
+          },
+          "actions": {
+            "Upload_file": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Upload file",
+                "n8nNodeType": "n8n-nodes-base.googleDrive",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "driveId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "My Drive",
+                    "cachedResultUrl": "https://drive.google.com/drive/my-drive",
+                    "cachedResultName": "My Drive"
+                  },
+                  "options": {},
+                  "folderId": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "={{ $('Create Session Folder').item.json.id }}"
+                  }
+                }
+              },
+              "runAfter": {
+                "Carry_URL_and_Id": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Analyze_image": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Analyze image",
+                "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "text": "=What's in this image? Output language is {{ $('Set Config').item.json.language }}",
+                  "modelId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "gpt-4o",
+                    "cachedResultName": "GPT-4O"
+                  },
+                  "options": {},
+                  "resource": "image",
+                  "inputType": "base64",
+                  "operation": "analyze"
+                }
+              },
+              "runAfter": {
+                "Carry_URL_and_Id": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Merge_Analyze_URL": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Merge Analyze + URL",
+                "n8nNodeType": "n8n-nodes-base.merge",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "mode": "combine",
+                  "options": {},
+                  "combineBy": "combineByPosition"
+                }
+              },
+              "runAfter": {
+                "Analyze_image": [
+                  "Succeeded"
+                ],
+                "Carry_URL_and_Id": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Build_MediaInfo": {
+              "type": "Compose",
+              "inputs": {
+                "string": [
+                  {
+                    "name": "type",
+                    "value": "image"
+                  },
+                  {
+                    "name": "id",
+                    "value": "@body('Merge_Analyze_URL')?['_srcId']"
+                  },
+                  {
+                    "name": "title",
+                    "value": "={{\n  (() => {\n    // Kandidaten vom Analyze-Node – nimm was befüllt ist\n    const raw =($json['0'].content[0].text).trim();\n\n    // Fallback: sinnvoller Titel, falls nichts da\n    const fallback = `Image ${$json.id || ''}`.trim();\n\n    if (!raw) return fallback;\n\n    // erste Satzhälfte nehmen\n    let first = (raw.split(/[.!?\\n]/).find(s => s && s.trim().length) || raw).trim();\n\n    // leading Phrasen weg\n    first = first\n      .replace(/^\\s*(the|this)\\s+image\\s+(shows|depicts|displays)\\s*/i, '')\n      .replace(/^\\s*(an?\\s+|the\\s+)?(photo|image)\\s+of\\s+/i, '')\n      .trim();\n\n first = first\n      .replace(/^\\s*(Auf dem|Das)\\s+Bild\\s+(sieht man|zeigt)\\s*/i, '')\n      .replace(/^\\s*(einen?\\s+|ein\\s+)?(Bild)\\s+of\\s+/i, '')\n      .trim();\n\n    // auf 10 Wörter kürzen\n    const words = first.split(/\\s+/);\n    let title = words.slice(0, 10).join(' ');\n\n    // Erstes Zeichen groß\n    title = title.charAt(0).toUpperCase() + title.slice(1);\n\n    return title || fallback;\n  })()\n}}"
+                  },
+                  {
+                    "name": "description",
+                    "value": "@body('Merge_Analyze_URL')?['0']?['content'][0].text"
+                  }
+                ]
+              },
+              "runAfter": {
+                "Merge_Analyze_URL": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "fluidX_API_Download_Photo_THEEYE_Session": {
+              "type": "Http",
+              "inputs": {
+                "method": "GET",
+                "uri": "@body('Check_Already_Uploaded')?['url']"
+              },
+              "runAfter": {
+                "Check_Already_Uploaded": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "fluidX_API_Media_Info_HTTP_Request_POST": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "={{ $item(0).$node[\"Set Config\"].json.BASE_URL }}/api/fx/ext/media/info",
+                "body": "@body('Build_MediaInfo')"
+              },
+              "runAfter": {
+                "Build_MediaInfo": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Generate_Photo_Summary": {
+              "type": "JavaScriptCode",
+              "inputs": {
+                "code": "const __inputRaw = workflowContext.actions['fluidX_API_Media_Info_HTTP_Request_POST'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Iterate through all incoming items and create one summary per mediaInfo\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const info = item.json.mediaInfo || {};\n\n  const description = info.description?.trim() || 'No description';\n  const filename = `photo-${info.imageId || info.id || Date.now()}.txt`;\n\n  results.push({\n    json: {\n      filename,\n      text: `Title: ${info.title || 'Untitled'}\\nDescription: ${description}\\n---\\n`\n    }\n  });\n}\n\nreturn results;\n\n})();\nreturn { body: __unwrap(__result) };"
+              },
+              "runAfter": {
+                "fluidX_API_Media_Info_HTTP_Request_POST": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Upload_Photo_Summary": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Upload Photo Summary",
+                "n8nNodeType": "n8n-nodes-base.googleDrive",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "name": "={{ $json.filename }}",
+                  "driveId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "My Drive",
+                    "cachedResultUrl": "https://drive.google.com/drive/my-drive",
+                    "cachedResultName": "My Drive"
+                  },
+                  "options": {},
+                  "folderId": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "={{ $('Create Session Folder').first().json.id.trim() }}"
+                  }
+                }
+              },
+              "runAfter": {
+                "Convert_Text_to_Binary": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Convert_Text_to_Binary": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Convert Text to Binary",
+                "n8nNodeType": "n8n-nodes-base.code",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "jsCode": "// Convert all text summaries to binary files for Google Drive upload\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const { text, filename } = item.json;\n  const buffer = Buffer.from(text, 'utf8');\n\n  results.push({\n    json: { filename },\n    binary: {\n      data: {\n        data: buffer.toString('base64'),\n        mimeType: 'text/plain',\n        fileName: filename\n      }\n    }\n  });\n}\n\nreturn results;\n\n"
+                }
+              },
+              "runAfter": {
+                "Generate_Photo_Summary": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Carry_URL_and_Id": {
+              "type": "Compose",
+              "inputs": {
+                "number": [
+                  {
+                    "name": "_srcId",
+                    "value": "@body('fluidX_API_Download_Photo_THEEYE_Session')?['id']"
+                  }
+                ],
+                "string": [
+                  {
+                    "name": "_srcUrl",
+                    "value": "@body('fluidX_API_Download_Photo_THEEYE_Session')?['url']"
+                  }
+                ]
+              },
+              "runAfter": {
+                "fluidX_API_Download_Photo_THEEYE_Session": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Check_Already_Uploaded": {
+              "type": "JavaScriptCode",
+              "inputs": {
+                "code": "const __inputRaw = workflowContext.trigger.outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// 🔁 1️⃣ Global store initialisieren\nconst store = $getWorkflowStaticData('global');\nif (!store.uploadedPhotoIds) store.uploadedPhotoIds = [];\n\n// 🔁 2️⃣ Alle eingehenden Items holen\nconst items = $input.all();\nconst newItems = [];\n\n// 🔁 3️⃣ Schleife: nur neue Bilder behalten\nfor (const item of items) {\n  const id = item.json.id;\n  if (!id) continue;\n\n  if (!store.uploadedPhotoIds.includes(id)) {\n    store.uploadedPhotoIds.push(id);\n    console.log(`✅ Neues Foto erkannt: ${id}`);\n    newItems.push(item);\n  } else {\n    console.log(`⚠️ Foto ${id} wurde bereits verarbeitet, überspringe`);\n  }\n}\n\n// 🔁 4️⃣ Alles Neue als Batch zurückgeben\nreturn newItems;\n\n})();\nreturn { body: __unwrap(__result) };"
+              },
+              "runAfter": {}
+            },
+            "Merge": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Merge",
+                "n8nNodeType": "n8n-nodes-base.merge",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "mode": "chooseBranch"
+                }
+              },
+              "runAfter": {
+                "Upload_file": [
+                  "Succeeded"
+                ],
+                "Upload_Photo_Summary": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "Merge_photoRefs": [
+              "Succeeded"
+            ]
+          }
+        },
+        "If_Media_Id": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "If Media Id",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "4f59097c-8851-43c7-9b9a-78a4d6181d8a",
+                    "operator": {
+                      "type": "number",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.id }}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "looseTypeValidation": true
+            }
+          },
+          "runAfter": {
+            "Split_photoRefs_Item_Lists": [
+              "Succeeded"
+            ]
+          }
+        },
+        "If_Session_Active": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "If Session Active",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "cond-session-active",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.revXRSession.status }}",
+                    "rightValue": "ACTIVE"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "fluidX_API_Get_Session_Info": [
+              "Succeeded"
+            ]
+          }
+        },
+        "The_End": {
+          "type": "Compose",
+          "inputs": {},
+          "runAfter": {
+            "Clear_Uploaded_Photo_Store": [
+              "Succeeded"
+            ]
+          }
+        },
+        "fluidX_API_Media_Summary": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "={{ $item(0).$node[\"Set Config\"].json.BASE_URL }}/api/fx/ext/media/summary"
+          },
+          "runAfter": {
+            "If_Session_Active": [
+              "Succeeded"
+            ]
+          }
+        },
+        "If_photos": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "If photos",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "7988fb13-6236-4794-b051-9d992e47ab05",
+                    "operator": {
+                      "type": "array",
+                      "operation": "empty",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.photoRefs }}",
+                    "rightValue": ""
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Extract_Media_Refs_photos": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_Media_Refs_photos": {
+          "type": "Compose",
+          "inputs": {
+            "string": [
+              {
+                "name": "photoRefs",
+                "value": "@body('If_Session_Active')?['mediaInfo']?.photoRefs || body('If_Session_Active')?['photoRefs'] || []"
+              }
+            ]
+          },
+          "runAfter": {
+            "If_Session_Active": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Merge_photoRefs": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Merge photoRefs",
+            "n8nNodeType": "n8n-nodes-base.merge",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "combine",
+              "options": {},
+              "combineBy": "combineByPosition"
+            }
+          },
+          "runAfter": {
+            "Split_photoRefs_Item_Lists": [
+              "Succeeded"
+            ],
+            "fluidX_API_Media_Info_HTTP_Request_GET": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Clear_Uploaded_Photo_Store": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Remember_Session_Summary_File'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// 🧹 Clear stored photo IDs after the session ends\nconst store = $getWorkflowStaticData('global');\n\nif (store.uploadedPhotoIds && store.uploadedPhotoIds.length > 0) {\n  console.log(`🧹 Removing ${store.uploadedPhotoIds.length} stored photo IDs from the upload cache`);\n  store.uploadedPhotoIds = [];\n} else {\n  console.log('✅ No stored photo ID cache – nothing to clean up');\n}\n\nreturn $input.all();\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Remember_Session_Summary_File": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Convert_Summary_Text_to_Binary": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Convert Summary Text to Binary",
+            "n8nNodeType": "n8n-nodes-base.code",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsCode": "// 🧠 Safe conversion of session summary text to binary for Google Drive upload\nconst store = $getWorkflowStaticData('global');\nif (!store.sessionSummaryFiles || typeof store.sessionSummaryFiles !== 'object') {\n  store.sessionSummaryFiles = {};\n}\n\n// 🔹 Get session info\nconst sessionItems = $items('Set Session Vars', 0, 0);\nconst sessionId = sessionItems[0]?.json?.sessionId || 'unknown-session';\n\n// 🔹 Skip if we already uploaded a summary for this session\nif (store.sessionSummaryFiles[sessionId]) {\n  console.log(`✅ Session ${sessionId} summary already uploaded (file ${store.sessionSummaryFiles[sessionId]}). Skipping re-upload.`);\n  return [];\n}\n\n// 🔹 Extract summary text from API response (robustly handle all cases)\nlet raw = $json.data ?? $json.body ?? $json.text ?? $json.mediaSummary ?? '';\nif (typeof raw !== 'string') {\n  try {\n    raw = JSON.stringify(raw, null, 2);\n  } catch (e) {\n    raw = String(raw);\n  }\n}\n\nconst summaryText = raw.trim() || '⚠️ Empty summary received from API';\nconst filename = `session-summary-${sessionId}.txt`;\n\nlet buffer;\ntry {\n  buffer = Buffer.from(summaryText, 'utf8');\n} catch (e) {\n  buffer = Buffer.from('⚠️ Error creating buffer from summary text', 'utf8');\n}\n\nreturn [{\n  json: { filename, sessionId },\n  binary: {\n    data: {\n      data: buffer.toString('base64'),\n      mimeType: 'text/plain',\n      fileName: filename,\n      fileExtension: 'txt'\n    }\n  }\n}];\n"
+            }
+          },
+          "runAfter": {
+            "fluidX_API_Media_Summary": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_Session_Summary": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Upload Session Summary",
+            "n8nNodeType": "n8n-nodes-base.googleDrive",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "name": "={{ $json.filename }}",
+              "driveId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "My Drive",
+                "cachedResultUrl": "https://drive.google.com/drive/my-drive",
+                "cachedResultName": "My Drive"
+              },
+              "options": {},
+              "folderId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $('Create Session Folder').first().json.id.trim() }}"
+              }
+            }
+          },
+          "runAfter": {
+            "Convert_Summary_Text_to_Binary": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Remember_Session_Summary_File": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Upload_Session_Summary'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Track uploaded summary file IDs per session so we only upload once.\nconst store = $getWorkflowStaticData('global');\nif (!store.sessionSummaryFiles || typeof store.sessionSummaryFiles !== 'object') {\n  store.sessionSummaryFiles = {};\n}\n\nconst sessionItems = $items('Set Session Vars', 0, 0);\nconst sessionId = sessionItems[0]?.json?.sessionId || 'unknown-session';\nconst uploadedId = $json?.id;\n\nif (uploadedId) {\n  store.sessionSummaryFiles[sessionId] = uploadedId;\n  console.log(`📄 Stored session summary file ${uploadedId} for ${sessionId}`);\n} else {\n  console.log('⚠️ No uploaded summary file ID found – nothing stored.');\n}\n\nreturn $input.all();\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Upload_Session_Summary": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

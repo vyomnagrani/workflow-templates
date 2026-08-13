@@ -1,0 +1,130 @@
+{
+  "sourceWorkflowName": "AI-generated LinkedIn posts with OpenAI, Google Sheets & email approval workflow",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 10,
+  "totalNodes": 18,
+  "coverage": 0.5556,
+  "diagnostics": [
+    {
+      "code": "SWITCH_REGION_UNSUPPORTED",
+      "message": "Switch branches overlap or have external inputs, so nesting them would change behavior.",
+      "severity": "warning",
+      "node_name": "Content Confirmation Logic",
+      "node_type": "n8n-nodes-base.switch",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOpenAi.",
+      "severity": "warning",
+      "node_name": "OpenAI Chat Model",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.chainLlm.",
+      "severity": "warning",
+      "node_name": "Generate Post Content",
+      "node_type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Generate Post Content",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Gmail message/sendAndWait is not mapped to a deterministic LAA action.",
+      "severity": "warning",
+      "node_name": "Send Content Confirmation",
+      "node_type": "n8n-nodes-base.gmail",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.gmail is not safely supported.",
+      "severity": "warning",
+      "node_name": "Send Content Confirmation",
+      "node_type": "n8n-nodes-base.gmail",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.switch is not safely supported.",
+      "severity": "warning",
+      "node_name": "Content Confirmation Logic",
+      "node_type": "n8n-nodes-base.switch",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.chainLlm.",
+      "severity": "warning",
+      "node_name": "Regenerate Post Content",
+      "node_type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Regenerate Post Content",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Regenerate Post Content",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.linkedIn.",
+      "severity": "warning",
+      "node_name": "Post With Image",
+      "node_type": "n8n-nodes-base.linkedIn",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.linkedIn.",
+      "severity": "warning",
+      "node_name": "Post Without Image",
+      "node_type": "n8n-nodes-base.linkedIn",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Google Sheets operation 'update' is not safely equivalent to a single LAA connector action.",
+      "severity": "warning",
+      "node_name": "Update Google Sheet",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.googleSheets is not safely supported.",
+      "severity": "warning",
+      "node_name": "Update Google Sheet",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Update Google Sheet",
+      "node_type": null,
+      "json_path": null
+    }
+  ]
+}

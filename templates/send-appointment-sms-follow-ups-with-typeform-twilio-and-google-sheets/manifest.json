@@ -1,0 +1,328 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "send-appointment-sms-follow-ups-with-typeform-twilio-and-google-sheets",
+    "name": "Send appointment SMS follow-ups with Typeform, Twilio, and Google Sheets",
+    "description": "## How it works\n\n- 📋 Customer submits your Typeform → instant personalised welcome SMS fires via Twilio\n- 📊 Submission logged to Google Sheets with name, phone, timestamp, and nudge tracking\n- 💬 Twilio listens 24/7 for replies → marks customer as responded, stops all future nudges\n- ⏰ Scheduler runs every 6 hours → finds non-responders and sends up to 2 follow-up nudges\n- 🛑 System stops contacting anyone who replies or hits the 2-nudge limit\n\n## The three branches\n\n| Branch | Trigger | What it does |\n|--------|---------|--------------|\n| 🟢 New Submission | Typeform form submit | Welcome SMS + log to Sheets |\n| 🔵 Reply Handler | Incoming Twilio SMS | Mark replied, stop nudges |\n| 🟡 Nudge Engine | Schedule every 6hrs | Nudge 1 at 24h, Nudge 2 at 48h |\n\n## Why this matters\n\n| Metric | Manual | This workflow |\n|--------|--------|---------------|\n| ⚡ Speed to lead | Hours or days | Under 10 seconds |\n| 🔁 Follow-up consistency | Whoever remembers | 100% automated |\n| 📉 Lead drop-off | High — people go cold fast | Nudges catch non-responders |\n| 🧠 Staff time per lead | 5–15 min | Zero |\n| 💸 Revenue at risk | Every ignored inquiry | Recovered automatically |\n\nStudies show leads contacted within 5 minutes are 9x more likely to convert. This workflow makes that the default — not the exception.\n\n## What you need\n\n| Tool | Cost | Why |\n|------|------|-----|\n| Typeform | Free tier works | Intake/booking form |\n| Twilio | ~$1/mo + $0.0075/SMS | Send and receive SMS |\n| Google Sheets | Free | Track submissions and nudge state |\n\n⚠️ **A2P 10DLC notice:** Twilio requires business registration for production SMS in the US. Allow 2-4 weeks. Your signup form needs opt-in language, terms, and a privacy policy.\n\n## Set up steps\n\n- Takes about 15 minutes\n- Create a Google Sheet with columns: customerName · customerPhone · submittedAt · repliedAt · nudgeCount · lastNudgeAt\n- Branch 1 — connect Typeform, select your form, connect Twilio + Google Sheets\n- Branch 2 — connect Twilio trigger for inbound SMS, connect Google Sheets to mark replied\n- Branch 3 — connect Google Sheets to read non-responders, connect Twilio to send nudges\n- Verify Typeform field names match the Extract node exactly (case-sensitive)\n- Submit a test entry with your own phone, reply to it, confirm Sheets updates correctly\n- Toggle workflow Active\n\n\n### Learn more at [SMB Excel](https://www.smbexcel.com)\n\n\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Lead Nurturing",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Every_6_Hours": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Hour",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "When_Form_Submitted": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "When Form Submitted",
+            "n8nNodeType": "n8n-nodes-base.typeformTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "formId": "<__PLACEHOLDER_VALUE__Select your Typeform form from the dropdown__>",
+              "onlyAnswers": false
+            }
+          },
+          "runAfter": {}
+        },
+        "Extract_Name_and_Phone": {
+          "type": "Compose",
+          "inputs": {
+            "customerName": "@body('When_Form_Submitted')?['name']",
+            "customerPhone": "@body('When_Form_Submitted')?['phone']"
+          },
+          "runAfter": {
+            "When_Form_Submitted": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_Welcome_SMS": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Send Welcome SMS",
+            "n8nNodeType": "n8n-nodes-base.twilio",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "to": "={{ $json.customerPhone }}",
+              "from": "<__PLACEHOLDER_VALUE__Your Twilio phone number e.g. +1234567890__>",
+              "message": "=Hi {{ $json.customerName }}, thanks for booking with us! We look forward to seeing you soon. Reply STOP to opt out.",
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Extract_Name_and_Phone": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Prepare_Tracking_Row": {
+          "type": "Compose",
+          "inputs": {
+            "customerName": "@body('Extract_Name_and_Phone')?['customerName']",
+            "customerPhone": "@body('Extract_Name_and_Phone')?['customerPhone']",
+            "submittedAt": "={{ $now.toISO() }}",
+            "repliedAt": "",
+            "nudgeCount": 0,
+            "lastNudgeAt": ""
+          },
+          "runAfter": {
+            "Extract_Name_and_Phone": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Append_Submission_to_Sheets": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_SPREADSHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_WORKSHEET'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Prepare_Tracking_Row": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Read_Non_Responders_from_Sheets": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_SPREADSHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_WORKSHEET'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {}
+        },
+        "Split_Non_Responder_List": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Split Non-Responder List",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldToSplitOut": "data"
+            }
+          },
+          "runAfter": {
+            "Read_Non_Responders_from_Sheets": [
+              "Succeeded"
+            ]
+          }
+        },
+        "If_Time_For_Next_Nudge": {
+          "type": "If",
+          "expression": {
+            "equals": [
+              "={{ ($json.nudgeCount === 0 && $now.diff(DateTime.fromISO($json.submittedAt), 'hours').hours >= 24) || ($json.nudgeCount === 1 && $json.lastNudgeAt && $now.diff(DateTime.fromISO($json.lastNudgeAt), 'hours').hours >= 24) }}",
+              true
+            ]
+          },
+          "actions": {
+            "Send_Nudge_SMS": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Send Nudge SMS",
+                "n8nNodeType": "n8n-nodes-base.twilio",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "to": "={{ $json.customerPhone }}",
+                  "from": "<__PLACEHOLDER_VALUE__Your Twilio phone number e.g. +1234567890__>",
+                  "message": "=Hi {{ $json.customerName }}, just checking in! We're looking forward to your appointment. Reply anytime if you have questions. Reply STOP to opt out.",
+                  "options": {}
+                }
+              },
+              "runAfter": {}
+            },
+            "Prepare_Nudge_Update": {
+              "type": "Compose",
+              "inputs": {
+                "nudgeCount": "@body('Send_Nudge_SMS')?['nudgeCount'] + 1",
+                "lastNudgeAt": "={{ $now.toISO() }}"
+              },
+              "runAfter": {
+                "Send_Nudge_SMS": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Update_Nudge_Count_in_Sheets": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Update Nudge Count in Sheets",
+                "n8nNodeType": "n8n-nodes-base.googleSheets",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "operation": "update",
+                  "sheetName": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": ""
+                  },
+                  "documentId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": ""
+                  }
+                }
+              },
+              "runAfter": {
+                "Prepare_Nudge_Update": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "Split_Non_Responder_List": [
+              "Succeeded"
+            ]
+          }
+        },
+        "When_SMS_Reply_Received": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "When SMS Reply Received",
+            "n8nNodeType": "n8n-nodes-base.twilioTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "updates": [
+                "com.twilio.messaging.inbound-message.received"
+              ]
+            }
+          },
+          "runAfter": {}
+        },
+        "Prepare_Reply_Update": {
+          "type": "Compose",
+          "inputs": {
+            "repliedAt": "={{ $now.toISO() }}"
+          },
+          "runAfter": {
+            "When_SMS_Reply_Received": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Update_Replied_in_Sheets": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update Replied in Sheets",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "operation": "update",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": ""
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": ""
+              }
+            }
+          },
+          "runAfter": {
+            "Prepare_Reply_Update": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Every_6_Hours",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

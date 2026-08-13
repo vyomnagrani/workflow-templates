@@ -1,0 +1,310 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "analyze-crypto-markets-via-telegram-with-kucoin-newsapi-and-gemini",
+    "name": "Analyze crypto markets via Telegram with KuCoin, NewsAPI and Gemini",
+    "description": "### This n8n template automates crypto market analysis by combining multi-timeframe candlestick data with real-time news sentiment to generate actionable AI-backed Buy / Sell / Hold signals for any cryptocurrency. Built around the Kaizen principle of continuous improvement, it delivers sharper, more reliable insights with every run.\n\n**Use cases**\n- Automatically analyze crypto market trends using 15m, 1h, and 1d candlestick data.\n- Aggregate global crypto news sentiment to reinforce price-action confidence.\n- Generate AI-powered Buy / Sell / Hold recommendations for traders.\n- Build your own Telegram-based crypto trading assistant or analytics bot.\n- Create backends for crypto dashboards, portfolio advisors, or auto-alert systems.\n- Expand trading strategies using AI reasoning instead of manual analysis.\n\n**Good to know**\nThis workflow merges both technical analysis (candlesticks) and fundamental sentiment (news), then passes them through an AI model (Gemini) to produce clean, easy-to-understand trading signals.\nIt works seamlessly on n8n Cloud and self-hosted setups, with configuration taking about 5 minutes.\n\n### Requirements\n- n8n Cloud or self-hosted instance\n- Crypto price data API key \n- Crypto news API key\n- AI model API key (Google Gemini)\n- Telegram Bot Token (via @BotFather)\n\n### Customising this workflow\n- Replace Telegram with Slack, Discord, WhatsApp Cloud API, or Notion for alerts.\n- Switch AI models (Gemini, OpenAI, Claude) to change tone or reasoning style.\n- Modify candlestick intervals (15m, 1h, 1d) or add more timeframes.\n- Attach TradingView webhooks for live alerts or automated triggers.\n- Add portfolio tracking, price-level alerts, or risk scoring for advanced users.\n- Expand the template to support forex, stocks, indices, or commodities with minimal edits.\n\n\n\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Crypto Trading",
+      "AI Chatbot",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Telegram_Trigger": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Telegram Trigger",
+            "n8nNodeType": "n8n-nodes-base.telegramTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "Code_in_JavaScript": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Code in JavaScript",
+            "n8nNodeType": "n8n-nodes-base.code",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "Telegram_Trigger": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Action_1_hour": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": ""
+          },
+          "runAfter": {
+            "Code_in_JavaScript": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Action_15_min": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": ""
+          },
+          "runAfter": {
+            "Code_in_JavaScript": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Action_1_day": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": ""
+          },
+          "runAfter": {
+            "Code_in_JavaScript": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Edit_Fields": {
+          "type": "Compose",
+          "inputs": {},
+          "runAfter": {
+            "Action_15_min": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Edit_Fields1": {
+          "type": "Compose",
+          "inputs": {},
+          "runAfter": {
+            "Action_1_hour": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Edit_Fields2": {
+          "type": "Compose",
+          "inputs": {},
+          "runAfter": {
+            "Action_1_day": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Merge": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Merge",
+            "n8nNodeType": "n8n-nodes-base.merge",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "Edit_Fields": [
+              "Succeeded"
+            ],
+            "Edit_Fields1": [
+              "Succeeded"
+            ],
+            "Edit_Fields2": [
+              "Succeeded"
+            ]
+          }
+        },
+        "News": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": ""
+          },
+          "runAfter": {
+            "Code_in_JavaScript": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Filtering_News": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Filtering News",
+            "n8nNodeType": "n8n-nodes-base.code",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "News": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Merge1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Merge1",
+            "n8nNodeType": "n8n-nodes-base.merge",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "Combine_candlestick": [
+              "Succeeded"
+            ],
+            "News_sentiment_Analyzer": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Gemini_Chat_Model1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Gemini Chat Model1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "Combine_candlestick": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Combine candlestick",
+            "n8nNodeType": "n8n-nodes-base.code",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "Merge": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_a_text_message": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Send a text message",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "Crypto_Agent": [
+              "Succeeded"
+            ]
+          }
+        },
+        "News_sentiment_Analyzer": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "News sentiment Analyzer",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.googleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "Filtering_News": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Crypto_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Crypto Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "Merge1": [
+              "Succeeded"
+            ],
+            "Google_Gemini_Chat_Model1": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

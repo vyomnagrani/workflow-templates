@@ -1,0 +1,90 @@
+{
+  "sourceWorkflowName": "Track Google keyword rankings with Apify, OpenAI, Google Sheets and Gmail",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 12,
+  "totalNodes": 16,
+  "coverage": 0.75,
+  "diagnostics": [
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.splitOut.",
+      "severity": "warning",
+      "node_name": "Split keywords into items",
+      "node_type": "n8n-nodes-base.splitOut",
+      "json_path": null
+    },
+    {
+      "code": "HTTP_TIMEOUT_REVIEW",
+      "message": "n8n HTTP timeout has no direct generic WDL input mapping and requires review.",
+      "severity": "warning",
+      "node_name": "Scrape Google results with Apify",
+      "node_type": "n8n-nodes-base.httpRequest",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Extract and rank SERP results",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_RESOURCE_REQUIRED",
+      "message": "Google Sheets requires a spreadsheet and worksheet value before import.",
+      "severity": "warning",
+      "node_name": "Log rankings to Google Sheets",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.aggregate.",
+      "severity": "warning",
+      "node_name": "Combine rankings for AI analysis",
+      "node_type": "n8n-nodes-base.aggregate",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.chainLlm.",
+      "severity": "warning",
+      "node_name": "Generate AI SEO report",
+      "node_type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Generate AI SEO report",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOpenAi.",
+      "severity": "warning",
+      "node_name": "OpenAI Chat Model",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$now.toFormat(\"yyyy-MM-dd\")",
+      "severity": "warning",
+      "node_name": "Email the SEO report",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =SEO ranking report - {{ $now.toFormat(\"yyyy-MM-dd\") }}",
+      "severity": "warning",
+      "node_name": "Email the SEO report",
+      "node_type": null,
+      "json_path": null
+    }
+  ]
+}

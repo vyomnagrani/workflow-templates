@@ -1,0 +1,248 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "automate-email-filtering-ai-summarization-100-free-effective-works-7-24",
+    "name": "Automate email filtering & AI summarization. 100% free & effective, works 7/24",
+    "description": "![dddss.png](fileId:1796)\n## Good to know:\nThis workflow automatically processes incoming emails (you can filter them base on your needs) and creates concise AI-powered summaries, then logs them to a Google Sheets spreadsheet for easy tracking and analysis.\n\n## Who is this for?\n\n➖Business professionals who receive many emails and need quick summaries\n➖Customer service teams tracking email communications\n➖Project managers monitoring email correspondence\n➖Anyone who wants to automatically organize and summarize their email communications\n\n## What problem is this workflow solving?\n\nThis workflow solves the problem of email overload by automatically reading incoming emails, generating concise summaries using AI, and organizing them in a structured format. It eliminates the need to manually read through every email to understand the key points and maintains a searchable record of communications.\n\n## What this workflow does:\n\n✅Monitors your Gmail inbox for new emails\n✅Filters emails based on specific criteria (sender validation)\n✅Extracts key information (sender, date, subject, content)\n✅Uses AI to generate concise summaries of email content\n✅Automatically logs all data including the AI summary to a Google Sheets spreadsheet\n\n## How it works:\n\n1️⃣Gmail trigger monitors for new emails at specified intervals\n2️⃣Email data is processed and formatted using JavaScript\n3️⃣A conditional check validates the sender\n4️⃣AI agent (powered by Groq's language model) reads the email content and generates a summary\n5️⃣All information is automatically appended to a Google Sheets document\n\n## How to use:\n\nSet up Gmail OAuth2 credentials in n8n\nConfigure Google Sheets OAuth2 credentials\nSet up Groq API credentials for AI processing\nCreate a Google Sheets document and update the document ID\nCustomize the sender validation criteria as needed\nActivate the workflow\n\n## Requirements:\n\n✅n8n instance (cloud or self-hosted)\n✅Gmail account with OAuth2 access\n✅Google Sheets account\n✅AI API\n✅Basic understanding of n8n workflow\n\n## Customizing this workflow:\n\n🟢Modify the Gmail trigger filters to target specific labels or criteria\n🟢Adjust the sender validation logic in the conditional node\n🟢Customize the AI prompt to change summary style or focus\n🟢Add additional data fields to the Google Sheets output\n🟢Change the polling frequency for checking new emails\n🟢Switch to different AI models by replacing the Groq node\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Ticket Management",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/inlineCode",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Gmail_Trigger": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Gmail Trigger",
+            "n8nNodeType": "n8n-nodes-base.gmailTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "simple": false,
+              "filters": {
+                "labelIds": [
+                  "CATEGORY_PERSONAL"
+                ]
+              },
+              "options": {
+                "downloadAttachments": false
+              },
+              "pollTimes": {
+                "item": [
+                  {
+                    "mode": "=everyHour",
+                    "minute": 59
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Check_Valid_Email": {
+          "type": "If",
+          "expression": {
+            "equals": [
+              "@body('info1')?['Sender Name']",
+              "YOUR_SENDER_NAME_FILTER"
+            ]
+          },
+          "actions": {
+            "Log_to_Google_Sheets1": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Log to Google Sheets1",
+                "n8nNodeType": "n8n-nodes-base.googleSheets",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "columns": {
+                    "value": {
+                      "Date": "={{ $('info1').item.json.Date }}",
+                      "summary": "={{ $json.output }}",
+                      "subject ": "={{ $('info1').item.json.Subject }}",
+                      "sender name": "={{ $('info1').item.json[\"Sender Name\"] }}",
+                      "sender email": "={{ $('info1').item.json[\"Sender Email\"] }}"
+                    },
+                    "schema": [
+                      {
+                        "id": "sender name",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "required": false,
+                        "displayName": "sender name",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "sender email",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "required": false,
+                        "displayName": "sender email",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "subject ",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "required": false,
+                        "displayName": "subject ",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "summary",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "required": false,
+                        "displayName": "summary",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Date",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "required": false,
+                        "displayName": "Date",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      }
+                    ],
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [
+                      "sender name"
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                  },
+                  "options": {},
+                  "operation": "appendOrUpdate",
+                  "sheetName": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "gid=0",
+                    "cachedResultUrl": "YOUR_GOOGLE_SHEETS_URL",
+                    "cachedResultName": "Sheet1"
+                  },
+                  "documentId": {
+                    "__rl": true,
+                    "mode": "url",
+                    "value": "YOUR_GOOGLE_SHEETS_DOCUMENT_ID"
+                  }
+                }
+              },
+              "runAfter": {
+                "AI_Agent1": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "AI_Agent1": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "AI Agent1",
+                "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "text": "=Please read this email \"{{ $json.Content }}\" and provide a very short, concise summary containing only the most important information. Keep the summary as brief as possible without losing essential details. ",
+                  "options": {},
+                  "promptType": "define"
+                }
+              },
+              "runAfter": {}
+            }
+          },
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "info1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Groq_Chat_Model1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Groq Chat Model1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGroq",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": "llama-3.1-8b-instant",
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "info1": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Gmail_Trigger'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst items = [];\n\nfor (const item of $input.all()) {\n  const emailData = item.json;\n  \n  // Handle sender information (unchanged)\n  let senderEmail = '';\n  let senderName = '';\n\n  if (emailData.from?.value?.[0]) {\n    senderEmail = emailData.from.value[0].address || '';\n    senderName = emailData.from.value[0].name || senderEmail;\n  } else if (emailData.from?.text) {\n    const emailMatch = emailData.from.text.match(/<([^>]+)>/) || \n                      emailData.from.text.match(/([^\\s]+@[^\\s]+)/);\n    senderEmail = emailMatch ? emailMatch[1] : emailData.from.text;\n    \n    const nameMatch = emailData.from.text.match(/^([^<]+)/);\n    senderName = nameMatch ? nameMatch[1].trim().replace(/\\\"/g, '') : senderEmail;\n  }\n\n  // Format date (unchanged)\n  const receivedDate = new Date(emailData.date || emailData.receivedTime);\n  const formattedDate = receivedDate.toLocaleString('en-US', {\n    year: 'numeric',\n    month: '2-digit',\n    day: '2-digit',\n    hour: '2-digit',\n    minute: '2-digit',\n    hour12: true\n  });\n\n  // FIXED CONTENT EXTRACTION\n  let emailContent = '';\n  \n  // 1. First priority: Plain text version\n  if (emailData.text) {\n    emailContent = emailData.text;\n  } \n  // 2. Second priority: HTML version (convert to plain text)\n  else if (emailData.html) {\n    emailContent = emailData.html\n      .replace(/<style[^>]*>.*?<\\/style>/gs, '')  // Remove CSS\n      .replace(/<[^>]*>/g, ' ')                   // Strip HTML tags\n      .replace(/\\s+/g, ' ')                       // Collapse whitespace\n      .trim();\n  }\n  // 3. Fallback to other possible fields\n  else if (emailData.body || emailData.textPlain || emailData.textHtml) {\n    emailContent = emailData.body || emailData.textPlain || emailData.textHtml;\n  }\n\n  // Truncate content if too long\n  const maxContentLength = 5000;\n  if (emailContent.length > maxContentLength) {\n    emailContent = emailContent.substring(0, maxContentLength) + '... [truncated]';\n  }\n\n  // Create row data\n  const rowData = {\n    'Date': formattedDate,\n    'Sender Name': senderName,\n    'Sender Email': senderEmail,\n    'Subject': emailData.subject || 'No Subject',\n    'Content': emailContent,\n    //'Message ID': emailData.messageId || '',\n    'Has Attachments': emailData.attachments?.length > 0 ? 'Yes' : 'No'\n  };\n  \n  items.push({ json: rowData });\n}\n\nreturn items;\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Gmail_Trigger": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

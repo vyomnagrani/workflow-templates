@@ -1,0 +1,219 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "email-new-leads-from-google-sheets-via-outlook-on-a-schedule",
+    "name": "Email new leads from Google Sheets via Outlook on a schedule",
+    "description": "Send a templated outreach email to **new leads** in a Google Sheet on a **daily schedule**, then **mark each lead as contacted** so they won’t be emailed twice. Built with: **Schedule Trigger → Google Sheets → Filter → Outlook Send Email → Google Sheets (append/update)**.\n\n---\n\n## Who’s it for\n- Teams that collect leads in Sheets and want automatic, once-per-lead outreach  \n- Solo founders/consultants running simple top-of-funnel follow-ups  \n- Anyone prototyping CRM-lite flows in n8n\n\n---\n\n## How it works / What it does\n1. **Schedule Trigger** runs daily (e.g., 09:00).\n2. **Get rows (Google Sheets)** pulls leads from your sheet.\n3. **Filter** keeps only rows where `Contacted` is **empty**.\n4. **Outlook – Send a message** emails each remaining lead (`to = {{$json.Email}}`).\n5. **Google Sheets (appendOrUpdate)** writes back `Contacted = Yes` (match on `Email`) to prevent re-sending.\n\n\n---\n\n## How to set up\n### 1) Google Sheets (OAuth2)\n- In **n8n → Credentials → New → Google Sheets (OAuth2)**, sign in and grant access.  \n- In **Get rows**: select your **Lead Source** sheet (e.g., “New Leads”).  \n- In **Append/Update**: select the sheet you want to mark as contacted (can be the same sheet or a CRM sheet).  \n- Make sure your sheet has at least: `Email`, `Contacted` (blank for new).\n\n### 2) Outlook (Microsoft Graph) OAuth2\n- **n8n Cloud (quick connect):**  \n  - In **Credentials → New → Microsoft Outlook OAuth2**, choose **Connect**, sign in with your Microsoft account, and accept permissions.\n- **Self-hosted (Azure App Registration):**  \n  1) Azure Portal → **App registrations** → **New registration**.  \n  2) Add redirect URL: `https://YOUR_N8N_URL/rest/oauth2-credential/callback`.  \n  3) **API permissions (Delegated):** `offline_access`, `Mail.Send`, `User.Read`. Grant admin consent if required.  \n  4) Create a **Client secret**; copy **Application (client) ID** and **Directory (tenant) ID**.  \n  5) In n8n, create **Microsoft Outlook OAuth2** credential with those values and scopes: `offline_access Mail.Send openid email profile`.  \n- In the **Send a message** node, select that credential and keep `To` mapped to `{{$json.Email}}`.  \n- Customize **Subject** and **Body** to your brand (default provided).\n\n---\n\n## Requirements\n- A Google Sheet of leads with an **Email** column (and an optional **Contacted** column).  \n- A Microsoft account with permission to send mail via **Microsoft Graph** (Outlook).\n\n---\n\n## How to customize the workflow\n- **Email content:** Edit subject/body (add variables like `{{$json.FirstName}}`).  \n- **Send window:** Change Schedule Trigger time/interval.  \n- **Idempotency:** Use the same sheet for read+write (match on `Email`) or separate source/CRM sheets.  \n- **Logging:** Add a Sheet or Notion append step after send for an audit trail.\n\n---\n\n## Security & best practices\n- **No hardcoded secrets:** Always use **OAuth2 credentials** (Sheets & Outlook).  \n- **Sanitize PII:** If publishing, **remove real spreadsheet IDs/URLs** and personal emails/phone numbers.  \n- **Sticky notes are mandatory:** Add a **yellow sticky note** in the workflow with this description and a short setup checklist. Use neutral sticky notes for per-node tips.\n\n---\n\n## Troubleshooting\n- **No emails sent:** Ensure `Contacted` is blank for new rows and the Filter checks “is empty.”  \n- **Auth errors (Outlook):** Reconnect credential; confirm Graph scopes and tenant consent.  \n- **Sheets errors:** Re-select spreadsheet/tab; verify headers (`Email`, `Contacted`).  \n- **Duplicates:** Confirm **Append/Update** uses **matching column = Email**.\n\n---\n\n## Tags & category\n**Category:** Sales & CRM  \n**Tags:** outreach, follow-up, google-sheets, outlook, schedule, dedupe, cold-email\n\n---\n\n## Changelog\n**v1.0.0** — Initial release: scheduled outreach, Outlook email, de-dupe via `Contacted = Yes`.\n\n---\n\n## Contact\nNeed help customizing (personalization, rate-limits, CRM sync, bounce checks)?\n\n- 📧 rbreen@ynteractive.com  \n- 🔗 Robert Breen — https://www.linkedin.com/in/robert-breen-29429625/  \n- 🌐 ynteractive.com — https://ynteractive.com\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Lead Nurturing",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Schedule_Trigger": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Send_a_message": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Send a message",
+            "n8nNodeType": "n8n-nodes-base.microsoftOutlook",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "subject": "Build AI Agents & Automations with n8n",
+              "bodyContent": "Hi There,\n\nI help people learn how to build AI agents and create powerful AI automations using n8n. If you’re exploring ways to save time or scale your workflows, I’d love to share what’s possible.\n\nYou can check out my n8n Creator profile here with 70+ ready-to-use automations:\n👉 https://n8n.io/creators/rbreen\n\nIf you’d like help getting started or want to see what AI + n8n can do for your business, just reply to this email.\n\nBest,\nRobert Breen\n📞 +1234567890\n🔗 https://www.linkedin.com/in/robert-breen-29429625/",
+              "toRecipients": "={{ $json.Email }}",
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {
+            "Filter1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_row_s_in_sheet3": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('1sXXVbl2kKdYTzCmZDe7QyeMp1N9wZg9K63oGK2UIaeU'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {}
+        },
+        "Filter1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Filter1",
+            "n8nNodeType": "n8n-nodes-base.filter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "914418a9-8c96-4959-abb7-ad3bb52f420d",
+                    "operator": {
+                      "type": "string",
+                      "operation": "empty",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.Contacted }}",
+                    "rightValue": ""
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Get_row_s_in_sheet3": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Append_or_update_row_in_sheet1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Append or update row in sheet1",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "Email": "={{ $json.Email }}",
+                  "Contacted": "Yes"
+                },
+                "schema": [
+                  {
+                    "id": "Email",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "Email",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Contacted",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Contacted",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Created",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Created",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "Email"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "appendOrUpdate",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gid=0",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14T6rilaOl1LBTwNnu7ILE3T1equWOz0noI-OIUaI3zU/edit#gid=0",
+                "cachedResultName": "leads"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "14T6rilaOl1LBTwNnu7ILE3T1equWOz0noI-OIUaI3zU",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14T6rilaOl1LBTwNnu7ILE3T1equWOz0noI-OIUaI3zU/edit?usp=drivesdk",
+                "cachedResultName": "New Leads - Real"
+              }
+            }
+          },
+          "runAfter": {
+            "Filter1": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Schedule_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

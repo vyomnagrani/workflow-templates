@@ -1,0 +1,320 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "ai-powered-multi-social-media-post-automation-google-trends-perplexity-ai",
+    "name": "AI-powered multi-social media post automation: Google Trends & Perplexity AI",
+    "description": "![Screenshot 20250524 013951.png](fileId:1366)\n## Overview\nThis comprehensive n8n workflow automatically transforms trending Google search queries into engaging LinkedIn posts using AI. The system runs autonomously, discovering viral topics, researching content, and publishing professionally formatted posts to grow your social media presence.\n\n## Workflow Description\n**Automate your entire social media content pipeline** - from trend discovery to publication. This workflow monitors Google Trends, selects high-potential topics, creates human-like content using advanced AI, and publishes across multiple social platforms with built-in tracking.\n\n## Key Features\n- **Automated Trend Discovery**: Pulls trending topics from Google Trends API with customizable filters\n- **Intelligent Topic Selection**: AI chooses the most relevant trending topic for your niche\n- **Multi-AI Content Generation**: Combines Perplexity for research and OpenAI for content curation\n- **Human-Like Writing**: Advanced prompts eliminate AI detection markers\n- **LinkedIn Optimization**: Proper formatting with Unicode characters, emojis, and engagement hooks\n- **Multi-Platform Support**: Ready for LinkedIn, Twitter/X, and Facebook posting\n- **Automated Scheduling**: Configurable posting times (default: 6 AM & 6 PM daily)\n- **Performance Tracking**: Automatic logging to Google Sheets with timestamps and metrics\n- **Error Handling**: Built-in delays and retry mechanisms for API stability\n\n## Technical Implementation\n\n### Workflow Architecture\n1. **Schedule Trigger**: Automated execution at specified intervals\n2. **Google Trends API**: Fetches trending search queries with geographical filtering\n3. **Data Processing**: JavaScript code node filters high-volume keywords (30+ search volume)\n4. **Topic Selection**: OpenAI GPT-3.5 evaluates and selects optimal trending topic\n5. **Content Research**: Perplexity AI researches selected topic for current information\n6. **Content Generation**: Advanced prompt engineering creates LinkedIn-optimized posts\n7. **Content Distribution**: Multi-platform posting with platform-specific formatting\n8. **Analytics Tracking**: Google Sheets integration for performance monitoring\n\n### Node Breakdown\n- **Schedule Trigger**: Configurable timing for automated execution\n- **HTTP Request (Google Trends)**: SerpAPI integration for trend data\n- **Set Node**: Structures trending data for processing\n- **Code Node**: JavaScript filtering for high-volume keywords\n- **OpenAI Node**: Intelligent topic selection based on relevance and trend strength\n- **HTTP Request (Perplexity)**: Advanced AI research with anti-detection prompts\n- **Wait Node**: Rate limiting and API respect\n- **Split Out**: Prepares content for multi-platform distribution\n- **LinkedIn Node**: Authenticated posting with community management\n- **Google Sheets Node**: Automated tracking and analytics\n- **Social Media Nodes**: Twitter/X, LinkedIn and Facebook ready for activation\n\n## Use Cases\n- **Content Creators**: Maintain consistent posting schedules with trending content\n- **Marketing Agencies**: Scale content creation across multiple client accounts\n- **Business Development**: Build thought leadership with timely industry insights\n- **Personal Branding**: Establish authority by commenting on trending topics\n- **SEO Professionals**: Create content around high-search-volume keywords\n\n## Configuration Requirements\n\n### API Integrations\n- **SerpAPI**: Google Trends data access\n- **Perplexity AI**: Advanced content research capabilities\n- **OpenAI**: Content curation and topic selection\n- **LinkedIn Community Management API**: Professional posting access\n- **Google Sheets API**: Analytics and tracking\n\n### Authentication Setup\n- LinkedIn OAuth2 community management credentials\n- Google Sheets OAuth2 integration\n- HTTP header authentication for AI services\n\n## Customization Options\n- **Industry Targeting**: Modify prompts for specific business verticals\n- **Posting Schedule**: Adjust timing based on audience activity\n- **Content Tone**: Customize voice and style through prompt engineering\n- **Platform Selection**: Enable/disable specific social media channels\n- **Trend Filtering**: Adjust search volume thresholds and geographic targeting\n- **Content Length**: Modify character limits for different platforms\n\n## Advanced Features\n- **Anti-AI Detection**: Sophisticated prompts create human-like content\n- **Rate Limit Management**: Built-in delays prevent API throttling\n- **Error Recovery**: Robust error handling with retry mechanisms\n- **Content Deduplication**: Prevents posting duplicate content\n- **Engagement Optimization**: LinkedIn-specific formatting for maximum reach\n\n## Performance Metrics\n- **Time Savings**: Eliminates 10+ hours of weekly content creation\n- **Consistency**: Maintains regular posting schedule without manual intervention\n- **Relevance**: Content always based on current trending topics\n- **Engagement**: Optimized formatting increases social media interaction\n- **Scalability**: Single workflow manages multiple platform posting\n\n## Installation Notes\n- Import JSON workflow file into n8n instance\n- Configure all required API credentials\n- Set up [Google Sheets](Google Sheets) tracking document\n- Test workflow execution with manual trigger\n- Enable schedule trigger for automated operation\n\n## Best Practices\n- Monitor API usage to stay within rate limits\n- Regularly update prompts based on content performance\n- Review and adjust trending topic filters for your niche\n- Maintain backup of workflow configuration\n- Test content output before enabling automation\n\n## Support & Updates\n- Comprehensive setup documentation included\n- Configuration troubleshooting guide provided\n- Regular workflow updates for API changes\n- Community support through n8n forums\n\n## Tags\n`social-media` `content-automation` `linkedin` `ai-generation` `google-trends` `perplexity` `openai` `marketing` `trend-analysis` `content-creation`\n\n## Compatibility\n- n8n Version: 1.0+\n- Node Requirements: Standard n8n installation\n- External Dependencies: API access to listed services\n- Hosting: Compatible with cloud and self-hosted n8n instances",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Social Media",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Schedule_Trigger": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "X1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "X1",
+            "n8nNodeType": "n8n-nodes-base.twitter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {
+            "Split_Out": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Facebook_Graph_API1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Facebook Graph API1",
+            "n8nNodeType": "n8n-nodes-base.facebookGraphApi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "httpRequestMethod": "POST"
+            }
+          },
+          "runAfter": {
+            "Split_Out": [
+              "Succeeded"
+            ]
+          }
+        },
+        "LinkedIn1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "LinkedIn1",
+            "n8nNodeType": "n8n-nodes-base.linkedIn",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "={{ $json['choices[0].message.content'] }}",
+              "person": "[CONFIGURE_YOUR_LINKEDIN_PERSON_ID]",
+              "authentication": "communityManagement",
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {
+            "Split_Out": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Sheets2": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Sheets2",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "Topic": "={{ $('Choosing Topic').item.json.message.content }}",
+                  "Status": "Posted",
+                  "AI Output": "={{ $json['choices[0].message.content'] }}",
+                  "Date Posted": "={{ $('Schedule Trigger').item.json.timestamp }}"
+                },
+                "schema": [
+                  {
+                    "id": "Topic",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "Topic",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Status",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Status",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "AI Output",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "AI Output",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Date Posted",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Date Posted",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "Topic"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "appendOrUpdate",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gid=0",
+                "cachedResultUrl": "[YOUR_GOOGLE_SHEETS_URL]",
+                "cachedResultName": "Sheet1"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "[YOUR_GOOGLE_SHEETS_DOCUMENT_ID]",
+                "cachedResultUrl": "[YOUR_GOOGLE_SHEETS_URL]",
+                "cachedResultName": "LinkedIn Automation"
+              }
+            }
+          },
+          "runAfter": {
+            "LinkedIn1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Split_Out": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Split Out",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldToSplitOut": "choices[0].message.content"
+            }
+          },
+          "runAfter": {
+            "Wait": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Research_Topic_Perplexity": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.perplexity.ai/chat/completions",
+            "body": "{\n  \"model\": \"sonar-pro\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Act as a skilled editor revising AI-generated text to sound authentically human. Follow these rules:\\n\\n1. Punctuation Adjustments\\n   - Replace em dashes, semicolons, or rephrase sentences where appropriate.\\n   - Avoid semicolons in casual contexts; use periods or conjunctions (e.g., 'and,' 'but').\\n   - Remove mid-sentence ellipses unless mimicking deliberate hesitation.\\n   - Limit parenthetical asides; integrate explanations into the main sentence.\\n   - Use colons sparingly.\\n\\n2. Language\\n   - Replace hedging phrases with direct statements.\\n   - Avoid stock transitions.\\n   - Vary repetitive terms.\\n   - Use contractions in informal contexts.\\n   - Replace overly formal words with simpler alternatives.\\n\\n3. Style\\n   - Prioritize concise, varied sentence lengths.\\n   - Allow minor imperfections.\\n   - Maintain the core message but adjust tone to match the audience.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"You are a researcher and expert copywriter in a business development team of an AI Automation Agency. Generate exactly one LinkedIn post that adheres to LinkedIn's API formatting guidelines and is easy for humans to read. Follow these rules:\\n\\nStructure:\\n1. Hook: Start with a bold opening line using Unicode characters (e.g., \\\"𝐁𝐎𝐋𝐃 𝐒𝐓𝐀𝐓𝐄𝐌𝐄𝐍𝐓\\\").\\n2. Body: Use short paragraphs (1-3 sentences) separated by \\\\n\\\\n.\\n3. Use bullet points (•) for key features or highlights.\\n4. End with a clear call-to-action (e.g., \\\"Comment below with your thoughts!\\\").\\n\\nFormatting Requirements:\\n- Remove all numeric citation brackets like [2], [3], [4] from the text.\\n- Instead of citation brackets, if needed, add a brief phrase like \\\"according to Google I/O 2025\\\" or \\\"as reported by DeepMind\\\" naturally within the sentence.\\n- No Markdown or rich text formatting.\\n- Use Unicode characters or emojis for emphasis (e.g., ★, 🚀).\\n- Include up to 3 relevant hashtags at the end (e.g., #AI #Automation).\\n- For URLs or references, use placeholders like [Link] instead of raw URLs.\\n- If mentioning users or companies, use official LinkedIn URN format (e.g., \\\"urn:li:organization:123456\\\").\\n\\nContent Rules:\\n- Max 1,200 characters.\\n- Avoid promotional language.\\n- Include one statistical claim or industry insight.\\n- Add one personal anecdote or professional observation.\\n\\nReturn the post as plain text without additional commentary.\\n\\nInput: @{body('Choosing_Topic')?['message']?['content']}\"\n    }\n  ]\n}"
+          },
+          "runAfter": {
+            "Choosing_Topic": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Action_2_Most_Trending": {
+          "type": "Compose",
+          "inputs": {
+            "mode": "raw",
+            "options": {},
+            "jsonOutput": "{\n  \"most-trending\": {\n\n    \"#1\": { \n\n      \"query\":\"@{body('Google_Trends')?['related_queries']?['rising'][0].query}\",\n      \"score\":\"@{body('Google_Trends')?['related_queries']?['rising'][0].extracted_value}\"\n\n    },\n\n\n    \"#2\": { \n\n      \"query\":\"@{body('Google_Trends')?['related_queries']?['rising'][1].query}\",\n      \"score\":\"@{body('Google_Trends')?['related_queries']?['rising'][1].extracted_value}\"\n\n    }\n  }\n}"
+          },
+          "runAfter": {
+            "Google_Trends": [
+              "Succeeded"
+            ]
+          }
+        },
+        "High_search_volume_keywords": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Action_2_Most_Trending'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Get the top array from your JSON\nconst topItems = __node('Google_Trends').first().json.related_queries.top;\n\n// Filter the items to only include those with extracted_value > 30\nconst filtered = topItems.filter(item => item.extracted_value > 30);\n\n// Map the filtered items to their query values and join them with commas\nconst resultString = filtered.map(item => item.query).join(', ');\n\n// Return the result in a new JSON property\nreturn [{ json: { result: resultString } }];\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Action_2_Most_Trending": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Choosing_Topic": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Choosing Topic",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-3.5-turbo",
+                "cachedResultName": "GPT-3.5-TURBO"
+              },
+              "options": {},
+              "messages": {
+                "values": [
+                  {
+                    "content": "=You are part of a team that creates world class blog posts. Your job is to choose the topic for each blog post. \n\nThe blog posts are posted on the website of a [COMPANY NAME + DESCRIPTION + PRODUCTS + TARGET MARKET]. The blog posts are mainly posted as part of an SEO campaign to get [YOUR_COMPANY] to rank high for its products and services.\n\nIn this instance, you are given a list of 2 keywords which have been trending the most on Google news search over the past few days. \n\nYour job is to pick one which you think would make for the most relevant blog post with the best SEO outcomes for the client. \n\nThe keywords have two attributes: \n\n1. query: This attribute determines the search query that users have been searching for which is trending. \n\n2. value: This attribute determines what percentage increase the keyword has seen compared to previous periods (i.e. the increase in search volume). \n\nYou must choose one out of the taking into consideration both the relevance of the keyword for [YOUR_COMPANY]'s SEO efforts and the comparative trendiness determined by the value attribute. \n\nOutput the keyword you decided to post a blog on and nothing else. Don't explain your reasoning. Just output the keyword. \n\nThis instance: \n\nKeyword 1:\n{{ $('2 Most Trending').item.json['most-trending']['#1'].toJsonString() }} \n\nKeyword2: \n{{ $('2 Most Trending').item.json['most-trending']['#2'].toJsonString() }} "
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "High_search_volume_keywords": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Trends": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://serpapi.com/search"
+          },
+          "runAfter": {}
+        },
+        "Wait": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 10,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Research_Topic_Perplexity": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Schedule_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

@@ -1,0 +1,571 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "manage-telegram-task-reminders-with-claude-and-n8n-data-tables",
+    "name": "Manage Telegram task reminders with Claude and n8n data tables",
+    "description": "## Quick overview\nThis workflow turns Telegram into a personal task manager by using Anthropic Claude to create, update, list, and delete tasks stored in an n8n Data Table, while also sending scheduled daily task summaries and automatically rolling forward overdue recurring tasks.\n\n## How it works\n1. Triggers when a new Telegram message arrives and checks whether the sender’s Telegram user ID is authorized.\n2. If authorized, sends the message and conversation context to Anthropic Claude, which decides whether to read, add, update, or delete tasks in an n8n Data Table and asks for confirmation before updates or deletions.\n3. Sends Claude’s response back to the user in Telegram.\n4. Runs at 9am, 2pm, and 6pm to prompt Claude to fetch pending tasks from the n8n Data Table and send a summary reminder via Telegram.\n5. Runs at 1am to prompt Claude to find tasks that are past due and update their due dates to the current day.\n\n## Setup\n1. Create a Telegram bot with @BotFather, add Telegram API credentials in n8n, and start a chat with the bot.\n2. Add an Anthropic API credential for the Claude chat model used by the workflow.\n3. Create an n8n Data Table named “Tasks” with columns taskname, duedate, Priority, Notes, and Recurrence, then link the Data Table tool nodes to that table.\n4. Set the authorized Telegram user ID in the authorization check and replace the placeholder chat ID in the Telegram “send message” step with your Telegram chat ID.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Personal Productivity",
+      "AI Chatbot",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/telegrambotip",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Action_9am1": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        },
+        "Action_2pm1": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        },
+        "Action_6pm1": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        },
+        "Action_1am1": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Send_a_text_message": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "telegrambotip_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/bot@{encodeURIComponent('REPLACE_WITH_TELEGRAM_BOT_TOKEN')}/sendMessage",
+            "body": {
+              "chat_id": "YOUR_TELEGRAM_CHAT_ID",
+              "text": "@body('AI_Agent1')?['output']"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendMessage"
+            }
+          },
+          "runAfter": {
+            "AI_Agent1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "If": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "If",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 3,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "18dcaa33-36af-4b16-94db-66a94ee8aba5",
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.message.from.id }}",
+                    "rightValue": null
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Telegram_Trigger1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_a_text_message1": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "telegrambotip_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/bot@{encodeURIComponent('REPLACE_WITH_TELEGRAM_BOT_TOKEN')}/sendMessage",
+            "body": {
+              "chat_id": "@body('Telegram_Trigger1')?['message']?['chat']?['id']",
+              "text": "Not Authorized to use this Agent"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendMessage"
+            }
+          },
+          "runAfter": {
+            "If": [
+              "Succeeded"
+            ]
+          }
+        },
+        "AI_Agent1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "AI Agent1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=={{ $if($('If').isExecuted, $('If').item.json.message.text, '') }}\n\n{{ $if($('Daily Reminder1').isExecuted, $('Daily Reminder1').item.json.Reminder, '') }}\n\n{{ $if($('Date Update1').isExecuted, $('Date Update1').item.json.Reminder, '') }}",
+              "options": {
+                "systemMessage": "You are a helpful personal assistant who takes input and provides useful answers via telegram. On an regular basis, you are also supposed to provide an update of the pending tasks from the tasks table. You have access to multiple tools. \n\nAlways provide an output via Telegram, even if there is an error. \n\nWhen a  task's due date is in the past, update its due date to today. Do this without asking the user. \n\nBefore deleting or updating any task, always ask the user to confirm first. For deletions say: 'Are you sure you want to delete [taskname]? Reply yes to confirm.' For updates say: 'Are you sure you want to update [taskname] with [changes]? Reply yes to confirm.' Only proceed with the action after the user replies with yes."
+              },
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "If": [
+              "Succeeded"
+            ],
+            "Date_Time1": [
+              "Succeeded"
+            ],
+            "Date_Update1": [
+              "Succeeded"
+            ],
+            "Simple_Memory1": [
+              "Succeeded"
+            ],
+            "Daily_Reminder1": [
+              "Succeeded"
+            ],
+            "Anthropic_Chat_Model1": [
+              "Succeeded"
+            ],
+            "Get_row_s_in_Data_table1": [
+              "Succeeded"
+            ],
+            "Insert_row_in_Data_table1": [
+              "Succeeded"
+            ],
+            "Delete_row_s_in_Data_table1": [
+              "Succeeded"
+            ],
+            "Update_row_s_in_Data_table1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Anthropic_Chat_Model1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Anthropic Chat Model1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "claude-sonnet-4-5-20250929",
+                "cachedResultName": "Claude Sonnet 4.5"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Date_Time1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Date & Time1",
+            "n8nNodeType": "n8n-nodes-base.dateTimeTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "includeTime": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Include_Current_Time', ``, 'boolean') }}",
+              "outputFieldName": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Output_Field_Name', ``, 'string') }}"
+            }
+          },
+          "runAfter": {}
+        },
+        "Simple_Memory1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Simple Memory1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "sessionKey": "={{$now}}",
+              "sessionIdType": "customKey"
+            }
+          },
+          "runAfter": {}
+        },
+        "Insert_row_in_Data_table1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Insert row in Data table1",
+            "n8nNodeType": "n8n-nodes-base.dataTableTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "Notes": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Notes', `Any additional context, details, or information about the task. This is a free text field and can contain anything relevant to the task.`, 'string') }}",
+                  "duedate": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('duedate', `The current due date of the task, in ISO format YYYY-MM-DD. This is a date, NOT a task name`, 'string') }}",
+                  "Priority": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Priority', `The priority level of the task. Must be one of: high, medium, or low. This is a text string, NOT a date or task name.`, 'string') }}",
+                  "taskname": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('taskname', `The exact task name to insert. This is a text string, NOT a date.`, 'string') }}",
+                  "Recurrence": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Recurrence', `When setting recurrence, only use the values: none, daily, weekly, or monthly. Never use any other value.`, 'string') }}"
+                },
+                "schema": [
+                  {
+                    "id": "taskname",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "taskname",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "duedate",
+                    "type": "dateTime",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "duedate",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "Priority",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Priority",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "Notes",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Notes",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "Recurrence",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Recurrence",
+                    "defaultMatch": false
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "dataTableId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "CxVMyybqRVVRIEGp",
+                "cachedResultUrl": "/projects/tYNIooJaPe8ZF4cl/datatables/CxVMyybqRVVRIEGp",
+                "cachedResultName": "Tasks"
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Get_row_s_in_Data_table1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get row(s) in Data table1",
+            "n8nNodeType": "n8n-nodes-base.dataTableTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "orderBy": true,
+              "operation": "get",
+              "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}",
+              "dataTableId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "CxVMyybqRVVRIEGp",
+                "cachedResultUrl": "/projects/tYNIooJaPe8ZF4cl/datatables/CxVMyybqRVVRIEGp",
+                "cachedResultName": "Tasks"
+              },
+              "orderByColumn": "id",
+              "orderByDirection": "ASC"
+            }
+          },
+          "runAfter": {}
+        },
+        "Delete_row_s_in_Data_table1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Delete row(s) in Data table1",
+            "n8nNodeType": "n8n-nodes-base.dataTableTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "filters": {
+                "conditions": [
+                  {
+                    "keyName": "taskname",
+                    "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions0_Value', ``, 'string') }}"
+                  }
+                ]
+              },
+              "options": {},
+              "matchType": "allConditions",
+              "operation": "deleteRows",
+              "dataTableId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "CxVMyybqRVVRIEGp",
+                "cachedResultUrl": "/projects/tYNIooJaPe8ZF4cl/datatables/CxVMyybqRVVRIEGp",
+                "cachedResultName": "Tasks"
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Update_row_s_in_Data_table1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update row(s) in Data table1",
+            "n8nNodeType": "n8n-nodes-base.dataTableTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "Notes": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Notes', `Any additional context, details, or information about the task. This is a free text field and can contain anything relevant to the task.`, 'string') }}",
+                  "duedate": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('duedate', `The current due date of the task to find, in ISO format YYYY-MM-DD. This is a date, NOT a task name`, 'string') }}",
+                  "Priority": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Priority', `The priority level of the task. Must be one of: high, medium, or low. This is a text string, NOT a date or task name.`, 'string') }}",
+                  "taskname": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('taskname', `The exact task name to find and update. This is a text string, NOT a date.`, 'string') }}",
+                  "Recurrence": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Recurrence', `When setting recurrence, only use the values: none, daily, weekly, or monthly. Never use any other value.`, 'string') }}"
+                },
+                "schema": [
+                  {
+                    "id": "taskname",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "taskname",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "duedate",
+                    "type": "dateTime",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "duedate",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "Priority",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Priority",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "Notes",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Notes",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "Recurrence",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Recurrence",
+                    "defaultMatch": false
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "filters": {
+                "conditions": [
+                  {
+                    "keyName": "taskname",
+                    "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditions0_Value', ``, 'string') }}"
+                  }
+                ]
+              },
+              "options": {},
+              "matchType": "allConditions",
+              "operation": "update",
+              "dataTableId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "CxVMyybqRVVRIEGp",
+                "cachedResultUrl": "/projects/tYNIooJaPe8ZF4cl/datatables/CxVMyybqRVVRIEGp",
+                "cachedResultName": "Tasks"
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Daily_Reminder1": {
+          "type": "Compose",
+          "inputs": {
+            "Reminder": "provide an update of the pending tasks from the tasks table"
+          },
+          "runAfter": {}
+        },
+        "Date_Update1": {
+          "type": "Compose",
+          "inputs": {
+            "Reminder": "Check all tasks in the data table. For any task where the duedate is in the past, update the duedate to the current date. "
+          },
+          "runAfter": {}
+        },
+        "Telegram_Trigger1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Telegram Trigger1",
+            "n8nNodeType": "n8n-nodes-base.telegramTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "updates": [
+                "message"
+              ],
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Action_9am1",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {
+        "Hour": "17",
+        "Year": "2026",
+        "Month": "May",
+        "Minute": "52",
+        "Second": "22",
+        "Timezone": "America/Chicago (UTC-05:00)",
+        "timestamp": "2026-05-16T17:52:22.005-05:00",
+        "Day of week": "Saturday",
+        "Day of month": "16",
+        "Readable date": "May 16th 2026, 5:52:22 pm",
+        "Readable time": "5:52:22 pm"
+      }
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "telegrambotip_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/telegrambotip"
+    }
+  }
+}

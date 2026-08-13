@@ -1,0 +1,362 @@
+{
+  "sourceWorkflowName": "✨🤖Automate Multi-Platform Social Media Content Creation with AI",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 29,
+  "totalNodes": 57,
+  "coverage": 0.5088,
+  "diagnostics": [
+    {
+      "code": "IF_BRANCH_SHAPE_UNSUPPORTED",
+      "message": "IF conversion currently requires at most one destination per true/false output.",
+      "severity": "warning",
+      "node_name": "Is Approved?",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "TRIGGER_MISSING",
+      "message": "No supported n8n trigger was found.",
+      "severity": "warning",
+      "node_name": null,
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.outputParserStructured.",
+      "severity": "warning",
+      "node_name": "Social Media Content",
+      "node_type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatGoogleGemini.",
+      "severity": "warning",
+      "node_name": "Google Gemini LLM",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOpenAi.",
+      "severity": "warning",
+      "node_name": "gpt-4o-mini",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOpenAi.",
+      "severity": "warning",
+      "node_name": "gpt-4o",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOpenAi.",
+      "severity": "warning",
+      "node_name": "gpt-4o LLM",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOpenAi.",
+      "severity": "warning",
+      "node_name": "gpt-4o-mini1",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOpenAi.",
+      "severity": "warning",
+      "node_name": "gpt-4o-mini2",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Gmail message/sendAndWait is not mapped to a deterministic LAA action.",
+      "severity": "warning",
+      "node_name": "Gmail User for Approval",
+      "node_type": "n8n-nodes-base.gmail",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.gmail is not safely supported.",
+      "severity": "warning",
+      "node_name": "Gmail User for Approval",
+      "node_type": "n8n-nodes-base.gmail",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Gmail message/sendAndWait is not mapped to a deterministic LAA action.",
+      "severity": "warning",
+      "node_name": "Approve Final Post Content",
+      "node_type": "n8n-nodes-base.gmail",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.gmail is not safely supported.",
+      "severity": "warning",
+      "node_name": "Approve Final Post Content",
+      "node_type": "n8n-nodes-base.gmail",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.formTrigger.",
+      "severity": "warning",
+      "node_name": "Submit Social Post Details",
+      "node_type": "n8n-nodes-base.formTrigger",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.agent.",
+      "severity": "warning",
+      "node_name": "Social Media Content Factory",
+      "node_type": "@n8n/n8n-nodes-langchain.agent",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Social Media Content Factory",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Social Media Content Factory",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Social Media Content Factory",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.agent.",
+      "severity": "warning",
+      "node_name": "Prepare Content Review Email",
+      "node_type": "@n8n/n8n-nodes-langchain.agent",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Prepare Content Review Email",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.form.",
+      "severity": "warning",
+      "node_name": "Image Choice",
+      "node_type": "n8n-nodes-base.form",
+      "json_path": null
+    },
+    {
+      "code": "MERGE_SEMANTICS_UNSUPPORTED",
+      "message": "This Merge node requires mode-specific data and synchronization semantics that cannot be represented by runAfter alone.",
+      "severity": "warning",
+      "node_name": "Merge",
+      "node_type": "n8n-nodes-base.merge",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.facebookGraphApi.",
+      "severity": "warning",
+      "node_name": "Instragram Post",
+      "node_type": "n8n-nodes-base.facebookGraphApi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.twitter.",
+      "severity": "warning",
+      "node_name": "X Post",
+      "node_type": "n8n-nodes-base.twitter",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.facebookGraphApi.",
+      "severity": "warning",
+      "node_name": "Facebook Post",
+      "node_type": "n8n-nodes-base.facebookGraphApi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.linkedIn.",
+      "severity": "warning",
+      "node_name": "LinkedIn Post",
+      "node_type": "n8n-nodes-base.linkedIn",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.openAi.",
+      "severity": "warning",
+      "node_name": "OpenAI",
+      "node_type": "@n8n/n8n-nodes-langchain.openAi",
+      "json_path": null
+    },
+    {
+      "code": "MERGE_SEMANTICS_UNSUPPORTED",
+      "message": "This Merge node requires mode-specific data and synchronization semantics that cannot be represented by runAfter alone.",
+      "severity": "warning",
+      "node_name": "Merge1",
+      "node_type": "n8n-nodes-base.merge",
+      "json_path": null
+    },
+    {
+      "code": "MERGE_SEMANTICS_UNSUPPORTED",
+      "message": "This Merge node requires mode-specific data and synchronization semantics that cannot be represented by runAfter alone.",
+      "severity": "warning",
+      "node_name": "Merge2",
+      "node_type": "n8n-nodes-base.merge",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.aggregate.",
+      "severity": "warning",
+      "node_name": "Aggregate",
+      "node_type": "n8n-nodes-base.aggregate",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.if is not safely supported.",
+      "severity": "warning",
+      "node_name": "Is Approved?",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "MERGE_SEMANTICS_UNSUPPORTED",
+      "message": "This Merge node requires mode-specific data and synchronization semantics that cannot be represented by runAfter alone.",
+      "severity": "warning",
+      "node_name": "Merge Results",
+      "node_type": "n8n-nodes-base.merge",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.agent.",
+      "severity": "warning",
+      "node_name": "Prepare Results Email",
+      "node_type": "@n8n/n8n-nodes-langchain.agent",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed or indexed connection inside an IF branch requires manual review.",
+      "severity": "warning",
+      "node_name": "Prepare Results Email",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.agent.",
+      "severity": "warning",
+      "node_name": "Prepare Results Message",
+      "node_type": "@n8n/n8n-nodes-langchain.agent",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed or indexed connection inside an IF branch requires manual review.",
+      "severity": "warning",
+      "node_name": "Prepare Results Message",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$env.EMAIL_ADDRESS_JOE",
+      "severity": "warning",
+      "node_name": "Gmail Results",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $env.EMAIL_ADDRESS_JOE }} ",
+      "severity": "warning",
+      "node_name": "Gmail Results",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $env.TELEGRAM_CHAT_ID }}",
+      "severity": "warning",
+      "node_name": "Telegram Results",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "TELEGRAM_TOKEN_REQUIRED",
+      "message": "Replace the Telegram bot-token placeholder with a secure deployment value before import.",
+      "severity": "warning",
+      "node_name": "Telegram Results",
+      "node_type": "n8n-nodes-base.telegram",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={\n  \"approved\": true\n}",
+      "severity": "warning",
+      "node_name": "Set Default True 2",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.toolSerpApi.",
+      "severity": "warning",
+      "node_name": "SerpAPI",
+      "node_type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_UNSUPPORTED",
+      "message": "Inline JavaScript uses unsupported n8n runtime features: binary data",
+      "severity": "warning",
+      "node_name": "Rename Binary File",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.code is not safely supported.",
+      "severity": "warning",
+      "node_name": "Rename Binary File",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    }
+  ]
+}

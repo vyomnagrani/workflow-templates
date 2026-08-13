@@ -1,0 +1,130 @@
+{
+  "sourceWorkflowName": "Automate AI news videos to social media with GPT-4o & HeyGen and Postiz",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 32,
+  "totalNodes": 37,
+  "coverage": 0.8649,
+  "diagnostics": [
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.rssFeedRead.",
+      "severity": "warning",
+      "node_name": "RSS Read",
+      "node_type": "n8n-nodes-base.rssFeedRead",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.limit.",
+      "severity": "warning",
+      "node_name": "Limit1",
+      "node_type": "n8n-nodes-base.limit",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.agent.",
+      "severity": "warning",
+      "node_name": "AI Agent",
+      "node_type": "@n8n/n8n-nodes-langchain.agent",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "AI Agent",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOpenAi.",
+      "severity": "warning",
+      "node_name": "write script",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Parse Caption",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleDrive.",
+      "severity": "warning",
+      "node_name": "Upload to Google Drive",
+      "node_type": "n8n-nodes-base.googleDrive",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Clean Instagram Caption",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$now.plus(1, 'minute').toISO()",
+      "severity": "warning",
+      "node_name": "Instagram Video Publisher",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={\n  \"type\": \"now\",\n  \"date\": \"{{ $now.plus(1, 'minute').toISO() }}\",\n  \"shortLink\": true,\n  \"tags\": [\n    { \"value\": \"instagram\", \"label\": \"Instagram\" }\n  ],\n  \"posts\": [\n    {\n      \"integration\": {\n        \"id\": \"{{ $json.id }}\"\n      },\n      \"value\": [\n        {\n          \"content\": \"{{ $('Clean Instagram Caption').item.json.instagram_reel_caption }}\",\n          \"video\": [\n            {\n              \"id\": \"1\",\n              \"path\": \"{{ $('Upload Video to Postiz').item.json.path }}\"\n            }\n          ]\n        }\n      ],\n      \"settings\": {\n        \"type\": \"post\"\n      }\n    }\n  ]\n}",
+      "severity": "warning",
+      "node_name": "Instagram Video Publisher",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Clean Facebook Video Caption",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$now.plus(1, 'minute').toISO()",
+      "severity": "warning",
+      "node_name": "Facebook Video Publisher",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={\n  \"type\": \"now\",\n  \"date\": \"{{ $now.plus(1, 'minute').toISO() }}\",\n  \"order\": \"\",\n  \"shortLink\": true,\n  \"inter\": 0,\n  \"tags\": [],\n  \"posts\": [\n    {\n      \"integration\": {\n        \"id\": \"{{ $json.id }}\"\n      },\n      \"value\": [\n        {\n          \"content\": \"{{ $('Clean Facebook Video Caption').item.json.facebook_video_caption }}\",\n          \"video\": [\n            {\n              \"id\": \"1\",\n              \"path\": \"{{ $('Upload Video to Postiz').item.json.path }}\"\n            }\n          ]\n        }\n      ],\n      \"settings\": {\n        \"type\": \"post\"\n      }\n    }\n  ]\n}",
+      "severity": "warning",
+      "node_name": "Facebook Video Publisher",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$now.plus(1, 'minute').toISO()",
+      "severity": "warning",
+      "node_name": "YouTube Video Publisher",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={\n \"type\": \"now\",\n \"date\": \"{{ $now.plus(1, 'minute').toISO() }}\",\n \"order\": \"\",\n \"shortLink\": true,\n \"inter\": 0,\n \"tags\": [],\n \"posts\": [\n   {\n     \"integration\": {\n       \"id\": \"{{ $json.id }}\"\n     },\n     \"value\": [\n       {\n         \"content\": \"{{ $('Setup Heygen Parameters').item.json.caption }}\",\n         \"video\": [\n           {\n             \"id\": \"1\",\n             \"path\": \"{{ $('Upload Video to Postiz').item.json.path }}\"\n           }\n         ]\n       }\n     ],\n     \"settings\": {\n       \"__type\": \"youtube\",\n       \"title\": \"{{ $('Setup Heygen Parameters').item.json.news_title }}\",\n       \"type\": \"public\",\n       \"tags\": [\"news\", \"AI\"],\n       \"categoryId\": \"22\",\n       \"madeForKids\": false\n     }\n   }\n ]\n}",
+      "severity": "warning",
+      "node_name": "YouTube Video Publisher",
+      "node_type": null,
+      "json_path": null
+    }
+  ]
+}

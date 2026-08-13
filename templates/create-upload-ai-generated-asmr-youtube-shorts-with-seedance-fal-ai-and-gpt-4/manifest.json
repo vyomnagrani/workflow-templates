@@ -1,0 +1,584 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "create-upload-ai-generated-asmr-youtube-shorts-with-seedance-fal-ai-and-gpt-4",
+    "name": "Create & upload AI-generated ASMR YouTube Shorts with Seedance, Fal AI, and GPT-4",
+    "description": "![Workflow_Screenshot.png](fileId:1559)\n\n//ASMR AI Workflow \n### Who is this for?\n\nContent Creators, YouTube Automation Enthusiasts, and AI Hobbyists looking to autonomously generate and publish unique, satisfying ASMR-style YouTube Shorts without manual effort.\n\n### What problem does this solve?\n\nThis workflow solves the creative bottleneck and time-consuming nature of daily content creation. It fully automates the entire production pipeline, from brainstorming trendy ideas to publishing a finished video, turning your n8n instance into a 24/7 content factory.\n\n### What this workflow does\n\n**1. Two-Stage AI Ideation & Planning:**\n*   Uses an initial AI agent to brainstorm a short, viral ASMR concept based on current trends.\n*   A second \"Planning\" AI agent then takes this concept and expands it into a detailed, structured production plan, complete with a viral-optimized caption, hashtags, and descriptions for the environment and sound.\n\n**2. Multi-Modal Asset Generation:**\n*   **Video:** Feeds detailed scene prompts to the **ByteDance Seedance** text-to-video model (via Wavespeed AI) to generate high-quality video clips.\n*   **Audio:** Simultaneously calls the **Fal AI** text-to-audio model to create custom, soothing ASMR sound effects that match the video's theme.\n*   **Assembly:** Automatically sequences the video clips and sound into a single, cohesive final video file using an FFMPEG API call.\n\n**3. Closed-Loop Publishing & Logging:**\n*   **Logging:** Initially logs the new idea to a Google Sheet with a status of \"In Progress\".\n*   **Publishing:** Automatically uploads the final, assembled video directly to your YouTube channel, setting the title and description from the AI's plan.\n*   **Updating:** Finds the original row in the Google Sheet and updates its status to \"Done\", adding a direct link to the newly published YouTube video.\n*   **Notifications:** Sends real-time alerts to Telegram and/or Gmail with the video title and link, confirming the successful publication.\n\n### Setup\n\n**Credentials:**\nYou will need to create credentials in your n8n instance for the following services:\n*   OpenAI API\n*   Wavespeed AI API (for Seedance)\n*   Fal AI API\n*   Google OAuth Credential (enable **YouTube Data API v3** and **Google Sheets API** in your Google Cloud Project)\n*   Telegram Bot Credential\n*   (Optional) Gmail OAuth Credential\n\n**Configuration:**\nThis is an advanced workflow. The initial setup should take approximately 15-20 minutes.\n*   **Google Sheet:** Create a Google Sheet with these columns: `idea`, `caption`, `production_status`, `youtube_url`. Add the **Sheet ID** to the Google Sheets nodes in the workflow.\n*   **Node Configuration:** In the `Telegram Notification` node, enter your own `Chat ID`. In the `Gmail Notification` node, update the recipient email address.\n*   **Activate:** Once configured, save and set the workflow to \"Active\" to let it run on its schedule.\n\n### How to customize\n\n*   **Creative Direction:** To change the style or theme of the videos (e.g., from kinetic sand to soap cutting), simply edit the `systemMessage` in the **\"2. Enrich Idea into Plan\"** and **\"Prompts AI Agent\"** nodes.\n\n*   **Initial Ideas:** To influence the AI's starting concepts, modify the prompt in the **\"1. Generate Trendy Idea\"** node.\n*   **Video & Sound:** To change the video duration or sound style, adjust the parameters in the **\"Create Clips\"** and **\"Create Sounds\"** nodes.\n*   **Notifications:** Add or remove notification channels (like Slack or Discord) after the **\"Upload to YouTube\"** node.\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/gmail",
+      "/managedApis/googlesheet",
+      "/managedApis/telegrambotip",
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Schedule_Trigger": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Unbundle_Prompts": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Prompts_AI_Agent'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nfunction findSceneEntries(obj) {\n  const scenes = [];\n\n  for (const [key, value] of Object.entries(obj)) {\n    if (key.toLowerCase().startsWith(\"scene\") && typeof value === \"string\") {\n      scenes.push(value);\n    } else if (typeof value === \"object\" && value !== null) {\n      scenes.push(...findSceneEntries(value));\n    }\n  }\n\n  return scenes;\n}\n\nlet output = [];\n\ntry {\n  const inputData = items[0].json;\n  const scenes = findSceneEntries(inputData);\n\n  if (scenes.length === 0) {\n    throw new Error(\"No scene keys found at any level.\");\n  }\n\n  output = scenes.map(scene => ({ description: scene }));\n} catch (e) {\n  throw new Error(\"Could not extract scenes properly. Details: \" + e.message);\n}\n\nreturn output;\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Prompts_AI_Agent": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Create_Sounds": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://queue.fal.run/fal-ai/mmaudio-v2 ",
+            "body": "{\n        \"prompt\": \"ASMR Soothing sound effects. @{body('Prompts_AI_Agent')?['output']?['Sound']}\",\n        \"duration\": 10,\n        \"video_url\": \"@{body('Get_Clips')?['data']?['outputs'][0]}\"\n  }"
+          },
+          "runAfter": {
+            "Get_Clips": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_Sounds": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://queue.fal.run/fal-ai/mmaudio-v2/requests/@{body('Wait_for_Sounds')?['request_id']}"
+          },
+          "runAfter": {
+            "Wait_for_Sounds": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_for_Sounds": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 60,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Create_Sounds": [
+              "Succeeded"
+            ]
+          }
+        },
+        "List_Elements": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Get_Sounds'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nreturn [\n  {\n    video_urls: items.map(item => item.json.video.url)\n  }\n];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Get_Sounds": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Sequence_Video": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://queue.fal.run/fal-ai/ffmpeg-api/compose",
+            "body": "{\n  \"tracks\": [\n    {\n      \"id\": \"1\",\n      \"type\": \"video\",\n      \"keyframes\": [\n        { \"url\": \"@{body('List_Elements')?['video_urls'][0]}\", \"timestamp\": 0, \"duration\": 10 },\n        { \"url\": \"@{body('List_Elements')?['video_urls'][1]}\", \"timestamp\": 10, \"duration\": 10 },\n        { \"url\": \"@{body('List_Elements')?['video_urls'][2]}\", \"timestamp\": 20, \"duration\": 10 }\n      ]\n    }\n  ]\n}"
+          },
+          "runAfter": {
+            "List_Elements": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_Final_Video": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://queue.fal.run/fal-ai/ffmpeg-api/requests/@{body('Wait_for_Final_Video')?['request_id']}"
+          },
+          "runAfter": {
+            "Wait_for_Final_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_for_Final_Video": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 60,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Sequence_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Think": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Think",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.toolThink",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "OpenAI_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "value": "gpt-4.1"
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Prompts_AI_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Prompts AI Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=Give me 3 video prompts based on the previous \n\nUse the Think tool to review your output",
+              "options": {
+                "systemMessage": "=Role: You are a prompt-generation AI specializing in satisfying, ASMR-style video prompts for kinetic sand. Your task is to generate a multi-scene video sequence that vividly shows a tool (like a knife, scoop, or press) interacting with kinetic sand in a clean, high-detail setting.\n\nYour writing must follow this style:\n\nSatisfying, tactile realism.\nMacro-level detail with a tight focus on the tool interacting with the sand's unique texture.\nThe tool must always be in motion — slicing, scooping, pressing, or crumbling the sand. Never idle or static.\nCamera terms are allowed (e.g. macro view, top-down shot, slow-motion).\n\nEach scene must contain all of the following, expressed through detailed visual language:\n\n✅ The kinetic sand (from the Idea)\n✅ The environment or surface (from the Environment)\n✅ The texture, structure, and behavior of the sand as it's being manipulated\n✅ A visible tool (knife, scoop, mold) actively interacting with the sand\n\nDescriptions should show:\n\nThe physical makeup of the sand — is it layered with different colors, sparkly, smooth, or matte? Emphasize its granular, yet cohesive structure.\nHow the sand responds to the tool — clean slicing, soft crumbling, perfect imprints, satisfying deformation, or a cascading collapse.\nThe interaction between the tool and the sand — sand grains momentarily sticking to the tool, the smooth surface left behind, the crisp edges of a cut.\nAny ASMR-relevant sensory cues like the satisfying crunch, the soft hiss of falling grains, or the shimmer of glitter, but always shown visually — not narrated.\n\nTone:\n\nSatisfying, mesmerizing, tactile.\nNo poetic metaphors, emotion, or storytelling.\nAvoid fantasy or surreal imagery.\nAll description must feel physically grounded and visually appealing.\n\nLength:\n\nEach scene must be between 1,000 and 2,000 characters.\nNo shallow or repetitive scenes — each must be immersive, descriptive, and specific.\nEach scene should explore a distinct phase of the action, a different camera perspective, or a new behavior of the sand.\n\nInputs:\n\nIdea: \"{{ $json.idea }}\"\nEnvironment: \"{{ $json.environment_prompt }}\"\nSound: \"{{ $json.sound_prompt }}\"\n\nFormat:\n\nIdea: \"...\"\nEnvironment: \"...\"\nSound: \"...\"\n\nScene 1: \"...\"\nScene 2: \"...\"\nScene 3: \"...\"\n(and so on)"
+              },
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "Think": [
+              "Succeeded"
+            ],
+            "Parser2": [
+              "Succeeded"
+            ],
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ],
+            "Action_3_Log_New_Idea_to_Sheet": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Parser": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Parser",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsonSchemaExample": "[\n  {\n    \"Caption\": \"Diver Removes Nets Off Whale 🐋 #whalerescue #marinelife #oceanrescue #seahelpers #love #nature #instagood #explore #viral #savenature #oceanguardians #cleanoceans\",\n    \"Idea\": \"Diver carefully cuts tangled net from distressed whale in open sea\",\n    \"Environment\": \"Open ocean, sunlight beams through water, diver and whale, cinematic realism\",\n    \"Sound\": \"Primary sound description under 15 words\",\n    \"Status\": \"for production\"\n  }\n]\n"
+            }
+          },
+          "runAfter": {}
+        },
+        "Parser2": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Parser2",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsonSchemaExample": "{\n  \"Idea\": \"An obsidian rock being sliced with a shimmering knife\",\n  \"Environment\": \"Clean studio table, subtle light reflections\",\n  \"Sound\": \"Crisp slicing, deep grinding, and delicate crumbling\",\n  \"Scene 1\": \"Extreme macro shot: a razor-sharp, polished knife blade presses into the dark, granular surface of an obsidian rock, just beginning to indent.\",\n  \"Scene 2\": \"Close-up: fine, iridescent dust particles erupt from the point of contact as the blade cuts deeper into the obsidian, catching the studio light.\",\n  \"Scene 3\": \"Mid-shot: the knife, held perfectly steady, has formed a shallow, clean groove across the obsidian's shimmering surface, revealing a new, smooth texture.\"\n}"
+            }
+          },
+          "runAfter": {}
+        },
+        "Create_Clips": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.wavespeed.ai/api/v3/bytedance/seedance-v1-lite-t2v-480p",
+            "body": "{\n  \"aspect_ratio\": \"9:16\",\n  \"duration\": 10,\n  \"prompt\": \"VIDEO THEME: @{body('Prompts_AI_Agent')?['output']?['Idea']} | WHAT HAPPENS IN THE VIDEO: @{body('Unbundle_Prompts')?['description']} | WHERE THE VIDEO IS SHOT: @{body('Prompts_AI_Agent')?['output']?['Environment']}\"\n}"
+          },
+          "runAfter": {
+            "Unbundle_Prompts": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_for_Clips": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 120,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Create_Clips": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_Clips": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.wavespeed.ai/api/v3/predictions/@{body('Wait_for_Clips')?['data']?['id']}/result"
+          },
+          "runAfter": {
+            "Wait_for_Clips": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_Final_Video": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@body('Get_Final_Video')?['video_url']"
+          },
+          "runAfter": {
+            "Update_Final_Video_to_Sheet": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_to_YouTube": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Upload to YouTube",
+            "n8nNodeType": "n8n-nodes-base.youTube",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "title": "=AI ASMR : {{ $('Update Final Video to Sheet').item.json.idea }}",
+              "options": {
+                "tags": "=asmr, viral, asmrai, n8n, automation",
+                "description": "=AI-Generated Video Idea: {{ $('Update Final Video to Sheet').item.json.idea }}\n\nThis video was created automatically using our automated workflow #asmrai #asmr #n8n",
+                "privacyStatus": "public",
+                "notifySubscribers": true
+              },
+              "resource": "video",
+              "operation": "upload"
+            }
+          },
+          "runAfter": {
+            "Download_Final_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Telegram_Notification": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "telegrambotip_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/bot@{encodeURIComponent('REPLACE_WITH_TELEGRAM_BOT_TOKEN')}/sendMessage",
+            "body": {
+              "chat_id": "YOUR_CHAT_ID",
+              "text": "✅ Your new video is ready!  **Title:** @{body('Update_Final_Video_to_Sheet')?['idea']}  \nWatch it here: \nhttps://www.youtube.com/watch?v=@{body('Upload_to_YouTube')?['id']}",
+              "parse_mode": "HTML"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendMessage"
+            }
+          },
+          "runAfter": {
+            "Upload_to_YouTube": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenAI_Chat_Model1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "value": "gpt-4.1"
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Gmail_Notification": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "gmail_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/v2/Mail",
+            "body": {
+              "To": "user@example.com",
+              "Subject": "✅ Your new video is ready!",
+              "Body": "✅ Your new video is ready!  **Title:** @{body('Update_Final_Video_to_Sheet')?['idea']}  Watch it here: https://www.youtube.com/watch?v=@{body('Upload_to_YouTube')?['id']}"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendEmailV2"
+            }
+          },
+          "runAfter": {
+            "Upload_to_YouTube": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Action_1_Generate_Trendy_Idea": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "1. Generate Trendy Idea",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "Generate one short, trendy, and viral ASMR video idea. Describe the core concept in less than 10 words. Do not explain it, just state the idea.",
+              "options": {
+                "systemMessage": "You are an AI that specializes in identifying viral trends on platforms like TikTok and YouTube Shorts. Your job is to brainstorm a single, simple, and satisfying ASMR video concept. You must only return the idea as a single line of plain text. Do not add any extra words, formatting, or explanation."
+              },
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "OpenAI_Chat_Model1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Action_2_Enrich_Idea_into_Plan": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "2. Enrich Idea into Plan",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=Take the following trendy ASMR idea and expand it into a full production plan using your required JSON format. Use the examples below for inspiration on how to format the \"Idea\" field.\n\nThe short ASMR idea is:\n[[\n{{ $json.output }}\n]]\n\nHave your final expanded \"Idea\" field be in this format: \"(color/style) (object) being (action)\". \nExamples for your inspiration: layered rainbow kinetic sand being sliced, sparkly purple soap being scooped, neon green slime being pressed.\n\nUse the Think tool to review your output.",
+              "options": {
+                "systemMessage": "=**Role**: You are an AI designed to generate 1 immersive, satisfying idea based on a user-provided topic. Your output must be formatted as a JSON array (single line) and follow all the rules below exactly.\n\n***\nRULES:\n\nOnly return 1 idea at a time.\n\nThe user will provide a key topic (e.g. \"kinetic sand slicing,\" \"satisfying sand scooping,\" \"ASMR sand sounds\").\n\nThe Idea must:\n\nBe under 13 words.\n\nDescribe an interesting and viral-worthy moment, action, or event related to the provided topic.\n\nThe Caption must be:\n\nShort, punchy, and viral-friendly.\n\nInclude one relevant emoji.\n\nInclude exactly 12 hashtags in this order:\n** 4 topic-relevant hashtags\n** 4 all-time most popular hashtags\n** 4 currently trending hashtags\n\nAll hashtags must be lowercase.\n\nSet Status to \"for production\" (always).\n\nThe Environment must:\n\nBe under 20 words.\n\nMatch the action in the Idea exactly.\n\nClearly describe:\n\nWhere the event is happening (e.g. minimalist white surface, clean studio table)\nKey visuals or background details (e.g. bright lighting, subtle glitter)\nStyle of scene (e.g. macro close-up, cinematic slow-motion)\n\nThe Sound must:\n\nBe under 15 words.\n\nDescribe the primary sound that makes sense to happen in the video. This will be fed to a sound model later on.\n\n\n***\nOUTPUT FORMAT (single-line JSON array):\n\n[\n  {\n    \"Caption\": \"That crunch! 🤤 #kineticsand #satisfyingvideos #asmrsand #sand #oddlysatisfying #viral #fyp #explore #trending #tiktok #diy #crafts\",\n    \"Idea\": \"Slicing through a block of layered rainbow kinetic sand\",\n    \"Environment\": \"Macro close-up on a clean, bright white surface, cinematic slow-motion\",\n    \"Sound\": \"Crisp, crunchy slicing sounds with a soft, gentle hiss\",\n    \"Status\": \"for production\"\n  }\n]"
+              },
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "Think": [
+              "Succeeded"
+            ],
+            "Parser": [
+              "Succeeded"
+            ],
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ],
+            "Action_1_Generate_Trendy_Idea": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Action_3_Log_New_Idea_to_Sheet": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('YOUR_GOOGLE_SHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('YOUR_SHEET_NAME'))}/items",
+            "body": {
+              "idea": "@body('Action_2_Enrich_Idea_into_Plan')?['output'][0].Idea",
+              "caption": "@body('Action_2_Enrich_Idea_into_Plan')?['output'][0].Caption",
+              "production": "In Progress",
+              "sound_prompt": "@body('Action_2_Enrich_Idea_into_Plan')?['output'][0].Sound",
+              "environment_prompt": "@body('Action_2_Enrich_Idea_into_Plan')?['output'][0].Environment"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Action_2_Enrich_Idea_into_Plan": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Update_Final_Video_to_Sheet": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update Final Video to Sheet",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "key": "idea",
+              "value": "={{ $('Update Final Video to Sheet').item.json.idea }}",
+              "columns": {
+                "value": {
+                  "production": "Done",
+                  "youtube_url": "=",
+                  "final_output": "={{ $json.video_url }}"
+                },
+                "mappingMode": "defineBelow"
+              },
+              "operation": "update",
+              "sheetName": {
+                "__rl": true,
+                "value": "YOUR_SHEET_NAME"
+              },
+              "documentId": {
+                "__rl": true,
+                "value": "YOUR_GOOGLE_SHEET_ID"
+              }
+            }
+          },
+          "runAfter": {
+            "Get_Final_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Update_Sheet_with_Youtube_Link": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update Sheet with Youtube Link",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "key": "idea",
+              "value": "={{ $('Update Final Video to Sheet').item.json.idea }}",
+              "columns": {
+                "value": {
+                  "youtube_url": "=https://www.youtube.com/watch?v={{ $('Upload to YouTube').item.json.id }}"
+                },
+                "mappingMode": "defineBelow"
+              },
+              "operation": "update",
+              "sheetName": {
+                "__rl": true,
+                "value": "YOUR_SHEET_NAME"
+              },
+              "documentId": {
+                "__rl": true,
+                "value": "YOUR_GOOGLE_SHEET_ID"
+              }
+            }
+          },
+          "runAfter": {
+            "Upload_to_YouTube": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Schedule_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "telegrambotip_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/telegrambotip"
+    },
+    "gmail_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/gmail"
+    },
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

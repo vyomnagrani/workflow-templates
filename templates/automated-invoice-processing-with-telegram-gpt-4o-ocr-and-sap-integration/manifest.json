@@ -1,0 +1,665 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "automated-invoice-processing-with-telegram-gpt-4o-ocr-and-sap-integration",
+    "name": "Automated invoice processing with Telegram, GPT-4o, OCR and SAP integration",
+    "description": "**++HOW IT WORKS:++**\nThis workflow automates the processing of invoices sent via Telegram. It extracts the data using LlamaIndex OCR, logs it in Google Sheets, and optionally pushes the structured data to SAP Business One\n\n****🔹 1. Receive Invoice via Telegram:****\n- A user sends a PDF of an invoice through Telegram\n- A Telegram Trigger node listens for incoming messages and captures the file and metadata\n- The document is downloaded and prepared for OCR\n\n**🔹 2. OCR with LlamaIndex:**\n- The file is uploaded to the LlamaIndex OCR API.\n- The workflow polls the API until the processing status returns SUCCESS\n- Once ready, the parsed content is fetched in Markdown format\n\n**🔹 3. Data Extraction via LLM (editable):**\n- The Markdown content is sent to a language model (LLM) using LangChain\n- A Structured Output Parser transforms the result into a clean, structured editable JSON\n\n**🔹 4. Save to Google Sheets:**\nThe structured JSON is split into:\n1. Header (main invoice metadata)\n1. Detail (individual line items)\n\nEach part is stored in a dedicated tab within a connected Google Sheets file\n\n**🔹 5. Ask for SAP Confirmation:**\nThe bot replies to the user via Telegram:\n\n\"Do you want to send the data to SAP?\"\n\nIf the user clicks \"Yes\", the next automation path is triggered.\n\n**🔹 6. Push Data to SAP B1:**\nA connection is made to SAP Business One's Service Layer API\n\nHeader and detail data are fetched from Google Sheets\n\nThe invoice structure is rebuilt as required by SAP (DocumentLines, CardCode, etc.)\n\nA POST request creates the Purchase Invoice in SAP\n\nA confirmation message with the created DocEntry is sent back to the user on Telegram\n\n**++SET UP STEPS:++**\nFollow these steps to properly configure the workflow before execution:\n\n**1️⃣ Create Required Credentials:**\nGo to Credentials &gt; + New Credential and create the following:\n- *Telegram API* (set your bot token get it from BotFather)\n- *Google Sheets*\n- *OpenAI*\n\n**2️⃣ Set Up Environment Variables (Optional but Recommended):**\nLLAMAINDEX_API_KEY\nSAP_USER\nSAP_PASSWORD\nSAP_COMPANY_DB\nSAP_URL\n\n**3️⃣ Prepare Google Sheets:**\nEnsure your Google Spreadsheet has the following:\n➤ Sheet 1: Header\n➤ Sheet 2: Details\nContains columns for invoice lines",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Invoice Processing",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "/managedApis/telegrambotip",
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Wait": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 3,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Status": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Basic_LLM_Chain": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Basic LLM Chain",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chainLlm",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "={{ $json.markdown }}",
+              "batching": {},
+              "messages": {
+                "messageValues": [
+                  {
+                    "message": "Eres un asistente experto en extracción y procesamiento de datos de documentos especializado en identificar con precisión los detalles claves de una factura"
+                  },
+                  {
+                    "type": "HumanMessagePromptTemplate",
+                    "message": "=Tu tarea: Extraer de cualquier texto de factura los siguientes campos, devolviendo los datos en un JSON estructurado y con máxima precisión:\n\nCampos a extraer:\nnombre_proveedor: Nombre del proveedor.\n\nruc_proveedor: RUC del proveedor.\n\ndireccion_proveedor: Dirección del proveedor.\n\nnumero_factura: Número de factura.\n\nfecha_emision: Fecha de emisión de la factura (formato YYYY-MM-DD).\n\ndetalle_productos: Lista de líneas de detalle de los productos o servicios facturados. Cada línea incluirá:\n\ncodigo\n\ndescripcion\n\ncantidad\n\nprecio\n\nsubtotal\n\nsubtotal_factura: Subtotal general de la factura.\n\ndescuento_factura: Descuento total de la factura.\n\ntotal_neto: Total neto de la factura.\n\nFormato de salida esperado:\nSi algún campo no existe, deberá devolverse como null.\nDevuelve siempre el JSON con los nombres exactos de las claves.\n\nEjemplo de salida esperado:\n\n{\n  \"nombre_proveedor\": \"Blockies Corporation\",\n  \"ruc_proveedor\": \"78787878-7\",\n  \"direccion_proveedor\": \"AV. DE LAS ARTES NORTE NRO. 310 (ESPALDA RAMBLA DE JAVIER PRADO) LIMA - LIMA - SAN BORJA\",\n  \"numero_factura\": \"00003\",\n  \"fecha_emision\": \"2025-04-15\",\n  \"detalle_productos\": [\n    {\n      \"codigo\": \"srv001\",\n      \"descripcion\": \"Servicio de Alquiler de Montacargas\",\n      \"cantidad\": 1,\n      \"precio\": 35.00,\n      \"subtotal\": 35.00\n    }\n  ],\n  \"subtotal_factura\": 35.00,\n  \"descuento_factura\": 0.00,\n  \"total_neto\": 35.00\n}\nInstrucciones adicionales:\nNo resumas, no expliques, no añadas comentarios, solo responde con el JSON.\n\nSi existen varias líneas de productos, incluir todas dentro del array \"detalle_productos\".\n\nNo redondees importes, extrae exactamente el valor mostrado.\n\nLas fechas deben estar siempre en formato YYYY-MM-DD."
+                  }
+                ]
+              },
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ],
+            "Get_Results_LlamaIndex": [
+              "Succeeded"
+            ],
+            "Structured_Output_Parser_Example": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenAI_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Split_Out": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Split Out",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldToSplitOut": "output.detalle_productos"
+            }
+          },
+          "runAfter": {
+            "Basic_LLM_Chain": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Callback_Waiting_Answer": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Callback Waiting Answer",
+            "n8nNodeType": "n8n-nodes-base.telegramTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "updates": [
+                "callback_query"
+              ],
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Answer": {
+          "type": "If",
+          "expression": {
+            "equals": [
+              "@body('Callback_Waiting_Answer')?['callback_query']?['data']",
+              "respuesta_si"
+            ]
+          },
+          "actions": {
+            "Merge": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Merge",
+                "n8nNodeType": "n8n-nodes-base.merge",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "mode": "combine",
+                  "options": {},
+                  "combineBy": "combineByPosition"
+                }
+              },
+              "runAfter": {
+                "Get_Header": [
+                  "Succeeded"
+                ],
+                "Generate_DocumentLines": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Connect_to_SAP": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "={{ $vars.url_sap }}Login",
+                "body": "={\n       \"UserName\": \"{{ $vars.user_sap }}\",\n       \"Password\": \"{{ $vars.password_sap }}\",\n       \"CompanyDB\": \"{{ $vars.company_db }}\"\n}"
+              },
+              "runAfter": {}
+            },
+            "Get_Header": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "referenceName": "googlesheet_#workflowname#"
+                  }
+                },
+                "method": "post",
+                "path": "/datasets/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_SPREADSHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_WORKSHEET'))}/items",
+                "body": {}
+              },
+              "metadata": {
+                "flowSystemMetadata": {
+                  "swaggerOperationId": "PostItem"
+                }
+              },
+              "runAfter": {
+                "Connect_to_SAP": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Get_Row_Details": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "referenceName": "googlesheet_#workflowname#"
+                  }
+                },
+                "method": "post",
+                "path": "/datasets/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_SPREADSHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_WORKSHEET'))}/items",
+                "body": {}
+              },
+              "metadata": {
+                "flowSystemMetadata": {
+                  "swaggerOperationId": "PostItem"
+                }
+              },
+              "runAfter": {
+                "Get_Header": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Generate_DocumentLines": {
+              "type": "JavaScriptCode",
+              "inputs": {
+                "code": "const __inputRaw = workflowContext.actions['Get_Row_Details'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst items = $input.all();  // capturamos todos los items que entran\nconst DocumentLines = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i].json;\n\n  DocumentLines.push({\n    ItemCode: item.código,\n    Quantity: item.cantidad,\n    UnitPrice: item.precio\n  });\n}\n\nreturn [{ DocumentLines }];\n\n})();\nreturn { body: __unwrap(__result) };"
+              },
+              "runAfter": {
+                "Get_Row_Details": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Create_JSON": {
+              "type": "JavaScriptCode",
+              "inputs": {
+                "code": "const __inputRaw = workflowContext.actions['Merge'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst item = $json;\n\n// Construimos el objeto final para SAP\nreturn [{\n  DocDate: item.fecha_emision,\n  DocDueDate: item.fecha_emision,\n  CardCode: item.ruc_proveedor,\n  DocumentLines: item.DocumentLines\n}];\n})();\nreturn { body: __unwrap(__result) };"
+              },
+              "runAfter": {
+                "Merge": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "POST_PurchaseInvoices": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "={{ $vars.url_sap }}PurchaseInvoices",
+                "headers": {
+                  "Cookie": "B1SESSION=@{body('Connect_to_SAP')?['SessionId']}"
+                },
+                "body": "@JSON.stringify(body('Create_JSON'))"
+              },
+              "runAfter": {
+                "Create_JSON": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "PurchaseInvoices_created": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "referenceName": "telegrambotip_#workflowname#"
+                  }
+                },
+                "method": "post",
+                "path": "/bot@{encodeURIComponent('REPLACE_WITH_TELEGRAM_BOT_TOKEN')}/sendMessage",
+                "body": {
+                  "chat_id": "@body('Callback_Waiting_Answer')?['callback_query']?['message']?['chat']?['id']",
+                  "text": "PurchaseInvoice @{body('POST_PurchaseInvoices')?['DocEntry']} creada en SAP correctamente"
+                }
+              },
+              "metadata": {
+                "flowSystemMetadata": {
+                  "swaggerOperationId": "SendMessage"
+                }
+              },
+              "runAfter": {
+                "POST_PurchaseInvoices": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "Rule_2": {
+                "type": "If",
+                "expression": {
+                  "equals": [
+                    "@body('Callback_Waiting_Answer')?['callback_query']?['data']",
+                    "respuesta_no"
+                  ]
+                },
+                "actions": {
+                  "No_Operation_do_nothing": {
+                    "type": "Compose",
+                    "inputs": {},
+                    "runAfter": {}
+                  }
+                },
+                "else": {
+                  "actions": {}
+                },
+                "runAfter": {}
+              }
+            }
+          },
+          "runAfter": {
+            "Callback_Waiting_Answer": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Trigger_Receive_Message": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Trigger Receive Message",
+            "n8nNodeType": "n8n-nodes-base.telegramTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "updates": [
+                "message"
+              ],
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Capture_Telegram_Data": {
+          "type": "Compose",
+          "inputs": {
+            "message.chat.id": "@body('Trigger_Receive_Message')?['message']?['chat']?['id']",
+            "message.chat": "@body('Trigger_Receive_Message')?['message']?['chat']",
+            "telegram.file_id": "@body('Trigger_Receive_Message')?['message']?['document']?['file_id']",
+            "message.caption": "@body('Trigger_Receive_Message')?['message']?['caption']"
+          },
+          "runAfter": {
+            "Trigger_Receive_Message": [
+              "Succeeded"
+            ]
+          }
+        },
+        "File_Received": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "telegrambotip_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/bot@{encodeURIComponent('REPLACE_WITH_TELEGRAM_BOT_TOKEN')}/sendMessage",
+            "body": {
+              "chat_id": "@body('Capture_Telegram_Data')?['message']?['chat']?['id']",
+              "text": "Hemos recibido tu documento y lo estamos procesando..."
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendMessage"
+            }
+          },
+          "runAfter": {
+            "Capture_Telegram_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_File": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Download File",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileId": "={{ $('Capture Telegram Data').item.json.telegram.file_id }}",
+              "resource": "file"
+            }
+          },
+          "runAfter": {
+            "File_Received": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_File_LlamaIndex": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.cloud.llamaindex.ai/api/v1/parsing/upload",
+            "headers": {
+              "accept": "application/json",
+              "Authorization": "=Bearer {{ $vars.llamaindex_apikey }}"
+            },
+            "body": {
+              "file": null
+            }
+          },
+          "runAfter": {
+            "Download_File": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Validate_Status_LlamaIndex": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.cloud.llamaindex.ai/api/v1/parsing/job/@{body('Wait')?['id']}",
+            "headers": {
+              "accept": "application/json",
+              "Authorization": "=Bearer {{ $vars.llamaindex_apikey }}"
+            }
+          },
+          "runAfter": {
+            "Wait": [
+              "Succeeded"
+            ],
+            "Upload_File_LlamaIndex": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Status": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Status?",
+            "n8nNodeType": "n8n-nodes-base.switch",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "rules": {
+                "values": [
+                  {
+                    "outputKey": "SUCCESS",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "7005abbb-4094-4dde-9cc5-b973fe54a09e",
+                          "operator": {
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.status }}",
+                          "rightValue": "SUCCESS"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "PENDING",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "b4bdda84-6e9d-44c9-a85c-fd87d7427765",
+                          "operator": {
+                            "name": "filter.operator.equals",
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.status }}",
+                          "rightValue": "PENDING"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  }
+                ]
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Validate_Status_LlamaIndex": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_Results_LlamaIndex": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.cloud.llamaindex.ai/api/v1/parsing/job/@{body('Status')?['id']}/result/markdown",
+            "headers": {
+              "accept": "application/json",
+              "Authorization": "=Bearer {{ $vars.llamaindex_apikey }}"
+            }
+          },
+          "runAfter": {
+            "Status": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Structured_Output_Parser_Example": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Structured Output Parser (Example)",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsonSchemaExample": "{\n  \"nombre_proveedor\": \"Blockies Corporation\",\n  \"ruc_proveedor\": \"78787878-7\",\n  \"direccion_proveedor\": \"AV. DE LAS ARTES NORTE NRO. 310 (ESPALDA RAMBLA DE JAVIER PRADO) LIMA - LIMA - SAN BORJA\",\n  \"numero_factura\": \"00003\",\n  \"fecha_emision\": \"2025-04-15\",\n  \"detalle_productos\": [\n    {\n      \"codigo\": \"srv001\",\n      \"descripcion\": \"Servicio de Alquiler de Montacargas\",\n      \"cantidad\": 1,\n      \"precio\": 35.00,\n      \"subtotal\": 35.00\n    }\n  ],\n  \"subtotal_factura\": 35.00,\n  \"descuento_factura\": 0.00,\n  \"total_neto\": 35.00\n}"
+            }
+          },
+          "runAfter": {}
+        },
+        "Detail": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_SPREADSHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_WORKSHEET'))}/items",
+            "body": {
+              "precio": "@body('Split_Out')?['precio']",
+              "código": "@body('Split_Out')?['codigo']",
+              "cantidad": "@body('Split_Out')?['cantidad']",
+              "subtotal": "@body('Split_Out')?['subtotal']",
+              "descripcion": "@body('Split_Out')?['descripcion']",
+              "numero_factura": "@body('Basic_LLM_Chain')?['output']?['numero_factura']"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Split_Out": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Header": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_SPREADSHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_WORKSHEET'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Detail": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_to_SAP": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "telegrambotip_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/bot@{encodeURIComponent('REPLACE_WITH_TELEGRAM_BOT_TOKEN')}/sendMessage",
+            "body": {
+              "chat_id": "@body('Capture_Telegram_Data')?['message']?['chat']?['id']",
+              "text": "=¿Quieres enviar los datos a SAP?"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendMessage"
+            }
+          },
+          "runAfter": {
+            "Header": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    },
+    "telegrambotip_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/telegrambotip"
+    }
+  }
+}

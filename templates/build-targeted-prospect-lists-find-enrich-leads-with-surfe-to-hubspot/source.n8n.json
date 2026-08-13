@@ -1,0 +1,492 @@
+{
+  "id": "7130",
+  "meta": {
+    "instanceId": "1c6299b01fe56ad80280bbb1a8394f761ca72a9606abe611a4617f9adc407187"
+  },
+  "name": "Build targeted prospect lists: find & enrich leads with Surfe to HubSpot",
+  "tags": [
+    "Lead Generation"
+  ],
+  "nodes": [
+    {
+      "id": "2299f88a-bfeb-4d28-8164-704a40c9cdae",
+      "name": "Search ICP Companies",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1560,
+        125
+      ],
+      "parameters": {
+        "url": "https://api.surfe.com/v2/companies/search",
+        "method": "POST",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        },
+        "jsonBody": "{\n  \"filters\": {\n    \"industries\": [\"Software\", \"Apps\", \"SaaS\"],\n    \"employeeCount\": {\n        \"from\": 1,\n        \"to\": 35\n      },\n    \"countries\": [\"FR\"],\n    \"revenues\": [\"1-10M\"]\n  },\n  \"limit\": 20\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "5b7477c1-1a29-42ff-bd2c-207edeb49839",
+      "name": "Search People in Companies",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1120,
+        125
+      ],
+      "parameters": {
+        "url": "https://api.surfe.com/v2/people/search",
+        "method": "POST",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        },
+        "jsonBody": "={{ $json }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "de26445a-750e-4b12-83f7-4a864e146b8e",
+      "name": "Prepare JSON Payload Enrichment Request",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -900,
+        125
+      ],
+      "parameters": {
+        "jsCode": "const people = $json.people || [];\n\nreturn [\n  {\n    json: {\n      \"include\": {\n        \"email\": true,\n        \"linkedInUrl\": false,\n        \"mobile\": true\n      },\n      \"notificationOptions\": {\n        \"webhookUrl\": \"\"\n      },\n      people: people.map((person) => ({\n        firstName: person.firstName || \"\",\n        lastName: person.lastName || \"\",\n        companyName: person.companyName || \"\",\n        companyDomain: person.companyDomain || \"\",\n        linkedinUrl: person.linkedInUrl || \"\",\n        externalID: `${person.firstName}_${person.lastName}_${person.companyDomain}`.toLowerCase().replace(/[^a-z0-9_]/g, '_')\n      }))\n    }\n  }\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a4e45b9e-327b-4ca2-9338-c2739ef93841",
+      "name": "Surfe Bulk Enrichments API",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -680,
+        125
+      ],
+      "parameters": {
+        "url": "https://api.surfe.com/v2/people/enrich",
+        "method": "POST",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        },
+        "jsonBody": "={{ $json }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "8ec1dbe8-b0c3-413b-9576-74cabfbaed70",
+      "name": "Surfe check enrichement status",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -460,
+        125
+      ],
+      "parameters": {
+        "url": "=https://api.surfe.com/v2/people/enrich/{{ $json.enrichmentID }}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b9bba6b6-6d14-400a-bba0-64a06f4ce343",
+      "name": "Is enrichment complete ?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -240,
+        50
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "65a670df-84e8-4c87-956c-96758b8d8d26",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "COMPLETED"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "d6a21f33-d87d-4d9f-8d1d-597a943a0391",
+      "name": "Wait 3 secondes",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        -20,
+        225
+      ],
+      "webhookId": "faddf14b-4e33-4108-a141-c1a172e0a5d1",
+      "parameters": {
+        "amount": 3
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "1f811e79-79b2-46b6-8bac-0e94eb63c2d8",
+      "name": "Extract list of peoples from Surfe API response",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -20,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const people = $json.people || [];\n\nreturn people.map(person => {\n  return {\n    json: {\n      id: person.id || '',\n      firstName: person.firstName || '',\n      lastName: person.lastName || '',\n      email: person.emails?.[0]?.email || '',\n      phone: person.mobilePhones?.[0]?.mobilePhone || '',\n      jobTitle: person.jobTitle || '',\n      companyName: person.companyName || '',\n      companyWebsite: person.companyDomain || '',\n      linkedinUrl: person.linkedInUrl || '',\n      country: person.country || '',\n      status: person.status || ''\n    }\n  };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "043348d5-0bb7-40d6-be4d-ad3c2a7658de",
+      "name": "Filter: phone AND email",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        200,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "4f8f9bec-6eee-4e62-8d5f-e8f5b85620d6",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.phone }}",
+              "rightValue": ""
+            },
+            {
+              "id": "007f5a66-4e2a-42bc-bbed-0fb2b2f39ae7",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.email }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "814c954b-749c-4b9a-93ca-70cdf9a48505",
+      "name": "HubSpot: Create or Update",
+      "type": "n8n-nodes-base.hubspot",
+      "position": [
+        420,
+        0
+      ],
+      "parameters": {
+        "email": "={{ $json.email }}",
+        "options": {
+          "resolveData": false
+        },
+        "authentication": "appToken",
+        "additionalFields": {
+          "country": "={{ $json.country }}",
+          "jobTitle": "={{ $json.jobTitle }}",
+          "lastName": "={{ $json.lastName }}",
+          "firstName": "={{ $json.firstName }}",
+          "websiteUrl": "={{ $json.linkedinUrl }}",
+          "companyName": "={{ $json.companyName }}",
+          "phoneNumber": "={{ $json.phone }}"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "25faa3d0-e800-4a68-a7da-b4295f9b03ae",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "notes": "Notify end of enrichement",
+      "position": [
+        640,
+        0
+      ],
+      "webhookId": "b46c028e-8212-40fe-b4d5-0f7c1890585e",
+      "parameters": {
+        "sendTo": "<YOUR_EMAIL>",
+        "message": "Your ICP prospecting enrichment is done.",
+        "options": {},
+        "subject": "Your ICP prospecting enrichment is done."
+      },
+      "executeOnce": true,
+      "notesInFlow": true,
+      "typeVersion": 2.1
+    },
+    {
+      "id": "e6daaf79-f53c-4059-80f7-8bfd2df14ebf",
+      "name": "When clicking ‘Execute workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -1780,
+        125
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "b07b72bb-f631-4e60-9ad8-6cba88df6604",
+      "name": "prepare JSON PAYLOAD WITH Company Domains",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1340,
+        125
+      ],
+      "parameters": {
+        "jsCode": "const companies = $json.companyDomains || [];\n\nreturn {\n    \"companies\": {\n      \"domains\": companies\n    },\n    \"limit\": 20\n  };\n\n"
+      },
+      "typeVersion": 2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9df5b0c2-a0af-4178-85ce-94fd0b835535",
+  "connections": {
+    "Wait 3 secondes": {
+      "main": [
+        [
+          {
+            "node": "Surfe check enrichement status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search ICP Companies": {
+      "main": [
+        [
+          {
+            "node": "prepare JSON PAYLOAD WITH Company Domains",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter: phone AND email": {
+      "main": [
+        [
+          {
+            "node": "HubSpot: Create or Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is enrichment complete ?": {
+      "main": [
+        [
+          {
+            "node": "Extract list of peoples from Surfe API response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait 3 secondes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HubSpot: Create or Update": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search People in Companies": {
+      "main": [
+        [
+          {
+            "node": "Prepare JSON Payload Enrichment Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Surfe Bulk Enrichments API": {
+      "main": [
+        [
+          {
+            "node": "Surfe check enrichement status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Surfe check enrichement status": {
+      "main": [
+        [
+          {
+            "node": "Is enrichment complete ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Search ICP Companies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare JSON Payload Enrichment Request": {
+      "main": [
+        [
+          {
+            "node": "Surfe Bulk Enrichments API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prepare JSON PAYLOAD WITH Company Domains": {
+      "main": [
+        [
+          {
+            "node": "Search People in Companies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract list of peoples from Surfe API response": {
+      "main": [
+        [
+          {
+            "node": "Filter: phone AND email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "description": "## 🚀 Build Hyper-Targeted Prospecting Lists with Surfe & HubSpot\n\nThis template automatically discovers companies that match your Ideal Customer Profile (ICP), finds the right people inside those companies and enriches them — ready to drop straight into HubSpot. Launch the workflow, sit back, and get a clean list of validated prospects in minutes.\n\n---\n\n## 1. ❓ What Problem Does This Solve?\n\nSourcing prospects that truly fit your ICP is slow and repetitive. You jump between databases, copy domains, hunt down decision-makers, and then still have to enrich emails and phone numbers one by one.\n\nThis workflow replaces all that manual effort:\n\n1. It queries Surfe’s database for companies that match your exact industry, size, revenue and geography filters.\n2. It pulls the best-fit people inside each company and enriches them in bulk.\n3. It keeps only records with both a direct email *and* mobile phone, then syncs them to HubSpot automatically.\n\nNo spreadsheets, no copy-paste — just a fresh, qualified prospect list ready for outreach.\n\n---\n\n## 2. 🧰 Prerequisites\n\nYou’ll need:\n\n- A self-hosted or cloud instance of **n8n**\n- A **Surfe API Key**\n- A **HubSpot** Private App Token with contact read/write scopes\n- A **Gmail** account (OAuth2) for the completion notification\n- The workflow JSON file linked above\n    \n    [N8N_FLOW_2__Building_Prospecting_Lists.json](attachment:1d4ec670-711b-4e96-9cca-7556e53f6ba0:N8N_FLOW_2__Building_Prospecting_Lists.json)\n    \n\n---\n\n## 3. 📌 Search ICP Companies Configuration — Fine-Tune Your Targeting\n\n![Screenshot 20250807 at 12.13.11.png](fileId:1984)\n\n### 3.1 Editing the JSON\n\nEvery targeting rule lives inside the **“🔍 Search ICP Companies”** HTTP node.\n\nOpen the node `Search ICP Companies` → `*Parameters* tab` → `*JSON Body*` to edit the filters.\n\n| Filter | JSON path | What it does | Example |\n| --- | --- | --- | --- |\n| **industries** | `filters.industries` | Narrow to specific verticals (case-sensitive strings) | `[\"Software\",\"Apps\",\"SaaS\"]` |\n| **employeeCount.from / to** | `filters.employeeCount` | from / to  | `1 / 35` |\n| **countries** | `filters.countries` | 2-letter ISO codes | `[\"FR\",\"DE\"]` |\n| **revenues** | `filters.revenues` | Annual revenue brackets | `[\"1-10M\"]` |\n| **limit** | `limit` | Companies per run | `20` |\n\n### 3.2 Where to find allowed values\n\nSurfe exposes an **“🗂 Get Filters”** endpoint that returns every accepted value for:\n\n- `industries`\n- `employeeCounts`\n- `revenues`\n- `countries` (always ISO-2 codes)\n\nYou can hit it with a simple `GET /v1/people/search/filters` request or browse the interactive docs here:\n\nhttps://developers.surfe.com/public-008-people-filters [developers.surfe.com](https://developers.surfe.com/public-008-people-filters)\n\nFor company-level searches, the same enumerations apply.\n\n---\n\n## 4. ⚙️ Setup Instructions\n\n### 4.1 🔐 Create Your Credentials in n8n\n\n---\n\n### 4.1.1 🚀 Surfe API\n\n1. In your [Surfe dashboard](https://www.surfe.com/) → Use Surfe Api → copy your **API key**\n2. Go to **n8n → Credentials → Create Credential**\n    1. Choose **Credential Type**: `Bearer Auth`\n    2. Name it something like `SURFE API Key`\n    3. Paste your API key into the `Bearer Token`\n    4. Save\n    \n![Screenshot 20250807 at 12.13.38.png](fileId:1983)\n    \n\n---\n\n### 4.1.2 📧 Gmail OAuth2 API\n\n1. Go to **n8n → Credentials**\n2. Create new credentials:\n    - Type: `Gmail OAuth2 API`\n3. A pop-up window will appear where you can log in with your **Google account** that is linked to Gmail\n    - Make sure you grant **email send permissions** when prompted\n\n![Screenshot 20250807 at 12.14.26.png](fileId:1982)\n\n---\n\n### 4.1.3 🎯 HubSpot\n\n### 🔓 Private App Token\n\n1. Go to HubSpot → Settings → Integrations → **Private Apps**\n    1. Create an app with scopes:\n        - `crm.objects.contacts.read`\n        - `crm.objects.contacts.write`\n        - `crm.schemas.contacts.read`\n    2. **Save the App token**\n2. Go to **n8n → Credentials → Create Credential → HubSpot App Token**\n    1. Paste your App Token\n\n![Screenshot 20250807 at 12.14.52.png](fileId:1987)\n\n![Screenshot 20250807 at 12.15.12.png](fileId:1988)\n\n![Screenshot 20250807 at 12.15.28.png](fileId:1981)\n\n### ✅ You are now all set for the credentials\n\n---\n\n### 4.2 📥 Import and Configure the N8N Workflow\n\n- Import the provided JSON workflow into N8N\n    - Create a New Blank Workflow\n    - click the `…` on the top left\n    - Import from File\n\n![Screenshot 20250807 at 12.16.02.png](fileId:1986)\n\n![Screenshot 20250807 at 12.16.17.png](fileId:1989)\n\n### 4.2.1 🔗 Link Nodes to Your Credentials\n\nIn the workflow, link your newly created credentials to each node of this list :\n\n- `Surfe HTTP nodes:`\n    - Authentication → Generic Credential Type\n    - Generic Auth Type → Bearer Auth\n    - Bearer Auth → Select the credentials you created before\n- `Gmail Node Credentials to connect with` → `Gmail account`\n- `Hubspot Node` →`Credentials to connect with` → `Gmail account`\n\n![Screenshot 20250807 at 12.16.53.png](fileId:1985)\n\n`Surfe HTTP nodes`\n\n`Surfe HTTP nodes`\n\n- HubSpot node → `Credentials to connect with` → select your HubSpot credentials in the list\n\n---\n\n## 5. 🔄 How This N8N Workflow Works\n\n1. **Manual Trigger** – Click **Execute Workflow** (or schedule it) to start.\n2. **Search ICP Companies** – Surfe returns company domains that match your filter set.\n3. **Prepare JSON Payload with Company Domains** – Formats the domain list for the next call.\n4. **Search People in Companies** – Finds people inside each company.\n5. **Prepare JSON Payload Enrichment Request** – Builds the bulk-enrichment request.\n6. **Surfe Bulk Enrichments API** – Launches one enrichment job for the whole batch.\n7. **Wait + Polling loop** – Checks job status every 3 seconds until it’s `COMPLETED`.\n8. **Extract List of People** – Pulls the enriched contacts from Surfe’s response.\n9. **Filter: phone AND email** – Keeps only fully reachable prospects (email *and* mobile).\n10. **HubSpot: Create or Update** – Inserts/updates each contact in HubSpot.\n11. **Gmail** – Sends you a “Your ICP prospecting enrichment is done” email.\n\n---\n\n## 6. 🧩 Use Cases\n\n- **Weekly prospect list refresh** – Generate 50 perfectly-matched prospects every Monday morning.\n- **Territory expansion** – Spin up a list of SMB software CEOs in a new country in minutes.\n- **ABM prep** – Build multi-stakeholder buying-group lists for target accounts.\n- **Campaign-specific lists** – Quickly assemble contacts for a limited-time product launch.\n\n---\n\n## 7. 🛠 Customization Ideas\n\nprepare \n\n- 🎯 **Refine filters for people** – Add seniorities or other filters in the node `JSON PAYLOAD WITH Company Domains`\n    - use the surfe search people api doc https://developers.surfe.com/public-009-search-people-v2\n- ♻️ **Deduplicate** – Check HubSpot first to skip existing contacts.\n- 🟢 **Slack alert** – Replace Gmail with a Slack notification.\n- 📊 **Reporting** – Append enriched contacts to a Google Sheet for analytics.\n\n---\n\n## 8. ✅ Summary\n\nFire off the workflow, and n8n will find ICP-fit companies, pull key people, enrich direct contact data and drop everything into HubSpot — all on autopilot.\n\nProspecting lists, done for you.",
+  "author": "go-surfe",
+  "sourceUrl": "https://n8n.io/workflows/7130/",
+  "sourceMetadata": {
+    "templateId": 7130,
+    "createdAt": "2025-08-07T11:18:02.174Z",
+    "totalViews": 5359,
+    "recentViews": 0,
+    "status": "published",
+    "reviewStatus": "published",
+    "categories": [
+      "Lead Generation"
+    ],
+    "author": {
+      "name": "go-surfe",
+      "username": "go-surfe",
+      "bio": "Save time and sell more with Surfe's API via n8n workflows.\n\n- Accurate data you can trust\n- Results in milliseconds\n- Scalable and versatile \n- Full automation\n\nFor more check out:\n💻 https://www.surfe.com?utm_source=n8n\n🔗 https://www.linkedin.com/company/surfe/\n👾 https://github.com/surfe/api-examples",
+      "verified": true,
+      "links": [
+        ""
+      ],
+      "avatar": "https://gravatar.com/avatar/ec4663445e119923bc4d830116a4bf6368bfe19b3748a553e386eb0bef027067?r=pg&d=retro&size=200"
+    },
+    "workflowInfo": {
+      "nodeCount": 13,
+      "nodeTypes": {
+        "n8n-nodes-base.if": {
+          "count": 1
+        },
+        "n8n-nodes-base.code": {
+          "count": 3
+        },
+        "n8n-nodes-base.wait": {
+          "count": 1
+        },
+        "n8n-nodes-base.gmail": {
+          "count": 1
+        },
+        "n8n-nodes-base.filter": {
+          "count": 1
+        },
+        "n8n-nodes-base.hubspot": {
+          "count": 1
+        },
+        "n8n-nodes-base.httpRequest": {
+          "count": 4
+        },
+        "n8n-nodes-base.manualTrigger": {
+          "count": 1
+        }
+      }
+    }
+  }
+}

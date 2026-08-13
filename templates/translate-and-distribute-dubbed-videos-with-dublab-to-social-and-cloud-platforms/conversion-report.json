@@ -1,0 +1,74 @@
+{
+  "sourceWorkflowName": "Translate and distribute dubbed videos with DubLab to social and cloud platforms",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 12,
+  "totalNodes": 18,
+  "coverage": 0.6667,
+  "diagnostics": [
+    {
+      "code": "CODE_RUNTIME_UNSUPPORTED",
+      "message": "Inline JavaScript uses unsupported n8n runtime features: binary data",
+      "severity": "warning",
+      "node_name": "Combine Videos and Languages",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.code is not safely supported.",
+      "severity": "warning",
+      "node_name": "Combine Videos and Languages",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Telegram message/sendVideo requires text and chatId for deterministic conversion.",
+      "severity": "warning",
+      "node_name": "Telegram",
+      "node_type": "n8n-nodes-base.telegram",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.telegram is not safely supported.",
+      "severity": "warning",
+      "node_name": "Telegram",
+      "node_type": "n8n-nodes-base.telegram",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.box.",
+      "severity": "warning",
+      "node_name": "Box",
+      "node_type": "n8n-nodes-base.box",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.dropbox.",
+      "severity": "warning",
+      "node_name": "Dropbox",
+      "node_type": "n8n-nodes-base.dropbox",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.youTube.",
+      "severity": "warning",
+      "node_name": "YouTube",
+      "node_type": "n8n-nodes-base.youTube",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.formTrigger.",
+      "severity": "warning",
+      "node_name": "Start",
+      "node_type": "n8n-nodes-base.formTrigger",
+      "json_path": null
+    }
+  ]
+}

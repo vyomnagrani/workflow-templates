@@ -1,0 +1,114 @@
+{
+  "sourceWorkflowName": "Recover overdue invoices with GPT-4o-mini, Gmail, Google Sheets and Slack",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 13,
+  "totalNodes": 19,
+  "coverage": 0.6842,
+  "diagnostics": [
+    {
+      "code": "IF_REGION_UNSUPPORTED",
+      "message": "IF branches overlap or have external inputs, so nesting them would change behavior.",
+      "severity": "warning",
+      "node_name": "Any Overdue Invoices?",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.agent.",
+      "severity": "warning",
+      "node_name": "AI Recovery Agent",
+      "node_type": "@n8n/n8n-nodes-langchain.agent",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "AI Recovery Agent",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.if is not safely supported.",
+      "severity": "warning",
+      "node_name": "Any Overdue Invoices?",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOpenAi.",
+      "severity": "warning",
+      "node_name": "GPT-4o-mini Language Model",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Parse & Structure AI Response",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Google Sheets operation 'update' is not safely equivalent to a single LAA connector action.",
+      "severity": "warning",
+      "node_name": "Update Invoice Status in Sheet",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.googleSheets is not safely supported.",
+      "severity": "warning",
+      "node_name": "Update Invoice Status in Sheet",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Append Row to Recovery Log",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.slack.",
+      "severity": "warning",
+      "node_name": "Slack: AI Error Alert",
+      "node_type": "n8n-nodes-base.slack",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Slack: AI Error Alert",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.slack.",
+      "severity": "warning",
+      "node_name": "Slack: No Invoices Found Alert",
+      "node_type": "n8n-nodes-base.slack",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Slack: No Invoices Found Alert",
+      "node_type": null,
+      "json_path": null
+    }
+  ]
+}

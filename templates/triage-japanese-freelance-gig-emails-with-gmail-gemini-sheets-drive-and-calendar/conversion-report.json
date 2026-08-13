@@ -1,0 +1,218 @@
+{
+  "sourceWorkflowName": "Triage Japanese freelance gig emails with Gmail, Gemini, Sheets, Drive, and Calendar",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 15,
+  "totalNodes": 29,
+  "coverage": 0.5172,
+  "diagnostics": [
+    {
+      "code": "TRIGGER_MISSING",
+      "message": "No supported n8n trigger was found.",
+      "severity": "warning",
+      "node_name": null,
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Code: Detect Japanese red flags",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.gmailTrigger.",
+      "severity": "warning",
+      "node_name": "Gmail Trigger: New project inquiry",
+      "node_type": "n8n-nodes-base.gmailTrigger",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ [\"n8n workflow setup\",\"AI automation\",\"YouTube script writing\",\"sales copywriting\",\"proposal document creation\",\"Google Sheets automation\"] }}",
+      "severity": "warning",
+      "node_name": "Set config: Freelancer settings",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ [\"AI automation\",\"workflow design\",\"YouTube production\",\"writing\",\"sales support\",\"document creation\"] }}",
+      "severity": "warning",
+      "node_name": "Set config: Freelancer settings",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ [\"簡単\",\"誰でもできます\",\"初心者歓迎\",\"修正無制限\",\"納得いくまで\",\"いい感じに\",\"丸投げ\",\"格安\",\"予算がありません\",\"本日中\",\"明日まで\",\"急ぎ\",\"成果報酬\",\"まずは低単価\",\"継続前提\",\"テストで安く\",\"無料で\",\"サンプルとして\"] }}",
+      "severity": "warning",
+      "node_name": "Set config: Freelancer settings",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Code: Normalize Gmail message",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.googleGemini.",
+      "severity": "warning",
+      "node_name": "Gemini: Analyze side gig request",
+      "node_type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Code: Parse AI result and score request",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleDrive.",
+      "severity": "warning",
+      "node_name": "Drive: Create project folder",
+      "node_type": "n8n-nodes-base.googleDrive",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleDocs.",
+      "severity": "warning",
+      "node_name": "Docs: Create delivery checklist",
+      "node_type": "n8n-nodes-base.googleDocs",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleCalendar.",
+      "severity": "warning",
+      "node_name": "Calendar: Create tentative work block",
+      "node_type": "n8n-nodes-base.googleCalendar",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Gmail draft/send is not mapped to a deterministic LAA action.",
+      "severity": "warning",
+      "node_name": "Gmail: Create accept draft",
+      "node_type": "n8n-nodes-base.gmail",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.gmail is not safely supported.",
+      "severity": "warning",
+      "node_name": "Gmail: Create accept draft",
+      "node_type": "n8n-nodes-base.gmail",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Code: Build project documents",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleDocs.",
+      "severity": "warning",
+      "node_name": "Docs: Create scope lock document",
+      "node_type": "n8n-nodes-base.googleDocs",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleDocs.",
+      "severity": "warning",
+      "node_name": "Docs: Create portfolio memo",
+      "node_type": "n8n-nodes-base.googleDocs",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Google Sheets operation 'appendOrUpdate' is not safely equivalent to a single LAA connector action.",
+      "severity": "warning",
+      "node_name": "Sheets: Update generated links",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.googleSheets is not safely supported.",
+      "severity": "warning",
+      "node_name": "Sheets: Update generated links",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleDocs.",
+      "severity": "warning",
+      "node_name": "Docs: Insert scope lock body",
+      "node_type": "n8n-nodes-base.googleDocs",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleDocs.",
+      "severity": "warning",
+      "node_name": "Docs: Insert checklist body",
+      "node_type": "n8n-nodes-base.googleDocs",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleDocs.",
+      "severity": "warning",
+      "node_name": "Docs: Insert portfolio memo body",
+      "node_type": "n8n-nodes-base.googleDocs",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Gmail draft/send is not mapped to a deterministic LAA action.",
+      "severity": "warning",
+      "node_name": "Gmail: Create clarification draft",
+      "node_type": "n8n-nodes-base.gmail",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.gmail is not safely supported.",
+      "severity": "warning",
+      "node_name": "Gmail: Create clarification draft",
+      "node_type": "n8n-nodes-base.gmail",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Gmail draft/send is not mapped to a deterministic LAA action.",
+      "severity": "warning",
+      "node_name": "Gmail: Create decline draft",
+      "node_type": "n8n-nodes-base.gmail",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.gmail is not safely supported.",
+      "severity": "warning",
+      "node_name": "Gmail: Create decline draft",
+      "node_type": "n8n-nodes-base.gmail",
+      "json_path": null
+    }
+  ]
+}

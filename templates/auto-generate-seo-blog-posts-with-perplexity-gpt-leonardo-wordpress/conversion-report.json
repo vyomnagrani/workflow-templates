@@ -1,0 +1,74 @@
+{
+  "sourceWorkflowName": "Auto-generate SEO blog posts with Perplexity, GPT, Leonardo & WordPress",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 16,
+  "totalNodes": 19,
+  "coverage": 0.8421,
+  "diagnostics": [
+    {
+      "code": "IF_REGION_UNSUPPORTED",
+      "message": "IF branches overlap or have external inputs, so nesting them would change behavior.",
+      "severity": "warning",
+      "node_name": "If",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={\n  \"model\": \"sonar-pro\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Eres un asistente experto en generar artículos SEO en español neutro sobre startups tecnológicas. El tono debe ser educativo, práctico, reflexivo e inspirador.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Redacta un artículo basado en la tendencia más relevante del ecosistema de startups tecnológicas hispanohablantes del día.\\n\\nDevuelve la respuesta estrictamente en formato JSON con esta estructura:\\n{\\n  \\\"title\\\": \\\"[título atractivo en una sola línea]\\\",\\n  \\\"content\\\": \\\"[cuerpo del artículo en HTML limpio, sin caracteres escapados, sin markdown, sin saltos \\\\n, y sin comentarios externos. Usar solo etiquetas estándar de HTML como <p>, <h2>, <ul>, <li>, <strong> y <em>. No uses etiquetas personalizadas ni scripts.]\\\"\\n}\\n\\nEl artículo debe:\\n- Tener entre 1000 y 1500 palabras.\\n- Incluir subtítulos usando <h2>.\\n- Iniciar con un gancho atractivo de máximo 3 frases dentro de <p>.\\n- Incluir al menos 2 datos estadísticos actuales con fuente (en texto).\\n- Ofrecer mínimo 3 consejos útiles, en formato de lista con <ul> y <li>.\\n- Terminar con una reflexión motivadora e invitación a sumarse a la comunidad (sin enlaces).\\n- Usar naturalmente palabras clave como: startups tecnológicas, innovación, emprendimiento, inversión, comunidad.\\n\\nNo agregues ningún texto ni explicación fuera del objeto JSON.\"\n    }\n  ]\n}\n",
+      "severity": "warning",
+      "node_name": "Research Topic- Perplexity",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.openAi.",
+      "severity": "warning",
+      "node_name": "Message a model",
+      "node_type": "@n8n/n8n-nodes-langchain.openAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.if is not safely supported.",
+      "severity": "warning",
+      "node_name": "If",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Wait",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Google Sheets operation 'appendOrUpdate' is not safely equivalent to a single LAA connector action.",
+      "severity": "warning",
+      "node_name": "Publicaciones Wordpress Startups y Tecnología",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.googleSheets is not safely supported.",
+      "severity": "warning",
+      "node_name": "Publicaciones Wordpress Startups y Tecnología",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Get Title, Content, and Image FileName",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    }
+  ]
+}

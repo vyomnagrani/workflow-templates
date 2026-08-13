@@ -1,0 +1,254 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "automate-email-campaign-analysis-smart-follow-ups-with-bright-data-openai",
+    "name": "Automate email campaign analysis & smart follow-ups with Bright Data & OpenAI",
+    "description": "*This workflow contains community nodes that are only compatible with the self-hosted version of n8n.*\n\nThis workflow automatically tracks email campaign performance metrics and triggers smart follow-up actions based on engagement data. It saves you time by eliminating the need to manually monitor campaign reports and provides intelligent re-engagement strategies for improving email marketing ROI.\n\n## Overview\n\nThis workflow automatically scrapes email service provider (ESP) reports to extract campaign performance metrics like open rates, click-through rates, and bounce rates. It uses AI to analyze the data and automatically sends targeted follow-up emails to re-engage subscribers who opened but didn't click, maximizing campaign effectiveness.\n\n## Tools Used\n\n- **n8n**: The automation platform that orchestrates the workflow\n- **Bright Data**: For scraping ESP campaign reports without being blocked\n- **OpenAI**: AI agent for intelligent campaign data analysis and decision making\n- **Gmail**: For sending automated follow-up engagement emails\n\n## How to Install\n\n1. **Import the Workflow**: Download the .json file and import it into your n8n instance\n2. **Configure Bright Data**: Add your Bright Data credentials to the MCP Client node\n3. **Set Up OpenAI**: Configure your OpenAI API credentials\n4. **Configure Gmail**: Connect your Gmail account for sending follow-up emails\n5. **Customize**: Set ESP report URLs and define engagement thresholds for triggering follow-ups\n\n## Use Cases\n\n- **Email Marketing**: Automatically optimize campaign performance with smart follow-ups\n- **Marketing Automation**: Trigger re-engagement campaigns based on behavior data\n- **Performance Tracking**: Monitor email metrics without manual ESP login\n- **Customer Retention**: Re-engage subscribers who showed interest but didn't convert\n\n## Connect with Me\n\n- **Website**: https://www.nofluff.online\n- **YouTube**: https://www.youtube.com/@YaronBeen/videos\n- **LinkedIn**: https://www.linkedin.com/in/yaronbeen/\n- **Get Bright Data**: https://get.brightdata.com/1tndi4600b25 (Using this link supports my free workflows with a small commission)\n\n#n8n #automation #emailmarketing #campaigntracking #brightdata #webscraping #emailautomation #n8nworkflow #workflow #nocode #emailcampaigns #marketingautomation #emailperformance #campaignanalysis #emailmetrics #reengagement #marketingdata #emailoptimization #campaignmonitoring #emailanalytics #digitalmarketing #performancetracking #emailstrategy #conversionoptimization #marketinganalytics #emailroi #campaigninsights #emailengagement #marketingefficiency #automatedemail",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Social Media",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/gmail",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Daily_Campaign_Check_Trigger": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Set_Campaign_Input_Fields": {
+          "type": "Compose",
+          "inputs": {
+            "url": "=https://www.mailchimp.com/campaigns/123/report"
+          },
+          "runAfter": {}
+        },
+        "Agent_Scrape_Analyze_Campaign_Performance": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "🤖 Agent: Scrape & Analyze Campaign Performance",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "Auto_fixing_Output_Parser": [
+              "Succeeded"
+            ],
+            "LLM_Summarize_Format": [
+              "Succeeded"
+            ],
+            "Set_Campaign_Input_Fields": [
+              "Succeeded"
+            ],
+            "Bright_Data_MCP_Scrape_Report": [
+              "Succeeded"
+            ]
+          }
+        },
+        "LLM_Summarize_Format": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "🧠 LLM: Summarize & Format",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Bright_Data_MCP_Scrape_Report": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "🌐 Bright Data MCP: Scrape Report",
+            "n8nNodeType": "n8n-nodes-mcp.mcpClientTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "toolName": "scrape_as_markdown",
+              "operation": "executeTool",
+              "toolParameters": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Tool_Parameters', ``, 'json') }}"
+            }
+          },
+          "runAfter": {}
+        },
+        "IF_Open_30_CTR_10": {
+          "type": "If",
+          "expression": {
+            "and": [
+              {
+                "greaterOrEquals": [
+                  "@body('Agent_Scrape_Analyze_Campaign_Performance')?['open_rate']",
+                  20
+                ]
+              },
+              {
+                "less": [
+                  "@body('Agent_Scrape_Analyze_Campaign_Performance')?['ctr']",
+                  130
+                ]
+              }
+            ]
+          },
+          "actions": {
+            "Send_Follow_Up_Engagement_Email": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "referenceName": "gmail_#workflowname#"
+                  }
+                },
+                "method": "post",
+                "path": "/v2/Mail",
+                "body": {
+                  "To": "user@example.com",
+                  "Subject": "Did you miss this? Here’s something special for you!",
+                  "Body": "Hi [First Name],  \nWe noticed you opened our recent email — thank you for staying connected! \n🙌 But we think you might have missed the best part…  \n👉 [Big Benefit or Offer — e.g., “Get 20% off your next order — today only!”]  \nWe don’t want you to miss out — just click below and grab your exclusive [deal / resource / upgrade].  \n[CTA Button: “Claim Your Offer”]  Still not sure? We’re here to help if you have any questions. Just hit reply — we love hearing from you!  Talk soon, [Your Name] [Your Company]"
+                }
+              },
+              "metadata": {
+                "flowSystemMetadata": {
+                  "swaggerOperationId": "SendEmailV2"
+                }
+              },
+              "runAfter": {}
+            }
+          },
+          "else": {
+            "actions": {
+              "Skip_No_Action_Needed": {
+                "type": "Compose",
+                "inputs": {},
+                "runAfter": {}
+              }
+            }
+          },
+          "runAfter": {
+            "Agent_Scrape_Analyze_Campaign_Performance": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Auto_fixing_Output_Parser": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Auto-fixing Output Parser",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ],
+            "Structured_Output_Parser": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenAI_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Structured_Output_Parser": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Structured Output Parser",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsonSchemaExample": "{\n  \"campaign_name\": \"Summer Promo Blast\",\n  \"campaign_id\": \"123456789\",\n  \"date_sent\": \"2025-06-29\",\n  \"unique_opens\": 1230,\n  \"total_opens\": 1590,\n  \"open_rate\": 47,\n  \"unique_clicks\": 530,\n  \"total_clicks\": 670,\n  \"ctr\": 20,\n  \"soft_bounces\": 25,\n  \"hard_bounces\": 10,\n  \"bounce_rate\": 1.8,\n  \"unsubscribed\": 15,\n  \"unsubscribe_rate\": 0.6\n}\n"
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Daily_Campaign_Check_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "gmail_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/gmail"
+    }
+  }
+}

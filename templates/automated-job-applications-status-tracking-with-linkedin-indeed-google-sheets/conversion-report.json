@@ -1,0 +1,138 @@
+{
+  "sourceWorkflowName": "Automated job applications & status tracking with LinkedIn, Indeed & Google Sheets",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 19,
+  "totalNodes": 24,
+  "coverage": 0.7917,
+  "diagnostics": [
+    {
+      "code": "SWITCH_RULES_MISSING",
+      "message": "Switch node has no explicit rule definitions to translate.",
+      "severity": "warning",
+      "node_name": "🔀 Route by Platform",
+      "node_type": "n8n-nodes-base.switch",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.filter.",
+      "severity": "warning",
+      "node_name": "🎯 Filter Pending Applications",
+      "node_type": "n8n-nodes-base.filter",
+      "json_path": null
+    },
+    {
+      "code": "LOOP_SEMANTICS_UNSUPPORTED",
+      "message": "This n8n loop requires a bounded LAA Foreach/Until region; batch size, reset, and loop-back behavior must be preserved explicitly.",
+      "severity": "warning",
+      "node_name": "🔄 Process Jobs One by One",
+      "node_type": "n8n-nodes-base.splitInBatches",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =position",
+      "severity": "warning",
+      "node_name": "📝 Prepare Application Data",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =company",
+      "severity": "warning",
+      "node_name": "📝 Prepare Application Data",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =skills",
+      "severity": "warning",
+      "node_name": "📝 Prepare Application Data",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $now.format('yyyy-MM-dd') }}",
+      "severity": "warning",
+      "node_name": "📝 Prepare Application Data",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.switch is not safely supported.",
+      "severity": "warning",
+      "node_name": "🔀 Route by Platform",
+      "node_type": "n8n-nodes-base.switch",
+      "json_path": null
+    },
+    {
+      "code": "HTTP_TIMEOUT_REVIEW",
+      "message": "n8n HTTP timeout has no direct generic WDL input mapping and requires review.",
+      "severity": "warning",
+      "node_name": "💼 Apply via LinkedIn",
+      "node_type": "n8n-nodes-base.httpRequest",
+      "json_path": null
+    },
+    {
+      "code": "HTTP_TIMEOUT_REVIEW",
+      "message": "n8n HTTP timeout has no direct generic WDL input mapping and requires review.",
+      "severity": "warning",
+      "node_name": "🔍 Apply via Indeed",
+      "node_type": "n8n-nodes-base.httpRequest",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "🔍 Apply via Indeed",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $json.body?.applicationId || $json.body?.id || 'AUTO_' + $now.format('yyyyMMddHHmmss') }}",
+      "severity": "warning",
+      "node_name": "📊 Process Application Result",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.filter.",
+      "severity": "warning",
+      "node_name": "🎯 Filter Applied Jobs",
+      "node_type": "n8n-nodes-base.filter",
+      "json_path": null
+    },
+    {
+      "code": "LOOP_SEMANTICS_UNSUPPORTED",
+      "message": "This n8n loop requires a bounded LAA Foreach/Until region; batch size, reset, and loop-back behavior must be preserved explicitly.",
+      "severity": "warning",
+      "node_name": "🔄 Check Status One by One",
+      "node_type": "n8n-nodes-base.splitInBatches",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ ['Applied', 'Under Review', 'Interview Scheduled', 'Rejected'][Math.floor(Math.random() * 4)] }}",
+      "severity": "warning",
+      "node_name": "🔍 Mock Status Check",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $now.format('yyyy-MM-dd') }}",
+      "severity": "warning",
+      "node_name": "🔍 Mock Status Check",
+      "node_type": null,
+      "json_path": null
+    }
+  ]
+}

@@ -1,0 +1,263 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "track-google-keyword-rankings-with-apify-openai-google-sheets-and-gmail",
+    "name": "Track Google keyword rankings with Apify, OpenAI, Google Sheets and Gmail",
+    "description": "## Quick overview\nThis workflow runs daily to scrape Google SERPs for a list of keywords using Apify, logs ranking results to Google Sheets, generates an HTML SEO summary with OpenAI, and emails the report via Gmail.\n\n## How it works\n1. Runs every day at 8 AM on a schedule.\n2. Reads the configured keywords, target domain, locale settings, and report recipient, then splits the comma-separated keywords into individual items.\n3. For each keyword, calls the Apify Google Search Scraper API to fetch the top organic Google results for the chosen country and language.\n4. Extracts each result into ranking rows (date, keyword, position, title, URL, domain, description) and flags whether the result matches the target domain.\n5. Appends the ranking rows to a Google Sheets spreadsheet to build a daily ranking history.\n6. Aggregates all collected rankings and sends them to OpenAI to generate a concise HTML SEO report with your positions, top competitors, and prioritized opportunities.\n7. Sends the HTML report to the configured recipient using Gmail.\n\n## Setup\n1. Add an Apify API token (HTTP header auth) and select it in the Apify request step.\n2. Add a Google Sheets OAuth connection, select the target spreadsheet and sheet tab, and ensure the sheet has columns for checked_at, keyword, rank, title, url, domain, description, and is_target_domain.\n3. Add an OpenAI API key and select it for the OpenAI Chat Model used to generate the report.\n4. Add a Gmail OAuth connection to send email, then set your keywords, target domain, country/language codes, results per keyword, OpenAI model, and recipient email in the Configuration step.\n\n## Additional info\n# Track keyword rankings on Google with Apify and send AI SEO reports by email\n# 📥  [Open full documentation on Notion](https://automatisation.notion.site/Course-Track-keyword-rankings-on-Google-with-Apify-and-send-AI-SEO-reports-by-email-39d3d6550fd981078ad0fc8553e63a21)\n\n## Need help customizing?\nContact me for consulting and support : [Linkedin](https://www.linkedin.com/in/doctor-firass/)\n\n# MY NEW YOUTUBE CHANNEL\n👉 [Subscribe to my new YouTube channel](https://www.youtube.com/@DrFiras_AI). Here I'll share videos and Shorts with practical tutorials and FREE templates for n8n.\n\n[![The AI Doctor](https://www.dr-firas.com/the-ai-doctor.png)](https://www.youtube.com/@DrFiras_AI)",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Market Research",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/gmail",
+      "/managedApis/googlesheet",
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Run_daily_at_8_AM": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Configuration": {
+          "type": "Compose",
+          "inputs": {
+            "keywords": "best running shoes, trail running shoes",
+            "target_domain": "yourwebsite.com",
+            "country_code": "us",
+            "language_code": "en",
+            "results_per_keyword": 10,
+            "openai_model": "gpt-4o",
+            "report_email": "you@example.com"
+          },
+          "runAfter": {}
+        },
+        "Prepare_keyword_list": {
+          "type": "Compose",
+          "inputs": {
+            "keyword_list": "@body('Configuration')?['keywords']?['split'](\",\").map(k => k.trim()).filter(k => k.length > 0)"
+          },
+          "runAfter": {
+            "Configuration": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Split_keywords_into_items": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Split keywords into items",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "destinationFieldName": "keyword"
+              },
+              "fieldToSplitOut": "keyword_list"
+            }
+          },
+          "runAfter": {
+            "Prepare_keyword_list": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Scrape_Google_results_with_Apify": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.apify.com/v2/acts/apify~google-search-scraper/run-sync-get-dataset-items",
+            "body": "@JSON.stringify({ queries: body('Split_keywords_into_items')?['keyword'], countryCode: first(body('Configuration'))?['country_code'], languageCode: first(body('Configuration'))?['language_code'], resultsPerPage: first(body('Configuration'))?['results_per_keyword'], maxPagesPerQuery: 1, mobileResults: false })"
+          },
+          "runAfter": {
+            "Split_keywords_into_items": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_and_rank_SERP_results": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Scrape_Google_results_with_Apify'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst config = __node('Configuration').first().json;\nconst targetDomain = String(config.target_domain || '').toLowerCase().replace(/^www\\./, '');\nconst checkedAt = new Date().toISOString().slice(0, 10);\nconst rows = [];\n\nfor (const item of $input.all()) {\n  const page = item.json;\n  const keyword = (page.searchQuery && page.searchQuery.term) ? page.searchQuery.term : '';\n  const results = Array.isArray(page.organicResults) ? page.organicResults : [];\n\n  for (let i = 0; i < results.length; i++) {\n    const r = results[i];\n    let domain = '';\n    try {\n      domain = new URL(r.url).hostname.toLowerCase().replace(/^www\\./, '');\n    } catch (e) {\n      domain = '';\n    }\n\n    rows.push({\n      json: {\n        checked_at: checkedAt,\n        keyword: keyword,\n        rank: r.position || (i + 1),\n        title: r.title || '',\n        url: r.url || '',\n        domain: domain,\n        description: r.description || '',\n        is_target_domain: targetDomain !== '' && domain.endsWith(targetDomain)\n      }\n    });\n  }\n}\n\nreturn rows;\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Scrape_Google_results_with_Apify": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Log_rankings_to_Google_Sheets": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_SPREADSHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_WORKSHEET'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Extract_and_rank_SERP_results": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Combine_rankings_for_AI_analysis": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Combine rankings for AI analysis",
+            "n8nNodeType": "n8n-nodes-base.aggregate",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "aggregate": "aggregateAllItemData",
+              "destinationFieldName": "rankings"
+            }
+          },
+          "runAfter": {
+            "Log_rankings_to_Google_Sheets": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Generate_AI_SEO_report": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Generate AI SEO report",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chainLlm",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=Here is the Google SERP ranking data collected today for my tracked keywords.\n\nTarget domain to monitor: {{ $(\"Configuration\").first().json.target_domain }}\nKeywords tracked: {{ $(\"Configuration\").first().json.keywords }}\nDate: {{ $now.toFormat(\"yyyy-MM-dd\") }}\n\nRanking data (JSON):\n{{ JSON.stringify($json.rankings) }}\n\nWrite the SEO report now.",
+              "batching": {},
+              "messages": {
+                "messageValues": [
+                  {
+                    "message": "You are a senior SEO analyst. You receive raw Google SERP ranking data (keyword, rank, title, url, domain, is_target_domain) and produce a concise, actionable SEO report.\n\nYour report must contain:\n1. A short executive summary (2-3 sentences).\n2. For each keyword: the current position of the target domain (or state clearly that it is not ranking in the tracked results), and the top 3 competitors with their positions.\n3. A \"Key opportunities\" section with 3-5 concrete, prioritized SEO actions based on the data.\n\nFormat the entire report as clean, simple HTML (use only h2, h3, p, ul, li, strong tags - no markdown, no CSS, no html/head/body wrapper). Keep it under 500 words. Be factual: never invent rankings that are not in the data."
+                  }
+                ]
+              },
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ],
+            "Combine_rankings_for_AI_analysis": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenAI_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $('Configuration').first().json.openai_model }}"
+              },
+              "options": {},
+              "builtInTools": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Email_the_SEO_report": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "gmail_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/v2/Mail",
+            "body": {
+              "To": "@first(body('Configuration'))?['report_email']",
+              "Subject": "=SEO ranking report - {{ $now.toFormat(\"yyyy-MM-dd\") }}",
+              "Body": "@body('Generate_AI_SEO_report')?['text']"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendEmailV2"
+            }
+          },
+          "runAfter": {
+            "Generate_AI_SEO_report": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Run_daily_at_8_AM",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    },
+    "gmail_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/gmail"
+    }
+  }
+}

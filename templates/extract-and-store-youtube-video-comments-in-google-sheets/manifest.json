@@ -1,0 +1,532 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "extract-and-store-youtube-video-comments-in-google-sheets",
+    "name": "Extract and store YouTube video comments in Google Sheets",
+    "description": "### This n8n template demonstrates how to use the tool to crawl comments from a YouTube video and simply get all the results in a linked Google Sheet.\n\nUse cases are many: Whether you're **a YouTube creator** trying to understand your audience, **a marketer** running sample analysis, **a data analyst** compiling engagement metrics, or part of **a growth team** tracking YouTube or social media campaign performance, this workflow helps you extract real, actionable insights from YouTube video comments at scale.\n\n## How It Works\n- The workflow starts when you manually click **Test Workflow** or **Execute Workflow** in N8N.\n- It reads the list of YouTube video URLs from the **Video URLs** tab in the connected **YouTube – Get Video Comments** Google Sheet. Only the URLs marked with the **Ready** status will be processed.\n- The tool loops through each video and sends an HTTP request to the YouTube API to fetch comment data.\n- Then, it checks whether the request is successful before continuing.\n- If comments are found, they are split and processed.\n- Each comment is then inserted in the **Results** tab of the connected **YouTube – Get Video Comments** Google Sheet.\n- Once a URL has been finished, its status in the **Video URLs** tab of the **YouTube – Get Video Comments** Google Sheet is updated to **Finished**.\n\n## How To Use\n- Download the workflow package. \n- Import the workflow package into your N8N interface.\n- Duplicate the [**\"YouTube - Get Video Comments\"** Google Sheet template](https://docs.google.com/spreadsheets/d/1F5yEhjBWu3fnwgHGLsPLD9_tWRqUnxu4p0DEvUTae1Y/edit?gid=426418282#gid=426418282) into your Google Sheets account.\n- Set up **Google Cloud Console** credentials in the following nodes in N8N, ensuring enabled access and suitable rights to Google Sheets and YouTube services:\n    + For Google Sheets access, ensure each node is properly connected to the correct tab in your connected Google Sheet template: \n         Node **Google Sheets - Get Video URLs** → connected to the **Video URLs** tab; \n         Node **Google Sheets - Insert/Update Comment** → connected to the **Results** tab; \n         Node **Google Sheets - Update Status** connected to the **Video URLs** tab.\n    + For YouTube access: Set up a GET method in Node **HTTP Request - Get Comments**.\n- Open the template in your Google Sheets account. In the tab **Video URLs**, fill in the video URLs you want to crawl in **Column B** and update the status for each row in **Column A** to **Ready**.\n- Return to the N8N interface and click **Execute Workflow**.\n- Check the results in the **Results** tab of the template - the collected comments will appear there.\n\n## Requirements\n- Basic setup in Google Cloud Console (OAuth or API Key method enabled) with enabled access to YouTube and Google Sheets.\n\n## How To Customize\n- By default, the workflow is manually triggered in N8N. However, you can automate the process by adding a Google Sheets trigger that monitors new entries in your connected **YouTube – Get Video Comments** template and starts the workflow automatically.\n\n## Need Help?\nJoin our community on different platforms for support, inspiration and tips from others.\n\nWebsite: https://www.agentcircle.ai/\nEtsy: https://www.etsy.com/shop/AgentCircle\nGumroad: http://agentcircle.gumroad.com/\nDiscord Global: https://discord.gg/d8SkCzKwnP\nFB Page Global: https://www.facebook.com/agentcircle/\nFB Group Global: https://www.facebook.com/groups/aiagentcircle/\nX: https://x.com/agent_circle\nYouTube: https://www.youtube.com/@agentcircle\nLinkedIn: https://www.linkedin.com/company/agentcircle",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Market Research",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "connectionProviders/Http",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Test_Workflow": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "If_Check_Video_Url_is_Not_Empty": {
+          "type": "If",
+          "expression": {
+            "not": {
+              "empty": [
+                "@body('Google_Sheets_Get_Video_URLs')?['video_url']"
+              ]
+            }
+          },
+          "actions": {
+            "Split_Out": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Split Out",
+                "n8nNodeType": "n8n-nodes-base.splitOut",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "fieldToSplitOut": "body.items"
+                }
+              },
+              "runAfter": {
+                "If_Check_Success_Response": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "If_Check_Success_Response": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "If - Check Success Response",
+                "n8nNodeType": "n8n-nodes-base.if",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "strict"
+                    },
+                    "combinator": "and",
+                    "conditions": [
+                      {
+                        "id": "bce76f94-5904-4fdb-b172-adc1134855f9",
+                        "operator": {
+                          "type": "number",
+                          "operation": "equals"
+                        },
+                        "leftValue": "={{ $json.statusCode }}",
+                        "rightValue": 200
+                      }
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "HTTP_Request_Get_Comments": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Google_Sheets_Update_Status": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Google Sheets - Update Status",
+                "n8nNodeType": "n8n-nodes-base.googleSheets",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "columns": {
+                    "value": {
+                      "status": "finish",
+                      "row_number": "={{ $('Google Sheets - Get Video URLs').item.json.row_number }}",
+                      "last_fetched_time": "={{ $now.toISO().toString().slice(0, 19).replace('T', ' ') }}"
+                    },
+                    "schema": [
+                      {
+                        "id": "status",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "required": false,
+                        "displayName": "status",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "video_url",
+                        "type": "string",
+                        "display": true,
+                        "removed": true,
+                        "required": false,
+                        "displayName": "video_url",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "last_fetched_time",
+                        "type": "string",
+                        "display": true,
+                        "required": false,
+                        "displayName": "last_fetched_time",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "row_number",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "row_number",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      }
+                    ],
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [
+                      "row_number"
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                  },
+                  "options": {},
+                  "operation": "update",
+                  "sheetName": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": 426418282,
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18-3CmJPbC73MycmNiSWotdsyGBAAzqESf33vktwnYmM/edit#gid=426418282",
+                    "cachedResultName": "Video URLs"
+                  },
+                  "documentId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "1F5yEhjBWu3fnwgHGLsPLD9_tWRqUnxu4p0DEvUTae1Y",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F5yEhjBWu3fnwgHGLsPLD9_tWRqUnxu4p0DEvUTae1Y/edit?usp=drivesdk",
+                    "cachedResultName": "YouTube - Crawl Video Comments"
+                  }
+                }
+              },
+              "runAfter": {
+                "Google_Sheets_Insert_Update_Comment": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Loop_Over_Items": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Loop Over Items",
+                "n8nNodeType": "n8n-nodes-base.splitInBatches",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {}
+                }
+              },
+              "runAfter": {
+                "Google_Sheets_Update_Status": [
+                  "Succeeded"
+                ],
+                "Google_Sheets_Update_Status_Error": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "HTTP_Request_Get_Comments": {
+              "type": "Http",
+              "inputs": {
+                "method": "GET",
+                "uri": "https://www.googleapis.com/youtube/v3/commentThreads"
+              },
+              "runAfter": {
+                "Loop_Over_Items": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "If_Check_Comment_Exists": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "If - Check Comment Exists",
+                "n8nNodeType": "n8n-nodes-base.if",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "strict"
+                    },
+                    "combinator": "and",
+                    "conditions": [
+                      {
+                        "id": "e4d47098-097d-4fd7-9703-638858f9565a",
+                        "operator": {
+                          "type": "string",
+                          "operation": "exists",
+                          "singleValue": true
+                        },
+                        "leftValue": "={{ $json.snippet.videoId }}",
+                        "rightValue": ""
+                      }
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "Split_Out": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Google_Sheets_Insert_Update_Comment": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Google Sheets - Insert/Update Comment",
+                "n8nNodeType": "n8n-nodes-base.googleSheets",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "columns": {
+                    "value": {
+                      "likes": "={{ $json.snippet.topLevelComment.snippet.likeCount }}",
+                      "reply": "={{ $json.snippet.totalReplyCount }}",
+                      "comment": "={{ $json.snippet.topLevelComment.snippet.textOriginal }}",
+                      "video_url": "=https://www.youtube.com/watch?v={{ $json.snippet.videoId }}",
+                      "comment_id": "={{ $json.snippet.topLevelComment.id }}",
+                      "author_name": "={{ $json.snippet.topLevelComment.snippet.authorDisplayName }}",
+                      "published_at": "={{ $json.snippet.topLevelComment.snippet.publishedAt.toString().slice(0, 19).replace('T', ' ') }}"
+                    },
+                    "schema": [
+                      {
+                        "id": "video_url",
+                        "type": "string",
+                        "display": true,
+                        "required": false,
+                        "displayName": "video_url",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "comment_id",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "required": false,
+                        "displayName": "comment_id",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "comment",
+                        "type": "string",
+                        "display": true,
+                        "required": false,
+                        "displayName": "comment",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "author_name",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "required": false,
+                        "displayName": "author_name",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "likes",
+                        "type": "string",
+                        "display": true,
+                        "required": false,
+                        "displayName": "likes",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "reply",
+                        "type": "string",
+                        "display": true,
+                        "required": false,
+                        "displayName": "reply",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "published_at",
+                        "type": "string",
+                        "display": true,
+                        "required": false,
+                        "displayName": "published_at",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      }
+                    ],
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [
+                      "comment_id"
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                  },
+                  "options": {},
+                  "operation": "appendOrUpdate",
+                  "sheetName": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "gid=0",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18-3CmJPbC73MycmNiSWotdsyGBAAzqESf33vktwnYmM/edit#gid=0",
+                    "cachedResultName": "Results "
+                  },
+                  "documentId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "1F5yEhjBWu3fnwgHGLsPLD9_tWRqUnxu4p0DEvUTae1Y",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F5yEhjBWu3fnwgHGLsPLD9_tWRqUnxu4p0DEvUTae1Y/edit?usp=drivesdk",
+                    "cachedResultName": "YouTube - Crawl Video Comments"
+                  }
+                }
+              },
+              "runAfter": {
+                "If_Check_Comment_Exists": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Google_Sheets_Update_Status_Error": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Google Sheets - Update Status - Error",
+                "n8nNodeType": "n8n-nodes-base.googleSheets",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "columns": {
+                    "value": {
+                      "status": "error",
+                      "row_number": "={{ $('Google Sheets - Get Video URLs').item.json.row_number }}",
+                      "last_fetched_time": "={{ $now.toISO().toString().slice(0, 19).replace('T', ' ') }}"
+                    },
+                    "schema": [
+                      {
+                        "id": "status",
+                        "type": "string",
+                        "display": true,
+                        "required": false,
+                        "displayName": "status",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "video_url",
+                        "type": "string",
+                        "display": true,
+                        "required": false,
+                        "displayName": "video_url",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "last_fetched_time",
+                        "type": "string",
+                        "display": true,
+                        "required": false,
+                        "displayName": "last_fetched_time",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "row_number",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "row_number",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      }
+                    ],
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [
+                      "row_number"
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                  },
+                  "options": {},
+                  "operation": "update",
+                  "sheetName": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": 426418282,
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F5yEhjBWu3fnwgHGLsPLD9_tWRqUnxu4p0DEvUTae1Y/edit#gid=426418282",
+                    "cachedResultName": "Video URLs"
+                  },
+                  "documentId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "1F5yEhjBWu3fnwgHGLsPLD9_tWRqUnxu4p0DEvUTae1Y",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1F5yEhjBWu3fnwgHGLsPLD9_tWRqUnxu4p0DEvUTae1Y/edit?usp=drivesdk",
+                    "cachedResultName": "YouTube - Get Video Comments"
+                  }
+                }
+              },
+              "runAfter": {
+                "If_Check_Comment_Exists": [
+                  "Succeeded"
+                ],
+                "If_Check_Success_Response": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "Google_Sheets_Get_Video_URLs": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Sheets_Get_Video_URLs": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('1F5yEhjBWu3fnwgHGLsPLD9_tWRqUnxu4p0DEvUTae1Y'))}/tables/@{encodeURIComponent(encodeURIComponent('426418282'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Test_Workflow",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

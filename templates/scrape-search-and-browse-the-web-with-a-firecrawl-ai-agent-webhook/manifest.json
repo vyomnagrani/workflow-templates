@@ -1,0 +1,337 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "scrape-search-and-browse-the-web-with-a-firecrawl-ai-agent-webhook",
+    "name": "Scrape, search and browse the web with a Firecrawl AI agent webhook",
+    "description": "Turn any prompt into structured web data. Send a POST request with a natural language prompt and an optional JSON schema, and get back clean, structured results scraped from the web by an AI agent powered by Firecrawl.\n\n## Use Cases\n\n- **Data Enrichment**: Feed company names or URLs from your CRM and get back structured firmographic data (industry, funding, team size, tech stack).\n- **Lead Generation**: Ask the agent to find pricing, contact pages, or product details for a list of competitors.\n- **Market Research**: Extract structured pricing plans, feature comparisons, or product catalogs from any website.\n- **Content Aggregation**: Pull structured news, events, or job postings from across the web on a schedule.\n- **Sales Intelligence**: Enrich prospect lists with company info, recent news, or tech stack details before outreach.\n\n## How It Works\n\n```\nPOST /webhook/scrape-agent\n```\n\n1. **Receive Scrape Request** receives a POST request with `prompt` and an optional `output_schema`.\n2. **Validate Output Schema** checks the schema. If none is provided, it falls back to a permissive default. If the schema is malformed, it returns a clear error via **Return Schema Error**.\n3. **Research & Extract Web Data** takes the prompt and uses the full Firecrawl toolkit to research the web:\n   - **Search** (`/search`): Finds relevant pages and sources across the web.\n   - **Scrape** (`/scrape`): Extracts clean, structured content from any URL.\n   - **Interact** (interactContext, interact, interactStop): Lets the agent interact with scraped pages in a live session. After scraping a page, the agent can click buttons, fill forms, navigate dynamic content, and extract data that static scraping cannot reach, all without managing sessions manually.\n   \n   This combination gives the AI agent complete web navigation capabilities. It can discover sources, read pages, and interact with dynamic content autonomously.\n4. **Format Response to Schema** (Structured Output Parser) formats the agent's response to match the provided (or default) schema.\n5. **Return Structured Results** sends the structured JSON back to the caller.\n\n## Setup Requirements\n\n- **Firecrawl API Key**: Sign up at [firecrawl.dev](https://www.firecrawl.dev) and grab your API key. Connect it in the Firecrawl credential nodes.\n- **LLM Provider**: Configure your Primary Chat Model and Fallback Chat Model nodes (e.g., OpenRouter, OpenAI, Anthropic). The template uses two model nodes for reliability, plus a separate Parser Chat Model for the output parser.\n- **n8n Instance**: Self-hosted or cloud. Make sure the webhook node is set to accept POST requests.\n\n## API Reference\n\n### Endpoint\n\n```\nPOST https://your-n8n-instance/webhook/scrape-agent\n```\n\n### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| `prompt` | string | Yes | Natural language instruction for the agent |\n| `output_schema` | object | No | JSON Schema defining the desired output structure |\n\n### Response\n\nReturns a JSON object matching the provided schema, or a flexible object if no schema was given.\n\n---\n\n## Testing Examples\n\n### 1. Basic Request (No Schema)\n\nThe agent decides the output structure on its own.\n\n```bash\ncurl -X POST \"https://your-n8n-instance/webhook/scrape-agent\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"prompt\": \"Find the latest pricing for Firecrawl\"\n  }' | jq\n```\n\n**Expected output**: A JSON object with whatever structure the agent finds most appropriate for the data. Since no schema was provided, the internal default (`{ \"type\": \"object\", \"additionalProperties\": true }`) is used.\n\n### 2. Request With a Custom Schema\n\nYou define exactly the shape of data you want back.\n\n```bash\ncurl -X POST \"https://your-n8n-instance/webhook/scrape-agent\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"prompt\": \"Find the latest pricing for Firecrawl\",\n    \"output_schema\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"source\": { \"type\": \"string\" },\n        \"plans\": {\n          \"type\": \"array\",\n          \"items\": {\n            \"type\": \"object\",\n            \"properties\": {\n              \"name\": { \"type\": \"string\" },\n              \"price\": { \"type\": \"string\" },\n              \"credits\": { \"type\": \"string\" },\n              \"highlights\": {\n                \"type\": \"array\",\n                \"items\": { \"type\": \"string\" }\n              }\n            }\n          }\n        }\n      }\n    }\n  }' | jq\n```\n\n**Expected output**:\n\n```json\n{\n  \"output\": {\n    \"source\": \"https://www.firecrawl.dev/pricing\",\n    \"plans\": [\n      {\n        \"name\": \"Free\",\n        \"price\": \"$0 (one-time)\",\n        \"credits\": \"500 credits (one-time)\",\n        \"highlights\": [\n          \"Scrape up to 500 pages\",\n          \"2 concurrent requests\",\n          \"Low rate limits\",\n          \"No credit card required\"\n        ]\n      },\n      {\n        \"name\": \"Hobby\",\n        \"price\": \"$16/month (billed yearly, save $38)\",\n        \"credits\": \"3,000 credits / month\",\n        \"highlights\": [\n          \"Scrape up to 3,000 pages\",\n          \"5 concurrent requests\",\n          \"Basic support\",\n          \"$9 per extra 1k credits\"\n        ]\n      }\n    ]\n  }\n}\n```\n\n### 3. Invalid Schema (String Instead of Object)\n\n```bash\ncurl -X POST \"https://your-n8n-instance/webhook/scrape-agent\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"prompt\": \"Find the latest pricing for Firecrawl\",\n    \"output_schema\": \"not a valid schema\"\n  }' | jq\n```\n\n**Expected output**:\n\n```json\n{\n  \"error\": true,\n  \"message\": \"Invalid output_schema: must be a JSON object with a valid 'type' property (object, array, string, number, boolean)\",\n  \"example_schema\": {\n    \"type\": \"object\",\n    \"properties\": {\n      \"name\": { \"type\": \"string\" },\n      \"price\": { \"type\": \"number\" }\n    }\n  }\n}\n```\n\n### 4. Invalid Schema (Array Instead of Object)\n\n```bash\ncurl -X POST \"https://your-n8n-instance/webhook/scrape-agent\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"prompt\": \"Find the latest pricing for Firecrawl\",\n    \"output_schema\": [1, 2, 3]\n  }' | jq\n```\n\n**Expected output**: Same error response as above.\n\n### 5. Invalid Schema (Missing `type` Property)\n\n```bash\ncurl -X POST \"https://your-n8n-instance/webhook/scrape-agent\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"prompt\": \"Find the latest pricing for Firecrawl\",\n    \"output_schema\": {\n      \"properties\": {\n        \"name\": { \"type\": \"string\" }\n      }\n    }\n  }' | jq\n```\n\n**Expected output**: Same error response as above.\n\n### 6. Invalid Schema (Invalid `type` Value)\n\n```bash\ncurl -X POST \"https://your-n8n-instance/webhook/scrape-agent\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"prompt\": \"Find the latest pricing for Firecrawl\",\n    \"output_schema\": {\n      \"type\": \"banana\"\n    }\n  }' | jq\n```\n\n**Expected output**: Same error response as above.\n\n---\n\n## Workflow Architecture\n\n```\nReceive Scrape Request (POST)\n  |\n  v\nValidate Output Schema\n  |--- Error --&gt; Return Schema Error (error JSON)\n  |--- Success --&gt; Research & Extract Web Data (AI Agent)\n                     |\n                     |--- Primary Chat Model\n                     |--- Fallback Chat Model\n                     |--- Search & Scrape:\n                     |      - /search with Firecrawl\n                     |      - /scrape with Firecrawl\n                     |--- Interact Tool:\n                     |      - Interact context with Firecrawl\n                     |      - Execute interaction with Firecrawl\n                     |      - Stop interaction with Firecrawl\n                     |\n                     v\n                   Return Structured Results\n                     |\n                     |--- Format Response to Schema (Output Parser)\n                            |\n                            |--- Parser Chat Model\n```\n\n## Schema Validation Logic\n\nThe **Validate Output Schema** node runs this validation before passing data to the agent:\n\n- If `output_schema` is **missing or null**, the default permissive schema is used: `{ \"type\": \"object\", \"additionalProperties\": true }`.\n- If `output_schema` is **present**, it must be a JSON object (not a string, array, or primitive).\n- It must have a `type` property with a valid value: `object`, `array`, `string`, `number`, or `boolean`.\n- If validation fails, the workflow returns an error response with a helpful message and example schema.\n\n## Notes\n\n- The **Format Response to Schema** node (Structured Output Parser) requires the schema to be passed as a JSON string. The expression `{{ JSON.stringify($('Validate Output Schema').item.json.output_schema) }}` handles this conversion.\n- The agent has access to Firecrawl's full toolkit: search, scrape, and interact. With all three connected, the agent has complete web navigation powers. It can discover sources via search, extract content via scrape, and interact with dynamic JavaScript-heavy pages via interact. The interact tools let the agent scrape a page first and then continue working with it in a live session, clicking buttons, filling forms, and navigating deeper, all without manual session management. The agent autonomously decides which tools to use based on the prompt.\n- Response times vary depending on the complexity of the prompt and how many pages the agent needs to visit. Simple lookups take a few seconds; deep research can take longer.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Market Research",
+      "AI RAG",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/inlineCode",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Receive_Scrape_Request": {
+          "type": "Request",
+          "kind": "Http",
+          "inputs": {
+            "method": "POST"
+          }
+        }
+      },
+      "actions": {
+        "Validate_Output_Schema": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.trigger.outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst body = $input.first().json.body;\n\n// No schema provided, use permissive default\nif (!body.output_schema) {\n  return [{\n    json: {\n      prompt: body.prompt,\n      output_schema: {\n        type: \"object\",\n        additionalProperties: true\n      }\n    }\n  }];\n}\n\n// Validate the provided schema\nconst schema = body.output_schema;\n\nif (typeof schema !== \"object\" || Array.isArray(schema)) {\n  throw new Error(\"output_schema must be a JSON object\");\n}\n\nif (!schema.type) {\n  throw new Error(\"output_schema must have a 'type' property\");\n}\n\nconst validTypes = [\"object\", \"array\", \"string\", \"number\", \"boolean\"];\nif (!validTypes.includes(schema.type)) {\n  throw new Error(`output_schema.type must be one of: ${validTypes.join(\", \")}`);\n}\n\n// Schema is valid, pass it through\nreturn [{\n  json: {\n    prompt: body.prompt,\n    output_schema: schema\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {}
+        },
+        "Return_Schema_Error": {
+          "type": "Response",
+          "kind": "Http",
+          "inputs": {
+            "statusCode": 200,
+            "body": "{\n  \"error\": true,\n  \"message\": \"Invalid output_schema: must be a JSON object with a valid 'type' property (object, array, string, number, boolean)\",\n  \"example_schema\": {\n    \"type\": \"object\",\n    \"properties\": {\n      \"name\": { \"type\": \"string\" },\n      \"price\": { \"type\": \"number\" }\n    }\n  }\n}"
+          },
+          "runAfter": {
+            "Validate_Output_Schema": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Research_Extract_Web_Data": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Research & Extract Web Data",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "={{ $('Receive Scrape Request').item.json.body.prompt }}",
+              "options": {
+                "maxIterations": 40,
+                "systemMessage": "Use Firecrawl's tools to search, then scrape whatever the user's prompt requires. Make sure to  answer the user's query in the best way possible. Consider using search to find the URL before trying to scrape if the user does not specify one.                                                \n                                                                                                    \nWhen using the search tool, at least one source must be selected (web, images, or news).          \n\n Do not use the search tool if you already have the URL.\n\nIMPORTANT:\nIf a URL is provided, try using the scrape tool before using the search tool.\n\nCRITICAL: In Node/JS mode use process.stdout.write(data + \"\\n\") instead of console.log() to return data (console.log output is NOT captured), use unique variable names per call to avoid re-declaration errors in the persistent REPL, and NEVER put agent-browser commands or plain English in the Code field when Language is Node — agent-browser is Bash only.\n\nIf the website has heavy JavaScript or problems while fetching data (such as requiring interaction for pagination, clicking through elements, filling forms, or navigating deeper), only then use the Interact feature. First scrape the page to get a scrapeId, then use the Interact tool with a prompt or code to perform the needed interactions. \n\nALWAYS use the \"Interact Context\" tool to get full context on how to use the interact tools before using them."
+              },
+              "promptType": "define",
+              "needsFallback": true,
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "Primary_Chat_Model": [
+              "Succeeded"
+            ],
+            "Fallback_Chat_Model": [
+              "Succeeded"
+            ],
+            "scrape_with_Firecrawl": [
+              "Succeeded"
+            ],
+            "search_with_Firecrawl": [
+              "Succeeded"
+            ],
+            "Validate_Output_Schema": [
+              "Succeeded"
+            ],
+            "Format_Response_to_Schema": [
+              "Succeeded"
+            ],
+            "Interact_context_with_Firecrawl": [
+              "Succeeded"
+            ],
+            "Stop_interaction_with_Firecrawl": [
+              "Succeeded"
+            ],
+            "Execute_interaction_with_Firecrawl": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Return_Structured_Results": {
+          "type": "Response",
+          "kind": "Http",
+          "inputs": {
+            "statusCode": 200,
+            "body": ""
+          },
+          "runAfter": {
+            "Research_Extract_Web_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Primary_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Primary Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": "anthropic/claude-sonnet-4.6",
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Fallback_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Fallback Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": "anthropic/claude-haiku-4.5",
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Parser_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Parser Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": "anthropic/claude-haiku-4.5",
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Format_Response_to_Schema": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Format Response to Schema",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "autoFix": true,
+              "schemaType": "manual",
+              "inputSchema": "={{ JSON.stringify($('Validate Output Schema').item.json.output_schema) }}"
+            }
+          },
+          "runAfter": {
+            "Parser_Chat_Model": [
+              "Succeeded"
+            ]
+          }
+        },
+        "scrape_with_Firecrawl": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "/scrape with Firecrawl",
+            "n8nNodeType": "@mendable/n8n-nodes-firecrawl.firecrawlTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('URL', ``, 'string') }}",
+              "parsers": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Parsers', ``, 'string') }}",
+              "operation": "scrape",
+              "requestOptions": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "search_with_Firecrawl": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "/search with Firecrawl",
+            "n8nNodeType": "@mendable/n8n-nodes-firecrawl.firecrawlTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Query', ``, 'string') }}",
+              "sources": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Sources', ``, 'string') }}",
+              "resource": "MapSearch",
+              "operation": "search",
+              "requestOptions": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Interact_context_with_Firecrawl": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Interact context with Firecrawl",
+            "n8nNodeType": "@mendable/n8n-nodes-firecrawl.firecrawlTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "resource": "Interact",
+              "requestOptions": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Execute_interaction_with_Firecrawl": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Execute interaction with Firecrawl",
+            "n8nNodeType": "@mendable/n8n-nodes-firecrawl.firecrawlTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "code": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Code', ``, 'string') }}",
+              "resource": "Interact",
+              "scrapeId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Scrape_ID', ``, 'string') }}",
+              "operation": "interact",
+              "interactMode": "code",
+              "requestOptions": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Stop_interaction_with_Firecrawl": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Stop interaction with Firecrawl",
+            "n8nNodeType": "@mendable/n8n-nodes-firecrawl.firecrawlTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "resource": "Interact",
+              "scrapeId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Scrape_ID', ``, 'string') }}",
+              "operation": "interactStop",
+              "requestOptions": {}
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Receive_Scrape_Request",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {
+        "body": {
+          "prompt": "Go to airank.dev and get the top 20 first LLMs from the main table in the home page"
+        },
+        "query": {},
+        "params": {},
+        "headers": {
+          "host": "quickconnect1.stage-app.n8n.cloud",
+          "accept": "*/*",
+          "cf-ray": "9e1e6002da0b0d0b-GRU",
+          "cdn-loop": "cloudflare; loops=1; subreqs=1",
+          "cf-ew-via": "15",
+          "cf-worker": "n8n.cloud",
+          "x-real-ip": "177.200.39.12",
+          "user-agent": "curl/8.7.1",
+          "cf-ipcountry": "BR",
+          "content-type": "application/json",
+          "content-length": "59",
+          "x-warp-trusted": "yes",
+          "accept-encoding": "gzip, br",
+          "x-forwarded-for": "177.200.39.12, 172.69.39.2",
+          "x-warp-provider": "cloudflare",
+          "cf-connecting-ip": "177.200.39.12",
+          "x-forwarded-host": "quickconnect1.stage-app.n8n.cloud",
+          "x-forwarded-port": "443",
+          "x-forwarded-proto": "https",
+          "x-forwarded-server": "traefik-stage-users-gwc-1-7cb4dbf9bf-6dqgk"
+        },
+        "webhookUrl": "https://quickconnect1.stage-app.n8n.cloud/webhook-test/scrape-agent",
+        "executionMode": "test"
+      }
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

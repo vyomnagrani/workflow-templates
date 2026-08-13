@@ -1,0 +1,205 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "ai-assistant-which-answers-questions-with-a-rag-mcp-and-a-search-engine-mcp",
+    "name": "AI Assistant which answers questions with a RAG MCP and a Search Engine MCP",
+    "description": "## Build an AI Agent which accesses two MCP Servers: a RAG MCP Server and a Search Engine API MCP Server.\n\n*This workflow contains community nodes that are only compatible with the self-hosted version of n8n.*\n\n## Tutorial\n![thumbnail.png](fileId:1877)\n[Click here to watch the full tutorial on YouTube!](https://youtu.be/GB2RZ25HTD8)\n\n## How it works\nWe build an AI Agent which has access to two MCP servers:\n- An MCP Server with a RAG database ([click here for the RAG MCP Server](https://n8n.partnerlinks.io/5403-build-an-mcp-server-which-answers-questions-with-retrieval-augmented-generation)\n- An MCP Server which can access a Search Engine, so the AI Agent also has access to data about more current events\n\n## Installation\n1. In order to use the MCP Client, you also have to use [MCP Server Template](https://n8n.partnerlinks.io/5403-build-an-mcp-server-which-answers-questions-with-retrieval-augmented-generation).\n\n2. Open the MCP Client \"MCP Client: RAG\" node and update the SSE Endpoint to the MCP Server workflow\n\n3. Install the \"n8n-nodes-mcp\" community node via settings &gt; community nodes\n![InstalltheMCPCommunityNodewithnpm.png](fileId:1598)\n\n4. ONLY FOR SELF-HOSTING: In Docker, click on your n8n container. Navigate to \"Exec\" and execute the below command to allow community nodes:\n\nN8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true\n\n![docker allow community nodes.png](fileId:1597)\n\n5. Navigate to [Bright Data](https://brdta.com/tomstechacademy) and create a new  \"Web Unlocker API\" with the name \"mcp_unlocker\".\n\n6. Open the \"MCP Client\" and add the following credentials:\n\n![AddingTheMCPCredentials.png](fileId:1599)\n\n\n## How to use it\n1. Run the Chat node and start asking questions\n\n## More detailed instructions\nMissed a step? Find more detailed instructions here: [Personal Newsfeed With Bright Data and n8n](https://brightdata.com/blog/ai/news-feed-n8n-openai-bright-data)\n\n## What is Retrievel Augmented Generation (RAG)?\nLarge Language Models (LLM's) are trained on data until a specific cutoff date. Imagine a model is trained in December 2023 based data until September 2023. This means the model doesn't have any knowledge about events which happened in 2024. So if you ask the LLM who was the Formula 1 World Champion of 2024, it doesn't know the answer.\n\nThe solution? Retrieval Augmented Generation. When using Retrieval Augmented Generation, a user's question is being sent to a semantic database. The LLM will use the information retrieved from the semantic database to answer the user's question.\n\n![rag.png](fileId:1764)\n\n\n## What is Model Context Protocol (MCP)?\nMCP is a communication protocol which is used by AI agents to call tools hosted on external servers.\n\nWhen an MCP client communicates with an MCP server, the server will provide an overview of all its tools, prompts and resources. The MCP server can then choose which tools to execute (based on the user's request) and execute the tools.\n\nAn MCP client can communicate with multiple MCP servers, which can all host multiple tools.\n\n![MCP servers with multiple tools.png](fileId:1765)",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Support Chatbot",
+      "AI RAG",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "When_chat_message_received": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "When chat message received",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chatTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "AI_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "AI Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "systemMessage": "You are a helpful assistant\n\nYou answer questions about MCP (Model Context Protocol). You have access to two MCP servers:\n\n- The RAG MCP Server which answers general questions about MCP\n- The Search Engine MCP Server which allows you to use a Search Engine in realtime.\n\nThe Search Engine MCP Server has two tools;\n- list tool - which shows all the available tools\n- execute tool - which allows you to execute a search query on a search engine.\n\nYou DO NOT answer questions with your internal knowledge, you ONLY use the knowledge provided by the two MCP servers to answer questions."
+              }
+            }
+          },
+          "runAfter": {
+            "MCP_Client": [
+              "Succeeded"
+            ],
+            "Simple_Memory": [
+              "Succeeded"
+            ],
+            "RAG_MCP_Server": [
+              "Succeeded"
+            ],
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ],
+            "MCP_Search_List_Tools": [
+              "Succeeded"
+            ],
+            "MCP_Search_Search_Engine": [
+              "Succeeded"
+            ],
+            "When_chat_message_received": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenAI_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4.1-mini"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Simple_Memory": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Simple Memory",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "contextWindowLength": 15
+            }
+          },
+          "runAfter": {}
+        },
+        "MCP_Search_List_Tools": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "MCP_Search_List_Tools",
+            "n8nNodeType": "n8n-nodes-mcp.mcpClientTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "MCP_Search_Search_Engine": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "MCP_Search_Search_Engine",
+            "n8nNodeType": "n8n-nodes-mcp.mcpClientTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "toolName": "search_engine",
+              "operation": "executeTool",
+              "toolParameters": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Tool_Parameters', ``, 'json') }}"
+            }
+          },
+          "runAfter": {}
+        },
+        "RAG_MCP_Server": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "RAG MCP Server",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.mcpClientTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "sseEndpoint": "http://localhost:5678/mcp/f88b9b77-40f2-4fad-8e14-0fc7faed7a0b"
+            }
+          },
+          "runAfter": {}
+        },
+        "MCP_Client": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "MCP Client",
+            "n8nNodeType": "n8n-nodes-mcp.mcpClientTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

@@ -1,0 +1,74 @@
+{
+  "sourceWorkflowName": "One-click YouTube shorts generator with Leonardo AI, GPT and ElevenLabs",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 25,
+  "totalNodes": 30,
+  "coverage": 0.8333,
+  "diagnostics": [
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.openAi.",
+      "severity": "warning",
+      "node_name": "Ideator 🧠",
+      "node_type": "@n8n/n8n-nodes-langchain.openAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.splitOut.",
+      "severity": "warning",
+      "node_name": "Split Out",
+      "node_type": "n8n-nodes-base.splitOut",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.openAi.",
+      "severity": "warning",
+      "node_name": "image-prompter",
+      "node_type": "@n8n/n8n-nodes-langchain.openAi",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/raw/upload",
+      "severity": "warning",
+      "node_name": "Upload Cloudinary",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.aggregate.",
+      "severity": "warning",
+      "node_name": "Aggregate",
+      "node_type": "n8n-nodes-base.aggregate",
+      "json_path": null
+    },
+    {
+      "code": "MERGE_SEMANTICS_UNSUPPORTED",
+      "message": "This Merge node requires mode-specific data and synchronization semantics that cannot be represented by runAfter alone.",
+      "severity": "warning",
+      "node_name": "Merge",
+      "node_type": "n8n-nodes-base.merge",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Merge",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ 2 }}",
+      "severity": "warning",
+      "node_name": "request image2",
+      "node_type": null,
+      "json_path": null
+    }
+  ]
+}

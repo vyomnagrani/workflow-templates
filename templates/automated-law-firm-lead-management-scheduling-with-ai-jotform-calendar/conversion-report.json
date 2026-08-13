@@ -1,0 +1,178 @@
+{
+  "sourceWorkflowName": "Automated law firm lead management & scheduling with AI, Jotform & Calendar",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 3,
+  "totalNodes": 16,
+  "coverage": 0.1875,
+  "diagnostics": [
+    {
+      "code": "TRIGGER_MISSING",
+      "message": "No supported n8n trigger was found.",
+      "severity": "warning",
+      "node_name": null,
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.jotFormTrigger.",
+      "severity": "warning",
+      "node_name": "JotForm Trigger",
+      "node_type": "n8n-nodes-base.jotFormTrigger",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Google Sheets operation 'appendOrUpdate' is not safely equivalent to a single LAA connector action.",
+      "severity": "warning",
+      "node_name": "Append or update row in sheet",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.googleSheets is not safely supported.",
+      "severity": "warning",
+      "node_name": "Append or update row in sheet",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.agent.",
+      "severity": "warning",
+      "node_name": "AI Agent",
+      "node_type": "@n8n/n8n-nodes-langchain.agent",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "AI Agent",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatGoogleGemini.",
+      "severity": "warning",
+      "node_name": "Google Gemini Chat Model",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.whatsAppTrigger.",
+      "severity": "warning",
+      "node_name": "WhatsApp Trigger",
+      "node_type": "n8n-nodes-base.whatsAppTrigger",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.agent.",
+      "severity": "warning",
+      "node_name": "AI Agent1",
+      "node_type": "@n8n/n8n-nodes-langchain.agent",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed or indexed connection inside an IF branch requires manual review.",
+      "severity": "warning",
+      "node_name": "AI Agent1",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed or indexed connection inside an IF branch requires manual review.",
+      "severity": "warning",
+      "node_name": "AI Agent1",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed or indexed connection inside an IF branch requires manual review.",
+      "severity": "warning",
+      "node_name": "AI Agent1",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed or indexed connection inside an IF branch requires manual review.",
+      "severity": "warning",
+      "node_name": "AI Agent1",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed or indexed connection inside an IF branch requires manual review.",
+      "severity": "warning",
+      "node_name": "AI Agent1",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.whatsApp.",
+      "severity": "warning",
+      "node_name": "Send message1",
+      "node_type": "n8n-nodes-base.whatsApp",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleCalendarTool.",
+      "severity": "warning",
+      "node_name": "GET MANY EVENTS OF DAY THE USER ASKED",
+      "node_type": "n8n-nodes-base.googleCalendarTool",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleCalendarTool.",
+      "severity": "warning",
+      "node_name": "Create an event",
+      "node_type": "n8n-nodes-base.googleCalendarTool",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatGoogleGemini.",
+      "severity": "warning",
+      "node_name": "Google Gemini Chat Model1",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.memoryPostgresChat.",
+      "severity": "warning",
+      "node_name": "Postgres Chat Memory",
+      "node_type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleSheetsTool.",
+      "severity": "warning",
+      "node_name": "Know about the user enquiry",
+      "node_type": "n8n-nodes-base.googleSheetsTool",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.whatsApp.",
+      "severity": "warning",
+      "node_name": "Send message",
+      "node_type": "n8n-nodes-base.whatsApp",
+      "json_path": null
+    }
+  ]
+}

@@ -1,0 +1,138 @@
+{
+  "sourceWorkflowName": "Transform long videos into viral shorts with AI and schedule to social media using Whisper & Gemini",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 19,
+  "totalNodes": 26,
+  "coverage": 0.7308,
+  "diagnostics": [
+    {
+      "code": "IF_REGION_UNSUPPORTED",
+      "message": "IF branches overlap or have external inputs, so nesting them would change behavior.",
+      "severity": "warning",
+      "node_name": "Is Audio Job Completed?",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "IF_REGION_UNSUPPORTED",
+      "message": "IF branches overlap or have external inputs, so nesting them would change behavior.",
+      "severity": "warning",
+      "node_name": "Is Short Job Completed?",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "TRIGGER_MISSING",
+      "message": "No supported n8n trigger was found.",
+      "severity": "warning",
+      "node_name": null,
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =ffmpeg -y -i {input} -map a:0 -vn -ac 1 -ar 16000 -c:a pcm_s16le {output}",
+      "severity": "warning",
+      "node_name": "FFmpeg: Extract Audio",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-upload-post.uploadPost.",
+      "severity": "warning",
+      "node_name": "Schedule to TikTok, Instagram, and YouTube",
+      "node_type": "n8n-nodes-upload-post.uploadPost",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Parse Whisper Results",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatGoogleGemini.",
+      "severity": "warning",
+      "node_name": "Google Gemini Chat Model",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.agent.",
+      "severity": "warning",
+      "node_name": "AI Agent - Select Viral Clips",
+      "node_type": "@n8n/n8n-nodes-langchain.agent",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "AI Agent - Select Viral Clips",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Wait 5s & Retry (Audio)",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.if is not safely supported.",
+      "severity": "warning",
+      "node_name": "Is Audio Job Completed?",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.formTrigger.",
+      "severity": "warning",
+      "node_name": "Form: Upload Video",
+      "node_type": "n8n-nodes-base.formTrigger",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Wait 5s & Retry (Short)",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.if is not safely supported.",
+      "severity": "warning",
+      "node_name": "Is Short Job Completed?",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_UNSUPPORTED",
+      "message": "Inline JavaScript uses unsupported n8n runtime features: binary data",
+      "severity": "warning",
+      "node_name": "Parse Gemini Analysis",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.code is not safely supported.",
+      "severity": "warning",
+      "node_name": "Parse Gemini Analysis",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    }
+  ]
+}

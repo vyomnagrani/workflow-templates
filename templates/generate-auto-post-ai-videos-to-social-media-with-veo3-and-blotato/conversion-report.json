@@ -1,0 +1,210 @@
+{
+  "sourceWorkflowName": "Generate & auto-post AI videos to social media with Veo3 and Blotato",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 20,
+  "totalNodes": 29,
+  "coverage": 0.6897,
+  "diagnostics": [
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =",
+      "severity": "warning",
+      "node_name": "Get my video",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =",
+      "severity": "warning",
+      "node_name": "Get my video",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_RESOURCE_REQUIRED",
+      "message": "Google Sheets requires a spreadsheet and worksheet value before import.",
+      "severity": "warning",
+      "node_name": "Get my video",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =YOUR_API_HERE",
+      "severity": "warning",
+      "node_name": "TIKTOK",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =YOUR_API_HERE",
+      "severity": "warning",
+      "node_name": "FACEBOOK",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Google Sheets operation 'update' is not safely equivalent to a single LAA connector action.",
+      "severity": "warning",
+      "node_name": "Google Sheets",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.googleSheets is not safely supported.",
+      "severity": "warning",
+      "node_name": "Google Sheets",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.agent.",
+      "severity": "warning",
+      "node_name": "AI Agent: Generate Video Concept",
+      "node_type": "@n8n/n8n-nodes-langchain.agent",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "AI Agent: Generate Video Concept",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "AI Agent: Generate Video Concept",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "AI Agent: Generate Video Concept",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.toolThink.",
+      "severity": "warning",
+      "node_name": "Tool: Inject Creativity",
+      "node_type": "@n8n/n8n-nodes-langchain.toolThink",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOpenAi.",
+      "severity": "warning",
+      "node_name": "LLM: Generate Idea & Caption (GPT-4.1)",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.outputParserStructured.",
+      "severity": "warning",
+      "node_name": "Parser: Extract JSON from Idea",
+      "node_type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =",
+      "severity": "warning",
+      "node_name": "Google Sheets: Save Script Idea",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =",
+      "severity": "warning",
+      "node_name": "Google Sheets: Save Script Idea",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_RESOURCE_REQUIRED",
+      "message": "Google Sheets requires a spreadsheet and worksheet value before import.",
+      "severity": "warning",
+      "node_name": "Google Sheets: Save Script Idea",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ==ROW()-1",
+      "severity": "warning",
+      "node_name": "Google Sheets: Save Script Idea",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.agent.",
+      "severity": "warning",
+      "node_name": "AI Agent: Create Veo3-Compatible Prompt",
+      "node_type": "@n8n/n8n-nodes-langchain.agent",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "AI Agent: Create Veo3-Compatible Prompt",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "AI Agent: Create Veo3-Compatible Prompt",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.toolThink.",
+      "severity": "warning",
+      "node_name": "Tool: Build Prompt Structure",
+      "node_type": "@n8n/n8n-nodes-langchain.toolThink",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOpenAi.",
+      "severity": "warning",
+      "node_name": "LLM: Format Prompt for Veo3 (GPT-4.1)",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Google Sheets operation 'update' is not safely equivalent to a single LAA connector action.",
+      "severity": "warning",
+      "node_name": "Google Sheets: Log Final Video Output",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.googleSheets is not safely supported.",
+      "severity": "warning",
+      "node_name": "Google Sheets: Log Final Video Output",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    }
+  ]
+}

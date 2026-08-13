@@ -1,0 +1,170 @@
+{
+  "sourceWorkflowName": "Auto Generate Descriptive Node Names with AI for Workflow Readability",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 20,
+  "totalNodes": 33,
+  "coverage": 0.6061,
+  "diagnostics": [
+    {
+      "code": "IF_REGION_UNSUPPORTED",
+      "message": "IF branches overlap or have external inputs, so nesting them would change behavior.",
+      "severity": "warning",
+      "node_name": "Check Trigger Source Type",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{\n  (() => {\n    const allNodeNames = $('Extract Workflow Nodes Connections').item.json.nodes.map(node => node.name);\n    const nodesString = JSON.stringify($('Extract Workflow Nodes Connections').item.json.nodes);\n    const foundPatterns = [];\n    \n    allNodeNames.forEach(nodeName => {\n      const patterns = [\n        `$('${nodeName}')`,\n        `$(\"${nodeName}\")`\n      ];\n      \n      patterns.forEach(pattern => {\n        if (nodesString.includes(pattern)) {\n          foundPatterns.push(pattern);\n        }\n      });\n    });\n    \n    return foundPatterns;\n  })()\n}}",
+      "severity": "warning",
+      "node_name": "Prepare LLM Validation Data",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.chainLlm.",
+      "severity": "warning",
+      "node_name": "Generate Node Rename Mapping",
+      "node_type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Generate Node Rename Mapping",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Generate Node Rename Mapping",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.outputParserStructured.",
+      "severity": "warning",
+      "node_name": "Parse LLM Mapping ToJson",
+      "node_type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.n8n.",
+      "severity": "warning",
+      "node_name": "Save Renamed Workflow Version",
+      "node_type": "n8n-nodes-base.n8n",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $json.old_workflow.nodes.map(node => {\n  // Find mapping for the node name\n  const mapping = $json.AI_output.find(item => item.old_name === node.name);\n  \n  // Update parameters by replacing all node name references\n  let updatedParameters = JSON.stringify(node.parameters);\n  $json.AI_output.forEach(aiMapping => {\n    const pattern = new RegExp(aiMapping.old_name.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&'), 'g');\n    updatedParameters = updatedParameters.replace(pattern, aiMapping.new_name);\n  });\n  \n  return {\n    ...node,\n    name: mapping ? mapping.new_name : node.name,\n    parameters: JSON.parse(updatedParameters)\n  };\n}) }}",
+      "severity": "warning",
+      "node_name": "Apply Renamed Nodes Connections",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $execution.resumeUrl.split('/').slice(0, 3).join('/') + \"/workflow\" + \"/\" + $('Set Target Workflow Id').item.json.workflow_id + \"/history/\" + $json.versionId }}",
+      "severity": "warning",
+      "node_name": "Build Workflow Version Links",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $execution.resumeUrl.split('/').slice(0, 3).join('/') + \"/workflow\" + \"/\" + $('Set Target Workflow Id').item.json.workflow_id + \"/history/\" + $('Assemble New Workflow Object').item.json.new_workflow.versionId }}",
+      "severity": "warning",
+      "node_name": "Build Workflow Version Links",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.if is not safely supported.",
+      "severity": "warning",
+      "node_name": "Check Trigger Source Type",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.form.",
+      "severity": "warning",
+      "node_name": "Display Workflow Version Links",
+      "node_type": "n8n-nodes-base.form",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.stopAndError.",
+      "severity": "warning",
+      "node_name": "Stop",
+      "node_type": "n8n-nodes-base.stopAndError",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.n8n.",
+      "severity": "warning",
+      "node_name": "Select a Workflow",
+      "node_type": "n8n-nodes-base.n8n",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.n8n.",
+      "severity": "warning",
+      "node_name": "Fetch Target Workflow JSON",
+      "node_type": "n8n-nodes-base.n8n",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.aggregate.",
+      "severity": "warning",
+      "node_name": "Aggregate Workflow List",
+      "node_type": "n8n-nodes-base.aggregate",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.form.",
+      "severity": "warning",
+      "node_name": "Form Dynamic Workflow List",
+      "node_type": "n8n-nodes-base.form",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOpenRouter.",
+      "severity": "warning",
+      "node_name": "OpenRouter Chat Model",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.n8n.",
+      "severity": "warning",
+      "node_name": "Fetch All Workflows",
+      "node_type": "n8n-nodes-base.n8n",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.formTrigger.",
+      "severity": "warning",
+      "node_name": "Form Trigger",
+      "node_type": "n8n-nodes-base.formTrigger",
+      "json_path": null
+    }
+  ]
+}

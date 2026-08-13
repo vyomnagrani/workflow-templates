@@ -1,0 +1,249 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "generate-bilingual-wordpress-posts-with-openai-and-wpml",
+    "name": "Generate bilingual WordPress posts with OpenAI and WPML",
+    "description": "## Quick overview\nThis workflow generates an SEO-friendly blog post in Italian and English with OpenAI, publishes both versions to WordPress via the REST API, links them as WPML translations through a custom endpoint, generates a featured image, uploads it to the WordPress media library, and assigns it to both posts.\n\n## How it works\n1. Runs manually when you click “Test workflow” in n8n.\n2. Sets a topic prompt used to generate the article.\n3. Uses OpenAI to produce structured output containing an Italian and English title and HTML article content.\n4. Creates the Italian WordPress post and then creates the English WordPress post via the WordPress REST API.\n5. Calls a custom WordPress REST endpoint to link the two posts as WPML translations.\n6. Generates a realistic cover image with OpenAI, uploads it to the WordPress media library, and sets it as the featured image for both posts.\n\n## Setup\n1. Add OpenAI credentials for text generation (chat model) and image generation (gpt-image-1).\n2. Add WordPress API credentials and replace all instances of `YOUR_URL` with your WordPress site URL.\n3. Install and configure WPML with the `it` and `en` language codes (or update the workflow to match your site’s languages).\n4. Add the provided PHP code to your theme’s `functions.php` (or a custom plugin) to expose `/wp-json/custom/v1/link-translation`, and verify it is reachable.\n5. Replace `YOUR_PROMPT` with your desired topic prompt before running the workflow.\n\n## Additional info\n### MY NEW YOUTUBE CHANNEL\n👉 [Subscribe to my new **YouTube channel**](https://youtube.com/@n3witalia). Here I’ll share videos and Shorts with practical tutorials and **FREE templates for n8n**.\n\n[![image](https://n3wstorage.b-cdn.net/n3witalia/youtube-n8n-cover.jpg)](https://youtube.com/@n3witalia)\n\n---\n\n### Need help customizing?\n[Contact me](mailto:info@n3w.it) for consulting and support or add me on [Linkedin](https://www.linkedin.com/in/davideboizza/)",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Set_Prompt_Context": {
+          "type": "Compose",
+          "inputs": {
+            "prompt": "=YOUR_PROMPT"
+          },
+          "runAfter": {}
+        },
+        "Post_Media_to_WP_API": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://YOUR_URL/wp-json/wp/v2/media",
+            "headers": {
+              "Content-Disposition": "attachment; filename=\"copertina-@{body('Post_in_Language_1')?['id']}.jpg\""
+            }
+          },
+          "runAfter": {
+            "Create_Featured_Image_with_AI": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Parse_Structured_Output": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Parse Structured Output",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "schemaType": "manual",
+              "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n\t\t\"title_it\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n\t\t\"text_it\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n      \"title_en\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n      \"text_en\": {\n\t\t\t\"type\": \"string\"\n\t\t}\n\t}\n}"
+            }
+          },
+          "runAfter": {}
+        },
+        "OpenAI_GPT_5_Mini": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI GPT-5 Mini",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-5-mini"
+              },
+              "options": {},
+              "builtInTools": {
+                "webSearch": {
+                  "searchContextSize": "medium"
+                }
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Post_in_Language_1": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://YOUR_URL/wp-json/wp/v2/posts",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": "@JSON.stringify({ title: body('Generate_Article_Text')?['output']?['title_it'], content: body('Generate_Article_Text')?['output']?['text_it'], status: \"publish\", lang: \"it\" })"
+          },
+          "runAfter": {
+            "Generate_Article_Text": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Link_Translation_Posts": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "=https://YOUR_URL/wp-json/custom/v1/link-translation",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": "{\n  \"post_it\": @{body('Post_in_Language_1')?['id']},\n  \"post_en\": @{body('Post_in_Language_2')?['id']}\n}"
+          },
+          "runAfter": {
+            "Post_in_Language_2": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Update_Post_Image_Lang_1": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://YOUR_URL/wp-json/wp/v2/posts/@{body('Post_in_Language_1')?['id']}"
+          },
+          "runAfter": {
+            "Post_Media_to_WP_API": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Update_Post_Image_Lang_2": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://YOUR_URL/wp-json/wp/v2/posts/@{body('Post_in_Language_2')?['id']}"
+          },
+          "runAfter": {
+            "Post_Media_to_WP_API": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Post_in_Language_2": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://YOUR_URL/wp-json/wp/v2/posts",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": "@JSON.stringify({ title: body('Generate_Article_Text')?['output']?['title_en'], content: body('Generate_Article_Text')?['output']?['text_en'], status: \"publish\", lang: \"en\", translation_of1: body('Post_in_Language_1')?['id']  })"
+          },
+          "runAfter": {
+            "Post_in_Language_1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Generate_Article_Text": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Generate Article Text",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chainLlm",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "={{ $json.prompt }}",
+              "batching": {},
+              "messages": {
+                "messageValues": [
+                  {
+                    "message": "=an SEO-friendly article on these topics: {{ $json.prompt }}  Instructions: - In the introduction, introduce the topic that will be covered in more detail in the rest of the text - The introduction should be about 60 words - The conclusion should be about 60 words - Use the conclusion to summarize everything said in the article and offer a conclusion to the reader - Write a maximum of 2-3 chapters. - Chapters should follow a logical flow and not repeat the same ideas. - Chapters should be related to each other and not isolated blocks of text. The text should flow and follow a linear logic. - Do not start chapters with \"Chapter 1\", \"Chapter 2\", \"Chapter 3\" ... write only the chapter title - For the text, use HTML for formatting, but limit yourself to bold, italics, paragraphs and lists. - Do not put the output between ```html but only the text - Do not use markdown for formatting. - Go deeper into the topic you are talking about, don't just throw superficial information out there - I only want HTML format in output\n\nWrite the article and title in italian and english"
+                  }
+                ]
+              },
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "OpenAI_GPT_5_Mini": [
+              "Succeeded"
+            ],
+            "Set_Prompt_Context": [
+              "Succeeded"
+            ],
+            "Parse_Structured_Output": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Create_Featured_Image_with_AI": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Create Featured Image with AI",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": "gpt-image-1",
+              "prompt": "=Generate a real photo image used as a blog post cover (without writing):\n\nImage prompt:\n{{ $('Generate Article Text').item.json.output.title_it }}, photography, realistic, sigma 85mm f/1.4",
+              "options": {
+                "size": "1536x1024"
+              },
+              "resource": "image"
+            }
+          },
+          "runAfter": {
+            "Link_Translation_Posts": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

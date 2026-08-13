@@ -1,0 +1,114 @@
+{
+  "sourceWorkflowName": "Scrape LinkedIn profiles & save to Google Sheets with Apify",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 13,
+  "totalNodes": 15,
+  "coverage": 0.8667,
+  "diagnostics": [
+    {
+      "code": "TRIGGER_MISSING",
+      "message": "No supported n8n trigger was found.",
+      "severity": "warning",
+      "node_name": null,
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "LOOP_SEMANTICS_UNSUPPORTED",
+      "message": "This n8n loop requires a bounded LAA Foreach/Until region; batch size, reset, and loop-back behavior must be preserved explicitly.",
+      "severity": "warning",
+      "node_name": "Schedule Scraper Trigger 1",
+      "node_type": "n8n-nodes-base.splitInBatches",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$credentials.linkedinAuth.sessionCookie",
+      "severity": "warning",
+      "node_name": "Fetch Profile Data1",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={\n  \"startUrls\": [\n    {\n      \"url\": \"{{ $json.url }}\"\n    }\n  ],\n  \"sessionCookie\": \"{{ $credentials.linkedinAuth.sessionCookie }}\",\n  \"proxyConfiguration\": {\n    \"useApifyProxy\": true\n  },\n  \"maxConcurrency\": 1,\n  \"maxRequestRetries\": 3,\n  \"requestTimeoutSecs\": 60\n}",
+      "severity": "warning",
+      "node_name": "Fetch Profile Data1",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =--",
+      "severity": "warning",
+      "node_name": "Save to Google Sheets1",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Google Sheets operation 'appendOrUpdate' is not safely equivalent to a single LAA connector action.",
+      "severity": "warning",
+      "node_name": "Update Progress Tracker1",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.googleSheets is not safely supported.",
+      "severity": "warning",
+      "node_name": "Update Progress Tracker1",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $credentials.emailNotification.recipientEmail }}",
+      "severity": "warning",
+      "node_name": "Send Success Notification1",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$now.format('DD MMMM YYYY')",
+      "severity": "warning",
+      "node_name": "Send Success Notification1",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$('Execute Apify LinkedIn Scraper1').all().length",
+      "severity": "warning",
+      "node_name": "Send Success Notification1",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =Hello Team,<br><br>  \nPlease find the details for the LinkedIn Apify scraped data below.<br><br> \n \n \n<b>Scraping Date:</b>{{ $now.format('DD MMMM YYYY') }}<br> \n<b>Total Scraped Data:</b>{{ $('Execute Apify LinkedIn Scraper1').all().length }} Records<br> \n<br><br> \n\n \n<br>  Thanks,<br> Oneclick",
+      "severity": "warning",
+      "node_name": "Send Success Notification1",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Data Formatting1",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Data Formatting1",
+      "node_type": null,
+      "json_path": null
+    }
+  ]
+}

@@ -1,0 +1,574 @@
+{
+  "id": "4751",
+  "meta": {
+    "instanceId": "a8419d4f3e6280a726c9ac6304fff87ddb9140693d1e41a5aca032f65da07890"
+  },
+  "name": "Translate and distribute dubbed videos with DubLab to social and cloud platforms",
+  "tags": [
+    "Content Creation",
+    "Multimodal AI"
+  ],
+  "nodes": [
+    {
+      "id": "b1a97eac-25b5-4c17-bdc1-19631ec7d8c6",
+      "name": "Fetch Projects",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1312,
+        0
+      ],
+      "parameters": {
+        "url": "https://dublab.app/api/v2/dubs",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "DUBLAB_API_KEY"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "548d1a07-5369-4f14-8633-c5c252f91217",
+      "name": "Combine Videos and Languages",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        416,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const langMap = {\n  English: \"en\",\n  German: \"de\",\n  Russian: \"ru\",\n  Polish: \"pl\",\n  Spanish: \"es\",\n  Portuguese: \"pt\",\n  French: \"fr\",\n  Italian: 'it',\n  Turkish: \"tr\",\n  Arabic: \"ar\",\n  Dutch: \"nl\"\n};\n\nconst results = [];\nconsole.log($input)\nlet counter = 1\nlet video_key = 0\n$input.all().forEach(item => {\n  const videos = item.json.Video;\n  const languages = item.json[\"Destination Language\"];\n\n  videos.forEach(video => {\n    languages.forEach(lang => {\n      const video_binary = item.json.Video.length === 1 ? \"Video\" : (\"Video_\"+video_key);\n      results.push({\n        json: {\n          ...video,\n          language: langMap[lang] || lang, // fallback to original if not mapped\n          submittedAt: item.json.submittedAt,\n          formMode: item.json.formMode,\n          binary_order: counter\n        },\n        binary: { \n          [\"VIDEO_\" + counter] : item.binary[video_binary]\n        }\n      });\n      counter +=1\n    });\n    video_key +=1\n  });\n});\n\nreturn results;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "24ad376e-4b7f-4fdd-9436-e2064ba8105f",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        0,
+        656
+      ],
+      "webhookId": "e41c5f62-f2de-4df0-ac29-851837a67282",
+      "parameters": {
+        "path": "e41c5f62-f2de-4df0-ac29-851837a67282",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2cbf0106-4458-4413-8951-dc05b23b3596",
+      "name": "Original Video",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        512,
+        544
+      ],
+      "parameters": {
+        "url": "={{ $json.body.data.outputs.original_mp4.download_url }}",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d7844a0a-42ad-4b2a-9cfd-69fed6ba0b41",
+      "name": "Dubbed Video",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        512,
+        800
+      ],
+      "parameters": {
+        "url": "={{ $json.body.data.outputs.translated_mp4.download_url }}",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "33447d18-5ff0-46e4-a6e1-fcdeadf260fb",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        944,
+        480
+      ],
+      "webhookId": "20a81b1b-f38d-4e08-b301-a9e6ac2b951a",
+      "parameters": {
+        "chatId": "123456789",
+        "operation": "sendVideo",
+        "binaryData": true,
+        "additionalFields": {
+          "fileName": "Dubbed Video"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "5ea06731-9813-47e3-b14a-410226d98b26",
+      "name": "Box",
+      "type": "n8n-nodes-base.box",
+      "position": [
+        928,
+        912
+      ],
+      "parameters": {
+        "fileName": "={{ Math.random().toString(36).slice(2) }}-dubbed-{{ $json.body.dest_lang }}-{{ $json.body.name }}",
+        "binaryData": true
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "23071b08-e23a-4419-ac5c-8947c1c6904a",
+      "name": "Dropbox",
+      "type": "n8n-nodes-base.dropbox",
+      "position": [
+        1136,
+        656
+      ],
+      "parameters": {
+        "path": "=/dublab-files/{{ Math.random().toString(36).slice(2) }}-dubbed-{{ $json.body.dest_lang }}-{{ $json.body.name }}",
+        "binaryData": true,
+        "authentication": "oAuth2"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "979c470b-3cc9-4e1e-96d4-a9cf45bd2b10",
+      "name": "YouTube",
+      "type": "n8n-nodes-base.youTube",
+      "position": [
+        1280,
+        816
+      ],
+      "parameters": {
+        "title": "={{ $json.body.name }}",
+        "options": {},
+        "resource": "video",
+        "operation": "upload",
+        "regionCode": "PL"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1afd0125-5900-4931-9a0e-e9ffa7c2e7d6",
+      "name": "Postiz",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        912,
+        1344
+      ],
+      "parameters": {
+        "url": "https://api.postiz.com/api/public/v1/upload",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "file",
+              "parameterType": "formBinaryData",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "POSTIZ_API_KEY"
+            },
+            {
+              "name": "Proxy-Authorization",
+              "value": "PROXY_AUTH"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e27f5806-b4c1-4306-b52e-ce37d3b63177",
+      "name": "Start",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "64090ea9-fc2c-4d1f-8a18-4dfaf0546762",
+      "parameters": {
+        "options": {},
+        "formTitle": "Dub Videos",
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "file",
+              "fieldLabel": "Video",
+              "requiredField": true,
+              "acceptFileTypes": ".mp4"
+            },
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "Destination Language",
+              "multiselect": true,
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "English"
+                  },
+                  {
+                    "option": "German"
+                  },
+                  {
+                    "option": "Russian"
+                  },
+                  {
+                    "option": "Polish"
+                  },
+                  {
+                    "option": "Spanish"
+                  },
+                  {
+                    "option": "Portuguese"
+                  },
+                  {
+                    "option": "Italian"
+                  },
+                  {
+                    "option": "Arabic"
+                  },
+                  {
+                    "option": "French"
+                  },
+                  {
+                    "option": "Turkish"
+                  },
+                  {
+                    "option": "Dutch"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "050e0cdc-d0c5-413b-a360-8d84fdedc57f",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -832,
+        144
+      ],
+      "parameters": {
+        "width": 616,
+        "height": 648,
+        "content": "## Try It Out\n\n### Workflows\n----------\n 1. Via n8n form select files to dub for desired languages.\n 2. Listen webhook and whenever dubbing finishes upload to desired platforms\n\n\n### How to Use\n\n - Obtain Api Key from https://dublab.app, set as variable or just update on nodes.\n - Grab Webhook Url and add to DubLab App\n - Setup upload providers (Telegram, Box, Dropbox, YouTube, Postiz etc.)\n\n\n### Used Stacks\n - DubLab App (ApiKey, Webhook Setup Required)\n - Telegram (Token Required)\n - Box (Oauth2 Required)\n - Dropbox (Oauth2 Required)\n - Youtube (Oauth2 Required)\n - Postiz (ApiKey Required)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "354900a5-5c2f-49e0-9514-2504b08e7fd5",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        848,
+        1120
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "width": 680,
+        "height": 412,
+        "content": "### Postiz\n - https://postiz.com/\n - Pretty neat tool which supports many social media platforms\n - Supports cloud and self-hosted version\n - Via API post can be shared over below platforms (Facebook, Instagram, Threads, Tiktok, Reddit etc.)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f171dfc8-def8-4fa0-bb97-6114a7cba2ae",
+      "name": "Create Dub",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "url": "https://dublab.app/api/v2/dubs",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "source_lang",
+              "value": "auto"
+            },
+            {
+              "name": "dest_lang",
+              "value": "={{ $json.language }}"
+            },
+            {
+              "name": "name",
+              "value": "={{ $json.filename }}"
+            },
+            {
+              "name": "source",
+              "value": "n8n"
+            },
+            {
+              "name": "is_studio_quality",
+              "value": "false"
+            },
+            {
+              "name": "file",
+              "parameterType": "formBinaryData",
+              "inputDataFieldName": "=VIDEO_{{ $json.binary_order }}"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "DUBLAB_API_KEY"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "3f93aaac-ca16-4009-b738-7c376836b140",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -128,
+        -240
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "width": 1728,
+        "height": 448,
+        "content": "## Dub Video/Audio to any language\n\nSubmit video and desired destination languages to DubLab App.\nFor more details check below docs\n - https://dublab.app/docs/api/endpoints\n - https://dublab.app/docs/integrations/n8n\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7ccdd685-dc9b-4dcb-b094-4486e610e86d",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        848,
+        304
+      ],
+      "parameters": {
+        "color": "#FCFCFC",
+        "width": 672,
+        "height": 832,
+        "content": "## 3. Share Results\n\nShare results on any preferred social node, or just upload to any supported drive solution."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ebb2a0e5-655c-47b2-b6f9-1ad54dc3a87c",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -128,
+        432
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "width": 416,
+        "height": 400,
+        "content": "# 1. Listen webhook call\n\nBe sure webhook url added to https://dublab.app/account\n\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1129bc12-c72f-46eb-be1d-d7c24d5dcb63",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        304,
+        320
+      ],
+      "parameters": {
+        "color": "#FCFCFC",
+        "width": 528,
+        "height": 640,
+        "content": "# 2. Extract Results\n\n - Dubbed Video/Audio/Subtitle\n - Original Video/Audio/Subtitle\n - Thumbnail"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "55722059-e2bc-49af-96f6-dc307efa87af",
+  "nodeGroups": [],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Combine Videos and Languages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Dubbed Video",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Original Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Dub": {
+      "main": [
+        [
+          {
+            "node": "Fetch Projects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dubbed Video": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Box",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Dropbox",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "YouTube",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Postiz",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Original Video": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Videos and Languages": {
+      "main": [
+        [
+          {
+            "node": "Create Dub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "description": "\n**Automated** n8n workflow: Receives videos via form, dubs/translates them to the selected languages, and—upon completion—uploads them to multiple social media channels and cloud drives, including Box, Dropbox, and YouTube, Telegram, Postiz (Facebook, Instagram, Tiktok, Reddit etc.)\n\n### Workflows\n----------\n 1. Via n8n form select files to dub for desired languages.\n 2. Listen webhook and whenever dubbing finishes upload to desired platforms\n\n### Used Stacks\n-------------\n - DubLab App (ApiKey, Webhook Setup Required)\n#### Optional (Upload)\n - Telegram (Token Required)\n - Box (Oauth2 Required)\n - Dropbox (Oauth2 Required)\n - Youtube (Oauth2 Required)\n - Postiz (ApiKey Required)",
+  "author": "Behram",
+  "sourceUrl": "https://n8n.io/workflows/4751/",
+  "sourceMetadata": {
+    "templateId": 4751,
+    "createdAt": "2025-06-07T02:21:31.652Z",
+    "totalViews": 2455,
+    "recentViews": 96,
+    "status": "published",
+    "reviewStatus": "published",
+    "categories": [
+      "Content Creation",
+      "Multimodal AI"
+    ],
+    "author": {
+      "name": "Behram",
+      "username": "behram",
+      "bio": "",
+      "verified": false,
+      "links": [
+        "https://behram.dev"
+      ],
+      "avatar": "https://gravatar.com/avatar/27d5e4a25708202e595a6fc573a91fe62c494f9d053aefb3552c803fc53e0b88?r=pg&d=retro&size=200"
+    },
+    "workflowInfo": {
+      "nodeCount": 18,
+      "nodeTypes": {
+        "n8n-nodes-base.box": {
+          "count": 1
+        },
+        "n8n-nodes-base.code": {
+          "count": 1
+        },
+        "n8n-nodes-base.dropbox": {
+          "count": 1
+        },
+        "n8n-nodes-base.webhook": {
+          "count": 1
+        },
+        "n8n-nodes-base.youTube": {
+          "count": 1
+        },
+        "n8n-nodes-base.telegram": {
+          "count": 1
+        },
+        "n8n-nodes-base.stickyNote": {
+          "count": 6
+        },
+        "n8n-nodes-base.formTrigger": {
+          "count": 1
+        },
+        "n8n-nodes-base.httpRequest": {
+          "count": 5
+        }
+      }
+    }
+  }
+}

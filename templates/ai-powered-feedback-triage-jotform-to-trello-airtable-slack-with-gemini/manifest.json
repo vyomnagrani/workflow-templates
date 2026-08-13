@@ -1,0 +1,469 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "ai-powered-feedback-triage-jotform-to-trello-airtable-slack-with-gemini",
+    "name": "AI-powered feedback triage: Jotform to Trello, Airtable & Slack with Gemini",
+    "description": "Turn raw feedback into actionable product insights. This workflow collects feedback from both customers and staff via a single **Jotform**, uses **Gemini AI** to analyze and categorize it, then intelligently routes it:\n\n* **Actionable bugs and feature requests** become tasks in specific **Trello** lists, tagged with source and priority.\n* **General feedback** is logged in a structured **Airtable** base for later review.\n* **Urgent bugs** trigger instant **Slack** alerts for your dev team.\n* An **optional confirmation email** is sent via **Gmail** if the submitter provides their address.\n\nStop manually sorting feedback and ensure nothing falls through the cracks. This workflow centralizes input, automates triage, and delivers structured data directly to your product and development teams.\n\n### **Features**\n\n* **Unified Feedback Collection:** Uses a single Jotform for customers and staff.\n* **AI-Powered Triage:** Gemini AI categorizes feedback (Bug, Feature Request, General), suggests priority, and extracts keyword tags.\n* **Intelligent Filtering:** An IF node separates actionable tasks from general comments.\n* **Automated Task Creation:** Creates Trello cards in specific lists (\"Bugs,\" \"Feature Backlog\") with relevant labels (Source, Urgent).\n* **Structured Logging:** Saves all general feedback to an Airtable base for review and trend analysis.\n* **Conditional Alerts:** Notifies a Slack channel *only* for high-priority bugs.\n* **Optional Email Confirmation:** Sends a thank-you email if the submitter provides their address.\n\n### **Nodes Used**\n\n* 🟣 **Jotform Trigger** (`Jotform Trigger`)\n* ✉️ **Gmail** (`Send Confirmation Email`)\n* 🧠 **AI Agent** (`AI Feedback Triage`)\n* 🃏 **Trello** (`Create Trello Card`)\n* 📣 **Slack** (`Alert Dev Team`)\n* 🗂️ **Airtable** (`Log General Feedback to Airtable`)\n* **🔧 Set**, **❓ IF**, **🚫 No Operation, do nothing**\n\n---\n\n### **How to use this template**\n\nFollow these steps to configure the workflow with your accounts and specific IDs.\n\n**1. Set up Jotform, Trello, and Airtable (CRITICAL)**\n* Before starting, you **must** create the Jotform form, Trello board, and Airtable base exactly as described in the **\"Required Setup\"** section at the end of this document.\n\n**2. Configure the `Jotform Trigger` Node**\n* **Credentials:** Connect your Jotform account.\n* **Form:** Select your \"Help us improve IdeaToBiz\" form (replace the title with your company name).\n* **Resolve Data:** Ensure the **\"Resolve Data\"** toggle in the node's parameters is turned **ON**.\n\n**3. Configure the `Config` (Set) Node**\n* This node stores your Trello IDs. You **must** replace the placeholder values.\n* **Find Your IDs:** Open your Trello board, add `.json` to the URL, and press Enter. Search the JSON page for your List names (\"Bugs,\" \"Feature Backlog\") and Label names (\"Customer,\" \"Staff,\" \"Other,\" \"Urgent\") to find their corresponding `\"id\"` values.\n* **Action:** Paste your unique IDs into the value fields in this node.\n\n**4. Configure the `Email Provided?` (IF) and `Send Confirmation Email` (Gmail) Nodes**\n* **IF Node:** No configuration needed.\n* **Gmail Node:**\n    * **Credentials:** Connect your Gmail (or other email service) account.\n    * **Customize:** Edit the **Subject** and **Body** to match your company's voice.\n\n**5. Configure the `AI Feedback Triage` Node**\n* **Credentials:** Connect your Google AI (Gemini) credentials.\n* **Check Prompt:** Ensure the prompt correctly references your feedback field (e.g., `{{ $('Jotform Trigger').item.json['Feedback Details'] }}`).\n* **Check Schema:** Ensure the \"Structured Output\" JSON schema matches the required fields (`task_title`, `category`, `suggested_priority`, `tags`).\n\n**6. Configure the `Is it a Bug or Feature?` (IF) Node**\n* No configuration needed. This node filters based on the AI output.\n\n**7. Configure the `Create Trello Card` Node**\n* **Credentials:** Connect your Trello credentials.\n* **Board ID:** Select your `Product Feedback` board.\n* **Check Expressions:** Verify that the expressions for `List ID` and `Labels` correctly pull the IDs from your `Config` node and data from the `AI Feedback Triage` and `Jotform Trigger` nodes. The template should be pre-filled, but double-check node names if you renamed them.\n\n**8. Configure the `Is it an Urgent Bug?` (IF) Node**\n* No configuration needed. This checks the AI output before alerting Slack.\n\n**9. Configure the `Alert Dev Team` (Slack) Node**\n* **Credentials:** Connect your Slack credentials.\n* **Channel:** Select the channel for urgent bug alerts (e.g., `#dev-alerts`).\n* **Customize:** Edit the message text if desired. Ensure the Trello card URL expression (`{{ $('Create Trello Card').item.json.shortUrl }}`) is correct.\n\n**10. Configure the `Log General Feedback to Airtable` Node**\n* **Credentials:** Connect your Airtable credentials.\n* **Base ID:** Select your `Product Feedback Log` base.\n* **Table ID:** Select your `Feedback Submissions` table.\n* **Enable Typecast:** In the node's **Options**, ensure the **`Typecast`** toggle is **ON**. This is crucial for allowing n8n to create new tag options in Airtable.\n* **Check Field Mappings:** Verify that the field mappings correctly reference the `AI Feedback Triage` and `Jotform Trigger` nodes.\n\n**11. Activate Your Workflow!**\n* Once all credentials and IDs are configured, save and activate your workflow.\n\n---\n\n### **How to Adapt the Template**\n\n* **Change Task Destination:** Replace the Trello node with **ClickUp**, **Asana**, **Jira**, or another task manager. You'll need to adapt the field mappings.\n* **Change Logging Destination:** Replace the Airtable node with **Google Sheets**, **Notion**, or send logs via **Email** or **Discord**.\n* **Adjust AI Prompt:** Modify the prompt in the `AI Feedback Triage` node to change how feedback is categorized, prioritized, or tagged.\n* **Modify Filtering Logic:** Change the conditions in the `Is it a Bug or Feature?` IF node (e.g., maybe you also want \"UI/UX Issue\" to go to Trello).\n* **Refine Alerting:** Change the conditions in the `Is it an Urgent Bug?` IF node or send alerts for different categories (e.g., alert the design team for UI issues).\n\n---\n\n### **Required Setup**\n\n#### **Jotform Form Setup**\n\n1.  **Create Account:** If needed, sign up at [Jotform](https://www.jotform.com/?partner=atakhalighi).\n2.  **Create Form:** Build a form titled \"Help us improve IdeaToBiz\" (or similar).\n3.  **Add Fields:**\n    * **Radio Button:** Label `I am a...`, Options `Customer`, `Staff`, `Other` (Required: ON).\n    * **Email:** Label `Your Email (Optional)` (Required: OFF).\n    * **Long Text:** Label `Feedback Details` (Required: ON).\n    * **Submit Button:** Label `Submit Feedback`.\n\n#### **Trello Board Setup**\n\n1.  **Create Board:** Create a new Trello board named `Product Feedback`.\n2.  **Create Lists (Columns):** Add at least these two lists:\n    * `Feature Backlog`\n    * `Bugs`\n3.  **Create Labels:** Go to Menu -&gt; More -&gt; Labels and create:\n    * `Urgent` (Red recommended)\n    * `Customer` (Blue recommended)\n    * `Staff` (Green recommended)\n    * `Other` (Grey recommended)\n\n#### **Airtable Base Setup**\n\n1.  **Create Base:** Create a new Airtable base named `Product Feedback Log`.\n2.  **Create Table:** Name the table `Feedback Submissions`.\n3.  **Configure Fields:**\n    * Rename the primary field (`Name`) to **`Feedback Summary`** (Type: Single line text).\n    * Rename `Notes` to **`Full Feedback`** (Type: Long text).\n    * Delete `Assignee`.\n    * Rename `Status` to **`Source`** (Type: Single select, Options: `Customer`, `Staff`, `Other`).\n    * Add **`Email`** field (Type: Email).\n    * Add **`AI Tags`** field (Type: Multiple select).\n    * Add **`Submitted At`** field (Type: Created time).",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Market Research",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/gmail",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "JotForm_Trigger": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "JotForm Trigger",
+            "n8nNodeType": "n8n-nodes-base.jotFormTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "form": "252934846764067"
+            }
+          },
+          "runAfter": {}
+        },
+        "AI_Feedback_Triage": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "AI Feedback Triage",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=You are an expert product manager's assistant, responsible for triaging all incoming feedback.\n\nA user has submitted the following feedback:\n\"{{ $('JotForm Trigger').item.json['Feedback Details'] }}\"\n\nPlease analyze this feedback and follow these steps:\n1. First, create a short, clear `task_title` for it.\n2. Second, determine the `category`. Is this a 'Bug' (something is broken), a 'Feature Request' (a new idea), or 'General Feedback' (an opinion or comment)?\n3. Third, assess the `suggested_priority` based on the user's tone and the potential impact described.\n4. Fourth, extract an array of relevant `tags` (keywords).\n\nProvide your final analysis ONLY in the requested JSON format.",
+              "options": {},
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "Config": [
+              "Succeeded"
+            ],
+            "Google_Gemini_Chat_Model": [
+              "Succeeded"
+            ],
+            "Structured_Output_Parser": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Structured_Output_Parser": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Structured Output Parser",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsonSchemaExample": "{\n  \"task_title\": \"A short, 5-10 word title for this feedback\",\n  \"category\": \"Must be one of: 'Bug', 'Feature Request', or 'General Feedback'\",\n  \"suggested_priority\": \"Must be one of: 'High', 'Medium', or 'Low'\",\n  \"tags\": [\n    \"keyword1\",\n    \"keyword2\"\n  ]\n}"
+            }
+          },
+          "runAfter": {}
+        },
+        "Google_Gemini_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Gemini Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Is_it_a_Bug_or_Feature": {
+          "type": "If",
+          "expression": {
+            "or": [
+              {
+                "equals": [
+                  "@body('AI_Feedback_Triage')?['output']?['category']?['trim']().toLowerCase()",
+                  "bug"
+                ]
+              },
+              {
+                "equals": [
+                  "@body('AI_Feedback_Triage')?['output']?['category']?['trim']().toLowerCase()",
+                  "feature request"
+                ]
+              }
+            ]
+          },
+          "actions": {
+            "Create_Trello_Card": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Create Trello Card",
+                "n8nNodeType": "n8n-nodes-base.trello",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "name": "={{ $('AI Feedback Triage').item.json.output.task_title }}",
+                  "listId": "={{ $json.output.category.trim().toLowerCase() === 'bug' ? '68f7a8a8d35b96b34942f6f4' : '68f7a8a8d35b96b34942f6f3' }}",
+                  "description": "=**Feedback from:**\n{{ $('JotForm Trigger').item.json['I am a...'] }} {{ $('JotForm Trigger').item.json['Your Email (Optional)'] ? '(Email: ' + $('JotForm Trigger').item.json['Your Email (Optional)'] + ')' : '' }}\n\n---\n\n**Full Feedback:**\n{{ $('JotForm Trigger').item.json['Feedback Details'] }}\n\n---\n\n**AI Tags:**\n{{ $('AI Feedback Triage').item.json.output.tags.join(', ') }}\n",
+                  "additionalFields": {
+                    "pos": "top",
+                    "idLabels": "={{ (['Customer', 'Staff', 'Other'].includes($('JotForm Trigger').item.json['I am a...']) ? ($('JotForm Trigger').item.json['I am a...'] === 'Customer' ? $('Config').item.json.customer_label_id : ($('JotForm Trigger').item.json['I am a...'] === 'Staff' ? $('Config').item.json.staff_label_id : $('Config').item.json.other_label_id)) : '') + ($('AI Feedback Triage').item.json.output.suggested_priority.trim().toLowerCase() === 'high' ? ','+$('Config').item.json.urgent_label_id : '') }}"
+                  }
+                }
+              },
+              "runAfter": {}
+            },
+            "Is_it_an_Urgent_Bug": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Is it an Urgent Bug?",
+                "n8nNodeType": "n8n-nodes-base.if",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "strict"
+                    },
+                    "combinator": "and",
+                    "conditions": [
+                      {
+                        "id": "e7be6c85-a279-4c6a-b23d-a4aa8128d11e",
+                        "operator": {
+                          "name": "filter.operator.equals",
+                          "type": "string",
+                          "operation": "equals"
+                        },
+                        "leftValue": "={{ $('AI Feedback Triage').item.json.output.category.trim().toLowerCase() }}",
+                        "rightValue": "bug"
+                      },
+                      {
+                        "id": "7a704de2-e3b4-438a-bc65-c9eb9966ef0e",
+                        "operator": {
+                          "name": "filter.operator.equals",
+                          "type": "string",
+                          "operation": "equals"
+                        },
+                        "leftValue": "={{ $('AI Feedback Triage').item.json.output.suggested_priority.trim().toLowerCase() }}",
+                        "rightValue": "high"
+                      }
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "Create_Trello_Card": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Alert_Dev_Team": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Alert Dev Team",
+                "n8nNodeType": "n8n-nodes-base.slack",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "text": "=🚨 *High Priority Bug Reported!* 🚨\n\n*Title:* {{ $('AI Feedback Triage').item.json.output.task_title }}\n*Source:* {{ $('JotForm Trigger').item.json['I am a...'] }}\n*Feedback:* {{ $('JotForm Trigger').item.json['Feedback Details'] }}\n\n*Trello Card:*\n{{ $('Create Trello Card').item.json.shortUrl }}",
+                  "select": "channel",
+                  "channelId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "C09MQB3PWUE",
+                    "cachedResultName": "dev-alerts"
+                  },
+                  "otherOptions": {
+                    "includeLinkToWorkflow": false
+                  }
+                }
+              },
+              "runAfter": {
+                "Is_it_an_Urgent_Bug": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "No_Alert_Needed": {
+              "type": "Compose",
+              "inputs": {},
+              "runAfter": {
+                "Is_it_an_Urgent_Bug": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "Log_General_Feedback_to_Airtable": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "Log General Feedback to Airtable",
+                  "n8nNodeType": "n8n-nodes-base.airtable",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "base": {
+                      "__rl": true,
+                      "mode": "list",
+                      "value": "appKqfaCnM6Ea50x6",
+                      "cachedResultUrl": "https://airtable.com/appKqfaCnM6Ea50x6",
+                      "cachedResultName": "Product Feedback Log"
+                    },
+                    "table": {
+                      "__rl": true,
+                      "mode": "list",
+                      "value": "tblfQMf9cDi9LSds4",
+                      "cachedResultUrl": "https://airtable.com/appKqfaCnM6Ea50x6/tblfQMf9cDi9LSds4",
+                      "cachedResultName": "Feedback Submissions"
+                    },
+                    "columns": {
+                      "value": {
+                        "Email": "={{ $('JotForm Trigger').item.json['Your Email (Optional)'] ? $('JotForm Trigger').item.json['Your Email (Optional)'] : '' }}",
+                        "Source": "={{ $('JotForm Trigger').item.json['I am a...'] }}",
+                        "AI Tags": "={{ $('AI Feedback Triage').item.json.output.tags }}",
+                        "Full Feedback": "={{ $('JotForm Trigger').item.json['Feedback Details'] }}",
+                        "Feedback Summary": "={{ $('AI Feedback Triage').item.json.output.task_title }}"
+                      },
+                      "schema": [
+                        {
+                          "id": "Feedback Summary",
+                          "type": "string",
+                          "display": true,
+                          "removed": false,
+                          "readOnly": false,
+                          "required": false,
+                          "displayName": "Feedback Summary",
+                          "defaultMatch": false,
+                          "canBeUsedToMatch": true
+                        },
+                        {
+                          "id": "Full Feedback",
+                          "type": "string",
+                          "display": true,
+                          "removed": false,
+                          "readOnly": false,
+                          "required": false,
+                          "displayName": "Full Feedback",
+                          "defaultMatch": false,
+                          "canBeUsedToMatch": true
+                        },
+                        {
+                          "id": "Source",
+                          "type": "options",
+                          "display": true,
+                          "options": [
+                            {
+                              "name": "Customer",
+                              "value": "Customer"
+                            },
+                            {
+                              "name": "Staff",
+                              "value": "Staff"
+                            },
+                            {
+                              "name": "Other",
+                              "value": "Other"
+                            }
+                          ],
+                          "removed": false,
+                          "readOnly": false,
+                          "required": false,
+                          "displayName": "Source",
+                          "defaultMatch": false,
+                          "canBeUsedToMatch": true
+                        },
+                        {
+                          "id": "Email",
+                          "type": "string",
+                          "display": true,
+                          "removed": false,
+                          "readOnly": false,
+                          "required": false,
+                          "displayName": "Email",
+                          "defaultMatch": false,
+                          "canBeUsedToMatch": true
+                        },
+                        {
+                          "id": "AI Tags",
+                          "type": "array",
+                          "display": true,
+                          "options": [],
+                          "removed": false,
+                          "readOnly": false,
+                          "required": false,
+                          "displayName": "AI Tags",
+                          "defaultMatch": false,
+                          "canBeUsedToMatch": true
+                        },
+                        {
+                          "id": "Submitted At",
+                          "type": "string",
+                          "display": true,
+                          "removed": true,
+                          "readOnly": true,
+                          "required": false,
+                          "displayName": "Submitted At",
+                          "defaultMatch": false,
+                          "canBeUsedToMatch": true
+                        }
+                      ],
+                      "mappingMode": "defineBelow",
+                      "matchingColumns": [],
+                      "attemptToConvertTypes": false,
+                      "convertFieldsToString": false
+                    },
+                    "options": {
+                      "typecast": true
+                    },
+                    "operation": "create"
+                  }
+                },
+                "runAfter": {}
+              }
+            }
+          },
+          "runAfter": {
+            "AI_Feedback_Triage": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Config": {
+          "type": "Compose",
+          "inputs": {
+            "feature_backlog_list_id": "68f7a8a8d35b96b34942f6f3",
+            "bugs_list_id": "68f7a8a8d35b96b34942f6f4",
+            "customer_label_id": "68f7a8a8d35b96b34942f6f1",
+            "staff_label_id": "68f7a8a8d35b96b34942f6ec",
+            "other_label_id": "68f7ae69d2c2a4e0e83d8f75",
+            "urgent_label_id": "68f7a8a8d35b96b34942f6ef"
+          },
+          "runAfter": {
+            "JotForm_Trigger": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Email_Provided": {
+          "type": "If",
+          "expression": {
+            "not": {
+              "empty": [
+                "@body('JotForm_Trigger')?['Your Email (Optional)']"
+              ]
+            }
+          },
+          "actions": {
+            "Send_Confirmation_Email": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "referenceName": "gmail_#workflowname#"
+                  }
+                },
+                "method": "post",
+                "path": "/v2/Mail",
+                "body": {
+                  "To": "@triggerBody()?['Your Email (Optional)']",
+                  "Subject": "Thanks for your feedback on IdeaToBiz!",
+                  "Body": "=Hi there,\n\nThanks for taking the time to share your feedback about IdeaToBiz.\n\nThis email confirms we've received your submission. Our product team reviews all feedback as we work to improve the platform.\n\nBest regards,\nThe IdeaToBiz Team"
+                }
+              },
+              "metadata": {
+                "flowSystemMetadata": {
+                  "swaggerOperationId": "SendEmailV2"
+                }
+              },
+              "runAfter": {}
+            }
+          },
+          "else": {
+            "actions": {
+              "Skip_Confirmation_Email": {
+                "type": "Compose",
+                "inputs": {},
+                "runAfter": {}
+              }
+            }
+          },
+          "runAfter": {
+            "JotForm_Trigger": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "gmail_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/gmail"
+    }
+  }
+}

@@ -1,0 +1,657 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "build-an-ai-confidence-coach-for-women-with-gpt-4o-google-sheets-and-gmail",
+    "name": "Build an AI confidence coach for women with GPT-4o, Google Sheets and Gmail",
+    "description": "## 📊 Description\nMost career advice is generic. This workflow builds a fully personalized AI coaching system that remembers every user, adapts to their career stage and goals, detects what kind of help they need, and gets more contextual with every conversation. It is not a simple chatbot — it is a structured coaching engine with user profiling, conversation memory, intent routing, and proactive weekly outreach.\nBuilt for women's communities, coaching platforms, HR teams, and edtech creators who want to deliver real personalized career support at scale without hiring a team of coaches.\n\n## What This Workflow Does\n💬 Opens a chat interface where users can start talking immediately — no signup required\n🧮 Detects if the user is new or returning on every message using Google Sheets as a user database\n📋 Walks new users through a 4-step onboarding — name, career stage, biggest challenge, and monthly goal\n🗂️ Stores and updates every user profile in Google Sheets with full onboarding state tracking\n🔍 Detects intent from every coaching message across 6 categories — salary negotiation, interview prep, career change, leadership, confidence building, and work-life balance\n🤖 Routes each message to a topic-specific GPT-4o system prompt tailored to that coaching category\n💬 Loads the last 5 conversations from history to give GPT-4o full context before generating a response\n✅ Responds with personalized advice, one actionable step for today, and a follow-up question to keep momentum\n📝 Logs every conversation to Google Sheets with timestamp, message, intent, and AI response\n📧 Sends every fully onboarded user a personalized weekly check-in email every Sunday with a weekly challenge, progress acknowledgment, and motivational quote from a woman leader\n\n## Key Benefits\n✅ Full conversation memory — every session builds on the last\n✅ Intent detection across 6 coaching categories — not one generic prompt\n✅ User profiling — advice is always tailored to their stage, challenge, and goal\n✅ Proactive weekly outreach — not just reactive coaching\n✅ Complete audit trail — every conversation logged to Google Sheets\n✅ Works for any number of users simultaneously via session-based identification\n✅ No login or signup needed — just open the chat URL and start\n\n## How It Works\n\nSW1 — Onboarding Every message hits the Chat Trigger and gets routed through the onboarding engine. The workflow reads all users from Google Sheets and matches the current session ID. If the user is new they go through 4 onboarding steps one message at a time — name, career stage with a numbered menu, biggest challenge with a numbered menu, and their monthly goal in their own words. Numbered responses are automatically mapped to their full label so 2 becomes Early Career (1-3 years) and 5 becomes Work-life balance. Every step is saved and the onboarding state is tracked so users can return to the same conversation and pick up exactly where they left off.\n\nSW2 — Coaching Engine Once onboarding is complete every subsequent message goes straight to the coaching engine. The workflow reads the user's last 5 conversations from the Conversation Log sheet for context. It then scans the message for intent keywords across 6 categories and selects the matching system prompt. GPT-4o receives the full user profile, conversation history, and topic-specific coaching instructions before generating a response. Every response includes a main coaching answer, one specific action the user can take today, and a follow-up question to continue the conversation. The full exchange is logged to the Conversation Log sheet.\n\nSW3 — Weekly Check-in Every Sunday at 10AM the workflow reads all fully onboarded users, pulls their recent conversation topics from the log, and generates a personalized weekly check-in email for each one via GPT-4o. The email includes a warm personalized greeting, acknowledgment of their progress, a concrete weekly challenge tied to their goal, and a motivational quote from a real woman leader relevant to their situation. Emails are sent via Gmail and every send is logged to the Weekly Checkins sheet.\n\n## Features\n- n8n Chat Trigger with public URL — shareable with any user\n- Session-based user identification — no login required\n- 4-step guided onboarding with numbered menu options\n- Numbered response to label mapping for clean data storage\n- New vs returning user detection on every message\n- Google Sheets as full user database and conversation memory\n- 6-category intent detection engine with keyword matching\n- Topic-specific GPT-4o system prompts per coaching category\n- Last 5 message context window passed to every GPT call\n- Structured JSON responses — advice, action step, follow-up question\n- Weekly Sunday proactive check-in via Gmail\n- Personalized HTML email with challenge box and quote section\n- Full logging across 3 sheets — User Profiles, Conversation Log, Weekly Checkins\n\n## Requirements\n- OpenAI API key (GPT-4o access)\n- Google Sheets OAuth2 connection\n- Gmail OAuth2 connection\n- A configured Google Sheet with 3 sheets as above\n\n## Setup Steps\n- Create a Google Sheet called \"AI Confidence Coach\" with 3 sheets — User Profiles, Conversation Log, Weekly Checkins\n- Paste your Sheet ID into all Google Sheets nodes\n- Add your Google Sheets OAuth2 credentials\n- Add your OpenAI API key\n- Add your Gmail OAuth2 credentials\n- Add your email as fallback in the Send Weekly Checkin Email node\n- Activate the workflow and copy the Chat \n- Trigger URL\n- Open the chat URL and test the full onboarding flow with 5 messages\n- Send a coaching question and confirm GPT-4o responds with personalized advice\n- Add your email to the User Profiles sheet and run SW3 manually to test the weekly check-in email\n- Share the chat URL with your users — the workflow runs itself from here\n\n## Target Audience\n🤖 Women's communities and career platforms who want to offer AI coaching at scale\n💼 HR teams building internal confidence and career development tools\n🎓 Edtech creators running women's upskilling and mentorship programs\n🔧 Automation agencies building AI coaching products for clients\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Personal Productivity",
+      "AI Chatbot",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/gmail",
+      "/managedApis/googlesheet",
+      "connectionProviders/inlineCode",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Weekly_Sunday_10AM_Trigger": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Week",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Extract_User_Message": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Chat_Trigger'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst message = $input.first().json.chatInput || '';\nconst sessionId = $input.first().json.sessionId || 'anonymous';\n\nreturn [{\n  json: {\n    user_id: sessionId,\n    message: message.trim(),\n    timestamp: new Date().toISOString()\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Chat_Trigger": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Read_All_Users": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('1yE5kqA1bo52CrYcvKFHFuCTBYmcI1vaMPuFKKP28sEI'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Extract_User_Message": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Read_All_Onboarded_Users": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('1yE5kqA1bo52CrYcvKFHFuCTBYmcI1vaMPuFKKP28sEI'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {}
+        },
+        "Read_Conversation_Log": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('1yE5kqA1bo52CrYcvKFHFuCTBYmcI1vaMPuFKKP28sEI'))}/tables/@{encodeURIComponent(encodeURIComponent('824897704'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Filter_Onboarded_Users": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Parse_Weekly_Message": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Weekly_Coach'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst response = items[0].json.output[0].content[0].text;\nconst cleaned = response.replace(/```json|```/g, '').trim();\nconst parsed = JSON.parse(cleaned);\n\nconst userData = __node('Build_Checkin_Prompt').item.json;\n\nconst emailBody = `\n<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: Arial, sans-serif; background: #f9f4ff; margin: 0; padding: 0; }\n    .container { max-width: 600px; margin: 30px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }\n    .header { background: linear-gradient(135deg, #7b2ff7, #f107a3); padding: 30px; text-align: center; color: white; }\n    .header h1 { margin: 0; font-size: 22px; }\n    .body { padding: 30px; color: #333; }\n    .challenge-box { background: #f3eaff; border-left: 4px solid #7b2ff7; padding: 16px 20px; border-radius: 8px; margin: 20px 0; }\n    .quote-box { background: #fff0fb; border-left: 4px solid #f107a3; padding: 14px 18px; border-radius: 8px; margin: 20px 0; font-style: italic; }\n    .footer { background: #f9f4ff; padding: 16px; text-align: center; font-size: 12px; color: #999; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <h1>💜 Your Weekly Check-in</h1>\n    </div>\n    <div class=\"body\">\n      <p>${parsed.greeting}</p>\n      <p>${parsed.progress_acknowledgment}</p>\n      <div class=\"challenge-box\">\n        <strong>🎯 This Week's Challenge:</strong><br/><br/>\n        ${parsed.weekly_challenge}\n      </div>\n      <div class=\"quote-box\">\n        💬 ${parsed.motivational_quote}\n      </div>\n      <p>${parsed.closing}</p>\n    </div>\n    <div class=\"footer\">You're receiving this because you're part of the AI Confidence Coach community.<br/>Reply to this email anytime — we're here for you. 💜</div>\n  </div>\n</body>\n</html>`;\n\nreturn [{\n  json: {\n    ...userData,\n    email_subject: parsed.subject,\n    email_body: emailBody\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Weekly_Coach": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_Weekly_Checkin_Email": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "gmail_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/v2/Mail",
+            "body": {
+              "To": "@body('Filter_Users_With_Email')?['email']",
+              "Subject": "@body('Filter_Users_With_Email')?['email_subject']",
+              "Body": "@body('Filter_Users_With_Email')?['email_body']"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendEmailV2"
+            }
+          },
+          "runAfter": {
+            "Filter_Users_With_Email": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Chat_Trigger": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Chat Trigger",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chatTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "public": true,
+              "options": {
+                "responseMode": "responseNodes"
+              },
+              "initialMessages": "Hi there! 👋\nMy name is Nathan. How can I assist you today?\n\nStart by entering your name "
+            }
+          },
+          "runAfter": {}
+        },
+        "Check_User_Route": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Read_All_Users'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst userId = __node('Extract_User_Message').first().json.user_id;\nconst message = __node('Extract_User_Message').first().json.message;\n\n// Lookup maps for numbered responses\nconst careerStageMap = {\n  '1': 'Student or Fresh Graduate',\n  '2': 'Early Career (1-3 years)',\n  '3': 'Mid Career (4-8 years)',\n  '4': 'Senior or Leadership',\n  '5': 'Career Changer'\n};\n\nconst challengeMap = {\n  '1': 'Salary negotiation',\n  '2': 'Interview confidence',\n  '3': 'Career change or pivot',\n  '4': 'Leadership and assertiveness',\n  '5': 'Work-life balance',\n  '6': 'Building my network'\n};\n\n// Read all users from sheet\nconst allUsers = $input.all();\n\n// Find this specific user\nconst existingUser = allUsers.find(u => String(u.json.user_id) === String(userId));\n\n// Brand new user\nif (!existingUser) {\n  return [{\n    json: {\n      user_id: userId,\n      message,\n      onboarding_step: 0,\n      is_new: true,\n      name: '',\n      career_stage: '',\n      challenge: '',\n      goal: '',\n      response: `👋 Welcome to your AI Confidence Coach!\\n\\nI'm here to help you navigate salary negotiations, interview prep, career changes, and building unshakeable confidence at work.\\n\\nLet's start with a quick setup so I can give you the most relevant advice.\\n\\n*What's your name?*`\n    }\n  }];\n}\n\nconst user = existingUser.json;\nconst step = Number(user.onboarding_step) || 0;\n\n// Step 1 — Got name, ask career stage\nif (step === 1) {\n  return [{\n    json: {\n      user_id: userId,\n      message,\n      onboarding_step: 1,\n      is_new: false,\n      name: message,\n      career_stage: '',\n      challenge: user.challenge || '',\n      goal: user.goal || '',\n      response: `Nice to meet you, ${message}! 🌟\\n\\nWhat best describes your current career stage?\\n\\n1️⃣ Student or Fresh Graduate\\n2️⃣ Early Career (1-3 years)\\n3️⃣ Mid Career (4-8 years)\\n4️⃣ Senior or Leadership\\n5️⃣ Career Changer\\n\\nJust type the number or your answer.`\n    }\n  }];\n}\n\n// Step 2 — Got career stage, ask biggest challenge\nif (step === 2) {\n  return [{\n    json: {\n      user_id: userId,\n      message,\n      onboarding_step: 2,\n      is_new: false,\n      name: user.name || '',\n      career_stage: careerStageMap[message.trim()] || message,\n      challenge: '',\n      goal: user.goal || '',\n      response: `Got it! 💪\\n\\nWhat's your biggest challenge right now?\\n\\n1️⃣ Salary negotiation\\n2️⃣ Interview confidence\\n3️⃣ Career change or pivot\\n4️⃣ Leadership and assertiveness\\n5️⃣ Work-life balance\\n6️⃣ Building my network\\n\\nType the number or describe it in your own words.`\n    }\n  }];\n}\n\n// Step 3 — Got challenge, ask goal\nif (step === 3) {\n  return [{\n    json: {\n      user_id: userId,\n      message,\n      onboarding_step: 3,\n      is_new: false,\n      name: user.name || '',\n      career_stage: user.career_stage || '',\n      challenge: challengeMap[message.trim()] || message,\n      goal: '',\n      response: `Love the honesty! 🙌\\n\\nLast question — what's your main goal for this month?\\n\\nFor example: \"Get a raise\", \"Land a new job\", \"Feel more confident in meetings\", \"Start my own business\"\\n\\nTell me in your own words.`\n    }\n  }];\n}\n\n// Step 4 — Onboarding complete\nif (step === 4) {\n  const careerLabel = user.career_stage || '';\n  const challengeLabel = user.challenge || '';\n  return [{\n    json: {\n      user_id: userId,\n      message,\n      onboarding_step: 4,\n      is_new: false,\n      is_complete: true,\n      name: user.name || '',\n      career_stage: careerLabel,\n      challenge: challengeLabel,\n      goal: message,\n      response: `You're all set, ${user.name}! 🎉\\n\\nHere's what I know about you:\\n📍 Career Stage: ${careerLabel}\\n🎯 Biggest Challenge: ${challengeLabel}\\n🌟 This Month's Goal: ${message}\\n\\nI'm ready to coach you. Ask me anything — salary negotiation, interview tips, how to handle a difficult boss, career pivots, or just a confidence boost when you need one.\\n\\n*What would you like help with today?*`\n    }\n  }];\n}\n\n// Step 5+ — Onboarding done, ready for coaching\nreturn [{\n  json: {\n    user_id: userId,\n    message,\n    onboarding_step: step,\n    is_new: false,\n    is_onboarding_complete: true,\n    name: user.name || '',\n    career_stage: user.career_stage || '',\n    challenge: user.challenge || '',\n    goal: user.goal || '',\n    response: null\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Read_All_Users": [
+              "Succeeded"
+            ]
+          }
+        },
+        "IF_Onboarding_or_Coaching": {
+          "type": "If",
+          "expression": {
+            "less": [
+              "@body('Check_User_Route')?['onboarding_step']",
+              5
+            ]
+          },
+          "actions": {
+            "Save_Onboarding_Progress": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Save Onboarding Progress",
+                "n8nNodeType": "n8n-nodes-base.googleSheets",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "columns": {
+                    "value": {
+                      "goal": "={{ $json.goal || '' }}",
+                      "name": "={{ $json.name || '' }}",
+                      "user_id": "={{ $json.user_id }}",
+                      "challenge": "={{ $json.challenge || '' }}",
+                      "joined_date": "={{ $json.is_new ? new Date().toISOString().split('T')[0] : '' }} ",
+                      "last_active": "={{ new Date().toISOString().split('T')[0] }}",
+                      "career_stage": "={{ $json.career_stage || '' }}",
+                      "onboarding_step": "={{ Number($json.onboarding_step) + 1 }}"
+                    },
+                    "schema": [
+                      {
+                        "id": "user_id",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "required": false,
+                        "displayName": "user_id",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "name",
+                        "type": "string",
+                        "display": true,
+                        "required": false,
+                        "displayName": "name",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "career_stage",
+                        "type": "string",
+                        "display": true,
+                        "required": false,
+                        "displayName": "career_stage",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "challenge",
+                        "type": "string",
+                        "display": true,
+                        "required": false,
+                        "displayName": "challenge",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "goal",
+                        "type": "string",
+                        "display": true,
+                        "required": false,
+                        "displayName": "goal",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "joined_date",
+                        "type": "string",
+                        "display": true,
+                        "required": false,
+                        "displayName": "joined_date",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "last_active",
+                        "type": "string",
+                        "display": true,
+                        "required": false,
+                        "displayName": "last_active",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "onboarding_step",
+                        "type": "string",
+                        "display": true,
+                        "required": false,
+                        "displayName": "onboarding_step",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      }
+                    ],
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [
+                      "user_id"
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                  },
+                  "options": {},
+                  "operation": "appendOrUpdate",
+                  "sheetName": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "gid=0",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1yE5kqA1bo52CrYcvKFHFuCTBYmcI1vaMPuFKKP28sEI/edit#gid=0",
+                    "cachedResultName": "User Profiles"
+                  },
+                  "documentId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "1yE5kqA1bo52CrYcvKFHFuCTBYmcI1vaMPuFKKP28sEI",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1yE5kqA1bo52CrYcvKFHFuCTBYmcI1vaMPuFKKP28sEI/edit?usp=drivesdk",
+                    "cachedResultName": "Content Automation — Video & Blog Publishing Pipeline"
+                  }
+                }
+              },
+              "runAfter": {}
+            },
+            "Respond_Onboarding": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Respond — Onboarding",
+                "n8nNodeType": "@n8n/n8n-nodes-langchain.chat",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "message": "={{ $('Check User & Route').item.json.response }}",
+                  "options": {},
+                  "waitUserReply": false
+                }
+              },
+              "runAfter": {
+                "Save_Onboarding_Progress": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "Read_Conversation_History": {
+                "type": "ApiConnection",
+                "inputs": {
+                  "host": {
+                    "connection": {
+                      "referenceName": "googlesheet_#workflowname#"
+                    }
+                  },
+                  "method": "post",
+                  "path": "/datasets/@{encodeURIComponent(encodeURIComponent('1yE5kqA1bo52CrYcvKFHFuCTBYmcI1vaMPuFKKP28sEI'))}/tables/@{encodeURIComponent(encodeURIComponent('824897704'))}/items",
+                  "body": {}
+                },
+                "metadata": {
+                  "flowSystemMetadata": {
+                    "swaggerOperationId": "PostItem"
+                  }
+                },
+                "runAfter": {}
+              },
+              "Build_Coaching_Prompt": {
+                "type": "JavaScriptCode",
+                "inputs": {
+                  "code": "const __inputRaw = workflowContext.actions['Read_Conversation_History'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst userData = __node('Check_User_Route').first().json;\nconst message = userData.message;\nconst userId = userData.user_id;\n\n// Get last 5 messages for context\nconst history = $input.all().slice(-5);\n\nlet conversationHistory = '';\nhistory.forEach(h => {\n  const userMsg = h.json.user_message;\n  const botMsg = h.json.bot_response;\n  // Only include rows that have actual content\n  if (userMsg && botMsg && userMsg !== 'undefined' && botMsg !== 'undefined') {\n    conversationHistory += `User: ${userMsg}\\nCoach: ${botMsg}\\n\\n`;\n  }\n});\n\n// Detect intent\nconst intentKeywords = {\n  salary: ['salary', 'raise', 'pay', 'negotiate', 'compensation', 'money', 'increment'],\n  interview: ['interview', 'job', 'hired', 'application', 'resume', 'cv', 'hiring'],\n  career_change: ['change', 'pivot', 'switch', 'new career', 'different field', 'quit'],\n  leadership: ['leadership', 'boss', 'manager', 'team', 'assertive', 'authority', 'speak up'],\n  confidence: ['confidence', 'scared', 'nervous', 'afraid', 'doubt', 'imposter', 'worthy'],\n  balance: ['balance', 'burnout', 'stress', 'overwhelm', 'tired', 'boundaries', 'overworked']\n};\n\nlet detectedIntent = 'general';\nconst msgLower = message.toLowerCase();\n\nfor (const [intent, keywords] of Object.entries(intentKeywords)) {\n  if (keywords.some(k => msgLower.includes(k))) {\n    detectedIntent = intent;\n    break;\n  }\n}\n\n// Topic specific system prompts\nconst systemPrompts = {\n  salary: `You are an expert salary negotiation coach for women. You help women confidently negotiate raises and compensation. Be specific, tactical, and encouraging. Give exact scripts and phrases they can use.`,\n  interview: `You are an expert interview coach for women. You help women prepare for job interviews, craft compelling answers, and present themselves confidently. Give specific tips and practice questions.`,\n  career_change: `You are an expert career transition coach for women. You help women navigate career pivots with clarity and confidence. Be practical about steps, timelines, and skill gaps.`,\n  leadership: `You are an expert leadership coach for women. You help women develop their leadership presence, handle difficult workplace dynamics, and build authority. Be direct and empowering.`,\n  confidence: `You are an expert confidence coach for women. You help women overcome imposter syndrome, self-doubt, and fear. Be warm, encouraging, and give concrete mindset tools.`,\n  balance: `You are an expert work-life balance coach for women. You help women set boundaries, manage burnout, and create sustainable careers. Be compassionate and practical.`,\n  general: `You are an expert career coach for women. You help women grow their careers, build confidence, and achieve their professional goals. Be encouraging, practical, and specific.`\n};\n\nconst prompt = `${systemPrompts[detectedIntent]}\n\nUser Profile:\n- Name: ${userData.name}\n- Career Stage: ${userData.career_stage}\n- Biggest Challenge: ${userData.challenge}\n- This Month's Goal: ${userData.goal}\n\nRecent Conversation:\n${conversationHistory || 'This is the first coaching message.'}\n\nUser's Message: ${message}\n\nRespond in this JSON format:\n{\n  \"main_advice\": \"2-3 paragraph personalized coaching response\",\n  \"actionable_step\": \"One specific action they can take today\",\n  \"follow_up_question\": \"One question to keep them moving forward\",\n  \"intent_detected\": \"${detectedIntent}\"\n}\n\nRules:\n- Always address them by name\n- Reference their specific goal and challenge\n- Be direct and confident not vague\n- Give real tactical advice not generic tips\n- End with the follow up question to continue the conversation`;\n\nreturn [{\n  json: {\n    ...userData,\n    prompt,\n    intent: detectedIntent\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+                },
+                "runAfter": {
+                  "Read_Conversation_History": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Parse_Coaching_Response": {
+                "type": "JavaScriptCode",
+                "inputs": {
+                  "code": "const __inputRaw = workflowContext.actions['Confidence_Coach'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst response = items[0].json.output[0].content[0].text;\nconst cleaned = response.replace(/```json|```/g, '').trim();\nconst parsed = JSON.parse(cleaned);\n\nconst userData = __node('Check_User_Route').first().json;\n\nconst formattedResponse = `${parsed.main_advice}\\n\\n✅ *Your Action for Today:*\\n${parsed.actionable_step}\\n\\n💭 ${parsed.follow_up_question}`;\n\nreturn [{\n  json: {\n    ...userData,\n    coaching_response: formattedResponse,\n    main_advice: parsed.main_advice,\n    actionable_step: parsed.actionable_step,\n    follow_up_question: parsed.follow_up_question,\n    intent: parsed.intent_detected\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+                },
+                "runAfter": {
+                  "Confidence_Coach": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Confidence_Coach": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "Confidence Coach",
+                  "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "modelId": {
+                      "__rl": true,
+                      "mode": "list",
+                      "value": "gpt-4o",
+                      "cachedResultName": "GPT-4O"
+                    },
+                    "options": {},
+                    "responses": {
+                      "values": [
+                        {
+                          "content": "={{ $json.prompt }}"
+                        }
+                      ]
+                    },
+                    "builtInTools": {}
+                  }
+                },
+                "runAfter": {
+                  "Build_Coaching_Prompt": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Log_to_Conversation_Log": {
+                "type": "ApiConnection",
+                "inputs": {
+                  "host": {
+                    "connection": {
+                      "referenceName": "googlesheet_#workflowname#"
+                    }
+                  },
+                  "method": "post",
+                  "path": "/datasets/@{encodeURIComponent(encodeURIComponent('1yE5kqA1bo52CrYcvKFHFuCTBYmcI1vaMPuFKKP28sEI'))}/tables/@{encodeURIComponent(encodeURIComponent('824897704'))}/items",
+                  "body": {
+                    "intent": "@body('Parse_Coaching_Response')?['intent']",
+                    "user_id": "@body('Parse_Coaching_Response')?['user_id']",
+                    "timestamp": "={{ new Date().toISOString() }}",
+                    "bot_response": "@body('Parse_Coaching_Response')?['main_advice']",
+                    "user_message": "@body('Parse_Coaching_Response')?['message']"
+                  }
+                },
+                "metadata": {
+                  "flowSystemMetadata": {
+                    "swaggerOperationId": "PostItem"
+                  }
+                },
+                "runAfter": {
+                  "Parse_Coaching_Response": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Respond_Coaching": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "Respond — Coaching",
+                  "n8nNodeType": "@n8n/n8n-nodes-langchain.chat",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "message": "={{ $('Parse Coaching Response').item.json.coaching_response }}",
+                    "options": {},
+                    "waitUserReply": false
+                  }
+                },
+                "runAfter": {
+                  "Log_to_Conversation_Log": [
+                    "Succeeded"
+                  ]
+                }
+              }
+            }
+          },
+          "runAfter": {
+            "Check_User_Route": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Filter_Onboarded_Users": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Filter Onboarded Users",
+            "n8nNodeType": "n8n-nodes-base.filter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 3,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "5ae99084-a356-44be-a071-106ec0bc53af",
+                    "operator": {
+                      "type": "number",
+                      "operation": "gte"
+                    },
+                    "leftValue": "={{ $json.onboarding_step }}",
+                    "rightValue": 5
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Read_All_Onboarded_Users": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Build_Checkin_Prompt": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Read_Conversation_Log'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst users = __node('Filter_Onboarded_Users').all();\nconst convLog = __node('Read_Conversation_Log').all();\n\nreturn users.map(user => {\n  const u = user.json;\n\n  // Get last interaction for this user\n  const userConvs = convLog\n    .filter(c => String(c.json.user_id) === String(u.user_id))\n    .slice(-3);\n\n  let lastTopics = 'general career growth';\n  if (userConvs.length > 0) {\n    const intents = userConvs.map(c => c.json.intent).filter(Boolean);\n    lastTopics = intents.length > 0 ? intents.join(', ') : 'general career growth';\n  }\n\n  const prompt = `You are a warm and inspiring women's career coach sending a weekly check-in message.\n\nUser Profile:\n- Name: ${u.name}\n- Career Stage: ${u.career_stage}\n- Biggest Challenge: ${u.challenge}\n- This Month's Goal: ${u.goal}\n- Recent Topics Discussed: ${lastTopics}\n\nWrite a personalized weekly check-in message. Respond ONLY in this JSON format:\n{\n  \"subject\": \"email subject line with their name\",\n  \"greeting\": \"warm personalized opening\",\n  \"progress_acknowledgment\": \"acknowledge their journey and what they've been working on\",\n  \"weekly_challenge\": \"one specific challenge or task for this week related to their goal\",\n  \"motivational_quote\": \"an inspiring quote from a woman leader relevant to their situation\",\n  \"closing\": \"warm encouraging closing\"\n}\n\nRules:\n- Use their name throughout\n- Reference their specific goal and challenge\n- Weekly challenge must be concrete and achievable in one week\n- Keep the tone warm, sisterly, and empowering\n- Quote must be from a real woman leader`;\n\n  return {\n    json: {\n      user_id: u.user_id,\n      name: u.name,\n      email: u.email || '',\n      career_stage: u.career_stage,\n      challenge: u.challenge,\n      goal: u.goal,\n      last_topics: lastTopics,\n      prompt\n    }\n  };\n});\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Read_Conversation_Log": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Weekly_Coach": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Weekly Coach",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o",
+                "cachedResultName": "GPT-4O"
+              },
+              "options": {},
+              "responses": {
+                "values": [
+                  {
+                    "content": "={{ $json.prompt }}"
+                  }
+                ]
+              },
+              "builtInTools": {}
+            }
+          },
+          "runAfter": {
+            "Build_Checkin_Prompt": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Filter_Users_With_Email": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Filter Users With Email",
+            "n8nNodeType": "n8n-nodes-base.filter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 3,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "685759a9-720f-4b75-a73c-81ff32d82714",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.email }}",
+                    "rightValue": ""
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Parse_Weekly_Message": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Log_to_Weekly_Checkins": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('1yE5kqA1bo52CrYcvKFHFuCTBYmcI1vaMPuFKKP28sEI'))}/tables/@{encodeURIComponent(encodeURIComponent('1843996826'))}/items",
+            "body": {
+              "date": "={{ new Date().toISOString().split('T')[0] }}",
+              "name": "@body('Filter_Users_With_Email')?['name']",
+              "email": "@body('Filter_Users_With_Email')?['email']",
+              "user_id": "@body('Filter_Users_With_Email')?['user_id']",
+              "message_sent": "@body('Filter_Users_With_Email')?['email_subject']"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Send_Weekly_Checkin_Email": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Weekly_Sunday_10AM_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    },
+    "gmail_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/gmail"
+    }
+  }
+}

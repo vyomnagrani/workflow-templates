@@ -1,0 +1,419 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "score-linkedin-comments-and-draft-replies-with-azure-openai-and-google-sheets",
+    "name": "Score LinkedIn comments and draft replies with Azure OpenAI and Google Sheets",
+    "description": "## 📊 Description\nAutomate LinkedIn comment monitoring and turn conversations into qualified sales opportunities using AI 🤖. This intelligent agent continuously scans LinkedIn posts mentioning your brand, analyzes every comment for buyer intent and sentiment, and drafts context-aware replies automatically. High-intent leads are scored and organized in Google Sheets, while your media team receives structured email reports 📧 for fast action. Perfect for brands that want real-time social listening, lead intelligence, and AI-powered engagement without manual monitoring.\n\n## What This Template Does\n⏰ Triggers every 15 minutes to monitor LinkedIn brand mentions automatically.\n🔍 Searches LinkedIn posts via SerpAPI based on your defined keywords.\n💬 Fetches all post comments using ConnectSafely LinkedIn API.\n🧠 Uses an AI Intent Detection Agent (Azure OpenAI) to score buyer intent and sentiment.\n📊 Saves structured lead data (intent score + label) into Google Sheets.\n✍️ Generates AI-powered reply drafts tailored to comment sentiment.\n📧 Sends a formatted email report to your media team for approval and publishing.\n\n## Key Benefits\n✅ Fully automated LinkedIn comment monitoring\n✅ AI-powered buyer intent detection and scoring\n✅ Zero manual scraping or tracking required\n✅ Context-aware reply generation for higher engagement\n✅ Centralized lead tracking inside Google Sheets\n✅ Real-time reporting for faster sales follow-ups\n\n## Features\n- Cron-based automated social listening\n- LinkedIn post discovery via SerpAPI\n- Comment extraction using ConnectSafely\n- AI sentiment & intent classification (Azure OpenAI GPT-4o-mini)\n- Automated reply drafting agent\n- Google Sheets logging & workflow triggers\n- Gmail-based HTML reporting system\n- Multi-stage automation architecture (Scrape → Analyze → Reply → Report)\n\n## Requirements\n- SerpAPI API key\n- ConnectSafely LinkedIn API credentials\n- Azure OpenAI API credentials\n- Google Sheets OAuth2 connection\n- Gmail OAuth2 connection\n- A configured Google Sheet for storing comments and leads\n\n## Target Audience\n🎯 B2B founders building authority on LinkedIn\n📈 Social media & growth teams managing brand engagement\n💼 Sales teams looking for warm inbound intent signals\n🤖 Automation agencies building AI-powered social listening systems",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Lead Generation",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/gmail",
+      "/managedApis/googlesheet",
+      "connectionProviders/inlineCode",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Trigger_Every_15_Minutes1": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "AI_Sentiment_Intent_Detection_Agent1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "AI Sentiment & Intent Detection Agent1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=Analyze the following LinkedIn comment and identify lead intent.\n\nPost URL:\n{{ $json.postUrl }}\n\nPost Content:\n{{ $json.postContent }}\n\nCommenter Name:\n{{ $json.commenterName }}\n\nComment Text:\n{{ $json.commentText }}\n\nReturn the result in the following JSON format ONLY:\n\n{\n  \"postUrl\": \"{{ $json.postUrl }}\",\n  \"leadName\": \"{{ $json.commenterName }}\",\n  \"comment\": \"{{ $json.commentText }}\",\n  \"intentScore\": number,\n  \"intentLabel\": \"no-intent | passive-interest | problem-aware | solution-aware | high-intent\"\n}\n",
+              "options": {
+                "systemMessage": "=You are a B2B sales intent detection agent.\n\nYour job is to analyze LinkedIn post context and comment text to identify whether the commenter shows buying intent, problem awareness, or decision-maker interest.\n\nYou must:\n- Use ONLY the data provided in the input\n- Infer intent from wording, tone, and relevance to the post\n- Be conservative: do not hallucinate intent\n- Prefer precision over recall\n\nScoring rules:\n- 0–20 → No intent (generic praise, agreement, emojis)\n- 21–40 → Passive interest (thoughtful comment, but no problem ownership)\n- 41–60 → Problem-aware (mentions pain points, challenges, or agreement with problem)\n- 61–80 → Solution-aware (implies need for solution, improvement, or optimization)\n- 81–100 → High buying intent (clear ownership, decision role, desire to act)\n\nIf intent is below 30, still return the record but mark it as \"low-intent\".\n\nOutput MUST be valid JSON and follow the exact schema provided.\nDo not add explanations or extra text.\n"
+              },
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "Azure_OpenAI_Chat_Model": [
+              "Succeeded"
+            ],
+            "Flatten_Comments_into_Rows": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Parse_Sentiment_Score_Output1": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['AI_Sentiment_Intent_Detection_Agent1'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst results = [];\n\nfor (const item of items) {\n  // Skip empty or invalid outputs safely\n  if (!item.json.output) continue;\n\n  let parsed;\n  try {\n    parsed = JSON.parse(item.json.output);\n  } catch (e) {\n    // If parsing fails, skip this record\n    continue;\n  }\n\n  results.push({\n    json: {\n      postUrl: parsed.postUrl || null,\n      leadName: parsed.leadName || null,\n      comment: parsed.comment || null,\n      intentScore: parsed.intentScore ?? null,\n      intentLabel: parsed.intentLabel || null\n    }\n  });\n}\n\nreturn results;\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "AI_Sentiment_Intent_Detection_Agent1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Save_Comments_Sentiment_to_Google_Sheet1": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('1hXDNE90IFbXLgyLt2XwSHgI_9sASzTSM9LAA4cUDFj4'))}/tables/@{encodeURIComponent(encodeURIComponent('1996970241'))}/items",
+            "body": {
+              "comment": "@body('Parse_Sentiment_Score_Output1')?['comment']",
+              "post_url": "@body('Parse_Sentiment_Score_Output1')?['postUrl']",
+              "lead name": "@body('Parse_Sentiment_Score_Output1')?['leadName']",
+              "intent label": "@body('Parse_Sentiment_Score_Output1')?['intentLabel']",
+              "intent score": "@body('Parse_Sentiment_Score_Output1')?['intentScore']"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Parse_Sentiment_Score_Output1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Watch_Sheet_for_New_Comment_Rows1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Watch Sheet for New Comment Rows1",
+            "n8nNodeType": "n8n-nodes-base.googleSheetsTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "pollTimes": {
+                "item": [
+                  {
+                    "mode": "everyMinute"
+                  }
+                ]
+              },
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": 1996970241,
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hXDNE90IFbXLgyLt2XwSHgI_9sASzTSM9LAA4cUDFj4/edit#gid=1996970241",
+                "cachedResultName": "Sheet2"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1hXDNE90IFbXLgyLt2XwSHgI_9sASzTSM9LAA4cUDFj4",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hXDNE90IFbXLgyLt2XwSHgI_9sASzTSM9LAA4cUDFj4/edit?usp=drivesdk",
+                "cachedResultName": "Post Scraping"
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "AI_Reply_Drafting_Agent1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "AI Reply Drafting Agent1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "Draft a suitable reply for the commentes for proper sentiments",
+              "options": {},
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "Azure_OpenAI_Chat_Model4": [
+              "Succeeded"
+            ],
+            "Watch_Sheet_for_New_Comment_Rows1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Format_Reply_for_Sheet_Update1": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['AI_Reply_Drafting_Agent1'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.myNewField = 1;\n}\n\nreturn $input.all();\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "AI_Reply_Drafting_Agent1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Write_AI_Reply_Back_to_Google_Sheet1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Write AI Reply Back to Google Sheet1",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {},
+                "schema": [],
+                "mappingMode": "autoMapInputData",
+                "matchingColumns": [],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "appendOrUpdate",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": 1996970241,
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hXDNE90IFbXLgyLt2XwSHgI_9sASzTSM9LAA4cUDFj4/edit#gid=1996970241",
+                "cachedResultName": "Sheet2"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1hXDNE90IFbXLgyLt2XwSHgI_9sASzTSM9LAA4cUDFj4",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hXDNE90IFbXLgyLt2XwSHgI_9sASzTSM9LAA4cUDFj4/edit?usp=drivesdk",
+                "cachedResultName": "Post Scraping"
+              }
+            }
+          },
+          "runAfter": {
+            "Format_Reply_for_Sheet_Update1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Watch_Sheet_for_Approved_Replies1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Watch Sheet for Approved Replies1",
+            "n8nNodeType": "n8n-nodes-base.googleSheetsTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "pollTimes": {
+                "item": [
+                  {
+                    "mode": "everyMinute"
+                  }
+                ]
+              },
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": 1996970241,
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hXDNE90IFbXLgyLt2XwSHgI_9sASzTSM9LAA4cUDFj4/edit#gid=1996970241",
+                "cachedResultName": "Sheet2"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1hXDNE90IFbXLgyLt2XwSHgI_9sASzTSM9LAA4cUDFj4",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hXDNE90IFbXLgyLt2XwSHgI_9sASzTSM9LAA4cUDFj4/edit?usp=drivesdk",
+                "cachedResultName": "Post Scraping"
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Build_Media_Team_Email_Report1": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Watch_Sheet_for_Approved_Replies1'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.myNewField = 1;\n}\n\nreturn $input.all();\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Watch_Sheet_for_Approved_Replies1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_Email_Report_to_Media_Team1": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "gmail_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/v2/Mail",
+            "body": {
+              "To": "info@example.com",
+              "Subject": "<Your Subject>",
+              "Body": "<HTML File>"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendEmailV2"
+            }
+          },
+          "runAfter": {
+            "Build_Media_Team_Email_Report1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Search_LinkedIn_Posts_via_SerpAPI": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Search LinkedIn Posts via SerpAPI",
+            "n8nNodeType": "n8n-nodes-serpapi.serpApi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "q": "site:linkedin.com/posts (\"Techdome\" OR \"Employee of techdome\")",
+              "requestOptions": {},
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Fetch_Post_Comments_via_ConnectSafely": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Fetch Post Comments via ConnectSafely",
+            "n8nNodeType": "n8n-nodes-connectsafely-ai.connectSafelyLinkedIn",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "postUrl": "={{ $json.post_url }}",
+              "accountId": "695ce64a09c18d6bbbe90ed0",
+              "operation": "getAllPostComments"
+            }
+          },
+          "runAfter": {
+            "Parse_Filter_Search_Results": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Parse_Filter_Search_Results": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Search_LinkedIn_Posts_via_SerpAPI'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// ---------------------------\n// COLLECT ALL POSSIBLE RESULTS\n// ---------------------------\nconst data = items[0].json;\n\nconst results = [\n  ...(data.organic_results || []),\n  ...(data.inline_results || []),\n  ...(data.discussions || []),\n  ...(data.forums || []),\n];\n\nconst problemKeywords = [\n  'problem',\n  'issue',\n  'manual',\n  'not working',\n  'struggling',\n  'pain',\n  'challenge',\n  'empty',\n  'ghosted',\n  'ghosting',\n  'not enough',\n  'low',\n  'hard',\n  'difficult',\n  'miss',\n  'failing'\n];\n\nconst output = results.map(post => {\n  const postUrl = post.link || '';\n  let platform = 'Unknown';\n  let username = null;\n  let postId = null;\n  let authorName = null;\n\n  // ---------------------------\n  // LINKEDIN DETECTION\n  // ---------------------------\n  if (/linkedin\\.com\\/posts\\//i.test(postUrl)) {\n    platform = 'LinkedIn';\n\n    const match = postUrl.match(/linkedin\\.com\\/posts\\/([^_]+).*?(\\d{8,})/i);\n    if (match) {\n      username = match[1];\n      postId = match[2];\n    }\n\n    authorName = post.source\n      ? post.source.replace('LinkedIn · ', '').trim()\n      : null;\n  }\n\n  // ---------------------------\n  // REDDIT DETECTION (ROBUST)\n  // ---------------------------\n  if (/reddit\\.com/i.test(postUrl)) {\n    platform = 'Reddit';\n\n    const redditMatch = postUrl.match(\n      /reddit\\.com\\/r\\/([^/]+)\\/comments\\/([^/]+)/i\n    );\n\n    if (redditMatch) {\n      username = `r/${redditMatch[1]}`;\n      postId = redditMatch[2];\n    }\n\n    authorName = post.source\n      ? post.source.replace('Reddit · ', '').trim()\n      : username;\n  }\n\n  // ---------------------------\n  // PROBLEM DETECTION\n  // ---------------------------\n  const text = `${post.title || ''} ${post.snippet || ''}`.toLowerCase();\n\n  const detectedProblems = problemKeywords.filter(k =>\n    text.includes(k)\n  );\n\n  return {\n    json: {\n      platform,\n      author_name: authorName,\n      username,\n      post_id: postId,\n      post_url: postUrl || null,\n      post_title: post.title || null,\n      post_snippet: post.snippet || null,\n      engagement_hint: post.displayed_link || null,\n      problem_keywords_detected: detectedProblems,\n      is_problem_post: detectedProblems.length > 0\n    }\n  };\n});\n\n// REMOVE EMPTY / UNKNOWN URL RESULTS\nreturn output.filter(item => item.json.post_url);\n\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Search_LinkedIn_Posts_via_SerpAPI": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Flatten_Comments_into_Rows": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Fetch_Post_Comments_via_ConnectSafely'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst results = [];\n\nfor (const item of items) {\n  const post = item.json;\n\n  const postUrl = post.postUrl || '';\n  const postContent = post.postDetails?.content || '';\n  const activityUrn = post.postDetails?.activityUrn || null;\n\n  const comments = post.comments || [];\n\n  for (const comment of comments) {\n    results.push({\n      json: {\n        // Post info\n        postUrl,\n        activityUrn,\n        postContent,\n\n        // Comment info\n        commentId: comment.commentId,\n        commentText: comment.commentText,\n        commenterName: comment.authorName,\n        commenterProfileUrl: comment.profileUrl || null,\n        commenterUrn: comment.commenterUrn || null,\n\n        // Metadata\n        createdAt: comment.createdAt,\n        likeCount: comment.likeCount,\n        replyCount: comment.replyCount,\n        isProfile: comment.hasProfile\n      }\n    });\n  }\n}\n\nreturn results;\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Fetch_Post_Comments_via_ConnectSafely": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Azure_OpenAI_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Azure OpenAI Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": "gpt-4o-mini",
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Azure_OpenAI_Chat_Model4": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Azure OpenAI Chat Model4",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": "gpt-4o-mini",
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Trigger_Every_15_Minutes1",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    },
+    "gmail_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/gmail"
+    }
+  }
+}

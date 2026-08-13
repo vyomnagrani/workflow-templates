@@ -1,0 +1,626 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "automate-b2b-supplier-price-negotiations-with-google-sheets-gmail-gpt-4o-notion-and-slack",
+    "name": "Automate B2B supplier price negotiations with Google Sheets, Gmail, GPT-4o, Notion and Slack",
+    "description": "## 📊 Description:\nAutomate your entire supplier negotiation process with this AI-driven workflow that intelligently drafts, refines, and sends negotiation emails 📧. Using advanced LLM reasoning and multi-angle strategies 🤖, it generates high-converting negotiation messages tailored to each supplier scenario. The workflow tracks replies, sends smart follow-ups ⏰, and logs outcomes automatically for full visibility. Perfect for procurement teams looking to reduce costs and eliminate manual back-and-forth communication 🔍.\n\n## What This Template Does:\n 📋 Triggers when a new supplier entry is added to Google Sheets. \n 🔍 Validates and structures supplier, product, and pricing data. \n 🧠 Generates 3 AI-powered negotiation email drafts using different strategies. \n 🏆 Selects the best-performing draft based on scoring logic. \n 🔁 Refines the draft using AI self-critique for better tone and clarity. \n 📧 Sends the final negotiation email to the supplier via Gmail. \n ⏳ Waits 24 hours and checks for supplier replies automatically. \n ❓ Detects whether a reply is received and routes the workflow accordingly. \n 🔄 Sends an optimized follow-up email if no response is received. \n 📒 Logs negotiation details and outcomes in Notion. \n 📊 Updates Google Sheets with final status, pricing, and savings. \n 🔔 Notifies the procurement team via Slack with results or retry alerts. \n\n## Key Benefits:\n ✅ Fully autonomous negotiation process with zero manual effort \n ✅ AI-optimized messaging increases chances of better pricing \n ✅ Smart follow-ups ensure no supplier opportunity is missed \n ✅ Centralized tracking across Sheets, Notion, and Slack \n ✅ Data-driven decision making with scoring and insights \n ✅ Scalable procurement operations for high-volume supplier outreach \n\n## Features:\n-  Google Sheets trigger-based workflow \n-  AI-powered negotiation using GPT-4o (multi-angle + self-critique) \n-  Automated email sending and reply detection via Gmail \n-  Intelligent retry logic using DPO-style optimization \n-  Notion logging for audit trails and reporting \n-  Slack alerts for real-time team notifications \n-  Built-in validation and structured data processing \n\n## Requirements:\n-  Google Sheets account (for supplier data tracking) \n-  Gmail account (for sending and receiving emails) \n-  OpenAI API key (for AI-generated negotiation logic) \n-  Notion account (for logging negotiation outcomes) \n-  Slack account (for team notifications) \n\n## Target Audience:\n 🏢 Procurement and sourcing teams \n 🛒 E-commerce and retail businesses managing suppliers \n 🚀 Startups scaling vendor negotiations \n 🤖 Automation agencies building AI-driven business workflows",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Lead Nurturing",
+      "AI Chatbot",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/gmail",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Trigger_New_Supplier_Row1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "📋 Trigger — New Supplier Row1",
+            "n8nNodeType": "n8n-nodes-base.googleSheetsTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "pollTimes": {
+                "item": [
+                  {
+                    "mode": "everyMinute"
+                  }
+                ]
+              },
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gid=0",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1AqoI7azDDBPYyV4cZmEAQkG7cL48bvvyIU5ti_Llebk/edit#gid=0",
+                "cachedResultName": "Sheet1"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1AqoI7azDDBPYyV4cZmEAQkG7cL48bvvyIU5ti_Llebk",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1AqoI7azDDBPYyV4cZmEAQkG7cL48bvvyIU5ti_Llebk/edit?usp=drivesdk",
+                "cachedResultName": "Negotiation sheet"
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Validate_Prepare_Supplier_Data1": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Trigger_New_Supplier_Row1'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst row = $input.first().json;\n\n// Helper to convert Excel serial date to ISO string\nfunction excelDateToISO(serial) {\n  if (!serial || isNaN(serial)) return '';\n  const date = new Date((serial - 25569) * 86400 * 1000);\n  return date.toISOString();\n}\n\n// Clean email — strip markdown link format [email](mailto:email)\nfunction cleanEmail(val) {\n  if (!val) return '';\n  const match = val.match(/\\[([^\\]]+)\\]\\(mailto:[^\\)]+\\)/);\n  return match ? match[1] : val;\n}\n\n// Validate required fields (using ACTUAL column names from your sheet)\nif (!row['Supplier URL'] || !row['Product / Item'] || !row['Quantity'] || !row['Our Budget ($)']) {\n  throw new Error('Missing required fields: Supplier URL, Product / Item, Quantity, or Our Budget ($)');\n}\n\nreturn [{\n  json: {\n    rowId:        row['Row ID'] || Date.now().toString(),\n    supplierName: row['Supplier Name'] || 'Unknown Supplier',\n    supplierUrl:  row['Supplier URL'],\n    supplierEmail: cleanEmail(row['Supplier Email']),\n    product:      row['Product / Item'],\n    quantity:     row['Quantity'],\n    budget:       row['Our Budget ($)'],\n    listedPrice:  row['Listed Price ($)'] || row['Our Budget ($)'],\n    requestDate:  excelDateToISO(row['Request Date']),\n    messageSentAt: excelDateToISO(row['Message Sent At']),\n    retrySentAt:  excelDateToISO(row['Retry Sent At']),\n    finalPrice:   row['Final Price ($)'] || null,\n    status:       row['Status'] || 'Pending',\n    angleTried:   row['Angle Tried'] || '',\n    timestamp:    new Date().toISOString()\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Trigger_New_Supplier_Row1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Pick_Best_Draft1": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['MCTS_Generate_3_Negotiation_Drafts1'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst responseBody = $input.first().json;\nconst rawText = responseBody.content[0].text;\n\nlet drafts;\ntry {\n  drafts = JSON.parse(rawText);\n} catch (e) {\n  // Try to extract JSON from response if wrapped in text\n  const match = rawText.match(/\\[\\s*\\{[\\s\\S]*\\}\\s*\\]/);\n  if (match) {\n    drafts = JSON.parse(match[0]);\n  } else {\n    throw new Error('Could not parse MCTS drafts: ' + rawText);\n  }\n}\n\n// Sort by score descending\ndrafts.sort((a, b) => b.score - a.score);\n\nconst best = drafts[0];\nconst prevData = __node('Prepare_Validate_Data').first().json;\n\nreturn [{\n  json: {\n    ...prevData,\n    allDrafts: drafts,\n    bestDraft: best,\n    bestAngle: best.angle,\n    bestSubject: best.subject,\n    bestMessage: best.message,\n    bestScore: best.score\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "MCTS_Generate_3_Negotiation_Drafts1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Parse_Final_Critique_Output1": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Self_Critique_Round_1_Refine_Draft1'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst responseBody = $input.first().json;\nconst rawText = responseBody.content[0].text;\n\nlet critique;\ntry {\n  critique = JSON.parse(rawText);\n} catch (e) {\n  const match = rawText.match(/\\{[\\s\\S]*\\}/);\n  if (match) {\n    critique = JSON.parse(match[0]);\n  } else {\n    throw new Error('Could not parse self-critique response: ' + rawText);\n  }\n}\n\nconst prevData = __node('Pick_Best_Draft').first().json;\n\nreturn [{\n  json: {\n    ...prevData,\n    critique: critique.critique,\n    changesMade: critique.changes_made,\n    finalSubject: critique.final_subject,\n    finalMessage: critique.final_message\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Self_Critique_Round_1_Refine_Draft1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_Negotiation_Email_to_Supplier1": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "gmail_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/v2/Mail",
+            "body": {
+              "To": "user@example.com",
+              "Subject": "@{body('Parse_Final_Critique_Output1')?['finalSubject']} [REF-@{body('Parse_Final_Critique_Output1')?['rowId']}]",
+              "Body": "@body('Parse_Final_Critique_Output1')?['finalMessage']"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendEmailV2"
+            }
+          },
+          "runAfter": {
+            "Parse_Final_Critique_Output1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Mark_Email_Sent_in_Sheet1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "✅ Mark Email Sent in Sheet1",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {},
+                "schema": [],
+                "mappingMode": "autoMapInputData",
+                "matchingColumns": [],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "update",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": 1085802152,
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1AqoI7azDDBPYyV4cZmEAQkG7cL48bvvyIU5ti_Llebk/edit#gid=1085802152",
+                "cachedResultName": "Sheet2"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1AqoI7azDDBPYyV4cZmEAQkG7cL48bvvyIU5ti_Llebk",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1AqoI7azDDBPYyV4cZmEAQkG7cL48bvvyIU5ti_Llebk/edit?usp=drivesdk",
+                "cachedResultName": "Negotiation sheet"
+              }
+            }
+          },
+          "runAfter": {
+            "Send_Negotiation_Email_to_Supplier1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_24_Hours_for_Reply1": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 24,
+              "unit": "Hour"
+            }
+          },
+          "runAfter": {
+            "Mark_Email_Sent_in_Sheet1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Check_Supplier_Reply_Gmail_1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "📬 Check Supplier Reply (Gmail)1",
+            "n8nNodeType": "n8n-nodes-base.gmail",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "limit": 5,
+              "filters": {
+                "q": "=subject:[REF-{{ $('Parse Critique Result').first().json.rowId }}] in:inbox"
+              },
+              "operation": "getAll"
+            }
+          },
+          "runAfter": {
+            "Wait_24_Hours_for_Reply1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Reply_Received_1": {
+          "type": "If",
+          "expression": {
+            "greater": [
+              "@body('Check_Supplier_Reply_Gmail_1')?['messages'] ? body('Check_Supplier_Reply_Gmail_1')?['messages']?['length'] : 0",
+              0
+            ]
+          },
+          "actions": {
+            "Process_Score_Supplier_Reply1": {
+              "type": "JavaScriptCode",
+              "inputs": {
+                "code": "const __inputRaw = workflowContext.trigger.outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// This node handles REPLY RECEIVED path\n// Parse the email reply and extract negotiated price if mentioned\nconst replyData = $input.first().json;\nconst prevData = __node('Parse_Critique_Result').first().json;\n\nconst replySnippet = replyData.messages && replyData.messages[0] ? replyData.messages[0].snippet : 'Reply received';\n\nreturn [{\n  json: {\n    ...prevData,\n    outcome: 'Reply Received',\n    replySnippet: replySnippet,\n    finalStatus: 'Negotiated',\n    // Savings to be manually or AI-extracted — placeholder here\n    finalPrice: prevData.budget,\n    listedPrice: prevData.listedPrice,\n    savingsAmount: prevData.listedPrice - prevData.budget,\n    savingsPct: (((prevData.listedPrice - prevData.budget) / prevData.listedPrice) * 100).toFixed(2)\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+              },
+              "runAfter": {}
+            },
+            "Log_Negotiation_Result_in_Notion1": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "📒 Log Negotiation Result in Notion1",
+                "n8nNodeType": "n8n-nodes-base.notion",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "title": "=Negotiation — {{ $json.supplierName }} — {{ $json.product }} — {{ new Date().toLocaleDateString() }}",
+                  "pageId": {
+                    "__rl": true,
+                    "mode": "url",
+                    "value": "https://www.notion.so/Test-n8n-automation-350f839f118480fb9bddfb4278f2ae4e"
+                  },
+                  "blockUi": {
+                    "blockValues": [
+                      {
+                        "type": "heading_2",
+                        "textContent": "Negotiation Summary"
+                      },
+                      {
+                        "textContent": "=Supplier: {{ $json.supplierName }} | Product: {{ $json.product }} | Qty: {{ $json.quantity }}"
+                      },
+                      {
+                        "type": "heading_3",
+                        "textContent": "Messages Sent"
+                      },
+                      {
+                        "textContent": "=ANGLE 1 ({{ $json.bestAngle }} | Score: {{ $json.bestScore }})\n\nSubject: {{ $json.finalSubject }}\n\n{{ $json.finalMessage }}"
+                      },
+                      {
+                        "type": "heading_3",
+                        "textContent": "Self-Critique Notes"
+                      },
+                      {
+                        "textContent": "={{ $json.critique }}"
+                      }
+                    ]
+                  },
+                  "options": {}
+                }
+              },
+              "runAfter": {
+                "Process_Score_Supplier_Reply1": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Final_Update_in_Google_Sheets1": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "📊 Final Update in Google Sheets1",
+                "n8nNodeType": "n8n-nodes-base.googleSheets",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "columns": {
+                    "value": {
+                      "Status": "={{ $('Process Reply Data').first().json.finalStatus || 'Completed' }}",
+                      "Savings %": "={{ $('Process Reply Data').first().json.savingsPct }}",
+                      "Final Price": "={{ $('Process Reply Data').first().json.finalPrice }}",
+                      "Notion Log URL": "={{ $json.url }}"
+                    },
+                    "mappingMode": "defineBelow"
+                  },
+                  "options": {},
+                  "operation": "update",
+                  "sheetName": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "Sheet1"
+                  },
+                  "documentId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "1AqoI7azDDBPYyV4cZmEAQkG7cL48bvvyIU5ti_Llebk",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1AqoI7azDDBPYyV4cZmEAQkG7cL48bvvyIU5ti_Llebk/edit?usp=drivesdk",
+                    "cachedResultName": "Negotiation sheet"
+                  }
+                }
+              },
+              "runAfter": {
+                "Log_Negotiation_Result_in_Notion1": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Slack_Alert_Procurement_Team1": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "🔔 Slack — Alert Procurement Team1",
+                "n8nNodeType": "n8n-nodes-base.slack",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "text": "=:white_check_mark: *Negotiation Complete*\n\n*Supplier:* {{ $('Process Reply Data').first().json.supplierName }}\n*Product:* {{ $('Process Reply Data').first().json.product }}\n*Quantity:* {{ $('Process Reply Data').first().json.quantity }} units\n\n:moneybag: *Listed Price:* ${{ $('Process Reply Data').first().json.listedPrice }}\n:chart_with_downwards_trend: *Final Price:* ${{ $('Process Reply Data').first().json.finalPrice }}\n:tada: *Savings:* {{ $('Process Reply Data').first().json.savingsPct }}%\n\n*Angle Used:* {{ $('Process Reply Data').first().json.bestAngle }}\n*Status:* {{ $('Process Reply Data').first().json.finalStatus }}\n\n:memo: Full audit log in Notion → {{ $('Notion — Log Negotiation').first().json.url }}",
+                  "select": "channel",
+                  "channelId": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "C0B0QTA3KG9"
+                  },
+                  "otherOptions": {},
+                  "authentication": "webhook"
+                }
+              },
+              "runAfter": {
+                "Final_Update_in_Google_Sheets1": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "Build_DPO_Retry_Prompt1": {
+                "type": "JavaScriptCode",
+                "inputs": {
+                  "code": "const __inputRaw = workflowContext.actions['Self_Critique_Round_2_Final_Polish1'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst responseBody = $input.first().json;\nconst rawText = responseBody.content[0].text;\n\nlet retry;\ntry {\n  retry = JSON.parse(rawText);\n} catch (e) {\n  const match = rawText.match(/\\{[\\s\\S]*\\}/);\n  if (match) {\n    retry = JSON.parse(match[0]);\n  } else {\n    throw new Error('Could not parse DPO retry: ' + rawText);\n  }\n}\n\nconst prevData = __node('Parse_Critique_Result').first().json;\n\nreturn [{\n  json: {\n    ...prevData,\n    retryAngle: retry.angle_used,\n    retrySubject: retry.subject,\n    retryMessage: retry.message,\n    retryReasoning: retry.strategy_reasoning\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+                },
+                "runAfter": {
+                  "Self_Critique_Round_2_Final_Polish1": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Send_Follow_Up_Retry_Email1": {
+                "type": "ApiConnection",
+                "inputs": {
+                  "host": {
+                    "connection": {
+                      "referenceName": "gmail_#workflowname#"
+                    }
+                  },
+                  "method": "post",
+                  "path": "/v2/Mail",
+                  "body": {
+                    "To": "user@example.com",
+                    "Subject": "@{body('Build_DPO_Retry_Prompt1')?['retrySubject']} [REF-@{body('Build_DPO_Retry_Prompt1')?['rowId']}]",
+                    "Body": "@body('Build_DPO_Retry_Prompt1')?['retryMessage']"
+                  }
+                },
+                "metadata": {
+                  "flowSystemMetadata": {
+                    "swaggerOperationId": "SendEmailV2"
+                  }
+                },
+                "runAfter": {
+                  "Build_DPO_Retry_Prompt1": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Mark_Retry_Sent_in_Sheet1": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "✅ Mark Retry Sent in Sheet1",
+                  "n8nNodeType": "n8n-nodes-base.googleSheets",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "columns": {
+                      "value": {
+                        "Status": "Retry Sent",
+                        "Angle Tried": "={{ $json.retryAngle }}",
+                        "Retry Sent At": "={{ new Date().toISOString() }}"
+                      },
+                      "mappingMode": "defineBelow"
+                    },
+                    "options": {},
+                    "operation": "update",
+                    "sheetName": {
+                      "__rl": true,
+                      "mode": "name",
+                      "value": "Sheet1"
+                    },
+                    "documentId": {
+                      "__rl": true,
+                      "mode": "id",
+                      "value": "YOUR_GOOGLE_SHEET_ID"
+                    }
+                  }
+                },
+                "runAfter": {
+                  "Send_Follow_Up_Retry_Email1": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Slack_Retry_Alert_to_Team1": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "🔔 Slack — Retry Alert to Team1",
+                  "n8nNodeType": "n8n-nodes-base.slack",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "text": "=:warning: *No Reply — Retry Sent*\n\n*Supplier:* {{ $json.supplierName }}\n*Product:* {{ $json.product }}\n*Original Angle:* {{ $json.bestAngle }}\n*Retry Angle:* {{ $json.retryAngle }}\n*Strategy:* {{ $json.retryReasoning }}\n\nRetry email sent. Monitor for response.",
+                    "select": "channel",
+                    "channelId": {
+                      "__rl": true,
+                      "mode": "id",
+                      "value": "C0B0QTA3KG9"
+                    },
+                    "otherOptions": {},
+                    "authentication": "webhook"
+                  }
+                },
+                "runAfter": {
+                  "Mark_Retry_Sent_in_Sheet1": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Self_Critique_Round_2_Final_Polish1": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "🔁 Self-Critique Round 2 — Final Polish1",
+                  "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "text": "={{ JSON.stringify([{ role: 'user', content: `You are a procurement negotiation expert. The first email was sent but received no reply within 24 hours. Apply DPO (Direct Preference Optimization) logic to craft a stronger follow-up.\n\nContext:\n- Supplier: ${$('Parse Critique Result').first().json.supplierName}\n- Product: ${$('Parse Critique Result').first().json.product}\n- Quantity: ${$('Parse Critique Result').first().json.quantity}\n- Budget: $${$('Parse Critique Result').first().json.budget}\n- First angle tried: ${$('Parse Critique Result').first().json.bestAngle}\n- First message score: ${$('Parse Critique Result').first().json.bestScore}\n- All drafted angles: ${JSON.stringify($('Parse Critique Result').first().json.allDrafts.map(d => d.angle))}\n\nThe supplier ignored our first email. Now pick the NEXT BEST angle from the remaining drafts and rewrite it to be:\n1. More assertive and urgent\n2. Mention that we need a response within 48 hours\n3. Hint at competitor alternatives\n4. Shorter and punchier (under 120 words)\n\nReturn ONLY valid JSON:\n{\n  \"angle_used\": \"angle name\",\n  \"subject\": \"follow-up subject line\",\n  \"message\": \"follow-up email body\",\n  \"strategy_reasoning\": \"why this approach works better now\"\n}` }]) }}",
+                    "options": {},
+                    "promptType": "define"
+                  }
+                },
+                "runAfter": {}
+              }
+            }
+          },
+          "runAfter": {
+            "Check_Supplier_Reply_Gmail_1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "LLM_Draft_Generator_GPT_4o_1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "⚡ LLM — Draft Generator (GPT-4o)1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini",
+                "cachedResultName": "gpt-4o-mini"
+              },
+              "options": {},
+              "builtInTools": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "MCTS_Generate_3_Negotiation_Drafts1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "🧠 MCTS — Generate 3 Negotiation Drafts1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "={{ JSON.stringify([{ role: 'user', content: `You are a professional B2B procurement negotiation expert. Generate exactly 3 negotiation email drafts for the following purchase request and score each one from 0–10.\n\nSupplier: ${$json.supplierName}\nProduct: ${$json.product}\nQuantity: ${$json.quantity} units\nOur Budget: $${$json.budget}\nListed Price: $${$json.listedPrice}\n\nGenerate 3 negotiation angles:\n1. BULK_DISCOUNT - Leverage quantity for a volume discount\n2. COMPETITOR_MATCH - Mention we are evaluating competitors and request price matching\n3. LOYALTY_OFFER - Offer long-term partnership/repeat business in exchange for better price\n\nFor each draft, write a professional, concise email (150–200 words). Score each on: tone (0-3), specificity (0-3), persuasiveness (0-4).\n\nReturn ONLY valid JSON in this exact format, no markdown:\n[\n  {\n    \"angle\": \"BULK_DISCOUNT\",\n    \"subject\": \"email subject line\",\n    \"message\": \"full email body\",\n    \"score\": 8.5,\n    \"reasoning\": \"why this angle scores this way\"\n  },\n  {\n    \"angle\": \"COMPETITOR_MATCH\",\n    \"subject\": \"email subject line\",\n    \"message\": \"full email body\",\n    \"score\": 7.0,\n    \"reasoning\": \"why this angle scores this way\"\n  },\n  {\n    \"angle\": \"LOYALTY_OFFER\",\n    \"subject\": \"email subject line\",\n    \"message\": \"full email body\",\n    \"score\": 6.5,\n    \"reasoning\": \"why this angle scores this way\"\n  }\n]` }]) }}",
+              "options": {},
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "LLM_Draft_Generator_GPT_4o_1": [
+              "Succeeded"
+            ],
+            "Validate_Prepare_Supplier_Data1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "LLM_Critique_Model_GPT_4o_1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "⚡ LLM — Critique Model (GPT-4o)1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini",
+                "cachedResultName": "gpt-4o-mini"
+              },
+              "options": {},
+              "builtInTools": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Self_Critique_Round_1_Refine_Draft1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "🔁 Self-Critique Round 1 — Refine Draft1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "={{ JSON.stringify([{ role: 'user', content: `You are a senior procurement communication expert performing a self-critique review.\n\nReview the following negotiation email draft and improve it if needed. Focus on:\n1. TONE: Professional, confident but not aggressive\n2. SPECIFICITY: Includes product name, quantity, specific ask\n3. CREDIBILITY: Sounds like a real business with genuine intent\n4. CLARITY: Clear call to action\n\nOriginal Draft:\nSubject: ${$json.bestSubject}\n\n${$json.bestMessage}\n\nProvide your critique and the FINAL IMPROVED VERSION. Return ONLY valid JSON, no markdown:\n{\n  \"critique\": \"your brief critique (2-3 sentences)\",\n  \"changes_made\": \"what you changed and why\",\n  \"final_subject\": \"final subject line\",\n  \"final_message\": \"final email body ready to send\"\n}` }]) }}",
+              "options": {},
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "Pick_Best_Draft1": [
+              "Succeeded"
+            ],
+            "LLM_Critique_Model_GPT_4o_1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "LLM_Final_Polish_Model_GPT_4o_1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "⚡ LLM — Final Polish Model (GPT-4o)1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini",
+                "cachedResultName": "gpt-4o-mini"
+              },
+              "options": {},
+              "builtInTools": {}
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "gmail_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/gmail"
+    }
+  }
+}

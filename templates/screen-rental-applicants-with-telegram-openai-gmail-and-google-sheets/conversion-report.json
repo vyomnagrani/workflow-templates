@@ -1,0 +1,162 @@
+{
+  "sourceWorkflowName": "Screen rental applicants with Telegram, OpenAI, Gmail and Google Sheets",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 16,
+  "totalNodes": 25,
+  "coverage": 0.64,
+  "diagnostics": [
+    {
+      "code": "TRIGGER_MISSING",
+      "message": "No supported n8n trigger was found.",
+      "severity": "warning",
+      "node_name": null,
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.slack.",
+      "severity": "warning",
+      "node_name": "Slack – Post Workflow Error Alert",
+      "node_type": "n8n-nodes-base.slack",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.errorTrigger.",
+      "severity": "warning",
+      "node_name": "On Workflow Error",
+      "node_type": "n8n-nodes-base.errorTrigger",
+      "json_path": null
+    },
+    {
+      "code": "TELEGRAM_TOKEN_REQUIRED",
+      "message": "Replace the Telegram bot-token placeholder with a secure deployment value before import.",
+      "severity": "warning",
+      "node_name": "Notify Landlord - New Ranked Applicant (Active)",
+      "node_type": "n8n-nodes-base.telegram",
+      "json_path": null
+    },
+    {
+      "code": "TELEGRAM_TOKEN_REQUIRED",
+      "message": "Replace the Telegram bot-token placeholder with a secure deployment value before import.",
+      "severity": "warning",
+      "node_name": "Confirm Receipt to Applicant (Active)",
+      "node_type": "n8n-nodes-base.telegram",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Google Sheets operation 'update' is not safely equivalent to a single LAA connector action.",
+      "severity": "warning",
+      "node_name": "Update Reference Response in Sheet (Active)",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.googleSheets is not safely supported.",
+      "severity": "warning",
+      "node_name": "Update Reference Response in Sheet (Active)",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Parse Reference Output (Active)",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.openAi.",
+      "severity": "warning",
+      "node_name": "Extract Reference Answers (Active AI)",
+      "node_type": "@n8n/n8n-nodes-langchain.openAi",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Gmail message/sendAndWait is not mapped to a deterministic LAA action.",
+      "severity": "warning",
+      "node_name": "Send Reference Check Email (Active)",
+      "node_type": "n8n-nodes-base.gmail",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.gmail is not safely supported.",
+      "severity": "warning",
+      "node_name": "Send Reference Check Email (Active)",
+      "node_type": "n8n-nodes-base.gmail",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Google Sheets operation 'update' is not safely equivalent to a single LAA connector action.",
+      "severity": "warning",
+      "node_name": "Update Application Score (Active)",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.googleSheets is not safely supported.",
+      "severity": "warning",
+      "node_name": "Update Application Score (Active)",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Parse Scoring Output (Active)",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.openAi.",
+      "severity": "warning",
+      "node_name": "Score & Flag Red Flags (Active AI)",
+      "node_type": "@n8n/n8n-nodes-langchain.openAi",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $now }}",
+      "severity": "warning",
+      "node_name": "Save Application to Sheet (Active)",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Parse AI Output (Active)",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.openAi.",
+      "severity": "warning",
+      "node_name": "Parse Application Data (Active AI)",
+      "node_type": "@n8n/n8n-nodes-langchain.openAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.telegramTrigger.",
+      "severity": "warning",
+      "node_name": "New Applicant Message (Active)",
+      "node_type": "n8n-nodes-base.telegramTrigger",
+      "json_path": null
+    }
+  ]
+}

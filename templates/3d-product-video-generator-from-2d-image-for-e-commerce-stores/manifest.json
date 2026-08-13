@@ -1,0 +1,689 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "3d-product-video-generator-from-2d-image-for-e-commerce-stores",
+    "name": "3D Product Video Generator from 2D Image for E-Commerce Stores",
+    "description": "## ✅ What problem does this workflow solve?\n\nShopify and E-Commerce store owners often struggle to create engaging 3D videos from static product images. This workflow automates that entire process—from image upload to video delivery—so store owners can get professional-looking 3D videos without any manual editing or follow-up.\n\n![ecommerceautomation.gif](fileId:1518)\n\n---\n\n## ⚙️ What does this workflow do?\n\n1. Accepts a 2D product image and name via a public n8n form.\n2. Generates a unique slug and folder in Google Drive for the product.\n3. Uploads the original image to Google Drive and logs data in a spreadsheet.\n4. Removes the background from the image using remove.bg API.\n5. Uploads the cleaned image to Google Drive and updates the spreadsheet.\n6. Creates a 3D product video using the cleaned image via the Fal.ai API.\n7. Periodically checks the video creation status.\n8. Once completed, download the video, upload it to Google Drive, and log the link.\n9. Notifies the store owner via email with the video download link.\n\n---\n\n## 🔧 Setup\n\n### 🟢 Google Services\n- **Google Drive**: Create and connect a folder where all product assets will be stored.\n- **Google Spreadsheet**: A spreadsheet to log the product name, original image link, cleaned image link, and final video URL.\n- **Gmail**: Connect Gmail to send the final notification email to the store owner.\n\n### 🔑 API Keys Required\n- **Remove.bg**: Get an API key from [remove.bg](https://www.remove.bg/api).\n- **Fal.ai**: Sign up at [fal.ai](https://fal.ai/) and obtain your API key to use the image-to-video generation service.\n\n---\n\n## 🧠 How it Works\n\n### 📝 1. Product Form Submission\nA store owner submits the product name and 2D image via a public n8n form.\n\n### 🗂 2. Organize in Google Drive\n- A unique slug is generated for the product.\n- A new folder is created inside Google Drive using that slug.\n- The original image is uploaded into the folder.\n\n### 📊 3. Record in a Spreadsheet\n- The product name and original image URL are stored in a Google Sheet.\n\n### 🧹 4. Background Removal\n- The uploaded image is processed through **remove.bg API** to eliminate noisy or cluttered backgrounds.\n- The cleaned image is uploaded back into the product’s Drive folder.\n- The cleaned image link is updated in the spreadsheet.\n\n### 🎥 5. Create 3D Video (via Fal.ai)\n- The cleaned image is passed to the **Fal.ai** video generation API.\n- The workflow periodically checks the status until the video is ready.\n\n### ☁️ 6. Store Final Video\n- Once the video is ready, the file is downloaded.\n- The final video is uploaded into the same Google Drive folder.\n- Its link is saved in the spreadsheet next to the respective product entry.\n\n### 📧 7. Notify the Store Owner\nAn automated email is sent to the store owner with the video link, letting them know it's ready for use—no waiting, no manual follow-up needed.\n\n---\n\n## 👤 Who can use it?\n\nThis workflow is ideal for:\n- 🛍 **Shopify Sellers**\n- 🧺 **E-commerce Store Owners**\n- 📸 **Product Photographers**\n- 🎬 **Marketing Teams**\n- 🤖 **Automation Enthusiasts**\n\nIf you want to automate 3D product video creation using AI—this is the no-code workflow you’ve been waiting for!\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/gmail",
+      "/managedApis/googlesheet",
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Wait": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 40,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Create_Video": [
+              "Succeeded"
+            ],
+            "Is_In_Progress": [
+              "Succeeded"
+            ]
+          }
+        },
+        "On_Form_Submission": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "On Form Submission",
+            "n8nNodeType": "n8n-nodes-base.formTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "formTitle": "Shopify 3D Product Video",
+              "formFields": {
+                "values": [
+                  {
+                    "fieldType": "file",
+                    "fieldLabel": "Product Photo",
+                    "multipleFiles": false,
+                    "requiredField": true
+                  },
+                  {
+                    "fieldLabel": "Product Title",
+                    "placeholder": "Product Title",
+                    "requiredField": true
+                  }
+                ]
+              },
+              "formDescription": "Give us a product photo, title and we'll get back to you with professional marketing 3D video. "
+            }
+          },
+          "runAfter": {}
+        },
+        "Give_Access_to_folder": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Give Access to folder",
+            "n8nNodeType": "n8n-nodes-base.googleDrive",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $('Create Folder').item.json.id }}"
+              },
+              "options": {},
+              "operation": "share",
+              "permissionsUi": {
+                "permissionsValues": {
+                  "role": "reader",
+                  "type": "anyone"
+                }
+              }
+            }
+          },
+          "runAfter": {
+            "Create_Folder": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_Image_File": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get Image File",
+            "n8nNodeType": "n8n-nodes-base.code",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsCode": "let results = [];\nconst items = $(\"On Form Submission\").all()\n\nfor (item of items) {\n    for (key of Object.keys(item.binary)) {\n        results.push({\n            json: {\n                fileName: item.binary[key].fileName\n            },\n            binary: {\n                data: item.binary[key],\n            }\n        });\n    }\n}\n\nreturn results;"
+            }
+          },
+          "runAfter": {
+            "Give_Access_to_folder": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_Remove_BG_image": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Upload Remove BG image",
+            "n8nNodeType": "n8n-nodes-base.googleDrive",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "name": "=(no-bg){{ $('Create Folder').item.json.name }}",
+              "driveId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "My Drive"
+              },
+              "options": {},
+              "folderId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $('Create Folder').item.json.id }}"
+              },
+              "inputDataFieldName": "=no-bg.png"
+            }
+          },
+          "runAfter": {
+            "Remove_Image_Background": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_Image_ID_from_URL": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Update_Remove_BG_URL'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst url = $input.first().json['BG Remove Image']\n\n// Extract the ID using a regular expression\nconst match = url.match(/\\/d\\/([^/]+)/);\n\nreturn {\n  json: {\n    fileId: match ? match[1] : null,\n  },\n};\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Update_Remove_BG_URL": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_Video": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Upload Video",
+            "n8nNodeType": "n8n-nodes-base.googleDrive",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "name": "=Video-file",
+              "driveId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "My Drive"
+              },
+              "options": {},
+              "folderId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $('Create Folder').item.json.id }}"
+              },
+              "inputDataFieldName": "Video-file"
+            }
+          },
+          "runAfter": {
+            "Convert_to_Binary_File": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Create_Folder": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Create Folder",
+            "n8nNodeType": "n8n-nodes-base.googleDrive",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "name": "={{ $json.slug }}",
+              "driveId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "My Drive"
+              },
+              "options": {},
+              "folderId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "root",
+                "cachedResultUrl": "https://drive.google.com/drive",
+                "cachedResultName": "/ (Root folder)"
+              },
+              "resource": "folder"
+            }
+          },
+          "runAfter": {
+            "Create_Slug": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Create_Slug": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['On_Form_Submission'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst title = $json[\"Product Title\"] || \"default\";\nconst slug = title.toLowerCase().replace(/\\s+/g, '-') + '-' + Math.random().toString(36).substring(2, 8);\nreturn { slug };\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "On_Form_Submission": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Create_Video": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://queue.fal.run/fal-ai/kling-video/v1/standard/image-to-video",
+            "headers": {
+              "Authorization": "Key api_key"
+            },
+            "body": {
+              "prompt": "A product placed on a reflective surface slowly rotates 360 degrees with dramatic studio lighting, soft shadows, and a smooth camera pan. The background is clean, minimal, and cinematic, highlighting the product’s details and elegance",
+              "image_url": "https://drive.usercontent.google.com/download?id=@{body('Extract_Image_ID_from_URL')?['fileId']}&export=view&authuser=0"
+            }
+          },
+          "runAfter": {
+            "Extract_Image_ID_from_URL": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Check_Video_Status": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@body('Wait')?['status_url']",
+            "headers": {
+              "Authorization": "Key api_key"
+            }
+          },
+          "runAfter": {
+            "Wait": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_Video_Link": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@body('Is_In_Progress')?['response_url']",
+            "headers": {
+              "Authorization": "Key api_key"
+            }
+          },
+          "runAfter": {
+            "Is_In_Progress": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Remove_Image_Background": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.remove.bg/v1.0/removebg",
+            "headers": {
+              "X-API-Key": "api_key"
+            },
+            "body": {
+              "size": "auto",
+              "image_file": null
+            }
+          },
+          "runAfter": {
+            "Get_Image_File": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_Original_Image": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Upload Original Image",
+            "n8nNodeType": "n8n-nodes-base.googleDrive",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "name": "={{ $('Create Folder').item.json.name }}",
+              "driveId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "My Drive"
+              },
+              "options": {},
+              "folderId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $('Create Folder').item.json.id }}"
+              }
+            }
+          },
+          "runAfter": {
+            "Get_Image_File": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Insert_New_Product": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('18k1Gq2X2J3_cbwJ9XyJoysVuhIpWhgc1cmlTKBnB3Yw'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+            "body": {
+              "Slug": "@body('Create_Slug')?['slug']",
+              "Product Title": "@body('On_Form_Submission')?['Product Title']",
+              "Original Image": "@body('Upload_Original_Image')?['webViewLink']"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Upload_Original_Image": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Update_Remove_BG_URL": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update Remove BG URL",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "Slug": "={{ $('Create Folder').item.json.name }}",
+                  "BG Remove Image": "={{ $json.webViewLink }}"
+                },
+                "schema": [
+                  {
+                    "id": "Original Image",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Original Image",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "BG Remove Image",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "BG Remove Image",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Product Title",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Product Title",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Video Link",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Video Link",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Slug",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "Slug",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "Slug"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "appendOrUpdate",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gid=0",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18k1Gq2X2J3_cbwJ9XyJoysVuhIpWhgc1cmlTKBnB3Yw/edit#gid=0",
+                "cachedResultName": "Sheet1"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "18k1Gq2X2J3_cbwJ9XyJoysVuhIpWhgc1cmlTKBnB3Yw",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18k1Gq2X2J3_cbwJ9XyJoysVuhIpWhgc1cmlTKBnB3Yw/edit?usp=drivesdk",
+                "cachedResultName": "3D Product Video"
+              }
+            }
+          },
+          "runAfter": {
+            "Upload_Remove_BG_image": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Is_In_Progress": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Is In Progress",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "8ada0859-b74f-4d48-ae95-30c34340e39f",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "IN_PROGRESS"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Check_Video_Status": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Convert_to_Binary_File": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@body('Get_Video_Link')?['video']?['url']"
+          },
+          "runAfter": {
+            "Get_Video_Link": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Update_Video_Link": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update Video Link",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "Slug": "={{ $('Create Folder').item.json.name }}",
+                  "Video Link": "={{ $('Get Video Link').item.json.video.url }}"
+                },
+                "schema": [
+                  {
+                    "id": "Original Image",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Original Image",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "BG Remove Image",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "BG Remove Image",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Product Title",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Product Title",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Video Link",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "Video Link",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Slug",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "Slug",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "Slug"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "appendOrUpdate",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gid=0",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18k1Gq2X2J3_cbwJ9XyJoysVuhIpWhgc1cmlTKBnB3Yw/edit#gid=0",
+                "cachedResultName": "Sheet1"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "18k1Gq2X2J3_cbwJ9XyJoysVuhIpWhgc1cmlTKBnB3Yw",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18k1Gq2X2J3_cbwJ9XyJoysVuhIpWhgc1cmlTKBnB3Yw/edit?usp=drivesdk",
+                "cachedResultName": "3D Product Video"
+              }
+            }
+          },
+          "runAfter": {
+            "Upload_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_E_Mail_Notification": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "gmail_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/v2/Mail",
+            "body": {
+              "To": "user@example.com",
+              "Subject": "Product Video",
+              "Body": "<p>Hi there! 👋</p>\n\n<p><b>We’re excited to share our latest product video with you! 🎉<b></p>\n\n<p>Watch it here to see the product video you’ll love:<br>\n<a href=\"@{body('Get_Video_Link')?['video']?['url']}\">@{body('Get_Video_Link')?['video']?['url']}</a></p>\n\n<p>Don’t miss out—this could be just what you’ve been looking for! ✨</p>\n\n<p><b>Thanks for being part of our community! 🙌<b></p>"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendEmailV2"
+            }
+          },
+          "runAfter": {
+            "Update_Video_Link": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    },
+    "gmail_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/gmail"
+    }
+  }
+}

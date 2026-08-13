@@ -1,0 +1,1386 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "automate-google-classroom-with-gemini-ai-topics-assignments-student-tracking",
+    "name": "Automate Google Classroom with Gemini AI: Topics, assignments & student tracking",
+    "description": "# Automate Google Classroom: Topics, Assignments & Student Tracking\n\nAutomate Google Classroom via the Google Classroom API to efficiently manage courses, topics, teachers, students, announcements, and coursework.\n\n## Use Cases\n\n### Educational Institution Management\nSync rosters, post weekly announcements, and generate submission reports automatically.\n\n### Remote Learning Coordination\nBatch-create assignments, track engagement, and auto-notify teachers on new submissions.\n\n### Training Program Automation\nAutomate training modules, manage enrollments, and generate completion/compliance reports.\n\n## Prerequisites\n- n8n (cloud or self-hosted)  \n- Google Cloud Console access for OAuth setup  \n- Google Classroom API enabled  \n- **Google Gemini API key** (free) for the agent brain — or swap in any other LLM if preferred  \n\n## Setup Instructions\n\n### Step 1: Google Cloud Project\n1. Create a new project in **Google Cloud Console**.  \n2. Enable **Google Classroom API**.  \n3. Create **OAuth 2.0 Client ID** credentials.  \n4. Add your **n8n OAuth callback URL** as a redirect URI.  \n5. Note down the **Client ID** and **Client Secret**.\n\n### Step 2: OAuth Setup in n8n\n1. In n8n, open **HTTP Request Node → Authentication → Predefined Credential Type**.  \n2. Select **Google OAuth2 API**.  \n3. Enter your **Client ID** and **Client Secret**.  \n4. Click **Connect my account** to complete authorization.  \n5. Test the connection.\n\n### Step 3: Import & Configure Workflow\n1. Import this workflow template into n8n.  \n2. Link all Google Classroom nodes to your OAuth credential.  \n3. Configure the webhook if using external triggers.  \n4. Test each agent for API connectivity.\n\n### Step 4: Customization\nYou can customize each agent’s prompt to your liking for optimal results, or copy and modify node code to expand functionality.  \nAll operations use **HTTP Request** nodes, so you can integrate more tools via the **Google Classroom API documentation**.  \nThis workflow provides a strong starting point for deeper automation and integration.\n\n## Features\n\n### Course Topics\nList, create, update, or delete topics within a course.\n\n### Teacher & Student Management\nList, retrieve, and manage teachers and students programmatically.\n\n### Course Posts\nList posts, retrieve details and attachments, and access submission data.\n\n### Announcements\nList, create, update, or delete announcements across courses.\n\n### Courses\nList all courses, get detailed information, and view grading periods.\n\n### Coursework\nList, retrieve, or analyze coursework within any course.\n\n## Notes\nOnce OAuth and the LLM connection are configured, this workflow automates all Google Classroom operations.  \nIts modular structure lets you activate only what you need—saving API quota and improving performance.\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "HR",
+      "AI Chatbot",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "When_chat_message_received": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "When chat message received",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chatTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Course_Topic_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Course  Topic Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agentTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+              "options": {
+                "systemMessage": "You are Course_Topic_Agent, an AI assistant specialized in managing Google Classroom topics via the Classroom REST v1 API. Invoke the correct tool to handle each request:\n\nList topics\n– Inputs: courseId\n– Returns: an array of Topic resources\n\nGet topic\n– Inputs: courseId, topicId\n– Returns: the specified Topic resource\n\nCreate topic\n– Inputs: courseId, JSON body with Topic fields (name, topicId)\n– Returns: the newly created Topic resource\n\nPatch topic\n– Inputs: courseId, topicId, updateMask specifying which fields to update, JSON body with updated fields (e.g., name)\n– Returns: the updated Topic resource\n\nDelete topic\n– Inputs: courseId, topicId\n– Returns: empty response on success"
+              }
+            }
+          },
+          "runAfter": {
+            "Get_topic": [
+              "Succeeded"
+            ],
+            "List_topics": [
+              "Succeeded"
+            ],
+            "Patch_topic": [
+              "Succeeded"
+            ],
+            "Create_topic": [
+              "Succeeded"
+            ],
+            "Delete_topic": [
+              "Succeeded"
+            ],
+            "Simple_Memory3": [
+              "Succeeded"
+            ],
+            "Google_Gemini_Chat_Model3": [
+              "Succeeded"
+            ]
+          }
+        },
+        "List_topics": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "List topics",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $fromAI('url', 'List topics for a course.', 'string', 'https://classroom.googleapis.com/v1/courses/{courseId}/topics') }}",
+              "options": {},
+              "sendHeaders": true,
+              "authentication": "predefinedCredentialType",
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{$credentials.oauth2.access_token}}"
+                  }
+                ]
+              },
+              "nodeCredentialType": "googleOAuth2Api"
+            }
+          },
+          "runAfter": {}
+        },
+        "Get_topic": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get topic",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $fromAI('url', 'Get a specific topic.', 'string', 'https://classroom.googleapis.com/v1/courses/{courseId}/topics/{topicId}') }}",
+              "options": {},
+              "sendHeaders": true,
+              "authentication": "predefinedCredentialType",
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{$credentials.oauth2.access_token}}"
+                  }
+                ]
+              },
+              "nodeCredentialType": "googleOAuth2Api"
+            }
+          },
+          "runAfter": {}
+        },
+        "Create_topic": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Create topic",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $fromAI('url', 'Create a new topic.', 'string', 'https://classroom.googleapis.com/v1/courses/{courseId}/topics') }}",
+              "method": "POST",
+              "options": {},
+              "sendBody": true,
+              "sendHeaders": true,
+              "authentication": "predefinedCredentialType",
+              "bodyParameters": {
+                "parameters": [
+                  {
+                    "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Name', ``, 'string') }}",
+                    "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', ``, 'string') }}"
+                  }
+                ]
+              },
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{$credentials.oauth2.access_token}}"
+                  },
+                  {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                  }
+                ]
+              },
+              "nodeCredentialType": "googleOAuth2Api"
+            }
+          },
+          "runAfter": {}
+        },
+        "Patch_topic": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Patch topic",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $fromAI('url', 'Update a topic name.', 'string', 'https://classroom.googleapis.com/v1/courses/{courseId}/topics/{topicId}?updateMask=name') }}",
+              "method": "PATCH",
+              "options": {},
+              "sendBody": true,
+              "sendHeaders": true,
+              "authentication": "predefinedCredentialType",
+              "bodyParameters": {
+                "parameters": [
+                  {
+                    "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Name', ``, 'string') }}",
+                    "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', ``, 'string') }}"
+                  }
+                ]
+              },
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{$credentials.oauth2.access_token}}"
+                  },
+                  {
+                    "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Name', ``, 'string') }}",
+                    "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', ``, 'string') }}"
+                  }
+                ]
+              },
+              "nodeCredentialType": "googleOAuth2Api"
+            }
+          },
+          "runAfter": {}
+        },
+        "Delete_topic": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Delete topic",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $fromAI('url', 'Delete a topic.', 'string', 'https://classroom.googleapis.com/v1/courses/{courseId}/topics/{topicId}') }}",
+              "method": "DELETE",
+              "options": {},
+              "sendHeaders": true,
+              "authentication": "predefinedCredentialType",
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{$credentials.oauth2.access_token}}"
+                  }
+                ]
+              },
+              "nodeCredentialType": "googleOAuth2Api"
+            }
+          },
+          "runAfter": {}
+        },
+        "Teacher_agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Teacher agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agentTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+              "options": {
+                "systemMessage": "You are Teacher_Agent. Available tools:\n\nList teachers: lists all teachers in a course\n\nGet teacher: retrieves a specific teacher by ID"
+              }
+            }
+          },
+          "runAfter": {
+            "Get_teacher": [
+              "Succeeded"
+            ],
+            "List_teachers": [
+              "Succeeded"
+            ],
+            "Simple_Memory4": [
+              "Succeeded"
+            ],
+            "Google_Gemini_Chat_Model4": [
+              "Succeeded"
+            ]
+          }
+        },
+        "List_teachers": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "List teachers",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $fromAI('url', 'List teachers in a course.', 'string', 'https://classroom.googleapis.com/v1/courses/{courseId}/teachers') }}",
+              "options": {},
+              "sendHeaders": true,
+              "authentication": "predefinedCredentialType",
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{$credentials.oauth2.access_token}}"
+                  }
+                ]
+              },
+              "nodeCredentialType": "googleOAuth2Api"
+            }
+          },
+          "runAfter": {}
+        },
+        "Get_teacher": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get teacher",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $fromAI('url', 'Get a specific teacher.', 'string', 'https://classroom.googleapis.com/v1/courses/{courseId}/teachers/{userId}') }}",
+              "options": {},
+              "sendHeaders": true,
+              "authentication": "predefinedCredentialType",
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{$credentials.oauth2.access_token}}"
+                  }
+                ]
+              },
+              "nodeCredentialType": "googleOAuth2Api"
+            }
+          },
+          "runAfter": {}
+        },
+        "Students_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Students Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agentTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+              "options": {
+                "systemMessage": "You are Students_Agent. Available tools:\n\nList students: lists all students in a course\n\nGet student: retrieves a specific student by ID"
+              }
+            }
+          },
+          "runAfter": {
+            "Get_student": [
+              "Succeeded"
+            ],
+            "List_students": [
+              "Succeeded"
+            ],
+            "Simple_Memory5": [
+              "Succeeded"
+            ],
+            "Google_Gemini_Chat_Model5": [
+              "Succeeded"
+            ]
+          }
+        },
+        "List_students": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "List students",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $fromAI('url', 'List students in a course.', 'string', 'https://classroom.googleapis.com/v1/courses/{courseId}/students') }}",
+              "options": {},
+              "sendHeaders": true,
+              "authentication": "predefinedCredentialType",
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{$credentials.oauth2.access_token}}"
+                  }
+                ]
+              },
+              "nodeCredentialType": "googleOAuth2Api"
+            }
+          },
+          "runAfter": {}
+        },
+        "Get_student": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get student",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $fromAI('url', 'Get a specific student.', 'string', 'https://classroom.googleapis.com/v1/courses/{courseId}/students/{userId}') }}",
+              "options": {},
+              "sendHeaders": true,
+              "authentication": "predefinedCredentialType",
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{$credentials.oauth2.access_token}}"
+                  }
+                ]
+              },
+              "nodeCredentialType": "googleOAuth2Api"
+            }
+          },
+          "runAfter": {}
+        },
+        "Course_Post_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Course Post Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agentTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+              "options": {
+                "systemMessage": "You are Course_Post_Agent, an AI assistant specialized in managing Google Classroom post attachments and their submissions via the Classroom REST v1 API. Invoke exactly the tool that matches the user’s request:\n\nGet post add-on context\n– Input: postId\n– Returns: the AddOnContext resource for the specified post\n\nList post add-on attachments\n– Input: postId\n– Returns: an array of AddOnAttachment resources for the specified post\n\nGet post add-on attachment\n– Input: postId, attachmentId\n– Returns: the specified AddOnAttachment resource\n\nGet post attachment submission\n– Input: postId, attachmentId, submissionId\n– Returns: the StudentSubmission resource for the specified attachment"
+              }
+            }
+          },
+          "runAfter": {
+            "Simple_Memory7": [
+              "Succeeded"
+            ],
+            "Get_post_add_on_context": [
+              "Succeeded"
+            ],
+            "Google_Gemini_Chat_Model7": [
+              "Succeeded"
+            ],
+            "Get_post_add_on_attachment": [
+              "Succeeded"
+            ],
+            "List_post_add_on_attachments": [
+              "Succeeded"
+            ],
+            "Get_post_attachment_submission": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_post_add_on_context": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get post add-on context",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $fromAI('url', 'Get add-on context for a post.', 'string', 'https://classroom.googleapis.com/v1/courses/{courseId}/posts/{postId}/addOnContext') }}",
+              "options": {},
+              "sendHeaders": true,
+              "authentication": "predefinedCredentialType",
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{$credentials.oauth2.access_token}}"
+                  }
+                ]
+              },
+              "nodeCredentialType": "googleOAuth2Api"
+            }
+          },
+          "runAfter": {}
+        },
+        "List_post_add_on_attachments": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "List post add-on attachments",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $fromAI('url', 'List add-on attachments for a post.', 'string', 'https://classroom.googleapis.com/v1/courses/{courseId}/posts/{postId}/addOnAttachments') }}",
+              "options": {},
+              "sendHeaders": true,
+              "authentication": "predefinedCredentialType",
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{$credentials.oauth2.access_token}}"
+                  }
+                ]
+              },
+              "nodeCredentialType": "googleOAuth2Api"
+            }
+          },
+          "runAfter": {}
+        },
+        "Get_post_add_on_attachment": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get post add-on attachment",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $fromAI('url', 'Get a specific add-on attachment.', 'string', 'https://classroom.googleapis.com/v1/courses/{courseId}/posts/{postId}/addOnAttachments/{attachmentId}') }}",
+              "options": {},
+              "sendHeaders": true,
+              "authentication": "predefinedCredentialType",
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{$credentials.oauth2.access_token}}"
+                  }
+                ]
+              },
+              "nodeCredentialType": "googleOAuth2Api"
+            }
+          },
+          "runAfter": {}
+        },
+        "Get_post_attachment_submission": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get post attachment submission",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $fromAI('url', 'Get a student submission for a post add-on attachment.', 'string', 'https://classroom.googleapis.com/v1/courses/{courseId}/posts/{postId}/addOnAttachments/{attachmentId}/studentSubmissions/{submissionId}') }}",
+              "options": {},
+              "sendHeaders": true,
+              "authentication": "predefinedCredentialType",
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{$credentials.oauth2.access_token}}"
+                  }
+                ]
+              },
+              "nodeCredentialType": "googleOAuth2Api"
+            }
+          },
+          "runAfter": {}
+        },
+        "Announcements_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Announcements Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agentTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+              "options": {
+                "systemMessage": "You are Announcements_Agent, an AI assistant specialized in managing Google Classroom announcements via the Classroom REST v1 API. Invoke exactly the tool that matches the user’s request:\n\nList announcements\n– Inputs: courseId\n– Returns: an array of Announcement resources\n\nGet announcement\n– Inputs: courseId, announcementId\n– Returns: the specified Announcement resource\n\nCreate announcement\n– Inputs: courseId, JSON body with Announcement fields (text, state, etc.)\n– Returns: the newly created Announcement resource\n\nPatch announcement\n– Inputs: courseId, announcementId, updateMask specifying fields to update, JSON body with updated values\n– Returns: the updated Announcement resource\n\nDelete announcement\n– Inputs: courseId, announcementId\n– Returns: empty response on success\n\nGet announcement add-on context\n– Inputs: courseId, announcementId\n– Returns: the AddOnContext resource for the specified announcement"
+              }
+            }
+          },
+          "runAfter": {
+            "Simple_Memory8": [
+              "Succeeded"
+            ],
+            "Get_announcement": [
+              "Succeeded"
+            ],
+            "List_announcements": [
+              "Succeeded"
+            ],
+            "Patch_announcement": [
+              "Succeeded"
+            ],
+            "Create_announcement": [
+              "Succeeded"
+            ],
+            "Delete_announcement": [
+              "Succeeded"
+            ],
+            "Google_Gemini_Chat_Model8": [
+              "Succeeded"
+            ],
+            "Get_announcement_add_on_context": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Create_announcement": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Create announcement",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $fromAI('url','Create an announcement.','string','https://classroom.googleapis.com/v1/courses/{courseId}/announcements') }}",
+              "method": "POST",
+              "options": {},
+              "sendBody": true,
+              "sendHeaders": true,
+              "authentication": "predefinedCredentialType",
+              "bodyParameters": {
+                "parameters": [
+                  {
+                    "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Name', ``, 'string') }}",
+                    "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', ``, 'string') }}"
+                  }
+                ]
+              },
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{$credentials.oauth2.access_token}}"
+                  },
+                  {
+                    "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Name', ``, 'string') }}",
+                    "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', ``, 'string') }}"
+                  }
+                ]
+              },
+              "nodeCredentialType": "googleOAuth2Api"
+            }
+          },
+          "runAfter": {}
+        },
+        "Delete_announcement": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Delete announcement",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $fromAI('url','Delete an announcement.','string','https://classroom.googleapis.com/v1/courses/{courseId}/announcements/{announcementId}') }}",
+              "method": "DELETE",
+              "options": {},
+              "sendHeaders": true,
+              "authentication": "predefinedCredentialType",
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{$credentials.oauth2.access_token}}"
+                  }
+                ]
+              },
+              "nodeCredentialType": "googleOAuth2Api"
+            }
+          },
+          "runAfter": {}
+        },
+        "Get_announcement": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get announcement",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $fromAI('url','Get an announcement.','string','https://classroom.googleapis.com/v1/courses/{courseId}/announcements/{announcementId}') }}",
+              "options": {},
+              "sendHeaders": true,
+              "authentication": "predefinedCredentialType",
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{$credentials.oauth2.access_token}}"
+                  }
+                ]
+              },
+              "nodeCredentialType": "googleOAuth2Api"
+            }
+          },
+          "runAfter": {}
+        },
+        "Get_announcement_add_on_context": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get announcement add-on context",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $fromAI('url','Get announcement add-on context.','string','https://classroom.googleapis.com/v1/courses/{courseId}/announcements/{announcementId}/addOnContext') }}",
+              "options": {},
+              "sendHeaders": true,
+              "authentication": "predefinedCredentialType",
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{$credentials.oauth2.access_token}}"
+                  }
+                ]
+              },
+              "nodeCredentialType": "googleOAuth2Api"
+            }
+          },
+          "runAfter": {}
+        },
+        "List_announcements": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "List announcements",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $fromAI('url','List announcements.','string','https://classroom.googleapis.com/v1/courses/{courseId}/announcements') }}",
+              "options": {},
+              "sendHeaders": true,
+              "authentication": "predefinedCredentialType",
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{$credentials.oauth2.access_token}}"
+                  }
+                ]
+              },
+              "nodeCredentialType": "googleOAuth2Api"
+            }
+          },
+          "runAfter": {}
+        },
+        "Patch_announcement": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Patch announcement",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $fromAI('url','Update announcement text.','string','https://classroom.googleapis.com/v1/courses/{courseId}/announcements/{announcementId}?updateMask=text') }}",
+              "method": "PATCH",
+              "options": {},
+              "sendBody": true,
+              "sendHeaders": true,
+              "authentication": "predefinedCredentialType",
+              "bodyParameters": {
+                "parameters": [
+                  {
+                    "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Name', ``, 'string') }}",
+                    "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', ``, 'string') }}"
+                  }
+                ]
+              },
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{$credentials.oauth2.access_token}}"
+                  },
+                  {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                  }
+                ]
+              },
+              "nodeCredentialType": "googleOAuth2Api"
+            }
+          },
+          "runAfter": {}
+        },
+        "Course_Management_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Course Management Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agentTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+              "options": {
+                "systemMessage": "You are Course Management Agent, a focused controller for Google Classroom course data; call only the tools listed below and validate required inputs before invocation.\n\nList courses\n\nInputs: none\n\nReturns: array of Course resources\n\nGet course\n\nInputs: courseId\n\nReturns: Course resource\n\nGet grading period settings\n\nInputs: courseId\n\nReturns: GradingPeriodSettings resource"
+              }
+            }
+          },
+          "runAfter": {
+            "Get_course": [
+              "Succeeded"
+            ],
+            "List_courses": [
+              "Succeeded"
+            ],
+            "Simple_Memory10": [
+              "Succeeded"
+            ],
+            "Google_Gemini_Chat_Model10": [
+              "Succeeded"
+            ],
+            "Get_grading_period_settings": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_course": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get course",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $fromAI('url','Get course details.','string','https://classroom.googleapis.com/v1/courses/{courseId}') }}",
+              "options": {},
+              "sendHeaders": true,
+              "authentication": "predefinedCredentialType",
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{$credentials.oauth2.access_token}}"
+                  }
+                ]
+              },
+              "nodeCredentialType": "googleOAuth2Api"
+            }
+          },
+          "runAfter": {}
+        },
+        "Get_grading_period_settings": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get grading period settings",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $fromAI('url','Get grading period settings.','string','https://classroom.googleapis.com/v1/courses/{courseId}/gradingPeriodSettings') }}",
+              "options": {},
+              "sendHeaders": true,
+              "authentication": "predefinedCredentialType",
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{$credentials.oauth2.access_token}}"
+                  }
+                ]
+              },
+              "nodeCredentialType": "googleOAuth2Api"
+            }
+          },
+          "runAfter": {}
+        },
+        "List_courses": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "List courses",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $fromAI('url','List all courses.','string','https://classroom.googleapis.com/v1/courses') }}",
+              "options": {},
+              "sendHeaders": true,
+              "authentication": "predefinedCredentialType",
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{$credentials.oauth2.access_token}}"
+                  }
+                ]
+              },
+              "nodeCredentialType": "googleOAuth2Api"
+            }
+          },
+          "runAfter": {}
+        },
+        "Get_coursework": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get coursework",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $fromAI('url','Get coursework.','string','https://classroom.googleapis.com/v1/courses/{courseId}/courseWork/{courseWorkId}') }}",
+              "options": {},
+              "sendHeaders": true,
+              "authentication": "predefinedCredentialType",
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{$credentials.oauth2.access_token}}"
+                  }
+                ]
+              },
+              "nodeCredentialType": "googleOAuth2Api"
+            }
+          },
+          "runAfter": {}
+        },
+        "Get_coursework_add_on_context": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get coursework add-on context",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $fromAI('url','Get coursework add-on context.','string','https://classroom.googleapis.com/v1/courses/{courseId}/courseWork/{courseWorkId}/addOnContext') }}",
+              "options": {},
+              "sendHeaders": true,
+              "authentication": "predefinedCredentialType",
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{$credentials.oauth2.access_token}}"
+                  }
+                ]
+              },
+              "nodeCredentialType": "googleOAuth2Api"
+            }
+          },
+          "runAfter": {}
+        },
+        "List_coursework": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "List coursework",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $fromAI('url','List coursework.','string','https://classroom.googleapis.com/v1/courses/{courseId}/courseWork') }}",
+              "options": {},
+              "sendHeaders": true,
+              "authentication": "predefinedCredentialType",
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer {{$credentials.oauth2.access_token}}"
+                  }
+                ]
+              },
+              "nodeCredentialType": "googleOAuth2Api"
+            }
+          },
+          "runAfter": {}
+        },
+        "Coursework_Management_SubAgent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Coursework Management SubAgent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agentTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+              "options": {
+                "systemMessage": "ou are Coursework Management Agent. Use only the tools shown for this node and validate required inputs before calling.\n\nList coursework: Inputs: courseId. Returns: array of CourseWork resources.\n\nGet coursework: Inputs: courseId, courseWorkId. Returns: a CourseWork resource.\n\nGet coursework add-on context: Inputs: courseId, courseWorkId. Returns: AddOnContext for the coursework."
+              }
+            }
+          },
+          "runAfter": {
+            "Get_coursework": [
+              "Succeeded"
+            ],
+            "List_coursework": [
+              "Succeeded"
+            ],
+            "Simple_Memory12": [
+              "Succeeded"
+            ],
+            "Google_Gemini_Chat_Model12": [
+              "Succeeded"
+            ],
+            "Get_coursework_add_on_context": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Gemini_Chat_Model3": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Gemini Chat Model3",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Simple_Memory3": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Simple Memory3",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "contextWindowLength": 10
+            }
+          },
+          "runAfter": {}
+        },
+        "Google_Gemini_Chat_Model4": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Gemini Chat Model4",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Simple_Memory4": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Simple Memory4",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "contextWindowLength": 10
+            }
+          },
+          "runAfter": {}
+        },
+        "Google_Gemini_Chat_Model5": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Gemini Chat Model5",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Simple_Memory5": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Simple Memory5",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "contextWindowLength": 10
+            }
+          },
+          "runAfter": {}
+        },
+        "Google_Gemini_Chat_Model7": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Gemini Chat Model7",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Simple_Memory7": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Simple Memory7",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "contextWindowLength": 20
+            }
+          },
+          "runAfter": {}
+        },
+        "Google_Gemini_Chat_Model8": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Gemini Chat Model8",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Simple_Memory8": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Simple Memory8",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "contextWindowLength": 10
+            }
+          },
+          "runAfter": {}
+        },
+        "Google_Gemini_Chat_Model10": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Gemini Chat Model10",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Simple_Memory10": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Simple Memory10",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "contextWindowLength": 10
+            }
+          },
+          "runAfter": {}
+        },
+        "Google_Gemini_Chat_Model12": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Gemini Chat Model12",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Simple_Memory12": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Simple Memory12",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "contextWindowLength": 10
+            }
+          },
+          "runAfter": {}
+        },
+        "Google_Gemini_Chat_Model18": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Gemini Chat Model18",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Google_Classroom_Ultimate_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Classroom Ultimate Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "systemMessage": "=Google Classroom Master Agent\nAct as an orchestrator that routes requests to the correct sub-agent and tool below. Validate required inputs before invoking any tool. Authorization and JSON handling are managed by the tools. Only call tools listed here.\n\nCoursework Management Agent\n\nList coursework: Inputs: courseId. Returns: array of CourseWork resources.\n\nGet coursework: Inputs: courseId, courseWorkId. Returns: a CourseWork resource.\n\nGet coursework add-on context: Inputs: courseId, courseWorkId. Returns: AddOnContext for the coursework.\n\nCourse Management Agent\n\nList courses: Inputs: none. Returns: array of Course resources.\n\nGet course: Inputs: courseId. Returns: Course resource.\n\nGet grading period settings: Inputs: courseId. Returns: GradingPeriodSettings resource.\n\nAnnouncements Agent\n\nList announcements: Inputs: courseId. Returns: array of Announcement resources.\n\nGet announcement: Inputs: courseId, announcementId. Returns: the specified Announcement resource.\n\nCreate announcement: Inputs: courseId, JSON body with Announcement fields. Returns: newly created Announcement resource.\n\nPatch announcement: Inputs: courseId, announcementId, updateMask, JSON body with updated values. Returns: updated Announcement resource.\n\nDelete announcement: Inputs: courseId, announcementId. Returns: empty response on success.\n\nGet announcement add-on context: Inputs: courseId, announcementId. Returns: AddOnContext for the announcement.\n\nCourse Post Agent\n\nGet post add-on context: Inputs: postId. Returns: AddOnContext for the post.\n\nList post add-on attachments: Inputs: postId. Returns: array of AddOnAttachment resources.\n\nGet post add-on attachment: Inputs: postId, attachmentId. Returns: specified AddOnAttachment resource.\n\nGet post attachment submission: Inputs: postId, attachmentId, submissionId. Returns: StudentSubmission resource for the attachment.\n\nStudents Agent\n\nList students: Inputs: courseId. Returns: array of Student resources.\n\nGet student: Inputs: courseId, studentId. Returns: specified Student resource.\n\nTeacher Agent\n\nList teachers: Inputs: courseId. Returns: array of Teacher resources.\n\nGet teacher: Inputs: courseId, teacherId. Returns: specified Teacher resource.\n\nCreate teacher: Inputs: courseId, JSON body with Teacher fields. Returns: newly created Teacher resource.\n\nDelete teacher: Inputs: courseId, teacherId. Returns: empty response on success.\n\nCourse Topic Agent\n\nList topics: Inputs: courseId. Returns: array of Topic resources.\n\nGet topic: Inputs: courseId, topicId. Returns: specified Topic resource.\n\nCreate topic: Inputs: courseId, JSON body with Topic fields. Returns: newly created Topic resource.\n\nPatch topic: Inputs: courseId, topicId, updateMask, JSON body with updated fields. Returns: updated Topic resource.\n\nDelete topic: Inputs: courseId, topicId. Returns: empty response on success."
+              }
+            }
+          },
+          "runAfter": {
+            "Teacher_agent": [
+              "Succeeded"
+            ],
+            "Students_Agent": [
+              "Succeeded"
+            ],
+            "Simple_Memory18": [
+              "Succeeded"
+            ],
+            "Course_Post_Agent": [
+              "Succeeded"
+            ],
+            "Announcements_Agent": [
+              "Succeeded"
+            ],
+            "Course_Topic_Agent": [
+              "Succeeded"
+            ],
+            "Course_Management_Agent": [
+              "Succeeded"
+            ],
+            "Google_Gemini_Chat_Model18": [
+              "Succeeded"
+            ],
+            "When_chat_message_received": [
+              "Succeeded"
+            ],
+            "Coursework_Management_SubAgent": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Simple_Memory18": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Simple Memory18",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "contextWindowLength": 100
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

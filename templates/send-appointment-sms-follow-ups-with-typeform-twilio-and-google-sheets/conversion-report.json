@@ -1,0 +1,130 @@
+{
+  "sourceWorkflowName": "Send appointment SMS follow-ups with Typeform, Twilio, and Google Sheets",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 13,
+  "totalNodes": 20,
+  "coverage": 0.65,
+  "diagnostics": [
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.typeformTrigger.",
+      "severity": "warning",
+      "node_name": "When Form Submitted",
+      "node_type": "n8n-nodes-base.typeformTrigger",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.twilio.",
+      "severity": "warning",
+      "node_name": "Send Welcome SMS",
+      "node_type": "n8n-nodes-base.twilio",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $now.toISO() }}",
+      "severity": "warning",
+      "node_name": "Prepare Tracking Row",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_RESOURCE_REQUIRED",
+      "message": "Google Sheets requires a spreadsheet and worksheet value before import.",
+      "severity": "warning",
+      "node_name": "Append Submission to Sheets",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_RESOURCE_REQUIRED",
+      "message": "Google Sheets requires a spreadsheet and worksheet value before import.",
+      "severity": "warning",
+      "node_name": "Read Non-Responders from Sheets",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.splitOut.",
+      "severity": "warning",
+      "node_name": "Split Non-Responder List",
+      "node_type": "n8n-nodes-base.splitOut",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.twilio.",
+      "severity": "warning",
+      "node_name": "Send Nudge SMS",
+      "node_type": "n8n-nodes-base.twilio",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $now.toISO() }}",
+      "severity": "warning",
+      "node_name": "Prepare Nudge Update",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Google Sheets operation 'update' is not safely equivalent to a single LAA connector action.",
+      "severity": "warning",
+      "node_name": "Update Nudge Count in Sheets",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.googleSheets is not safely supported.",
+      "severity": "warning",
+      "node_name": "Update Nudge Count in Sheets",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ ($json.nudgeCount === 0 && $now.diff(DateTime.fromISO($json.submittedAt), 'hours').hours >= 24) || ($json.nudgeCount === 1 && $json.lastNudgeAt && $now.diff(DateTime.fromISO($json.lastNudgeAt), 'hours').hours >= 24) }}",
+      "severity": "warning",
+      "node_name": "If Time For Next Nudge",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.twilioTrigger.",
+      "severity": "warning",
+      "node_name": "When SMS Reply Received",
+      "node_type": "n8n-nodes-base.twilioTrigger",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $now.toISO() }}",
+      "severity": "warning",
+      "node_name": "Prepare Reply Update",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Google Sheets operation 'update' is not safely equivalent to a single LAA connector action.",
+      "severity": "warning",
+      "node_name": "Update Replied in Sheets",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.googleSheets is not safely supported.",
+      "severity": "warning",
+      "node_name": "Update Replied in Sheets",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    }
+  ]
+}

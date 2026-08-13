@@ -1,0 +1,3749 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "design-scalable-sync-workflows-with-data-tables-prospectpro-and-hubspot",
+    "name": "Design scalable sync workflows with Data Tables, ProspectPro and HubSpot",
+    "description": "This template is a **pattern library** (one importable workflow) that shows a repeatable way to structure n8n automations so they remain **easy to extend, cheaper to run, and safer to scale**.\n\nIt’s intentionally **opinionated and dry**: the goal is not “plug & play”, but a set of proven building blocks you can copy into your own workflows.\n\n### Problems this framework solves\n- **Spaghetti workflows that are hard to change**  \n  A consistent split into *Trigger → Manager → Function → Utility* so changes don’t ripple through everything.\n- **Duplicate processing when runs overlap**  \n  Uses “in progress / success / error” indicators so the trigger can skip items that are already being processed.\n- **Unnecessary re-runs that keep failing**  \n  Items that fail can be marked/parked, so you don’t burn executions repeating the same error.\n- **Execution costs exploding over time**  \n  Offers polling + batching alternatives when “one event = one execution” becomes too expensive.\n- **Rate limits and API throttling under load**  \n  Includes rate-limited processing patterns (delays/throttling) to smooth spikes.\n- **Missed items during downtime, deploys, or restarts**  \n  Stores sync state (e.g., lastSync) in **n8n Data Tables** instead of relying on in-memory state.\n- **Long-running pagination that becomes fragile**  \n  Demonstrates manual “page-wise” pagination (fetch N → process N → checkpoint → repeat) to avoid huge in-memory batches.\n- **Debugging incidents without visibility**  \n  Includes an error workflow pattern (Error Trigger + notification) and structured error logging.\n\n### What you get in this template\n- Trigger patterns (simple and rate-limited)\n- Polling / batching patterns (basic → more robust → fully configurable with pagination)\n- A “manager” pattern for stateful processing and overlap protection\n- Function + utility workflow examples for reusability\n- Error logging to a Data Table and an example Telegram alert\n\n### Requirements / setup\n- n8n version that includes the **Data Table** node\n- Create/replace Data Tables used in the template (e.g. `Timestamps`, `Errors`)\n- Example nodes use **ProspectPro**, **HubSpot**, and **Telegram** (optional). Replace these with your own tools if you’re not using them.\n\n### Important notes\n- This is **not** a finished automation. Import it, then **choose the pattern(s)** you need and swap the example “get items / process item” steps for your own logic.\n- Some patterns include looping/recursion options—configure stop conditions carefully to avoid unintended infinite runs.\n- This framework is **one** effective route to scalable n8n systems, not the only one.\n\n**Note:** this is a living document that will be updated periodically.\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Engineering",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/telegrambotip",
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "B1_Schedule_Trigger": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        },
+        "B2_Schedule_Trigger": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        },
+        "B3_Schedule_Trigger": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        },
+        "When_clicking_Execute_workflow": {
+          "type": "Request",
+          "kind": "Http"
+        },
+        "Webhook": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Create_Batches": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Create Batches",
+            "n8nNodeType": "n8n-nodes-base.splitInBatches",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "batchSize": 10
+            }
+          },
+          "runAfter": {
+            "New_Website_Visitors": [
+              "Succeeded"
+            ],
+            "Delay_after_each_batch": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Process_one_item_at_a_time_1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Process one item at a time - (1)",
+            "n8nNodeType": "n8n-nodes-base.executeWorkflow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "each",
+              "options": {
+                "waitForSubWorkflow": true
+              },
+              "workflowId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "IdtvYdzQ2uGp7quU",
+                "cachedResultUrl": "/workflow/IdtvYdzQ2uGp7quU",
+                "cachedResultName": "Subflow - TEMPLATE"
+              },
+              "workflowInputs": {
+                "value": {},
+                "schema": [
+                  {
+                    "id": "id",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "id",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "id"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": true
+              }
+            }
+          },
+          "runAfter": {
+            "New_Website_Visitors": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Process_one_item_at_a_time_2": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Process one item at a time (2)",
+            "n8nNodeType": "n8n-nodes-base.executeWorkflow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "each",
+              "options": {
+                "waitForSubWorkflow": true
+              },
+              "workflowId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "IdtvYdzQ2uGp7quU",
+                "cachedResultUrl": "/workflow/IdtvYdzQ2uGp7quU",
+                "cachedResultName": "Subflow - TEMPLATE"
+              },
+              "workflowInputs": {
+                "value": {},
+                "schema": [
+                  {
+                    "id": "id",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "id",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "id"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": true
+              }
+            }
+          },
+          "runAfter": {
+            "Create_Batches": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Delay_after_each_batch": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 1,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Process_one_item_at_a_time_2": [
+              "Succeeded"
+            ]
+          }
+        },
+        "New_Website_Visitors": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "New Website Visitors",
+            "n8nNodeType": "@bedrijfsdatanl/n8n-nodes-prospectpro.prospectproTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "pollTimes": {
+                "item": [
+                  {
+                    "mode": "everyMinute"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "B1_Set_variables": {
+          "type": "Compose",
+          "inputs": {
+            "timestamp_key": "demo_timestamp"
+          },
+          "runAfter": {}
+        },
+        "B1_Get_timestamp": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "B1 - Get timestamp",
+            "n8nNodeType": "n8n-nodes-base.dataTable",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "limit": 1,
+              "filters": {
+                "conditions": [
+                  {
+                    "keyName": "key",
+                    "keyValue": "={{$('B1 - Set variables').first().json.timestamp_key}}"
+                  }
+                ]
+              },
+              "matchType": "allConditions",
+              "operation": "get",
+              "dataTableId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "8MPVpHDnVGj4PBZR",
+                "cachedResultUrl": "/projects/tgy2Tl0HCDQH0Rbt/datatables/8MPVpHDnVGj4PBZR",
+                "cachedResultName": "Timestamps"
+              }
+            }
+          },
+          "runAfter": {
+            "B1_Set_variables": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B1_Set_lastSync": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['B1_Get_timestamp'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst __results = items.map(item => {\n  const $json = item.json;\n  const $input = {\n    item,\n    first: () => item,\n    last: () => item,\n    all: () => items\n  };\n  return (() => {\nreturn { lastSync: Math.floor(new Date($json.value || 0).getTime() / 1000) };\n  })();\n});\nreturn { body: __unwrap(__results) };"
+          },
+          "runAfter": {
+            "B1_Get_timestamp": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B1_Get_Items": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "=https://api.prospectpro.nl/v1.2/prospects"
+          },
+          "runAfter": {
+            "B1_Set_lastSync": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B1_Has_Items": {
+          "type": "If",
+          "expression": {
+            "equals": [
+              "@body('B1_Get_Items')?['found'] > 0",
+              true
+            ]
+          },
+          "actions": {
+            "B1_Items": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "B1 - Items",
+                "n8nNodeType": "n8n-nodes-base.splitOut",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "fieldToSplitOut": "items"
+                }
+              },
+              "runAfter": {}
+            },
+            "B1_Filter_Items": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "B1 - Filter Items",
+                "n8nNodeType": "n8n-nodes-base.filter",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "strict"
+                    },
+                    "combinator": "and",
+                    "conditions": [
+                      {
+                        "id": "b65f03ae-26bc-4bc7-a77c-74a072a3d98b",
+                        "operator": {
+                          "type": "boolean",
+                          "operation": "true",
+                          "singleValue": true
+                        },
+                        "leftValue": "={{ !!$json.updated_time && $json.updated_time > $('B1 - Set lastSync').first().json.lastSync }}",
+                        "rightValue": ""
+                      }
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "B1_Items": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "B1_Get_Items": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B1_No_Operation_do_nothing": {
+          "type": "Compose",
+          "inputs": {},
+          "runAfter": {
+            "B1_Has_timestamp_not_first_run": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B2_Set_variables": {
+          "type": "Compose",
+          "inputs": {
+            "timestamp_key": "demo_timestamp",
+            "limit": 20
+          },
+          "runAfter": {}
+        },
+        "B2_Get_timestamp": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "B2 - Get timestamp",
+            "n8nNodeType": "n8n-nodes-base.dataTable",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "limit": 1,
+              "filters": {
+                "conditions": [
+                  {
+                    "keyName": "key",
+                    "keyValue": "={{$('B2 - Set variables').first().json.timestamp_key}}"
+                  }
+                ]
+              },
+              "matchType": "allConditions",
+              "operation": "get",
+              "dataTableId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "8MPVpHDnVGj4PBZR",
+                "cachedResultUrl": "/projects/tgy2Tl0HCDQH0Rbt/datatables/8MPVpHDnVGj4PBZR",
+                "cachedResultName": "Timestamps"
+              }
+            }
+          },
+          "runAfter": {
+            "B2_Set_variables": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B2_Set_lastSync": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['B2_Get_timestamp'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst __results = items.map(item => {\n  const $json = item.json;\n  const $input = {\n    item,\n    first: () => item,\n    last: () => item,\n    all: () => items\n  };\n  return (() => {\nreturn { lastSync: Math.floor(new Date($json.value || 0).getTime() / 1000) };\n  })();\n});\nreturn { body: __unwrap(__results) };"
+          },
+          "runAfter": {
+            "B2_Get_timestamp": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B2_Get_Items": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "=https://api.prospectpro.nl/v1.2/prospects"
+          },
+          "runAfter": {
+            "B2_Set_lastSync": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B2_Has_Items": {
+          "type": "If",
+          "expression": {
+            "equals": [
+              "@body('B2_Get_Items')?['found'] > 0",
+              true
+            ]
+          },
+          "actions": {
+            "B2_Items": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "B2 - Items",
+                "n8nNodeType": "n8n-nodes-base.splitOut",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "fieldToSplitOut": "items"
+                }
+              },
+              "runAfter": {}
+            },
+            "B2_Filter_Items": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "B2 - Filter Items",
+                "n8nNodeType": "n8n-nodes-base.filter",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "strict"
+                    },
+                    "combinator": "and",
+                    "conditions": [
+                      {
+                        "id": "b65f03ae-26bc-4bc7-a77c-74a072a3d98b",
+                        "operator": {
+                          "type": "boolean",
+                          "operation": "true",
+                          "singleValue": true
+                        },
+                        "leftValue": "={{ !!$json.updated_time && $json.updated_time > $('B2 - Set lastSync').first().json.lastSync }}",
+                        "rightValue": ""
+                      }
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "B2_Items": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "B2_Needs_loop": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "B2 - Needs loop?",
+                "n8nNodeType": "n8n-nodes-base.if",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 3,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "strict"
+                    },
+                    "combinator": "and",
+                    "conditions": [
+                      {
+                        "id": "9f3162bd-aebe-43a1-8fc6-0ebd7367106f",
+                        "operator": {
+                          "type": "boolean",
+                          "operation": "true",
+                          "singleValue": true
+                        },
+                        "leftValue": "={{ !!$('B2 - Get Items').first().json.found && !!$('B2 - Get Items').first().json.total && $('B2 - Get Items').first().json.found < $('B2 - Get Items').first().json.total }}",
+                        "rightValue": ""
+                      }
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "B2_Filter_Items": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "B2_Call_this_workflow": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "B2 - Call [this workflow]",
+                "n8nNodeType": "n8n-nodes-base.executeWorkflow",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "workflowId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "w0NDnlGr_-uqHUHVrgPM_",
+                    "cachedResultUrl": "/workflow/w0NDnlGr_-uqHUHVrgPM_",
+                    "cachedResultName": "Trigger Patterns"
+                  },
+                  "workflowInputs": {
+                    "value": {},
+                    "schema": [],
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": true
+                  }
+                }
+              },
+              "runAfter": {
+                "B2_Needs_loop": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "B2_Get_Items": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B2_No_Operation_do_nothing": {
+          "type": "Compose",
+          "inputs": {},
+          "runAfter": {
+            "B2_Has_timestamp_not_first_run": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B1_Has_timestamp_not_first_run": {
+          "type": "If",
+          "expression": {
+            "equals": [
+              "@!!first(body('B1_Get_timestamp'))?['id']",
+              true
+            ]
+          },
+          "actions": {
+            "B1_Update_timestamp": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "B1 - Update timestamp",
+                "n8nNodeType": "n8n-nodes-base.dataTable",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "columns": {
+                    "value": {
+                      "value": "={{ new Date().toISOString() }}"
+                    },
+                    "schema": [
+                      {
+                        "id": "key",
+                        "type": "string",
+                        "display": true,
+                        "removed": true,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "key",
+                        "defaultMatch": false
+                      },
+                      {
+                        "id": "value",
+                        "type": "dateTime",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "value",
+                        "defaultMatch": false
+                      }
+                    ],
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                  },
+                  "filters": {
+                    "conditions": [
+                      {
+                        "keyValue": "={{ $('B1 - Get timestamp').first().json.id }}"
+                      },
+                      {
+                        "keyName": "key",
+                        "keyValue": "={{$('B1 - Set variables').first().json.timestamp_key}}"
+                      }
+                    ]
+                  },
+                  "options": {},
+                  "matchType": "allConditions",
+                  "operation": "update",
+                  "dataTableId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "8MPVpHDnVGj4PBZR",
+                    "cachedResultUrl": "/projects/tgy2Tl0HCDQH0Rbt/datatables/8MPVpHDnVGj4PBZR",
+                    "cachedResultName": "Timestamps"
+                  }
+                }
+              },
+              "runAfter": {}
+            }
+          },
+          "else": {
+            "actions": {
+              "B1_Create_timestamp": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "B1 - Create timestamp",
+                  "n8nNodeType": "n8n-nodes-base.dataTable",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "columns": {
+                      "value": {
+                        "key": "={{$('B1 - Set variables').first().json.timestamp_key}}",
+                        "value": "={{ new Date().toISOString() }}"
+                      },
+                      "schema": [
+                        {
+                          "id": "key",
+                          "type": "string",
+                          "display": true,
+                          "removed": false,
+                          "readOnly": false,
+                          "required": false,
+                          "displayName": "key",
+                          "defaultMatch": false
+                        },
+                        {
+                          "id": "value",
+                          "type": "dateTime",
+                          "display": true,
+                          "removed": false,
+                          "readOnly": false,
+                          "required": false,
+                          "displayName": "value",
+                          "defaultMatch": false
+                        }
+                      ],
+                      "mappingMode": "defineBelow",
+                      "matchingColumns": [],
+                      "attemptToConvertTypes": false,
+                      "convertFieldsToString": false
+                    },
+                    "options": {},
+                    "dataTableId": {
+                      "__rl": true,
+                      "mode": "list",
+                      "value": "8MPVpHDnVGj4PBZR",
+                      "cachedResultUrl": "/projects/tgy2Tl0HCDQH0Rbt/datatables/8MPVpHDnVGj4PBZR",
+                      "cachedResultName": "Timestamps"
+                    }
+                  }
+                },
+                "runAfter": {}
+              }
+            }
+          },
+          "runAfter": {
+            "B1_Get_timestamp": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B2_Has_timestamp_not_first_run": {
+          "type": "If",
+          "expression": {
+            "equals": [
+              "@!!first(body('B2_Get_timestamp'))?['id']",
+              true
+            ]
+          },
+          "actions": {
+            "B2_Update_timestamp": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "B2 - Update timestamp",
+                "n8nNodeType": "n8n-nodes-base.dataTable",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "columns": {
+                    "value": {
+                      "value": "={{ $json.lastSync }}"
+                    },
+                    "schema": [
+                      {
+                        "id": "key",
+                        "type": "string",
+                        "display": true,
+                        "removed": true,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "key",
+                        "defaultMatch": false
+                      },
+                      {
+                        "id": "value",
+                        "type": "dateTime",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "value",
+                        "defaultMatch": false
+                      }
+                    ],
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                  },
+                  "filters": {
+                    "conditions": [
+                      {
+                        "keyValue": "={{ $('B2 - Get timestamp').first().json.id }}"
+                      },
+                      {
+                        "keyName": "key",
+                        "keyValue": "={{$('B2 - Set variables').first().json.timestamp_key}}"
+                      }
+                    ]
+                  },
+                  "options": {},
+                  "matchType": "allConditions",
+                  "operation": "update",
+                  "dataTableId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "8MPVpHDnVGj4PBZR",
+                    "cachedResultUrl": "/projects/tgy2Tl0HCDQH0Rbt/datatables/8MPVpHDnVGj4PBZR",
+                    "cachedResultName": "Timestamps"
+                  }
+                }
+              },
+              "runAfter": {}
+            }
+          },
+          "else": {
+            "actions": {
+              "B2_Create_timestamp": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "B2 - Create timestamp",
+                  "n8nNodeType": "n8n-nodes-base.dataTable",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "columns": {
+                      "value": {
+                        "key": "={{$('B2 - Set variables').first().json.timestamp_key}}",
+                        "value": "={{ $json.lastSync }}"
+                      },
+                      "schema": [
+                        {
+                          "id": "key",
+                          "type": "string",
+                          "display": true,
+                          "removed": false,
+                          "readOnly": false,
+                          "required": false,
+                          "displayName": "key",
+                          "defaultMatch": false
+                        },
+                        {
+                          "id": "value",
+                          "type": "dateTime",
+                          "display": true,
+                          "removed": false,
+                          "readOnly": false,
+                          "required": false,
+                          "displayName": "value",
+                          "defaultMatch": false
+                        }
+                      ],
+                      "mappingMode": "defineBelow",
+                      "matchingColumns": [],
+                      "attemptToConvertTypes": false,
+                      "convertFieldsToString": false
+                    },
+                    "options": {},
+                    "dataTableId": {
+                      "__rl": true,
+                      "mode": "list",
+                      "value": "8MPVpHDnVGj4PBZR",
+                      "cachedResultUrl": "/projects/tgy2Tl0HCDQH0Rbt/datatables/8MPVpHDnVGj4PBZR",
+                      "cachedResultName": "Timestamps"
+                    }
+                  }
+                },
+                "runAfter": {}
+              }
+            }
+          },
+          "runAfter": {
+            "B2_Update_lastSync": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B2_Update_lastSync": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['B2_Get_Items'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst __results = items.map(item => {\n  const $json = item.json;\n  const $input = {\n    item,\n    first: () => item,\n    last: () => item,\n    all: () => items\n  };\n  return (() => {\nconst companies = $json.companies || [];\n\nlet maxChangedTime = 0;\n\nfor (const c of companies) {\n  const t = Number(c.changed_time);\n  if (t > maxChangedTime) maxChangedTime = t;\n}\n\nreturn { lastSync: maxChangedTime || Math.floor(Date.now() / 1000) };\n  })();\n});\nreturn { body: __unwrap(__results) };"
+          },
+          "runAfter": {
+            "B2_Get_Items": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B3_Set_variables": {
+          "type": "Compose",
+          "inputs": {
+            "timestamp_key": "demo_timestamp",
+            "limit": 20
+          },
+          "runAfter": {}
+        },
+        "B3_Get_timestamp": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "B3 - Get timestamp",
+            "n8nNodeType": "n8n-nodes-base.dataTable",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "limit": 1,
+              "filters": {
+                "conditions": [
+                  {
+                    "keyName": "key",
+                    "keyValue": "={{$('B3 - Set variables').first().json.timestamp_key}}"
+                  }
+                ]
+              },
+              "matchType": "allConditions",
+              "operation": "get",
+              "dataTableId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "8MPVpHDnVGj4PBZR",
+                "cachedResultUrl": "/projects/tgy2Tl0HCDQH0Rbt/datatables/8MPVpHDnVGj4PBZR",
+                "cachedResultName": "Timestamps"
+              }
+            }
+          },
+          "runAfter": {
+            "B3_Set_variables": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B3_Set_lastSync": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['B3_Get_timestamp'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst __results = items.map(item => {\n  const $json = item.json;\n  const $input = {\n    item,\n    first: () => item,\n    last: () => item,\n    all: () => items\n  };\n  return (() => {\nreturn { lastSync: Math.floor(new Date($json.value || 0).getTime() / 1000) };\n  })();\n});\nreturn { body: __unwrap(__results) };"
+          },
+          "runAfter": {
+            "B3_Get_timestamp": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B3_Get_Items": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "=https://api.prospectpro.nl/v1.2/prospects"
+          },
+          "runAfter": {
+            "B3_Done_looping": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B3_Has_Items": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "B3 - Has Items?",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "84fc2faf-74e7-4bea-9d75-630f55288bef",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.found > 0 }}",
+                    "rightValue": ""
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "B3_Update_pagination": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B3_Items": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "B3 - Items",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldToSplitOut": "items"
+            }
+          },
+          "runAfter": {
+            "B3_Has_Items": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B3_Filter_Items": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "B3 - Filter Items",
+            "n8nNodeType": "n8n-nodes-base.filter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "b65f03ae-26bc-4bc7-a77c-74a072a3d98b",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ !!$json.updated_time && $json.updated_time > $('B3 - Set lastSync').first().json.lastSync }}",
+                    "rightValue": ""
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "B3_Items": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B3_Update_lastSync": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['B3_Get_Items'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst __results = items.map(item => {\n  const $json = item.json;\n  const $input = {\n    item,\n    first: () => item,\n    last: () => item,\n    all: () => items\n  };\n  return (() => {\nconst companies = $json.companies || [];\n\nlet maxChangedTime = 0;\n\nfor (const c of companies) {\n  const t = Number(c.changed_time);\n  if (t > maxChangedTime) maxChangedTime = t;\n}\n\nreturn { lastSync: maxChangedTime || Math.floor(Date.now() / 1000) };\n  })();\n});\nreturn { body: __unwrap(__results) };"
+          },
+          "runAfter": {
+            "B3_Get_Items": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B3_Has_timestamp_not_first_run": {
+          "type": "If",
+          "expression": {
+            "equals": [
+              "@!!first(body('B3_Get_timestamp'))?['id']",
+              true
+            ]
+          },
+          "actions": {
+            "B3_Update_timestamp": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "B3 - Update timestamp",
+                "n8nNodeType": "n8n-nodes-base.dataTable",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "columns": {
+                    "value": {
+                      "value": "={{ $json.lastSync }}"
+                    },
+                    "schema": [
+                      {
+                        "id": "key",
+                        "type": "string",
+                        "display": true,
+                        "removed": true,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "key",
+                        "defaultMatch": false
+                      },
+                      {
+                        "id": "value",
+                        "type": "dateTime",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "value",
+                        "defaultMatch": false
+                      }
+                    ],
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                  },
+                  "filters": {
+                    "conditions": [
+                      {
+                        "keyValue": "={{ !!$('B3 - Get timestamp').first().json.id }}"
+                      },
+                      {
+                        "keyName": "key",
+                        "keyValue": "={{$('B3 - Set variables').first().json.timestamp_key}}"
+                      }
+                    ]
+                  },
+                  "options": {},
+                  "matchType": "allConditions",
+                  "operation": "update",
+                  "dataTableId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "8MPVpHDnVGj4PBZR",
+                    "cachedResultUrl": "/projects/tgy2Tl0HCDQH0Rbt/datatables/8MPVpHDnVGj4PBZR",
+                    "cachedResultName": "Timestamps"
+                  }
+                }
+              },
+              "runAfter": {}
+            }
+          },
+          "else": {
+            "actions": {
+              "B3_Create_timestamp": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "B3 - Create timestamp",
+                  "n8nNodeType": "n8n-nodes-base.dataTable",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "columns": {
+                      "value": {
+                        "key": "={{$('B3 - Set variables').first().json.timestamp_key}}",
+                        "value": "={{ $json.lastSync }}"
+                      },
+                      "schema": [
+                        {
+                          "id": "key",
+                          "type": "string",
+                          "display": true,
+                          "removed": false,
+                          "readOnly": false,
+                          "required": false,
+                          "displayName": "key",
+                          "defaultMatch": false
+                        },
+                        {
+                          "id": "value",
+                          "type": "dateTime",
+                          "display": true,
+                          "removed": false,
+                          "readOnly": false,
+                          "required": false,
+                          "displayName": "value",
+                          "defaultMatch": false
+                        }
+                      ],
+                      "mappingMode": "defineBelow",
+                      "matchingColumns": [],
+                      "attemptToConvertTypes": false,
+                      "convertFieldsToString": false
+                    },
+                    "options": {},
+                    "dataTableId": {
+                      "__rl": true,
+                      "mode": "list",
+                      "value": "8MPVpHDnVGj4PBZR",
+                      "cachedResultUrl": "/projects/tgy2Tl0HCDQH0Rbt/datatables/8MPVpHDnVGj4PBZR",
+                      "cachedResultName": "Timestamps"
+                    }
+                  }
+                },
+                "runAfter": {}
+              }
+            }
+          },
+          "runAfter": {
+            "B3_Update_lastSync": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B3_No_Operation_do_nothing": {
+          "type": "Compose",
+          "inputs": {},
+          "runAfter": {
+            "B3_Has_timestamp_not_first_run": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B3_Set_pagination": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Wait'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst __results = items.map(item => {\n  const $json = item.json;\n  const $input = {\n    item,\n    first: () => item,\n    last: () => item,\n    all: () => items\n  };\n  return (() => {\nconst lastSync = __node('B3_Set_lastSync').first().json.lastSync || 0;\nconst limit = __node('B3_Set_variables').first().json.limit || 1;\n\nconst store = $getWorkflowStaticData('global');\nstore.page = store.page ? store.page + 1 : 1;\nstore.processed = store.processed ? store.processed + limit : limit;\n\nreturn {\n  page: store.page,\n  processed: store.processed,\n  total_pages: store.total_pages || 1,\n  offset: store.processed - limit,\n  lastSync\n};\n  })();\n});\nreturn { body: __unwrap(__results) };"
+          },
+          "runAfter": {
+            "Wait": [
+              "Succeeded"
+            ],
+            "B3_Initiate_pagination": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B3_Done_looping": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "B3 - Done looping?",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 3,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "76012237-ffdf-4423-8f56-88216d1de64a",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.page > $json.total_pages }}",
+                    "rightValue": ""
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "B3_Set_pagination": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B3_Update_pagination": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['B3_Get_Items'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst __results = items.map(item => {\n  const $json = item.json;\n  const $input = {\n    item,\n    first: () => item,\n    last: () => item,\n    all: () => items\n  };\n  return (() => {\nconst store = $getWorkflowStaticData('global');\nconst limit = __node('B3_Set_variables').first().json.limit;\n\nconst wp_pages = $json.headers?.[\"x-wp-totalpages\"] ?? false;\nconst last = $json.last ?? false;\nconst total = $json.total ?? false;\nconst next = $json.next ?? false;\n\nconst total_pages = store.total_pages || 1;\n\nstore.total_pages = wp_pages || last || total ? Math.ceil(total / limit) : next ? total_pages + 1 : total_pages;\n\nreturn $json;\n  })();\n});\nreturn { body: __unwrap(__results) };"
+          },
+          "runAfter": {
+            "B3_Get_Items": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 1,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "B3_Create_Batches": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B3_Create_Batches": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "B3 - Create Batches",
+            "n8nNodeType": "n8n-nodes-base.splitInBatches",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "batchSize": 10
+            }
+          },
+          "runAfter": {
+            "B3_Filter_Items": [
+              "Succeeded"
+            ],
+            "B3_Delay_after_each_batch": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B3_Process_one_item_at_a_time": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "B3 - Process one item at a time",
+            "n8nNodeType": "n8n-nodes-base.executeWorkflow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "each",
+              "options": {
+                "waitForSubWorkflow": true
+              },
+              "workflowId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "IdtvYdzQ2uGp7quU",
+                "cachedResultUrl": "/workflow/IdtvYdzQ2uGp7quU",
+                "cachedResultName": "Subflow - TEMPLATE"
+              },
+              "workflowInputs": {
+                "value": {},
+                "schema": [
+                  {
+                    "id": "id",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "id",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "id"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": true
+              }
+            }
+          },
+          "runAfter": {
+            "B3_Create_Batches": [
+              "Succeeded"
+            ]
+          }
+        },
+        "B3_Delay_after_each_batch": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 1,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "B3_Process_one_item_at_a_time": [
+              "Succeeded"
+            ]
+          }
+        },
+        "C2_Get_Items": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "=https://api.prospectpro.nl/v1.2/prospects"
+          },
+          "runAfter": {}
+        },
+        "C2_Has_Items": {
+          "type": "If",
+          "expression": {
+            "equals": [
+              "@body('C2_Get_Items')?['found'] > 0",
+              true
+            ]
+          },
+          "actions": {
+            "C2_Items": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "C2 - Items",
+                "n8nNodeType": "n8n-nodes-base.splitOut",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "fieldToSplitOut": "items"
+                }
+              },
+              "runAfter": {}
+            },
+            "C2_Filter_Items": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "C2 - Filter Items",
+                "n8nNodeType": "n8n-nodes-base.filter",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "strict"
+                    },
+                    "combinator": "and",
+                    "conditions": [
+                      {
+                        "id": "b65f03ae-26bc-4bc7-a77c-74a072a3d98b",
+                        "operator": {
+                          "type": "boolean",
+                          "operation": "true",
+                          "singleValue": true
+                        },
+                        "leftValue": "={{ !!$json.updated_time && $json.updated_time > $('B1 - Set lastSync').first().json.lastSync }}",
+                        "rightValue": ""
+                      }
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "C2_Items": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "C2_Create_Batches": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "C2 - Create Batches",
+                "n8nNodeType": "n8n-nodes-base.splitInBatches",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "batchSize": 10
+                }
+              },
+              "runAfter": {
+                "C2_Filter_Items": [
+                  "Succeeded"
+                ],
+                "C2_Delay_after_each_batch": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "C2_Process_one_item_at_a_time": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "C2 - Process one item at a time",
+                "n8nNodeType": "n8n-nodes-base.executeWorkflow",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "mode": "each",
+                  "options": {
+                    "waitForSubWorkflow": true
+                  },
+                  "workflowId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "IdtvYdzQ2uGp7quU",
+                    "cachedResultUrl": "/workflow/IdtvYdzQ2uGp7quU",
+                    "cachedResultName": "Subflow - TEMPLATE"
+                  },
+                  "workflowInputs": {
+                    "value": {},
+                    "schema": [
+                      {
+                        "id": "id",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "required": false,
+                        "displayName": "id",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      }
+                    ],
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [
+                      "id"
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": true
+                  }
+                }
+              },
+              "runAfter": {
+                "C2_Create_Batches": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "C2_Delay_after_each_batch": {
+              "type": "Wait",
+              "inputs": {
+                "interval": {
+                  "count": 1,
+                  "unit": "Second"
+                }
+              },
+              "runAfter": {
+                "C2_Process_one_item_at_a_time": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "C2_Get_Items": [
+              "Succeeded"
+            ]
+          }
+        },
+        "C1_Process_one_item_at_a_time": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "C1 - Process one item at a time",
+            "n8nNodeType": "n8n-nodes-base.executeWorkflow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "each",
+              "options": {
+                "waitForSubWorkflow": true
+              },
+              "workflowId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "IdtvYdzQ2uGp7quU",
+                "cachedResultUrl": "/workflow/IdtvYdzQ2uGp7quU",
+                "cachedResultName": "Subflow - TEMPLATE"
+              },
+              "workflowInputs": {
+                "value": {},
+                "schema": [
+                  {
+                    "id": "id",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "id",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "id"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": true
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "C3_Set_variables": {
+          "type": "Compose",
+          "inputs": {
+            "limit": 20
+          },
+          "runAfter": {}
+        },
+        "C3_Set_pagination": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['C3_Wait'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst __results = items.map(item => {\n  const $json = item.json;\n  const $input = {\n    item,\n    first: () => item,\n    last: () => item,\n    all: () => items\n  };\n  return (() => {\nconst limit = __node('C3_Set_variables').first().json?.limit || 1;\n\nconst store = $getWorkflowStaticData('global');\nstore.page = store.page ? store.page + 1 : 1;\n\nstore.processed = store.processed ? store.processed + limit : limit;\n\nreturn {\n  page: store.page,\n  processed: store.processed,\n  offset: store.processed - limit\n};\n  })();\n});\nreturn { body: __unwrap(__results) };"
+          },
+          "runAfter": {
+            "C3_Wait": [
+              "Succeeded"
+            ],
+            "C3_Set_variables": [
+              "Succeeded"
+            ]
+          }
+        },
+        "C3_Get_Items": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "=https://api.prospectpro.nl/v1.2/prospects"
+          },
+          "runAfter": {
+            "C3_Set_pagination": [
+              "Succeeded"
+            ]
+          }
+        },
+        "C3_Has_Items": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "C3 - Has Items?",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "84fc2faf-74e7-4bea-9d75-630f55288bef",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.found > 0 }}",
+                    "rightValue": ""
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "C3_Get_Items": [
+              "Succeeded"
+            ]
+          }
+        },
+        "C3_Items": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "C3 - Items",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldToSplitOut": "items"
+            }
+          },
+          "runAfter": {
+            "C3_Has_Items": [
+              "Succeeded"
+            ]
+          }
+        },
+        "C3_Filter_Items": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "C3 - Filter Items",
+            "n8nNodeType": "n8n-nodes-base.filter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "b65f03ae-26bc-4bc7-a77c-74a072a3d98b",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ !!$json.updated_time && $json.updated_time > $('B3 - Set lastSync').first().json.lastSync }}",
+                    "rightValue": ""
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "C3_Items": [
+              "Succeeded"
+            ]
+          }
+        },
+        "C3_Create_Batches": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "C3 - Create Batches",
+            "n8nNodeType": "n8n-nodes-base.splitInBatches",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "batchSize": 10
+            }
+          },
+          "runAfter": {
+            "C3_Filter_Items": [
+              "Succeeded"
+            ],
+            "C3_Delay_after_each_batch": [
+              "Succeeded"
+            ]
+          }
+        },
+        "C3_Process_one_item_at_a_time": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "C3 - Process one item at a time",
+            "n8nNodeType": "n8n-nodes-base.executeWorkflow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "each",
+              "options": {
+                "waitForSubWorkflow": true
+              },
+              "workflowId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "IdtvYdzQ2uGp7quU",
+                "cachedResultUrl": "/workflow/IdtvYdzQ2uGp7quU",
+                "cachedResultName": "Subflow - TEMPLATE"
+              },
+              "workflowInputs": {
+                "value": {},
+                "schema": [
+                  {
+                    "id": "id",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "id",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "id"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": true
+              }
+            }
+          },
+          "runAfter": {
+            "C3_Create_Batches": [
+              "Succeeded"
+            ]
+          }
+        },
+        "C3_Delay_after_each_batch": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 1,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "C3_Process_one_item_at_a_time": [
+              "Succeeded"
+            ]
+          }
+        },
+        "C3_Wait": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 1,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "C3_Create_Batches": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D_Qualify_Prospect": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "D - Qualify Prospect",
+            "n8nNodeType": "n8n-nodes-base.executeWorkflow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "each",
+              "options": {},
+              "workflowId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "IdtvYdzQ2uGp7quU",
+                "cachedResultUrl": "/workflow/IdtvYdzQ2uGp7quU",
+                "cachedResultName": "Subflow - TEMPLATE"
+              },
+              "workflowInputs": {
+                "value": {
+                  "id": "={{ $json.id }}"
+                },
+                "schema": [
+                  {
+                    "id": "id",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "id",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "id"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": true
+              }
+            }
+          },
+          "runAfter": {
+            "When_Executed_by_trigger_workflow": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D_Qualification_Successful": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "D - Qualification Successful?",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "868f43bb-9774-4aba-9b14-9dbbb6bf1c65",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ !!$json.result }}",
+                    "rightValue": ""
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "D_Qualify_Prospect": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D_Identify_DMU": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "D - Identify DMU",
+            "n8nNodeType": "n8n-nodes-base.executeWorkflow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "each",
+              "options": {},
+              "workflowId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "IdtvYdzQ2uGp7quU",
+                "cachedResultUrl": "/workflow/IdtvYdzQ2uGp7quU",
+                "cachedResultName": "Subflow - TEMPLATE"
+              },
+              "workflowInputs": {
+                "value": {
+                  "id": "={{ $('D1 - Add \"tag_in_progress\"').item.json.id }}"
+                },
+                "schema": [
+                  {
+                    "id": "id",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "id",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "id"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": true
+              }
+            }
+          },
+          "runAfter": {
+            "D_Qualification_Successful": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D_DMU_identification_successful": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "D - DMU identification successful?",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "8c359fee-0f62-49cd-8e64-f06fdad697ce",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ !!$json.result }}",
+                    "rightValue": ""
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "D_Identify_DMU": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D_Sync_Hubspot": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "D - Sync Hubspot",
+            "n8nNodeType": "n8n-nodes-base.executeWorkflow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "workflowId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "IdtvYdzQ2uGp7quU",
+                "cachedResultUrl": "/workflow/IdtvYdzQ2uGp7quU",
+                "cachedResultName": "Subflow - TEMPLATE"
+              },
+              "workflowInputs": {
+                "value": {
+                  "id": "={{ $('D1 - Add \"tag_in_progress\"').item.json.id }}"
+                },
+                "schema": [
+                  {
+                    "id": "id",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "id",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "id"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": true
+              }
+            }
+          },
+          "runAfter": {
+            "D_Qualification_Successful": [
+              "Succeeded"
+            ],
+            "D_DMU_identification_successful": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D_Hubspot_sync_successful": {
+          "type": "If",
+          "expression": {
+            "equals": [
+              "@!!body('D_Sync_Hubspot')?['result']",
+              true
+            ]
+          },
+          "actions": {},
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "D_Sync_Hubspot": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D_Set_output": {
+          "type": "Compose",
+          "inputs": {
+            "error_code": "@!!body('D_Sync_Hubspot')?['error'] ? '500' : '200'"
+          },
+          "runAfter": {
+            "D_Sync_Hubspot": [
+              "Succeeded"
+            ],
+            "D_Sync_Hubspot_var_b": [
+              "Succeeded"
+            ],
+            "D_Hubspot_sync_successful": [
+              "Succeeded"
+            ],
+            "D_DMU_identification_successful": [
+              "Succeeded"
+            ],
+            "D_Hubspot_sync_successful_var_b": [
+              "Succeeded"
+            ],
+            "D_Qualification_Successful_var_b": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D1_Set_variables": {
+          "type": "Compose",
+          "inputs": {
+            "tag_error": "EnrichmentFailed",
+            "tag_success": "Enriched"
+          },
+          "runAfter": {
+            "When_Executed_by_trigger_workflow": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D1_Get_prospect": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "D1 - Get prospect",
+            "n8nNodeType": "@bedrijfsdatanl/n8n-nodes-prospectpro.prospectpro",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "id": "={{ $json.id }}",
+              "operation": "get",
+              "requestOptions": {}
+            }
+          },
+          "runAfter": {
+            "D1_Set_variables": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D1_Continue": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "D1 - Continue?",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "d5156902-fb25-4b1c-b253-b44c3c6a61c0",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "false",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ !!$json.tags?.includes($('D1 - Set variables').first().json.tag_error) || !!$json.tags?.includes($('D1 - Set variables').first().json.tag_in_progress) }}",
+                    "rightValue": ""
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "D1_Get_prospect": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D1_Add_tag_in_progress": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['D1_Continue'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst __results = items.map(item => {\n  const $json = item.json;\n  const $input = {\n    item,\n    first: () => item,\n    last: () => item,\n    all: () => items\n  };\n  return (() => {\nconst prospect = __node('D1_Get_prospect').first().json;\nconst tags = !!prospect.tags  && prospect.tags.length > 0 ? prospect.tags.split('|') : [];\nconst tag = __node('D1_Set_variables').first().json.tag_in_progress;\n\nif(tag) tags.push(tag);\n\nreturn {\n  ...prospect,\n  tags\n};\n  })();\n});\nreturn { body: __unwrap(__results) };"
+          },
+          "runAfter": {
+            "D1_Continue": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D1_Update_prospect": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "D1 - Update prospect",
+            "n8nNodeType": "@bedrijfsdatanl/n8n-nodes-prospectpro.prospectpro",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "id": "={{ $json.id }}",
+              "operation": "patch",
+              "updateOptions": {
+                "tags": "={{ $json.tags }}"
+              },
+              "requestOptions": {}
+            }
+          },
+          "runAfter": {
+            "D1_Add_tag_in_progress": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D1_Automatically_Qualify_Prospect": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "D1 - Automatically Qualify Prospect",
+            "n8nNodeType": "n8n-nodes-base.executeWorkflow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "each",
+              "options": {},
+              "workflowId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "IdtvYdzQ2uGp7quU",
+                "cachedResultUrl": "/workflow/IdtvYdzQ2uGp7quU",
+                "cachedResultName": "Subflow - TEMPLATE"
+              },
+              "workflowInputs": {
+                "value": {
+                  "id": "={{ $json.id }}"
+                },
+                "schema": [
+                  {
+                    "id": "id",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "id",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "id"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": true
+              }
+            }
+          },
+          "runAfter": {
+            "D1_Update_prospect": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D1_Qualification_Successful": {
+          "type": "If",
+          "expression": {
+            "equals": [
+              "@!!body('D1_Automatically_Qualify_Prospect')?['result']",
+              true
+            ]
+          },
+          "actions": {},
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "D1_Automatically_Qualify_Prospect": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D1_Get_Contacts": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "D1 - Get Contacts",
+            "n8nNodeType": "n8n-nodes-base.executeWorkflow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "each",
+              "options": {},
+              "workflowId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "IdtvYdzQ2uGp7quU",
+                "cachedResultUrl": "/workflow/IdtvYdzQ2uGp7quU",
+                "cachedResultName": "Subflow - TEMPLATE"
+              },
+              "workflowInputs": {
+                "value": {
+                  "id": "={{ $('D1 - Add \"tag_in_progress\"').item.json.id }}"
+                },
+                "schema": [
+                  {
+                    "id": "id",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "id",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "id"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": true
+              }
+            }
+          },
+          "runAfter": {
+            "D1_Qualification_Successful": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D1_Contacts_search_successful": {
+          "type": "If",
+          "expression": {
+            "equals": [
+              "@!!body('D1_Get_Contacts')?['result']",
+              true
+            ]
+          },
+          "actions": {},
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "D1_Get_Contacts": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D1_Sync_Hubspot": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "D1 - Sync Hubspot",
+            "n8nNodeType": "n8n-nodes-base.executeWorkflow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "workflowId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "IdtvYdzQ2uGp7quU",
+                "cachedResultUrl": "/workflow/IdtvYdzQ2uGp7quU",
+                "cachedResultName": "Subflow - TEMPLATE"
+              },
+              "workflowInputs": {
+                "value": {
+                  "id": "={{ $('D1 - Add \"tag_in_progress\"').item.json.id }}"
+                },
+                "schema": [
+                  {
+                    "id": "id",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "id",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "id"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": true
+              }
+            }
+          },
+          "runAfter": {
+            "D1_Contacts_search_successful": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D1_Hubspot_sync_successful": {
+          "type": "If",
+          "expression": {
+            "equals": [
+              "@!!body('D1_Sync_Hubspot')?['result']",
+              true
+            ]
+          },
+          "actions": {},
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "D1_Sync_Hubspot": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D1_Get_prospect_for_final_update_Success": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "D1 - Get prospect for final update: Success",
+            "n8nNodeType": "@bedrijfsdatanl/n8n-nodes-prospectpro.prospectpro",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "id": "={{ $('D1 - Get prospect').item.json.id }}",
+              "operation": "get",
+              "requestOptions": {}
+            }
+          },
+          "runAfter": {
+            "D1_Hubspot_sync_successful": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D1_Add_tag_success_remove_tag_in_processing": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['D1_Get_prospect_for_final_update_Success'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst __results = items.map(item => {\n  const $json = item.json;\n  const $input = {\n    item,\n    first: () => item,\n    last: () => item,\n    all: () => items\n  };\n  return (() => {\nconst prospect = $json;\nconst vars = __node('D1_Set_variables').first().json;\nconst tagInProgress = vars.tag_in_progress || 'nothing_to_see_here';\nconst tagSuccess = vars.tag_success;\n\nconst tags = (prospect.tags ?? \"\")\n  .split(\"|\")\n  .map(t => t.trim())\n  .filter(Boolean)\n  .filter(t => t !== tagInProgress);\n\nif (tagSuccess) tags.push(tagSuccess);\n\nconst uniqueTags = [...new Set(tags)];\n\nreturn {\n  ...prospect,\n  tags: uniqueTags\n};\n  })();\n});\nreturn { body: __unwrap(__results) };"
+          },
+          "runAfter": {
+            "D1_Get_prospect_for_final_update_Success": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D1_Update_Tags_Success": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "D1 - Update Tags: Success",
+            "n8nNodeType": "@bedrijfsdatanl/n8n-nodes-prospectpro.prospectpro",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "id": "={{ $json.id }}",
+              "operation": "patch",
+              "updateOptions": {
+                "tags": "={{ $json.tags }}"
+              },
+              "requestOptions": {}
+            }
+          },
+          "runAfter": {
+            "D1_Add_tag_success_remove_tag_in_processing": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D1_Get_prospect_for_final_update_Fail": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "D1 - Get prospect for final update: Fail",
+            "n8nNodeType": "@bedrijfsdatanl/n8n-nodes-prospectpro.prospectpro",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "id": "={{ $('D1 - Get prospect').item.json.id }}",
+              "operation": "get",
+              "requestOptions": {}
+            }
+          },
+          "runAfter": {
+            "D1_Get_Contacts": [
+              "Succeeded"
+            ],
+            "D1_Sync_Hubspot": [
+              "Succeeded"
+            ],
+            "D1_Automatically_Qualify_Prospect": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D1_Add_tag_error_remove_tag_in_progress": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['D1_Get_prospect_for_final_update_Fail'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst __results = items.map(item => {\n  const $json = item.json;\n  const $input = {\n    item,\n    first: () => item,\n    last: () => item,\n    all: () => items\n  };\n  return (() => {\nconst prospect = $json;\nconst vars = __node('D1_Set_variables').first().json;\nconst tagInProgress = vars.tag_in_progress || 'nothing_to_see_here';\nconst tagError = vars.tag_error;\n\nconst tags = (prospect.tags ?? \"\")\n  .split(\"|\")\n  .map(t => t.trim())\n  .filter(Boolean)\n  .filter(t => t !== tagInProgress);\n\nif (tagError) tags.push(tagError);\n\nconst uniqueTags = [...new Set(tags)];\n\nreturn {\n  ...prospect,\n  tags: uniqueTags\n};\n  })();\n});\nreturn { body: __unwrap(__results) };"
+          },
+          "runAfter": {
+            "D1_Get_prospect_for_final_update_Fail": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D1_Update_Tags_Fail": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "D1 - Update Tags: Fail",
+            "n8nNodeType": "@bedrijfsdatanl/n8n-nodes-prospectpro.prospectpro",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "id": "={{ $json.id }}",
+              "operation": "patch",
+              "updateOptions": {
+                "tags": "={{ $json.tags }}"
+              },
+              "requestOptions": {}
+            }
+          },
+          "runAfter": {
+            "D1_Add_tag_error_remove_tag_in_progress": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D1_Stop_and_Error": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "D1 - Stop and Error",
+            "n8nNodeType": "n8n-nodes-base.stopAndError",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "errorType": "errorObject",
+              "errorObject": "{\n  \"code\": 404,\n  \"message\": \"Prospect not found\"\n}"
+            }
+          },
+          "runAfter": {
+            "D1_Get_prospect": [
+              "Succeeded"
+            ],
+            "D1_Update_prospect": [
+              "Succeeded"
+            ]
+          }
+        },
+        "When_Executed_by_trigger_workflow": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "When Executed by [trigger workflow]",
+            "n8nNodeType": "n8n-nodes-base.executeWorkflowTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "inputSource": "passthrough"
+            }
+          },
+          "runAfter": {}
+        },
+        "D_Qualify_Prospect_var_b": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "D - Qualify Prospect (var b)",
+            "n8nNodeType": "n8n-nodes-base.executeWorkflow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "each",
+              "options": {},
+              "workflowId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "IdtvYdzQ2uGp7quU",
+                "cachedResultUrl": "/workflow/IdtvYdzQ2uGp7quU",
+                "cachedResultName": "Subflow - TEMPLATE"
+              },
+              "workflowInputs": {
+                "value": {
+                  "id": "={{ $json.id }}"
+                },
+                "schema": [
+                  {
+                    "id": "id",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "id",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "id"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": true
+              }
+            }
+          },
+          "runAfter": {
+            "D_Switch_var_b": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D_Identify_DMU_var_b": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "D - Identify DMU (var b)",
+            "n8nNodeType": "n8n-nodes-base.executeWorkflow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "each",
+              "options": {},
+              "workflowId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "IdtvYdzQ2uGp7quU",
+                "cachedResultUrl": "/workflow/IdtvYdzQ2uGp7quU",
+                "cachedResultName": "Subflow - TEMPLATE"
+              },
+              "workflowInputs": {
+                "value": {
+                  "id": "={{ $('D1 - Add \"tag_in_progress\"').item.json.id }}"
+                },
+                "schema": [
+                  {
+                    "id": "id",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "id",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "id"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": true
+              }
+            }
+          },
+          "runAfter": {
+            "D_Switch_var_b": [
+              "Succeeded"
+            ],
+            "D_Qualification_Successful_var_b": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D_Switch_var_b": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "D - Switch (var b)",
+            "n8nNodeType": "n8n-nodes-base.switch",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "rules": {
+                "values": [
+                  {
+                    "outputKey": "Path A",
+                    "conditions": {
+                      "options": {
+                        "version": 3,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "6e5a91ab-205c-42cd-ba7e-3905227f6974",
+                          "operator": {
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "",
+                          "rightValue": ""
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "Path B",
+                    "conditions": {
+                      "options": {
+                        "version": 3,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "15c7389b-657a-41f6-98a1-0b7d3a28daff",
+                          "operator": {
+                            "name": "filter.operator.equals",
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "",
+                          "rightValue": ""
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  }
+                ]
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "When_Executed_by_trigger_workflow": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D_Qualification_Successful_var_b": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "D - Qualification Successful? (var b)",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "868f43bb-9774-4aba-9b14-9dbbb6bf1c65",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ !!$json.result }}",
+                    "rightValue": ""
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "D_Qualify_Prospect_var_b": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D_Sync_Hubspot_var_b": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "D - Sync Hubspot (var b)",
+            "n8nNodeType": "n8n-nodes-base.executeWorkflow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "workflowId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "IdtvYdzQ2uGp7quU",
+                "cachedResultUrl": "/workflow/IdtvYdzQ2uGp7quU",
+                "cachedResultName": "Subflow - TEMPLATE"
+              },
+              "workflowInputs": {
+                "value": {
+                  "id": "={{ $('D1 - Add \"tag_in_progress\"').item.json.id }}"
+                },
+                "schema": [
+                  {
+                    "id": "id",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "id",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "id"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": true
+              }
+            }
+          },
+          "runAfter": {
+            "D_Identify_DMU_var_b": [
+              "Succeeded"
+            ],
+            "D_Qualify_Prospect_var_b": [
+              "Succeeded"
+            ]
+          }
+        },
+        "D_Hubspot_sync_successful_var_b": {
+          "type": "If",
+          "expression": {
+            "equals": [
+              "@!!body('D_Sync_Hubspot_var_b')?['result']",
+              true
+            ]
+          },
+          "actions": {},
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "D_Sync_Hubspot_var_b": [
+              "Succeeded"
+            ]
+          }
+        },
+        "E1_Stop_and_Error": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "E1 - Stop and Error",
+            "n8nNodeType": "n8n-nodes-base.stopAndError",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "errorType": "errorObject",
+              "errorObject": "{\n  \"code\": 404,\n  \"message\": \"Prospect not found\"\n}"
+            }
+          },
+          "runAfter": {
+            "E1_No_Existing_Errors": [
+              "Succeeded"
+            ],
+            "E1_Get_prospect": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Search_Companies_by_Bedrijfsdata_ID": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.hubapi.com/crm/v3/objects/companies/search",
+            "body": "{\n  \"properties\": [\"prospectpro_id\", \"domain\", \"name\", \"lifecyclestage\"],\n  \"filterGroups\": [\n    {\n      \"filters\": [\n        {\n          \"propertyName\": \"prospectpro_id\",\n          \"operator\": \"EQ\",\n          \"value\": \"@{body('When_Executed_by_trigger_workflow')?['id']}\"\n        }\n      ]\n    }\n  ]\n}"
+          },
+          "runAfter": {
+            "When_Executed_by_trigger_workflow": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Found_by_ID": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Found by ID?",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "da65345b-7d49-4576-bbaf-ab23f7e1cdb8",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.total > 0 }}",
+                    "rightValue": ""
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Search_Companies_by_Bedrijfsdata_ID": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Search_Companies_by_Domain": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.hubapi.com/crm/v3/objects/companies/search",
+            "body": "{\n  \"properties\": [\"prospectpro_id\", \"domain\", \"name\"],\n  \"filterGroups\": [\n    {\n      \"filters\": [\n        {\n          \"propertyName\": \"domain\",\n          \"operator\": \"EQ\",\n          \"value\": \"@{body('E1_Get_prospect')?['domain']}\"\n        }\n      ]\n    }\n  ]\n}"
+          },
+          "runAfter": {
+            "Has_Domain": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Has_Domain": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Has Domain?",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "b3a44f7a-7b55-49b0-90e5-c3abb0c9c815",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ !!$('E1 - Get prospect').item.json.domain }}",
+                    "rightValue": ""
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Found_by_ID": [
+              "Succeeded"
+            ],
+            "Search_Companies_by_Bedrijfsdata_ID": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Found_by_Domain": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Found by Domain?",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "da65345b-7d49-4576-bbaf-ab23f7e1cdb8",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.total > 0 }}",
+                    "rightValue": ""
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Search_Companies_by_Domain": [
+              "Succeeded"
+            ]
+          }
+        },
+        "E1_Get_prospect": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "E1 - Get prospect",
+            "n8nNodeType": "@bedrijfsdatanl/n8n-nodes-prospectpro.prospectpro",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "id": "={{ $json.id }}",
+              "operation": "get",
+              "requestOptions": {}
+            }
+          },
+          "runAfter": {
+            "E1_Set_variables": [
+              "Succeeded"
+            ],
+            "When_Executed_by_trigger_workflow": [
+              "Succeeded"
+            ]
+          }
+        },
+        "E1_No_Existing_Errors": {
+          "type": "If",
+          "expression": {
+            "equals": [
+              "@!!body('E1_Get_prospect')?['tags']?['includes'](\"HubspotSyncFailed\")",
+              false
+            ]
+          },
+          "actions": {
+            "E1_Continue": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "E1 - Continue?",
+                "n8nNodeType": "n8n-nodes-base.if",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "strict"
+                    },
+                    "combinator": "and",
+                    "conditions": [
+                      {
+                        "id": "15bc7f88-124b-4ace-9b9b-d211b83dd524",
+                        "operator": {
+                          "type": "boolean",
+                          "operation": "true",
+                          "singleValue": true
+                        },
+                        "leftValue": "={{ !!$json.domain }}",
+                        "rightValue": ""
+                      },
+                      {
+                        "id": "2ab83e0c-e511-4b0a-bb97-c76198116e07",
+                        "operator": {
+                          "type": "boolean",
+                          "operation": "true",
+                          "singleValue": true
+                        },
+                        "leftValue": "={{ !!$json.id }}",
+                        "rightValue": ""
+                      },
+                      {
+                        "id": "7dc88f3a-2aa2-4e17-9b67-1298ba06c27b",
+                        "operator": {
+                          "name": "filter.operator.equals",
+                          "type": "string",
+                          "operation": "equals"
+                        },
+                        "leftValue": "",
+                        "rightValue": ""
+                      }
+                    ]
+                  }
+                }
+              },
+              "runAfter": {}
+            },
+            "E1_Find_Company_in_Hubspot": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "E1 - Find Company in Hubspot",
+                "n8nNodeType": "n8n-nodes-base.executeWorkflow",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "workflowId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "IdtvYdzQ2uGp7quU",
+                    "cachedResultUrl": "/workflow/IdtvYdzQ2uGp7quU",
+                    "cachedResultName": "Subflow - TEMPLATE"
+                  },
+                  "workflowInputs": {
+                    "value": {
+                      "id": "={{ $('D1 - Add \"tag_in_progress\"').item.json.id }}"
+                    },
+                    "schema": [
+                      {
+                        "id": "id",
+                        "type": "string",
+                        "display": true,
+                        "required": false,
+                        "displayName": "id",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      }
+                    ],
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [
+                      "id"
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": true
+                  }
+                }
+              },
+              "runAfter": {
+                "E1_Continue": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "E1_Found": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "E1 - Found?",
+                "n8nNodeType": "n8n-nodes-base.if",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "strict"
+                    },
+                    "combinator": "and",
+                    "conditions": [
+                      {
+                        "id": "da65345b-7d49-4576-bbaf-ab23f7e1cdb8",
+                        "operator": {
+                          "type": "boolean",
+                          "operation": "true",
+                          "singleValue": true
+                        },
+                        "leftValue": "={{ !!$json.companyId }}",
+                        "rightValue": ""
+                      }
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "E1_Find_Company_in_Hubspot": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "E1_Update_a_company": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "E1 - Update a company",
+                "n8nNodeType": "n8n-nodes-base.hubspot",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "resource": "company",
+                  "companyId": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "={{ $json.id }}"
+                  },
+                  "operation": "update",
+                  "updateFields": {
+                    "companyDomainName": "={{ $json.properties.domain || $('E1 - Get prospect').item.json.domain || undefined }}",
+                    "customPropertiesUi": {
+                      "customPropertiesValues": [
+                        {
+                          "value": "={{ $('E1 - Get prospect').item.json.id }}",
+                          "property": "prospectpro_id"
+                        },
+                        {
+                          "value": "={{ $('E1 - Get prospect').item.json.coc }}",
+                          "property": "kvk"
+                        }
+                      ]
+                    }
+                  },
+                  "authentication": "oAuth2"
+                }
+              },
+              "runAfter": {
+                "E1_Found": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "E1_Update_Successful": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "E1 - Update Successful?",
+                "n8nNodeType": "n8n-nodes-base.if",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "strict"
+                    },
+                    "combinator": "and",
+                    "conditions": [
+                      {
+                        "id": "239351e0-f10a-4dc2-a47f-b5e0978bcda4",
+                        "operator": {
+                          "type": "boolean",
+                          "operation": "true",
+                          "singleValue": true
+                        },
+                        "leftValue": "={{ !!$json.companyId }}",
+                        "rightValue": ""
+                      }
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "E1_Update_a_company": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "E1_Create_a_company": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "E1 - Create a company",
+                "n8nNodeType": "n8n-nodes-base.hubspot",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "name": "={{ $('E1 - Get prospect').item.json.name }}",
+                  "resource": "company",
+                  "authentication": "oAuth2",
+                  "additionalFields": {
+                    "city": "={{ $('E1 - Get prospect').item.json.city || undefined }}",
+                    "postalCode": "={{ $('E1 - Get prospect').item.json.postcode || undefined }}",
+                    "websiteUrl": "={{ $('E1 - Get prospect').item.json.url || undefined }}",
+                    "phoneNumber": "={{ $('E1 - Get prospect').item.json.phone_international || undefined }}",
+                    "annualRevenue": "={{ $('E1 - Get prospect').item.json.revenue || undefined }}",
+                    "countryRegion": "={{ $('E1 - Get prospect').item.json.country_code || undefined }}",
+                    "streetAddress": "={{ $('E1 - Get prospect').item.json.address || undefined }}",
+                    "companyDomainName": "={{ $('E1 - Get prospect').item.json.domain || undefined }}",
+                    "numberOfEmployees": "={{ $('E1 - Get prospect').item.json.employees || undefined }}",
+                    "customPropertiesUi": {
+                      "customPropertiesValues": [
+                        {
+                          "value": "={{ $('E1 - Get prospect').item.json.id }}",
+                          "property": "prospectpro_id"
+                        },
+                        {
+                          "value": "={{ $('E1 - Get prospect').item.json.coc || undefined }}",
+                          "property": "kvk"
+                        }
+                      ]
+                    },
+                    "linkedInCompanyPage": "={{ $('E1 - Get prospect').item.json.linkedin_link || undefined }}"
+                  }
+                }
+              },
+              "runAfter": {
+                "E1_Found": [
+                  "Succeeded"
+                ],
+                "E1_Find_Company_in_Hubspot": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "E1_Creation_Successful": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "E1 - Creation Successful?",
+                "n8nNodeType": "n8n-nodes-base.if",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "strict"
+                    },
+                    "combinator": "and",
+                    "conditions": [
+                      {
+                        "id": "239351e0-f10a-4dc2-a47f-b5e0978bcda4",
+                        "operator": {
+                          "type": "boolean",
+                          "operation": "true",
+                          "singleValue": true
+                        },
+                        "leftValue": "={{ !!$json.companyId }}",
+                        "rightValue": ""
+                      }
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "E1_Create_a_company": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "E1_Update_Tags_Fail": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "E1 - Update Tags: Fail",
+                "n8nNodeType": "@bedrijfsdatanl/n8n-nodes-prospectpro.prospectpro",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "id": "={{ $json.id }}",
+                  "operation": "patch",
+                  "updateOptions": {
+                    "tags": "={{ $json.tags }}"
+                  },
+                  "requestOptions": {}
+                }
+              },
+              "runAfter": {
+                "E1_Add_tag_error": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "E1_Update_Tags_Success": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "E1 - Update Tags: Success",
+                "n8nNodeType": "@bedrijfsdatanl/n8n-nodes-prospectpro.prospectpro",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "id": "={{ $json.id }}",
+                  "operation": "patch",
+                  "updateOptions": {
+                    "tags": "={{ $json.tags }}"
+                  },
+                  "requestOptions": {}
+                }
+              },
+              "runAfter": {
+                "E1_Add_tag_success": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "E1_return_result_false": {
+              "type": "JavaScriptCode",
+              "inputs": {
+                "code": "const __inputRaw = workflowContext.actions['E1_Update_Tags_Fail'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst __results = items.map(item => {\n  const $json = item.json;\n  const $input = {\n    item,\n    first: () => item,\n    last: () => item,\n    all: () => items\n  };\n  return (() => {\nreturn { result: false };\n  })();\n});\nreturn { body: __unwrap(__results) };"
+              },
+              "runAfter": {
+                "E1_Update_Tags_Fail": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "E1_Add_tag_success": {
+              "type": "JavaScriptCode",
+              "inputs": {
+                "code": "const __inputRaw = workflowContext.actions['E1_Update_Successful'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst __results = items.map(item => {\n  const $json = item.json;\n  const $input = {\n    item,\n    first: () => item,\n    last: () => item,\n    all: () => items\n  };\n  return (() => {\nconst prospect = __node('E1_Get_prospect').first().json;\nconst vars = __node('E1_Set_variables').first().json;\nconst tagSuccess = vars.tag_success;\n\nconst tags = (prospect.tags ?? \"\")\n  .split(\"|\")\n  .map(t => t.trim())\n  .filter(Boolean);\n\nif (tagSuccess) tags.push(tagSuccess);\n\nconst uniqueTags = [...new Set(tags)];\n\nreturn {\n  ...prospect,\n  tags: uniqueTags\n};\n  })();\n});\nreturn { body: __unwrap(__results) };"
+              },
+              "runAfter": {
+                "E1_Update_Successful": [
+                  "Succeeded"
+                ],
+                "E1_Creation_Successful": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "E1_Add_tag_error": {
+              "type": "JavaScriptCode",
+              "inputs": {
+                "code": "const __inputRaw = workflowContext.actions['E1_Create_a_company'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst __results = items.map(item => {\n  const $json = item.json;\n  const $input = {\n    item,\n    first: () => item,\n    last: () => item,\n    all: () => items\n  };\n  return (() => {\nconst prospect = __node('E1_Get_prospect').first().json;\nconst vars = __node('E1_Set_variables').first().json;\nconst tagError = vars.tag_error;\n\nconst tags = (prospect.tags ?? \"\")\n  .split(\"|\")\n  .map(t => t.trim())\n  .filter(Boolean);\n\nif (tagError) tags.push(tagError);\n\nconst uniqueTags = [...new Set(tags)];\n\nreturn {\n  ...prospect,\n  tags: uniqueTags\n};\n  })();\n});\nreturn { body: __unwrap(__results) };"
+              },
+              "runAfter": {
+                "E1_Create_a_company": [
+                  "Succeeded"
+                ],
+                "E1_Update_a_company": [
+                  "Succeeded"
+                ],
+                "E1_Update_Successful": [
+                  "Succeeded"
+                ],
+                "E1_Creation_Successful": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "E1_return_result_true": {
+              "type": "JavaScriptCode",
+              "inputs": {
+                "code": "const __inputRaw = workflowContext.actions['E1_Update_Tags_Success'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst __results = items.map(item => {\n  const $json = item.json;\n  const $input = {\n    item,\n    first: () => item,\n    last: () => item,\n    all: () => items\n  };\n  return (() => {\nreturn { result: true };\n  })();\n});\nreturn { body: __unwrap(__results) };"
+              },
+              "runAfter": {
+                "E1_Update_Tags_Success": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "E1_Get_prospect": [
+              "Succeeded"
+            ]
+          }
+        },
+        "F1_return_Hubspot_Company_object": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Found_by_ID'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst __results = items.map(item => {\n  const $json = item.json;\n  const $input = {\n    item,\n    first: () => item,\n    last: () => item,\n    all: () => items\n  };\n  return (() => {\nconst hsCompany = $json.results[0];\n\nreturn { ...hsCompany };\n  })();\n});\nreturn { body: __unwrap(__results) };"
+          },
+          "runAfter": {
+            "Found_by_ID": [
+              "Succeeded"
+            ],
+            "Found_by_Domain": [
+              "Succeeded"
+            ]
+          }
+        },
+        "F1_return_result_false": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Has_Domain'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst __results = items.map(item => {\n  const $json = item.json;\n  const $input = {\n    item,\n    first: () => item,\n    last: () => item,\n    all: () => items\n  };\n  return (() => {\nreturn { result: false };\n  })();\n});\nreturn { body: __unwrap(__results) };"
+          },
+          "runAfter": {
+            "Has_Domain": [
+              "Succeeded"
+            ],
+            "Found_by_Domain": [
+              "Succeeded"
+            ],
+            "Search_Companies_by_Domain": [
+              "Succeeded"
+            ]
+          }
+        },
+        "F1_return_result_true_hsCompany_Object": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['F1_return_Hubspot_Company_object'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst __results = items.map(item => {\n  const $json = item.json;\n  const $input = {\n    item,\n    first: () => item,\n    last: () => item,\n    all: () => items\n  };\n  return (() => {\nreturn { result: true, hsCompany: $json };\n  })();\n});\nreturn { body: __unwrap(__results) };"
+          },
+          "runAfter": {
+            "F1_return_Hubspot_Company_object": [
+              "Succeeded"
+            ]
+          }
+        },
+        "E1_Set_variables": {
+          "type": "Compose",
+          "inputs": {
+            "tag_error": "EnrichmentFailed",
+            "tag_success": "Enriched"
+          },
+          "runAfter": {}
+        },
+        "B3_Initiate_pagination": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['B3_Set_lastSync'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst input = $json;\n\nconst store = $getWorkflowStaticData('global');\nstore.page = 0;\nstore.processed = 0;\nstore.total_pages = 0;\n\nreturn input;\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "B3_Set_lastSync": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Action_1_Errors_Error_Trigger": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "1 - Errors - Error Trigger",
+            "n8nNodeType": "n8n-nodes-base.errorTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "Action_1_Errors_Insert_row": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "1 - Errors - Insert row",
+            "n8nNodeType": "n8n-nodes-base.dataTable",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "url": "={{ $json.execution.url }}",
+                  "workflow_id": "={{ $json.workflow.id }}",
+                  "execution_id": "={{ $json.execution.id }}"
+                },
+                "schema": [
+                  {
+                    "id": "workflow_id",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "workflow_id",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "execution_id",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "execution_id",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "url",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "url",
+                    "defaultMatch": false
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "dataTableId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "riCDybFTyQ6SaMzL",
+                "cachedResultUrl": "/projects/tgy2Tl0HCDQH0Rbt/datatables/riCDybFTyQ6SaMzL",
+                "cachedResultName": "Errors"
+              }
+            }
+          },
+          "runAfter": {
+            "Action_1_Errors_Error_Trigger": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Action_1_Errors_Send_a_text_message": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "telegrambotip_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/bot@{encodeURIComponent('REPLACE_WITH_TELEGRAM_BOT_TOKEN')}/sendMessage",
+            "body": {
+              "chat_id": "000",
+              "text": "\"n8n issue - workflow #@{body('Action_1_Errors_Error_Trigger')?['workflow']?['id']} - execution #@{body('Action_1_Errors_Error_Trigger')?['execution']?['id']} - @{body('Action_1_Errors_Error_Trigger')?['execution']?['url']}\""
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendMessage"
+            }
+          },
+          "runAfter": {
+            "Action_1_Errors_Error_Trigger": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "B1_Schedule_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "telegrambotip_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/telegrambotip"
+    }
+  }
+}

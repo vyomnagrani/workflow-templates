@@ -1,0 +1,344 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "automated-stock-trading-with-ai-integrating-alpaca-and-google-sheets",
+    "name": "Automated stock trading with AI: integrating Alpaca and Google Sheets",
+    "description": "\n## Description\n\nTransform your investment strategy with a fully automated, AI-driven trading bot. This workflow bridges the gap between AI-powered market insights and real-world trading by executing buy and sell orders directly through the Alpaca paper trading API.\n\nDesigned to work in tandem with the **Automated Stock Sentiment Analysis** workflow, this solution takes the top-performing stocks based on daily news sentiment and automatically rebalances your portfolio. It's perfect for algorithmic traders, data-driven investors, and n8n enthusiasts who want to see their AI analysis translate into tangible actions, all while maintaining a comprehensive log of every transaction in Google Sheets.\n\n### Key Features & Benefits\n\n* **Automated Trading Execution:** Automatically places buy and sell orders on the Alpaca paper trading platform without manual intervention.\n* **Sentiment-Driven Decisions:** Leverages the output from the sentiment analysis workflow to make informed decisions, selling positions with waning sentiment and buying into those with high positive sentiment.\n* **Dynamic Portfolio Rebalancing:** Intelligently calculates which positions to close and how to allocate the resulting funds into new, high-potential stocks.\n* **Paper Trading Ready:** Safely test and refine your trading strategies in a risk-free environment using Alpaca's paper trading API.\n* **Daily Performance Tracking:** Automatically logs your account equity and daily percentage change to a Google Sheet, giving you a clear view of your portfolio's performance.\n* **Detailed Trade Logging:** Every buy and sell order is meticulously recorded in a Google Sheet for easy review and historical analysis.\n* **Scheduled and Autonomous:** The entire process runs on a daily schedule, making it a \"set and forget\" solution for systematic trading.\n\n### How It Works\n\nThis workflow executes a sophisticated, automated trading strategy in a few key stages:\n\n1.  **Daily Kick-off & Snapshot:** The workflow triggers on a daily schedule, first fetching your current Alpaca account balance and logging it to a Google Sheet to track daily performance.\n2.  **Strategy Formulation:** It then reads the daily sentiment scores produced by the accompanying \"Stock Sentiment Analysis\" workflow. A Code node filters these results to identify the **top four stocks** with the highest positive sentiment.\n3.  **The Decision Engine:** The core of the workflow is a custom Code node that acts as the trading brain. It:\n    * Retrieves your currently open positions from Alpaca.\n    * Compares your holdings against the day's top four sentiment stocks.\n    * Generates a **\"sell list\"** of positions you hold that are no longer in the top four.\n    * Generates a **\"buy list\"** of top-sentiment stocks that you don't yet own.\n    * Calculates the total cash value from the \"sell list\" and determines the exact notional value to invest in each stock on the \"buy list.\"\n4.  **Trade Execution:**\n    * The workflow first iterates through the \"sell list\" and executes a `DELETE` request to Alpaca for each, closing the positions.\n    * A **Wait** node pauses the workflow for two minutes to ensure the sell orders are filled and the account balance is updated.\n    * It then iterates through the \"buy list,\" executing `POST` requests to Alpaca to purchase the new assets with the calculated funds.\n5.  **Record Keeping:** All executed orders (both buys and sells) are merged and logged in a dedicated Google Sheet, giving you a permanent and detailed transaction history.\n\n### Nodes Used\n\n* Schedule Trigger\n* HttpRequest (Alpaca API)\n* Google Sheets\n* Code (JavaScript)\n* SplitOut\n* Wait\n* Merge\n\nThis workflow is the perfect next step for anyone looking to take their AI analysis to the next level. Take the emotion out of your trading and let this bot systematically execute your data-driven strategy.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Crypto Trading",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Schedule_Trigger": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Alpaca_get_account_info": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://paper-api.alpaca.markets/v2/account"
+          },
+          "runAfter": {}
+        },
+        "Alpaca_post_order_sell": {
+          "type": "Http",
+          "inputs": {
+            "method": "DELETE",
+            "uri": "https://paper-api.alpaca.markets/v2/positions/@{body('positions_to_close')?['asset_id']}",
+            "body": {}
+          },
+          "runAfter": {
+            "positions_to_close": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Alpaca_post_order_buy": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://paper-api.alpaca.markets/v2/orders",
+            "body": {
+              "symbol": "@body('Wait')?['symbol']",
+              "notional": "@body('Wait')?['market_value_per_symbol']?['toFixed'](2)",
+              "side": "buy",
+              "type": "market",
+              "time_in_force": "day"
+            }
+          },
+          "runAfter": {
+            "Wait": [
+              "Succeeded"
+            ]
+          }
+        },
+        "filter_top_sentiment_score": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['read_sentiments_score_today'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\n// Sort the array by sentimentScore in descending order\nconst sortedItems = $input.all().sort((a, b) => b.json.sentimentScore - a.json.sentimentScore);\n\n// Get the top 4 items\nconst top4Items = sortedItems.slice(0, 4);\n\n// Return the result in the n8n expected format\nreturn top4Items\n\n\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "read_sentiments_score_today": [
+              "Succeeded"
+            ]
+          }
+        },
+        "read_sentiments_score_today": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('1tQDBVDqn5v08GOsjupjV8o3Jzqd4-fKoSoGhWLEOTww'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "write_account_balace_today": [
+              "Succeeded"
+            ]
+          }
+        },
+        "write_account_balace_today": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "write_account_balace_today",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "date": "={{$today}}\n",
+                  "change": "={{($json.equity- $json.last_equity)/ $json.last_equity}}",
+                  "balance": "={{ $json.equity }}"
+                },
+                "schema": [
+                  {
+                    "id": "date",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "date",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "balance",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "balance",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "change",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "change",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "date"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {
+                "useAppend": true
+              },
+              "operation": "appendOrUpdate",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": 449152551,
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tQDBVDqn5v08GOsjupjV8o3Jzqd4-fKoSoGhWLEOTww/edit#gid=449152551",
+                "cachedResultName": "balance"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1tQDBVDqn5v08GOsjupjV8o3Jzqd4-fKoSoGhWLEOTww",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tQDBVDqn5v08GOsjupjV8o3Jzqd4-fKoSoGhWLEOTww/edit?usp=drivesdk",
+                "cachedResultName": "Stock Sentiment"
+              }
+            }
+          },
+          "runAfter": {
+            "Alpaca_get_account_info": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Alpaca_get_open_positions": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://paper-api.alpaca.markets/v2/positions"
+          },
+          "runAfter": {
+            "filter_top_sentiment_score": [
+              "Succeeded"
+            ]
+          }
+        },
+        "create_positions_to_close_and_positions_two_open": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Alpaca_get_open_positions'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Accessing data from the previous nodes\nconst openPositions = __node('Alpaca_get_open_positions').all();\nconst topSentiment = __node('filter_top_sentiment_score').all();\n\n// Extracting the symbols for easier comparison\nconst openPositionSymbols = openPositions.map(pos => pos.json.symbol);\nconst topSentimentSymbols = topSentiment.map(sen => sen.json.stock);\n\n// Table 1: Open positions not in the top sentiment filter\nconst positionsNotInTopSentiment = openPositions\n  .filter(pos => !topSentimentSymbols.includes(pos.json.symbol))\n  .map(pos => ({\n    symbol: pos.json.symbol,\n    market_value: pos.json.market_value,\n    qty: pos.json.qty,\n    asset_id : pos.json.asset_id\n  }));\n\n// Table 2: Symbols from top sentiment not in open positions\nconst symbolsNotInOpenPositions = topSentiment\n  .filter(sen => !openPositionSymbols.includes(sen.json.stock))\n  .map(sen => ({\n    symbol: sen.json.stock,\n  }));\n\n// Calculate the total market value of the first table\nconst totalMarketValue = positionsNotInTopSentiment.reduce((sum, pos) => {\n  return sum + parseFloat(pos.market_value);\n}, 0);\n\n// Calculate the value to be assigned to each symbol in the second table\nconst valuePerSymbol = symbolsNotInOpenPositions.length > 0\n  ? totalMarketValue / symbolsNotInOpenPositions.length\n  : 0;\n\n// Add the calculated value to each symbol in the second table\nconst symbolsWithMarketValue = symbolsNotInOpenPositions.map(item => ({\n  ...item,\n  market_value_per_symbol: valuePerSymbol,\n}));\n\n// Returning the two tables as separate outputs\nreturn [\n  {\n    json: {\n      positions_not_in_top_sentiment: positionsNotInTopSentiment,\n    \n    symbols_not_in_open_positions: symbolsWithMarketValue,\n    \n  }}\n];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Alpaca_get_open_positions": [
+              "Succeeded"
+            ]
+          }
+        },
+        "positions_to_open": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "positions_to_open",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldToSplitOut": "symbols_not_in_open_positions"
+            }
+          },
+          "runAfter": {
+            "create_positions_to_close_and_positions_two_open": [
+              "Succeeded"
+            ]
+          }
+        },
+        "positions_to_close": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "positions_to_close",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldToSplitOut": "positions_not_in_top_sentiment"
+            }
+          },
+          "runAfter": {
+            "create_positions_to_close_and_positions_two_open": [
+              "Succeeded"
+            ]
+          }
+        },
+        "merge_orders_to_write_to_sheets": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "merge_orders_to_write_to_sheets",
+            "n8nNodeType": "n8n-nodes-base.merge",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "Alpaca_post_order_buy": [
+              "Succeeded"
+            ],
+            "Alpaca_post_order_sell": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Sheets": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('1tQDBVDqn5v08GOsjupjV8o3Jzqd4-fKoSoGhWLEOTww'))}/tables/@{encodeURIComponent(encodeURIComponent('486231870'))}/items",
+            "body": {
+              "date": "={{ $today }}",
+              "order": "@body('merge_orders_to_write_to_sheets')?['side']",
+              "value": "={{ $if( $json.side == \"buy\",$json.notional,$('positions_to_close').item.json.market_value) }}",
+              "symbol": "@body('merge_orders_to_write_to_sheets')?['symbol']"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "merge_orders_to_write_to_sheets": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 2,
+              "unit": "Minute"
+            }
+          },
+          "runAfter": {
+            "positions_to_open": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Schedule_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

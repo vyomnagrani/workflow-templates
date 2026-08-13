@@ -1,0 +1,153 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "pharmacy-inventory-alerts-for-low-stock-expiring-medicine-with-google-sheets",
+    "name": "Pharmacy inventory alerts for low stock & expiring medicine with Google Sheets",
+    "description": "This n8n workflow monitors pharmacy inventory stored in a Google Sheet, checks daily for low stock or near-expiry medicines, and sends alerts to the pharmacist via email, ensuring timely restocking and waste prevention.\n\n## Why Use It\n\nThis workflow automates inventory management for pharmacies, reducing the risk of stockouts or expired medicines, saving time, minimizing losses, and ensuring compliance with safety standards by providing proactive alerts.\n\n## How to Import It\n\n1. **Download the Workflow JSON**: Obtain the workflow file from the n8n template or create it based on this document.\n2. **Import into n8n**: In your n8n instance, go to \"Workflows,\" click the three dots, select \"Import from File,\" and upload the JSON.\n3. **Configure Credentials**: Set up Google Sheets, email (e.g., SMTP), and optional SMS (e.g., Twilio) credentials in n8n.\n4. **Run the Workflow**: Activate the scheduled trigger and test with a sample Google Sheet.\n\n## System Architecture\n\n- **Daily Stock Check (9 AM)**: Automated trigger to monitor inventory levels\n- **Fetch Stock Data**: Retrieves current medicine data from Google Sheets\n- **Wait For All Data**: Ensures complete data retrieval before processing\n- **Check Expiry Date and Low Stock**: Analyzes inventory for alerts\n- **Update Google Sheet**: Records alert status and timestamps\n- **Send Email Alert**: Notifies pharmacist of low stock and expiry issues\n\n## Google Sheet File Structure\n\n- **Sheet Name**: `PharmacyInventory`  \n- **Range**: `A1:E20` (or adjust based on needs)\n\n| A          | B             | C          | D             | E             |\n|------------|---------------|------------|---------------|---------------|\n| **medicine_name** | **stock_quantity** | **expiry_date** | **alert_status** | **last_checked** |\n| Paracetamol | 15            | 2025-09-15 | Notified      | 2025-08-08    |\n| Aspirin     | 5             | 2025-08-20 | Pending       | 2025-08-07    |\n| Ibuprofen   | 20            | 2026-01-10 | -             | 2025-08-08    |\n\n- **Columns**:\n  - `medicine_name`: Name of the medicine.\n  - `stock_quantity`: Current stock level (e.g., number of units).\n  - `expiry_date`: Expiry date of the medicine (e.g., YYYY-MM-DD).\n  - `alert_status`: Status of the alert (e.g., Pending, Notified, - for no alert).\n  - `last_checked`: Date of the last inventory check.\n\n## Customization Ideas\n- **Adjust Thresholds**: Change the low stock threshold (e.g., from 10 to 5) or expiry window (e.g., from 30 to 15 days).\n- **Add SMS Alerts**: Integrate Twilio or another SMS service for additional notifications.\n- **Incorporate Barcode Scanning**: Add a node to import inventory updates via barcode scanners.\n- **Dashboard Integration**: Connect to a dashboard (e.g., Google Data Studio) for real-time inventory tracking.\n- **Automated Restock Orders**: Add logic to generate purchase orders for low stock items.\n\n## Requirements to Run This Workflow\n- **Google Sheets Account**: For storing and managing inventory data.\n- **Email Service**: Gmail, SMTP, or similar for email alerts.\n- **n8n Instance**: With Google Sheets and email connectors configured.\n- **Cron Service**: For scheduling the daily trigger.\n- **Internet Connection**: To access Google Sheets and email APIs.\n- **Optional SMS Service**: Twilio or similar for SMS alerts (requires additional credentials).\n\nWant a tailored workflow for your business? Our experts can craft it quickly [Contact our team](https://www.oneclickitsolution.com/contact-us/)\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Document Extraction",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "connectionProviders/inlineCode",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Daily_Stock_Check": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Fetch_Stock_Data": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_SPREADSHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_WORKSHEET'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {}
+        },
+        "Update_Google_Sheet": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update Google Sheet",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "range": "PharmacyInventory!A:E",
+              "options": {},
+              "sheetId": "{{your_google_sheet_id}}",
+              "operation": "update",
+              "authentication": "serviceAccount"
+            }
+          },
+          "runAfter": {
+            "Check_Expiry_Date_and_Low_Stock": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_Email_Alert": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Send Email Alert",
+            "n8nNodeType": "n8n-nodes-base.emailSend",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=Hello Pharmacist,\n\nThis is an automated notification from the Pharmacy Inventory Monitoring System.\n\nThe following medicines require immediate attention as of {{ $now.format('YYYY-MM-DD') }}:\n\nLOW STOCK ALERTS:\n{{ $json.lowStockList }}\n\nEXPIRY ALERTS (Near expiry or expired):\n{{ $json.expiryList }}\n\nACTION REQUIRED:\n- Please restock medicines with low quantity levels\n- Remove or return expired/near-expiry items to ensure patient safety\n- Update inventory levels in the Google Sheet after taking action\n\nFor questions about inventory management or system updates, please contact the pharmacy operations team.\n\nBest regards,\nAutomated Pharmacy Inventory System\nSunrise Pharmacy Operations\n\n---\nThis is an automated message. Please do not reply to this email.\n",
+              "options": {},
+              "subject": "Pharmacy Inventory Alert - Low Stock & Expiry Notice - {{ $now.format('YYYY-MM-DD') }}",
+              "toEmail": "user@example.com",
+              "fromEmail": "user@example.com",
+              "emailFormat": "text"
+            }
+          },
+          "runAfter": {
+            "Update_Google_Sheet": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_For_All_Data": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 1,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Fetch_Stock_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Check_Expiry_Date_and_Low_Stock": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Wait_For_All_Data'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Get all input items from Google Sheets\nconst items = $input.all();\nconst alerts = [];\nconst lowStockItems = [];\nconst expiryItems = [];\n\nfor (const item of items) {\n  const data = item.json;\n\n  // Skip header row or empty entries\n  if (!data.medicine_name || data.medicine_name === 'medicine_name') {\n    continue;\n  }\n\n  // Stock threshold (default 10 units if not specified)\n  const threshold = data.threshold || 10;\n\n  // Expiry warning in days (30 days before expiry)\n  const expiryWarningDays = 30;\n\n  // Check Low Stock\n  if (data.stock_quantity && parseInt(data.stock_quantity) <= threshold) {\n    const lowStockAlert = {\n      medicine_name: data.medicine_name,\n      stock_quantity: data.stock_quantity,\n      threshold: threshold,\n      type: \"Low Stock\",\n      alert_message: `LOW STOCK: ${data.medicine_name} has only ${data.stock_quantity} units remaining (threshold: ${threshold})`\n    };\n    \n    alerts.push(lowStockAlert);\n    lowStockItems.push(`• ${data.medicine_name}: ${data.stock_quantity} units (threshold: ${threshold})`);\n  }\n\n  // Check Expiry Date\n  if (data.expiry_date) {\n    const today = new Date();\n    const expiryDate = new Date(data.expiry_date);\n    const daysLeft = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));\n\n    if (daysLeft <= expiryWarningDays) {\n      const expiryAlert = {\n        medicine_name: data.medicine_name,\n        expiry_date: data.expiry_date,\n        days_left: daysLeft,\n        type: daysLeft > 0 ? \"Near Expiry\" : \"Expired\",\n        alert_message: daysLeft > 0\n          ? `NEAR EXPIRY: ${data.medicine_name} expires in ${daysLeft} days (${data.expiry_date})`\n          : `EXPIRED: ${data.medicine_name} expired ${Math.abs(daysLeft)} days ago (${data.expiry_date})`\n      };\n      \n      alerts.push(expiryAlert);\n      expiryItems.push(daysLeft > 0 \n        ? `• ${data.medicine_name}: Expires in ${daysLeft} days (${data.expiry_date})`\n        : `• ${data.medicine_name}: EXPIRED ${Math.abs(daysLeft)} days ago (${data.expiry_date})`);\n    }\n  }\n}\n\n// Create summary for email\nconst emailSummary = {\n  lowStockList: lowStockItems.length > 0 ? lowStockItems.join('\\n') : 'No low stock items found.',\n  expiryList: expiryItems.length > 0 ? expiryItems.join('\\n') : 'No items near expiry or expired.',\n  totalAlerts: alerts.length,\n  timestamp: new Date().toISOString()\n};\n\n// Return all alerts with email summary\nif (alerts.length > 0) {\n  return [{ json: emailSummary }, ...alerts.map(alert => ({ json: alert }))];\n} else {\n  // Return empty summary if no alerts\n  return [{ json: emailSummary }];\n}\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Wait_For_All_Data": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Daily_Stock_Check",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

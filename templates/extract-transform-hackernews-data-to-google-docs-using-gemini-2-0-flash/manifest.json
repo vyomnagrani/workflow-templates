@@ -1,0 +1,219 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "extract-transform-hackernews-data-to-google-docs-using-gemini-2-0-flash",
+    "name": "Extract & transform HackerNews data to Google Docs using Gemini 2.0 flash",
+    "description": "### Description\nThis workflow automates the process of scraping the latest discussions from HackerNews, transforming raw threads into human readable content using Google Gemini, and exporting the final content into a well-formatted Google Doc.\n\n### Overview\nThis n8n workflow is responsible for extracting trending posts from the HackerNews API. It loops through each item, performs HTTP data extraction, utilizes Google Gemini to generate human-readable insights, and then exports the enriched content into Google Docs for distribution, archiving, or content creation.\n\n### Who this workflow is for\n\n- **Tech Newsletter Writers**:\nAutomate the collection and summarization of trending HackerNews posts for inclusion in weekly or daily newsletters.\n\n- **Content Creators & Bloggers**:\nQuickly generate structured summaries and insights from HackerNews threads to use as inspiration or supporting content for blog posts, videos, or social media.\n\n- **Startup Founders & Product Builders**:\nMonitor HackerNews for discussions relevant to your niche or competitors, and keep a pulse on the community’s opinions.\n\n- **Investors & Analysts**:\nSurface early signals from the tech ecosystem by identifying what’s trending and how the community is reacting.\n\n- **Researchers & Students**:\nAnalyze popular discussions and emerging trends in technology, programming, and startups—enriched with AI-generated insights.\n\n- **Digital Agencies & Consultants**:\nOffer HackerNews monitoring and insight reports as a value-added service to clients interested in the tech space.\n\n### Tools Used\n- **n8n**: The core automation engine that manages the trigger, transformation, and export.\n\n- **HackerNews API**: Provides access to trending or new HN posts.\n\n- **Google Gemini**: Enriches HackerNews content with structured insights and human-like summaries.\n\n- **Google Docs**: Automatically creates and updates a document with the enriched content, ready for sharing or publishing.\n\n### How to Install\n- **Import the Workflow**: Download the .json file and import it into your n8n instance.\n\n- **Set Up HackerNews Source**: Choose whether to use the HN API (via HTTP Request node) or RSS Feed node.\n\n- **Configure Gemini API**: Add your Google Gemini API key and design the prompt to extract pros/cons, key themes, or insights.\n\n- **Set Up Google Docs Integration**: Connect your Google account and configure the Google Docs node to create/update a document.\n\n- **Test and Deploy**: Run a test job to ensure data flows correctly and outputs are formatted as expected.\n\n### Use Cases\n- **Tech Newsletter Authors**: Generate ready-to-use summaries of trending HackerNews threads.\n\n- **Startup Founders**: Stay informed on key discussions, product launches, and community feedback.\n\n- **Investors & Analysts**: Spot early trends, technical insights, and startup momentum directly from HN.\n\n- **Researchers**: Track community reactions to new technologies or frameworks.\n\n- **Content Creators**: Use the enriched data to spark blog posts, YouTube scripts, or LinkedIn updates.\n\n### Connect with Me\n\n**Email**: ranjancse@gmail.com\n\n**LinkedIn**: https://www.linkedin.com/in/ranjan-dailata/\n\n**Get Bright Data**: [Bright Data](https://get.brightdata.com/5blibaeyszij ) (Supports free workflows with a small commission)\n\n#n8n #automation #hackernews #contentcuration #aiwriting #geminiapi #googlegemini #techtrends #newsletterautomation #googleworkspace #rssautomation #nocode #structureddata #webscraping #contentautomation #hninsights #aiworkflow #googleintegration #webmonitoring #hnnews #aiassistant #gdocs #automationtools #gptlike #geminiwriter\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Market Research",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "When_clicking_Execute_workflow": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Hacker_News": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Hacker News",
+            "n8nNodeType": "n8n-nodes-base.hackerNews",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "limit": "={{ $json.Count }}",
+              "resource": "all",
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {
+            "Set_the_Input_Fields": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Loop_Over_Items": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Loop Over Items",
+            "n8nNodeType": "n8n-nodes-base.splitInBatches",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Hacker_News": [
+              "Succeeded"
+            ],
+            "Update_Google_Docs": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Gemini_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Gemini Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "modelName": "models/gemini-2.0-flash-exp"
+            }
+          },
+          "runAfter": {}
+        },
+        "Create_a_Google_Doc": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Create a Google Doc",
+            "n8nNodeType": "n8n-nodes-base.googleDocs",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "title": "={{ $('Set the url, author').item.json.author }}-HackerNews",
+              "folderId": "default"
+            }
+          },
+          "runAfter": {
+            "Extract_Human_Readable_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Update_Google_Docs": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update Google Docs",
+            "n8nNodeType": "n8n-nodes-base.googleDocs",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "actionsUi": {
+                "actionFields": [
+                  {
+                    "text": "={{ $('Extract Human Readable Data').item.json.text }}",
+                    "action": "insert"
+                  }
+                ]
+              },
+              "operation": "update",
+              "documentURL": "={{ $json.id }}"
+            }
+          },
+          "runAfter": {
+            "Create_a_Google_Doc": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Set_the_Input_Fields": {
+          "type": "Compose",
+          "inputs": {
+            "Count": "5"
+          },
+          "runAfter": {}
+        },
+        "Extract_Human_Readable_Data": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Extract Human Readable Data",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chainLlm",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=Extract a human readable content. \n\nHere's the context :\n\n{{ $json.data }}",
+              "batching": {},
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "Create_an_HTTP_Request": [
+              "Succeeded"
+            ],
+            "Google_Gemini_Chat_Model": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Set_the_url_author": {
+          "type": "Compose",
+          "inputs": {
+            "author": "@body('Loop_Over_Items')?['author']",
+            "url": "@body('Loop_Over_Items')?['_highlightResult']?['url']?['value']"
+          },
+          "runAfter": {
+            "Loop_Over_Items": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Create_an_HTTP_Request": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@body('Set_the_url_author')?['url']"
+          },
+          "runAfter": {
+            "Set_the_url_author": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "When_clicking_Execute_workflow",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

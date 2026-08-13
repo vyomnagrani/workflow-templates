@@ -1,0 +1,224 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "generate-cold-emails-sales-letters-with-openai-gpt-google-docs-via-chat",
+    "name": "Generate cold emails & sales letters with OpenAI GPT & Google Docs via Chat",
+    "description": "**How it works**\n- Trigger: Listens for an incoming chat message\n- Copy Assistant: Feeds the message (plus memory) into an OpenAI Chat Model and exposes two “tools”\n\n**Cold Email Writer Tool**\n\n\n**Sales Letter Tool**• \n\nTool execution: Depending on the user’s intent, the appropriate tool generates the copy\n• Save output: Writes the generated email or sales letter into your target document via the Update a document node\n\n**Set up steps**\n- • Configure your OpenAI Chat Model credentials in n8n (no hard-coded keys!)\n- • Add and authenticate the Simple Memory credential (to keep context across messages)\n- • Create Google Docs (or MS Word) credentials for the Update a document node\n- • Ensure your Chat trigger is pointing at your incoming-message endpoint\n- • Mandatory: Drop sticky-note annotations on each tool node explaining where to enter API keys and how to tweak prompts\n\nOnce everything’s wired up, send a test chat message like “Write me a cold email for a fintech startup” and watch the workflow spin up a polished draft in your document.\n\n**How to use**\n\nImport the workflow JSON into n8n.\n\nConfigure your Chat trigger (webhook or form) to receive incoming messages.\n\nSend a chat prompt like:\n\n“Write me a cold email for a B2B SaaS offering.”\n\nThe “Copy Assistant” custom GPT picks the right tool (Cold Email or Sales Letter).\n\nGenerated copy is written directly into your linked Google Doc or Word document.\n\n**Requirements**\nOpenAI API Key (with Chat Completions & Custom GPTs enabled)\n\nCustom Assistant created in your ChatGPT dashboard (Assistant ID pasted into the Chat Model node)\n\nn8n instance (Cloud or self-hosted) with credentials set up for:\n\nSimple Memory (to persist context)\n\nGoogle Docs or Microsoft Word (for document output)\n\n**Customising this workflow**\nTweak system and user prompts inside the Copy Assistant node to fit your brand voice.\n\nSwap in Slack, Teams or email nodes instead of a document writer to deliver copy where you need it.\n\nAdd or remove tools (e.g., “Follow-up Email Writer”) by duplicating the existing tool pattern.\n\nUse sticky-note annotations on every node to explain where to enter API keys, Assistant IDs, or prompt tweaks.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "AI Chatbot",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "When_chat_message_received": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "When chat message received",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chatTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Copy_Assistant": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Copy Assistant",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "systemMessage": "#Overview\nYou are a Copy Assistant Agent responsible for managing and routing user requests to the appropriate specialized copywriting agents based on input. You are the control coordinator for generating and delivering high‑quality platform‑ready marketing copy.\n\n## Context\nYou are connected to multiple specialized copywriting tools:\n\nSales Letter Agent\nCold Email Copywriter\n\nYou also interact with an OpenAI chat model and a memory system to retain conversational context\n\nOnce copy is generated, your role is to deliver it clearly and accurately to the user and update the connected Google Doc with the final version.\n\n## Instrcutions\nWhen a user request is received, determine its intent and route it to the correct agent:\nAd Copy Agent → punchy headlines, descriptions & CTAs for display/search/social ads\nVSL Script Agent → full‑length video sales letters with hook, problem/solution, proof, CTA\nAd Script Agent → short (15–60 sec) video ad scripts for TikTok, Instagram, YouTube\nSales Letter Agent → long‑form email or web sales letters with storytelling, proof, bullets\nCold Email Copywriter → concise, personalized outreach sequences (subjects, intros, value props, follow‑ups)\n\n## Tools\nAd Copy Agent: punchy headlines, descriptions & CTAs for social/display/search ads\nVSL Script Agent: longer video‑sales‑letter scripts with hook, problem/solution, proof, CTA\nAd Script Agent: short video ad scripts (15–60 sec) for TikTok, Instagram, YouTube\nSales Letter Agent: long‑form email or web sales letters with story, proof, bullets\nCold Email Copywriter: concise outreach sequences—subject lines, intros, value props, follow‑ups\n\n## Examples\n“Need a Facebook ad for our new fitness app.” → route to Ad Copy Agent\n“Write a 3‑minute VSL script pitching our automation tool.” → route to VSL Script Agent\n“30‑second TikTok spot for our gourmet coffee.” → route to Ad Script Agent\n“Long‑form sales letter for B2B software.” → route to Sales Letter Agent\n“5‑step cold email sequence to logistics managers.” → route to Cold Email Copywriter\n\n## SOPs\nInterpret intent: read the user’s brief, spot format and goal\nSelect agent: map to the tool that matches (ad, VSL, email, etc.)\nPrompt agent: pass along the brief plus brand voice or any notes\nReview output: check tone, formatting, brand compliance\nDeliver: send clean, formatted copy back to the user\nDocument: paste final approved copy into the shared Google Doc\n\n## Final Notes\nKeep things concise, conversational, user‑focused\nAlways ask if you need more brand details or style guidelines\nStay friendly and collaborative\nStore context so follow‑up tweaks are seamless"
+              }
+            }
+          },
+          "runAfter": {
+            "Simple_Memory": [
+              "Succeeded"
+            ],
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ],
+            "Sales_Letter_Tool": [
+              "Succeeded"
+            ],
+            "Cold_Email_Writer_Tool": [
+              "Succeeded"
+            ],
+            "When_chat_message_received": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenAI_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4.1-mini"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Simple_Memory": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Simple Memory",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "Update_a_document": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update a document",
+            "n8nNodeType": "n8n-nodes-base.googleDocs",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "actionsUi": {
+                "actionFields": [
+                  {
+                    "text": "={{ $json.output }}",
+                    "action": "insert"
+                  }
+                ]
+              },
+              "operation": "update",
+              "documentURL": "https://docs.google.com/document/d/1eI4Pdje4As0KEYjEG3prMUQCiLe-tUswnwNUVQG2GSw/edit?tab=t.0"
+            }
+          },
+          "runAfter": {
+            "Copy_Assistant": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Cold_Email_Writer_Tool": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Cold Email Writer Tool",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.toolWorkflow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "workflowId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "ZtScEU9B5PNPnIcP",
+                "cachedResultName": "Cold Email Copywriter"
+              },
+              "description": "Call this tool when the user requests cold email sequences",
+              "workflowInputs": {
+                "value": {},
+                "schema": [],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Sales_Letter_Tool": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Sales Letter Tool",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.toolWorkflow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "workflowId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "HQuj3iBV1PlI0HY1",
+                "cachedResultName": "Sales Letter Agent"
+              },
+              "description": "Call this tool when user request for sales letters sequence",
+              "workflowInputs": {
+                "value": {},
+                "schema": [],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              }
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

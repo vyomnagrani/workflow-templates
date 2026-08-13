@@ -1,0 +1,154 @@
+{
+  "sourceWorkflowName": "From Google Drive to Instagram, TikTok & YouTube with AI descriptions & Airtable tracking",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 10,
+  "totalNodes": 25,
+  "coverage": 0.4,
+  "diagnostics": [
+    {
+      "code": "TRIGGER_MISSING",
+      "message": "No supported n8n trigger was found.",
+      "severity": "warning",
+      "node_name": null,
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleDriveTrigger.",
+      "severity": "warning",
+      "node_name": "Google Drive Trigger",
+      "node_type": "n8n-nodes-base.googleDriveTrigger",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleDrive.",
+      "severity": "warning",
+      "node_name": "Google Drive",
+      "node_type": "n8n-nodes-base.googleDrive",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.airtable.",
+      "severity": "warning",
+      "node_name": "Create Airtable Record",
+      "node_type": "n8n-nodes-base.airtable",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.errorTrigger.",
+      "severity": "warning",
+      "node_name": "Error Trigger",
+      "node_type": "n8n-nodes-base.errorTrigger",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Telegram message/send requires text and chatId for deterministic conversion.",
+      "severity": "warning",
+      "node_name": "Telegram",
+      "node_type": "n8n-nodes-base.telegram",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.telegram is not safely supported.",
+      "severity": "warning",
+      "node_name": "Telegram",
+      "node_type": "n8n-nodes-base.telegram",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.openAi.",
+      "severity": "warning",
+      "node_name": "Get Audio from Video",
+      "node_type": "@n8n/n8n-nodes-langchain.openAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.writeBinaryFile.",
+      "severity": "warning",
+      "node_name": "Read video from Google Drive",
+      "node_type": "n8n-nodes-base.writeBinaryFile",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.openAi.",
+      "severity": "warning",
+      "node_name": "Generate Description for Videos",
+      "node_type": "@n8n/n8n-nodes-langchain.openAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.airtable.",
+      "severity": "warning",
+      "node_name": "Update Airtable with Description",
+      "node_type": "n8n-nodes-base.airtable",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.readBinaryFile.",
+      "severity": "warning",
+      "node_name": "Read Video for TikTok",
+      "node_type": "n8n-nodes-base.readBinaryFile",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.readBinaryFile.",
+      "severity": "warning",
+      "node_name": "Read Video for Instagram",
+      "node_type": "n8n-nodes-base.readBinaryFile",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.readBinaryFile.",
+      "severity": "warning",
+      "node_name": "Read Video for YouTube",
+      "node_type": "n8n-nodes-base.readBinaryFile",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.airtable.",
+      "severity": "warning",
+      "node_name": "Update YouTube Status - Success",
+      "node_type": "n8n-nodes-base.airtable",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.airtable.",
+      "severity": "warning",
+      "node_name": "Update TikTok Status",
+      "node_type": "n8n-nodes-base.airtable",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.airtable.",
+      "severity": "warning",
+      "node_name": "Update Instagram Status",
+      "node_type": "n8n-nodes-base.airtable",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $now }}",
+      "severity": "warning",
+      "node_name": "Edit Airtable Fields1",
+      "node_type": null,
+      "json_path": null
+    }
+  ]
+}

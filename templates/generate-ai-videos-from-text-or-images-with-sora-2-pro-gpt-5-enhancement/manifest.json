@@ -1,0 +1,408 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "generate-ai-videos-from-text-or-images-with-sora-2-pro-gpt-5-enhancement",
+    "name": "Generate AI videos from text or images with Sora 2/Pro & GPT-5 enhancement",
+    "description": "Harness OpenAI's Sora 2 for instant video creation from text or images using fal.ai's API—powered by GPT-5 for refined prompts that ensure cinematic quality. This template processes form submissions, intelligently routes to text-to-video (with mandatory prompt enhancement) or image-to-video modes, and polls for completion before redirecting to your generated clip.\n\n## 📋 What This Template Does\nUsers submit prompts, aspect ratios (9:16 or 16:9), models (sora-2 or pro), durations (4s, 8s, or 12s), and optional images via a web form. For text-to-video, GPT-5 automatically refines the prompt for optimal Sora 2 results; image mode uses the raw input. It calls one of four fal.ai endpoints (text-to-video, text-to-video/pro, image-to-video, image-to-video/pro), then loops every 60s to check status until the video is ready.\n- Handles dual modes: Text (with GPT-5 enhancement) or image-seeded generation\n- Supports pro upgrades for higher fidelity and longer clips\n- Auto-uploads images to a temp host and polls asynchronously for hands-free results\n- Redirects directly to the final video URL on completion\n\n## 🔧 Prerequisites\n- n8n instance with HTTP Request and LangChain nodes enabled\n- fal.ai account for Sora 2 API access\n- OpenAI account for GPT-5 prompt refinement\n\n## 🔑 Required Credentials\n\n### fal.ai API Setup\n1. Sign up at fal.ai and navigate to Dashboard → API Keys\n2. Generate a new key with \"sora-2\" permissions (full access recommended)\n3. In n8n, create \"Header Auth\" credential: Name it \"fal.ai\", set Header Name to \"Authorization\", Value to \"Key [Your API Key]\"\n\n### OpenAI API Setup\n1. Log in at platform.openai.com → API Keys (top-right profile menu)\n2. Click \"Create new secret key\" and copy it (store securely)\n3. In n8n, add \"OpenAI API\" credential: Paste key, select GPT-5 model in the LLM node\n\n## ⚙️ Configuration Steps\n1. Import the workflow JSON into your n8n instance via Settings → Import from File\n2. Assign fal.ai and OpenAI credentials to the relevant HTTP Request and LLM nodes\n3. Activate the workflow—the form URL auto-generates in the trigger node\n4. Test by submitting a sample prompt (e.g., \"A cat chasing a laser\"); monitor executions for video output\n5. Adjust polling wait (60s node) for longer generations if needed\n\n## 🎯 Use Cases\n- **Social Media Teams**: Generate 9:16 vertical Reels from text ideas, like quick product animations enhanced by GPT-5 for professional polish\n- **Content Marketers**: Animate uploaded images into 8s promo clips, e.g., turning a static ad graphic into a dynamic story for email campaigns\n- **Educators and Trainers**: Create 4s explainer videos from outlines, such as historical reenactments, using pro mode for detailed visuals\n- **App Developers**: Embed as a backend service to process user prompts into Sora 2 videos on-demand for creative tools\n\n## ⚠️ Troubleshooting\n- **API quota exceeded**: Check fal.ai dashboard for usage limits; upgrade to pro tier or extend polling waits\n- **Prompt refinement fails**: Ensure GPT-5 credential is set and output matches JSON schema—test LLM node independently\n- **Image upload errors**: Confirm file is JPG/PNG under 10MB; verify tmpfiles.org endpoint with a manual curl test\n- **Endless polling loop**: Add an IF node after 10 checks to timeout; increase wait to 120s for 12s pro generations",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Video_Input_Form": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Video Input Form",
+            "n8nNodeType": "n8n-nodes-base.formTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "appendAttribution": false
+              },
+              "formTitle": "Create a Video using Sora 2",
+              "formFields": {
+                "values": [
+                  {
+                    "fieldLabel": "Prompt",
+                    "requiredField": true
+                  },
+                  {
+                    "fieldType": "dropdown",
+                    "fieldLabel": "Aspect Ratio",
+                    "fieldOptions": {
+                      "values": [
+                        {
+                          "option": "9:16 (vertical)"
+                        },
+                        {
+                          "option": "16:9 (Horizontal)"
+                        }
+                      ]
+                    },
+                    "requiredField": true
+                  },
+                  {
+                    "fieldType": "checkbox",
+                    "fieldLabel": "Model",
+                    "fieldOptions": {
+                      "values": [
+                        {
+                          "option": "sora-2"
+                        },
+                        {
+                          "option": "sora-2-pro"
+                        }
+                      ]
+                    },
+                    "requiredField": true,
+                    "limitSelection": "exact"
+                  },
+                  {
+                    "fieldType": "checkbox",
+                    "fieldLabel": "Lenght",
+                    "fieldOptions": {
+                      "values": [
+                        {
+                          "option": "4s"
+                        },
+                        {
+                          "option": "8s"
+                        },
+                        {
+                          "option": "12s"
+                        }
+                      ]
+                    },
+                    "requiredField": true,
+                    "limitSelection": "exact"
+                  },
+                  {
+                    "fieldType": "file",
+                    "fieldLabel": "Image",
+                    "multipleFiles": false,
+                    "acceptFileTypes": ".jpg,.jpeg,.png"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "JSON_Output_Parser": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "JSON Output Parser",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "schemaType": "manual",
+              "inputSchema": "{\n  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n  \"title\": \"Sora2VideoGenerationRequest\",\n  \"description\": \"Simplified schema for Sora 2 video generation with enhanced prompts\",\n  \"type\": \"object\",\n  \"required\": [\"prompt\", \"aspect_ratio\", \"duration\"],\n  \"properties\": {\n    \"prompt\": {\n      \"type\": \"string\",\n      \"description\": \"The fully enhanced, professionally structured prompt optimized for Sora 2 video generation with cinematography details, specific actions, lighting, and visual specifics\",\n      \"minLength\": 50,\n      \"maxLength\": 4000\n    },\n    \"aspect_ratio\": {\n      \"type\": \"string\",\n      \"enum\": [\"16:9\", \"9:16\"],\n      \"description\": \"Video aspect ratio. 16:9 for landscape/cinematic, 9:16 for portrait/social media\"\n    },\n    \"duration\": {\n      \"type\": \"integer\",\n      \"enum\": [4, 8, 12],\n      \"description\": \"Video duration in seconds. 4s is most reliable, 8s and 12s may have reduced instruction-following accuracy\"\n    }\n  }\n}"
+            }
+          },
+          "runAfter": {}
+        },
+        "Input_Mode_Router": {
+          "type": "If",
+          "expression": {
+            "not": {
+              "empty": [
+                "@body('Video_Input_Form')?['Image']?['filename']"
+              ]
+            }
+          },
+          "actions": {
+            "Temp_Image_Upload": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "=https://tmpfiles.org/api/v1/upload",
+                "body": {
+                  "file": null
+                }
+              },
+              "runAfter": {}
+            },
+            "Image_to_Video_Call": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "https://queue.fal.run/fal-ai/sora-2/image-to-video@{body('Video_Input_Form')?['Model'][0] === 'sora-2-pro' ? '/pro' : ''}",
+                "body": "{\n  \"prompt\": \"@{JSON.stringify(body('Video_Input_Form')?['Prompt']?['replaceAll'](/\\\\n/g, '')).slice(1, -1)}\",\n  \"resolution\": \"auto\",\n  \"aspect_ratio\": \"@{body('Video_Input_Form')?['Aspect Ratio']?['replaceAll'](' (vertical)', '').replaceAll(' (Horizontal)', '')}\",\n  \"duration\": @{body('Video_Input_Form')?['Lenght'][0].replaceAll('s', '')},\n  \"image_url\": \"@{body('Temp_Image_Upload')?['data']?['url']?['replaceAll']('.org/', '.org/dl/')}\"\n}"
+              },
+              "runAfter": {
+                "Temp_Image_Upload": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "Rule_2": {
+                "type": "If",
+                "expression": {
+                  "empty": [
+                    "@body('Video_Input_Form')?['Image']?['filename']"
+                  ]
+                },
+                "actions": {
+                  "Prompt_Refiner": {
+                    "type": "Compose",
+                    "inputs": {
+                      "conversionStatus": "unsupported",
+                      "n8nNodeName": "Prompt Refiner",
+                      "n8nNodeType": "@n8n/n8n-nodes-langchain.chainLlm",
+                      "message": "Replace this placeholder with an equivalent LAA action."
+                    },
+                    "description": "Generated placeholder for an unsupported n8n node.",
+                    "metadata": {
+                      "x-n8n-original-parameters": {
+                        "text": "=User Query: {{ $json.Prompt }}\n\nApect Ratio: {{ $json['Aspect Ratio'] }}\n\nLenght: {{ $json.Lenght[0] }}",
+                        "batching": {},
+                        "messages": {
+                          "messageValues": [
+                            {
+                              "message": "=You are an expert AI video prompt engineer specializing in OpenAI's Sora 2 video generation model. Your role is to transform user input into professionally structured, cinematic prompts optimized for high-quality video generation.\n\n## Core Principles\n\n1. **Brevity for Reliability**: Shorter clips (4s) follow instructions more reliably than longer ones. Recommend 4s duration unless user specifically needs longer content.\n\n2. **Specificity Over Vagueness**: Replace abstract concepts with concrete, visual details. Transform \"beautiful street\" into \"wet asphalt, zebra crosswalk, neon signs reflecting in puddles.\"\n\n3. **One Beat Per Shot**: Each shot should contain ONE clear camera movement and ONE clear subject action. Avoid cramming multiple complex actions into a single clip.\n\n4. **Cinematic Thinking**: Treat prompts as storyboard descriptions or cinematographer briefs, not casual requests.\n\n## Prompt Structure Framework\n\nOrganize enhanced prompts using this hierarchy:\n\n### 1. Style & Format (Optional but Powerful)\n- Establish overall aesthetic early: \"1970s film,\" \"IMAX aerial,\" \"handheld documentary\"\n- Film stock references: \"35mm film,\" \"16mm with grain,\" \"digital capture\"\n- Color treatment: \"Kodak warm grade,\" \"teal and orange palette,\" \"desaturated noir\"\n\n### 2. Scene Description\n- Setting and environment with specific visual details\n- Character descriptions (clothing, age, demeanor)\n- Atmospheric elements (weather, time of day, lighting quality)\n- Props and set dressing that matter to the shot\n\n### 3. Cinematography\n**Camera shot**: Specify framing and angle\n- Examples: \"wide establishing shot, eye level,\" \"medium close-up, slight low angle,\" \"aerial wide shot, downward tilt\"\n\n**Lens/DOF**: When detail matters\n- Examples: \"35mm lens, shallow depth of field,\" \"50mm with background softness,\" \"wide angle for environmental context\"\n\n**Camera movement**: Keep it simple and precise\n- Examples: \"slow push-in,\" \"dolly left to right,\" \"static handheld,\" \"crane up revealing skyline\"\n\n**Mood**: Emotional tone\n- Examples: \"tense and cinematic,\" \"warm and nostalgic,\" \"playful suspense\"\n\n### 4. Lighting & Palette\nDescribe light quality and color anchors:\n- Light quality: \"soft window light,\" \"hard single source,\" \"diffused overhead\"\n- Direction: \"from camera left,\" \"backlit,\" \"rim lighting\"\n- Color anchors: Name 3-5 specific colors for palette consistency\n- Examples: \"warm key from overhead, cool rim from window; palette: amber, cream, teal\"\n\n### 5. Actions (Time-Based Beats)\nBreak down motion into countable beats:\n- Use specific verbs and counts: \"takes four steps,\" \"pauses for two seconds,\" \"turns and catches\"\n- Avoid: \"walks around\" → Use: \"takes three steps forward, pauses, looks left\"\n- Keep actions achievable within the duration\n\n### 6. Dialogue (If Applicable)\nFormat dialogue clearly:\n- Place in dedicated block with speaker labels\n- Keep lines short and natural (4s = 1-2 exchanges, 8s = 3-4 exchanges)\n- Example format:\n  ```\n  Dialogue:\n  - Character A: \"Short, natural line.\"\n  - Character B: \"Response that fits timing.\"\n  ```\n\n### 7. Audio/Sound (Optional)\nSuggest diegetic sounds to establish rhythm:\n- Examples: \"distant traffic hum,\" \"coffee machine hiss,\" \"paper rustle\"\n- Note: This is for pacing cues, not full soundtracks\n\n## Enhancement Guidelines\n\n### What to ADD:\n- Concrete visual details (colors, textures, specific objects)\n- Professional cinematography terms (shot types, camera movements)\n- Lighting direction and quality\n- Precise action beats with timing\n- Style references that set aesthetic tone\n- Specific color palette (3-5 colors)\n\n### What to REPLACE:\n- \"Beautiful\" → Specific visual qualities\n- \"Moves\" → Precise action with counts\n- \"Nice lighting\" → Light source, direction, quality\n- \"Cinematic\" → Actual film/lens specifications\n- \"Interesting angle\" → Specific shot type and framing\n\n### What to AVOID:\n- Multiple complex actions in one shot\n- Vague descriptors without visual specifics\n- Requesting duration/resolution in prose (these are API parameters)\n- Overcrowding shots with too many elements\n- Abstract emotions without visual manifestations\n\n## Duration Recommendations\n\nBased on user intent:\n- **4 seconds**: Default recommendation. Most reliable for instruction following. Best for single clear action.\n- **8 seconds**: When user needs slightly more development. Warn that this may be less reliable; suggest stitching two 4s clips instead.\n- **12 seconds**: Only when explicitly requested. Strongly recommend breaking into multiple 4s shots for better control.\n\n## Aspect Ratio Selection\n\n- **16:9**: Landscape, traditional video, cinematic scenes, wide vistas, desktop viewing\n- **9:16**: Portrait, social media (TikTok, Instagram Stories, Reels), mobile-first content, vertical stories\n\n## Transformation Process\n\n1. **Analyze** user input for core intent\n2. **Identify** missing cinematic elements (camera, lighting, specific actions)\n3. **Expand** vague descriptions into concrete visuals\n4. **Structure** using the framework above\n5. **Optimize** for the chosen duration\n6. **Balance** detail with creative freedom based on user needs\n\n## Examples of Weak → Strong Transformations\n\n**Weak**: \"A person walking down a street at night\"\n**Strong**: \"Style: Handheld 35mm with natural grain. A woman in a red coat takes five measured steps down a wet cobblestone street. Amber streetlights create pools of warm light; cool shadows between them. Camera: medium tracking shot, following from behind at shoulder level. Mood: solitary, urban noir. Lighting: practical streetlights only; reflections in puddles.\"\n\n**Weak**: \"Make it look cinematic\"\n**Strong**: \"Camera: wide shot, slow dolly-in. Lens: 40mm spherical with shallow DOF. Lighting: golden hour natural key from camera left, edge light on subject. Palette: warm amber, deep teal, cream. Mood: nostalgic, intimate.\"\n\n## Response Format\n\nAlways output your enhanced prompt as a JSON object with exactly three fields:\n- \"prompt\": The fully enhanced, professionally structured prompt (50-4000 characters)\n- \"aspect_ratio\": Either \"16:9\" or \"9:16\"\n- \"duration\": Either 4, 8, or 12 (integer, in seconds)\n\nAim for 60-150 words for standard prompts, more for complex cinematic shots requiring detailed specifications. Include professional cinematographic language while maintaining clarity."
+                            }
+                          ]
+                        },
+                        "promptType": "define",
+                        "hasOutputParser": true
+                      }
+                    },
+                    "runAfter": {}
+                  },
+                  "Text_to_Video_Call": {
+                    "type": "Http",
+                    "inputs": {
+                      "method": "POST",
+                      "uri": "https://queue.fal.run/fal-ai/sora-2/text-to-video@{body('Video_Input_Form')?['Model'][0] === 'sora-2-pro' ? '/pro' : ''}",
+                      "body": "{\n  \"prompt\": \"@{JSON.stringify(body('Prompt_Refiner')?['output']?['prompt']?['replaceAll'](/\\\\n/g, '')).slice(1, -1)}\",\n  \"resolution\": \"720p\",\n  \"aspect_ratio\": \"@{body('Prompt_Refiner')?['output']?['aspect_ratio']}\",\n  \"duration\": @{body('Prompt_Refiner')?['output']?['duration']}\n}"
+                    },
+                    "runAfter": {
+                      "Prompt_Refiner": [
+                        "Succeeded"
+                      ]
+                    }
+                  }
+                },
+                "else": {
+                  "actions": {}
+                },
+                "runAfter": {}
+              }
+            }
+          },
+          "runAfter": {
+            "Video_Input_Form": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_60_Seconds": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 60,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Status_Router": [
+              "Succeeded"
+            ],
+            "Input_Mode_Router": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Status_Check": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://queue.fal.run/fal-ai/sora-2/requests/@{body('Wait_60_Seconds')?['request_id']}/status"
+          },
+          "runAfter": {
+            "Wait_60_Seconds": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Status_Router": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Status Router",
+            "n8nNodeType": "n8n-nodes-base.switch",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "rules": {
+                "values": [
+                  {
+                    "outputKey": "Done",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "d8b8dbdc-1ad9-4ab9-8b2d-e76fd5db0899",
+                          "operator": {
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.status }}",
+                          "rightValue": "COMPLETED"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "Progress",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "9c10982c-5f8c-4eec-9b8a-f4b42e99ecf9",
+                          "operator": {
+                            "type": "string",
+                            "operation": "notEquals"
+                          },
+                          "leftValue": "={{ $json.status }}",
+                          "rightValue": "COMPLETED"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  }
+                ]
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Status_Check": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Retrieve_Video": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://queue.fal.run/fal-ai/sora-2/requests/@{body('Status_Router')?['request_id']}"
+          },
+          "runAfter": {
+            "Status_Router": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Video_Redirect": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Video Redirect",
+            "n8nNodeType": "n8n-nodes-base.form",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "operation": "completion",
+              "redirectUrl": "={{ $json.video.url }}",
+              "respondWith": "redirect"
+            }
+          },
+          "runAfter": {
+            "Retrieve_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Refiner_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Refiner Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-5",
+                "cachedResultName": "gpt-5"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

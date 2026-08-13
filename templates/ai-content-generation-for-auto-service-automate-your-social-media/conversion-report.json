@@ -1,0 +1,218 @@
+{
+  "sourceWorkflowName": "🤖 AI content generation for auto service 🚘 automate your social media📲!",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 28,
+  "totalNodes": 50,
+  "coverage": 0.56,
+  "diagnostics": [
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Telegram message/sendPhoto requires text and chatId for deterministic conversion.",
+      "severity": "warning",
+      "node_name": "Telegram",
+      "node_type": "n8n-nodes-base.telegram",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.telegram is not safely supported.",
+      "severity": "warning",
+      "node_name": "Telegram",
+      "node_type": "n8n-nodes-base.telegram",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleSheetsTrigger.",
+      "severity": "warning",
+      "node_name": "Google Sheets Trigger",
+      "node_type": "n8n-nodes-base.googleSheetsTrigger",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.splitOut.",
+      "severity": "warning",
+      "node_name": "Split Out",
+      "node_type": "n8n-nodes-base.splitOut",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatMistralCloud.",
+      "severity": "warning",
+      "node_name": "Mistral Cloud Chat Model",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatMistralCloud",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOpenRouter.",
+      "severity": "warning",
+      "node_name": "OpenRouter Chat Model",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatAnthropic.",
+      "severity": "warning",
+      "node_name": "Anthropic Chat Model",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatGoogleGemini.",
+      "severity": "warning",
+      "node_name": "Google Gemini Chat Model",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatXAiGrok.",
+      "severity": "warning",
+      "node_name": "xAI Grok Chat Model",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatXAiGrok",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatDeepSeek.",
+      "severity": "warning",
+      "node_name": "DeepSeek Chat Model",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmOpenHuggingFaceInference.",
+      "severity": "warning",
+      "node_name": "Hugging Face Inference Model",
+      "node_type": "@n8n/n8n-nodes-langchain.lmOpenHuggingFaceInference",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOllama.",
+      "severity": "warning",
+      "node_name": "Ollama Chat Model",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatAzureOpenAi.",
+      "severity": "warning",
+      "node_name": "Azure OpenAI Chat Model",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.apiTemplateIo.",
+      "severity": "warning",
+      "node_name": "APITemplate.io",
+      "node_type": "n8n-nodes-base.apiTemplateIo",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.agent.",
+      "severity": "warning",
+      "node_name": "GENERATE TEXT",
+      "node_type": "@n8n/n8n-nodes-langchain.agent",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "GENERATE TEXT",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "GENERATE TEXT",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.agent.",
+      "severity": "warning",
+      "node_name": "GENERATE PROMPT",
+      "node_type": "@n8n/n8n-nodes-langchain.agent",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "GENERATE PROMPT",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.linkedIn.",
+      "severity": "warning",
+      "node_name": "LinkedIn",
+      "node_type": "n8n-nodes-base.linkedIn",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.twitter.",
+      "severity": "warning",
+      "node_name": "X",
+      "node_type": "n8n-nodes-base.twitter",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.facebookGraphApi.",
+      "severity": "warning",
+      "node_name": "Facebook",
+      "node_type": "n8n-nodes-base.facebookGraphApi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @tavily/n8n-nodes-tavily.tavilyTool.",
+      "severity": "warning",
+      "node_name": "Tavily Internet Search",
+      "node_type": "@tavily/n8n-nodes-tavily.tavilyTool",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.openAi.",
+      "severity": "warning",
+      "node_name": "OPENAI GENERATES IMAGE",
+      "node_type": "@n8n/n8n-nodes-langchain.openAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOpenAi.",
+      "severity": "warning",
+      "node_name": "OPENAI WRITES PROMPTS",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOpenAi.",
+      "severity": "warning",
+      "node_name": "OPENAI WRITES POSTS",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "json_path": null
+    }
+  ]
+}

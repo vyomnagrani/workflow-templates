@@ -1,0 +1,2440 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "process-multiple-media-files-in-telegram-with-gemini-ai-postgresql-database",
+    "name": "Process multiple media files in Telegram with Gemini AI & PostgreSQL database",
+    "description": "# 🤖📨 Telegram AI Assistant with Multi-File Media Group Handling, Smart File Processing & PostgreSQL Integration\n\n&gt; **AI-powered Telegram bot for text, voice, video, documents & media — with database-driven grouping and Telegram-safe formatting.**\n\n---\n\n## 📋 Description\n\nThis n8n template creates a **next-generation Telegram AI assistant** 🧠💬 capable of handling **text messages, media files, and documents** with advanced processing, PostgreSQL integration, and AI-powered responses.\n\nIt is designed to **solve Telegram’s media group challenge** 📦 — when multiple files are sent together, they are stored, processed, and combined into one coherent AI-generated reply.\n\n### ✨ Key Features\n- 📂 **Multi-file media group management** with PostgreSQL:\n  - `media_group`\n  - `media_queue`\n  - `chat_histories`\n- 📑 **Document parsing** for CSV, HTML, ICS, JSON, ODS, PDF (with AI fallback), RTF, TXT, XML, and spreadsheets.\n- 🎤 **Voice & video transcription** for AI analysis.\n- 🖼️ **Image, audio, and video description** for richer AI context.\n- 🛡️ **Telegram-safe MarkdownV2 formatting** with auto-splitting for messages over 4096 chars.\n- ⚠️ **Error fallback** for unsupported file types.\n\n---\n\n## 💡 Acknowledgment\n\nA huge thank you to **Ezema Gingsley Chibuzo** 🙌 for the inspiration of the first version of this workflow:  \n[Create a Multi-Modal Telegram Support Bot with GPT-4 and Supabase RAG](https://n8n.io/workflows/5589-create-a-multi-modal-telegram-support-bot-with-gpt-4-and-supabase-rag/)  \nYour pioneering work laid the foundation for this improved, **database-powered multi-modal assistant** 🚀\n\n---\n\n## 🏷 Tags\n`telegram` `ai-assistant` `postgresql` `multi-file` `media-group`  \n`file-processing` `voice-transcription` `document-parser` `pdf-extraction`  \n`markdown-formatting` `n8n-template`\n\n---\n\n## 💼 Use Case\nUse this template if you need an AI-powered Telegram bot that can:\n- 📦 Handle **multiple files sent in a single message** (albums, multiple PDFs, etc.).\n- 🧾 Extract & analyze **content from many file formats**.\n- 🎙️ Transcribe **voice and video messages**.\n- 🗂️ Maintain **chat memory** for contextual AI answers.\n- 🛡️ Avoid **Telegram formatting errors** and length limit issues.\n\nThis workflow automates the full chain: **Receive → Process → AI Analysis → Telegram-safe Reply**.\n\n---\n\n## 💬 Example User Interactions\n\n- **📄 Multiple PDFs with a caption** → AI extracts and summarizes all PDFs in one combined reply.  \n- **🎤 Voice message** → AI transcribes and replies with a contextual answer.  \n- **📊 CSV or spreadsheet file** → AI parses and summarizes the data.  \n- **🖼️ Multiple images** → AI describes each image and replies in a single message.\n\n---\n\n## 🔑 Required Credentials\n- **Telegram Bot API** (Bot Token)  \n- **PostgreSQL** (Connection credentials)  \n- **AI Provider API** (OpenAI, Google Gemini, or compatible LLM)\n\n---\n\n## ⚙️ Setup Instructions\n1. 🗄️ **Create the PostgreSQL tables** (Gray section SQL):\n   - `media_group`\n   - `media_queue`\n   - `chat_histories`\n2. 🔌 Configure the **Telegram Trigger** with your bot token.\n3. 🤖 Connect your **AI provider** credentials.\n4. 🗂️ Set up **PostgreSQL** credentials in the database nodes.\n5. ▶️ Deploy the workflow in n8n.\n6. 🎯 Start sending messages and files to your bot.\n\n---\n\n## 📌 Extra Notes\n- ✅ **Green section** ensures only one trigger per media group.  \n- 📌 **Yellow section** guarantees captions and files are stored in the correct sequence.  \n- ✨ **Purple section** formats AI output to be Telegram-safe and split if needed.  \n- 🧠 AI prompt is **not fixed**, allowing full customization.\n\n---\n\n## 💡 Need Assistance?\n\nIf you’d like help customizing or extending this workflow, feel free to reach out:  \n\n📧 Email: [johnsilva11031@gmail.com](mailto:johnsilva11031@gmail.com)  \n🔗 LinkedIn: [John Alejandro Silva Rodríguez](https://www.linkedin.com/in/john-alejandro-silva-rodriguez-48093526b/)",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Support Chatbot",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/telegrambotip",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "When_clicking_Execute_workflow": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Download_Voice_Message": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Download Voice Message",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileId": "={{ $json.message.voice.file_id }}",
+              "resource": "file",
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {
+            "Input_Message_Router1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_a_text_message1": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "telegrambotip_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/bot@{encodeURIComponent('REPLACE_WITH_TELEGRAM_BOT_TOKEN')}/sendMessage",
+            "body": {
+              "chat_id": "@first(body('Normalize_input'))?['chat_id']",
+              "text": "@body('MarkdownV2')?['message']",
+              "parse_mode": "MarkdownV2"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendMessage"
+            }
+          },
+          "runAfter": {
+            "MarkdownV2": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Input_Message_Router1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Input Message Router1",
+            "n8nNodeType": "n8n-nodes-base.switch",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "rules": {
+                "values": [
+                  {
+                    "outputKey": "Text",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "fcb767ee-565e-4b56-a54e-6f97f739fc24",
+                          "operator": {
+                            "type": "string",
+                            "operation": "exists",
+                            "singleValue": true
+                          },
+                          "leftValue": "={{ $json.message.text }}",
+                          "rightValue": ""
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "Voice Message",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "c1016c40-f8f2-4e08-8ec8-5cdb88f5c87a",
+                          "operator": {
+                            "type": "object",
+                            "operation": "exists",
+                            "singleValue": true
+                          },
+                          "leftValue": "={{ $json.message.voice }}",
+                          "rightValue": ""
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "Video note",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "9b94667e-c79b-4e4a-81ca-c4cd0d55f465",
+                          "operator": {
+                            "type": "string",
+                            "operation": "exists",
+                            "singleValue": true
+                          },
+                          "leftValue": "={{ $json.message.video_note.file_id }}",
+                          "rightValue": ""
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "Image",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "f8150ac7-eea4-4658-8da9-f7a1c88a471d",
+                          "operator": {
+                            "type": "string",
+                            "operation": "exists",
+                            "singleValue": true
+                          },
+                          "leftValue": "={{ $json.message.photo[0].file_id }}",
+                          "rightValue": ""
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "Audio",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "24ad08e0-6567-41e2-921f-b2a5cd6e2d47",
+                          "operator": {
+                            "type": "string",
+                            "operation": "exists",
+                            "singleValue": true
+                          },
+                          "leftValue": "={{ $json.message.audio.file_id }}",
+                          "rightValue": ""
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "Video",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "c266ee51-45e8-45e0-ba4a-d3d8f41f2e43",
+                          "operator": {
+                            "type": "string",
+                            "operation": "exists",
+                            "singleValue": true
+                          },
+                          "leftValue": "={{ $json.message.video.file_id }}",
+                          "rightValue": ""
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "Document",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "67b350d3-97e9-4966-a05e-cabbe825fe8d",
+                          "operator": {
+                            "type": "string",
+                            "operation": "exists",
+                            "singleValue": true
+                          },
+                          "leftValue": "={{ $json.message.document.file_id }}",
+                          "rightValue": ""
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  }
+                ]
+              },
+              "options": {
+                "ignoreCase": false,
+                "fallbackOutput": "extra",
+                "allMatchingOutputs": true
+              }
+            }
+          },
+          "runAfter": {
+            "Telegram_Trigger": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Captions_1": {
+          "type": "If",
+          "expression": {
+            "not": {
+              "empty": [
+                "@first(body('Telegram_Trigger'))?['message']?['caption']"
+              ]
+            }
+          },
+          "actions": {
+            "Media_group_2": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Media_group?2",
+                "n8nNodeType": "n8n-nodes-base.if",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "strict"
+                    },
+                    "combinator": "and",
+                    "conditions": [
+                      {
+                        "id": "df19fe9e-d1bd-42e4-9617-654fb984cc55",
+                        "operator": {
+                          "type": "string",
+                          "operation": "exists",
+                          "singleValue": true
+                        },
+                        "leftValue": "={{ $('Telegram Trigger').item.json.message.media_group_id }}",
+                        "rightValue": ""
+                      }
+                    ]
+                  }
+                }
+              },
+              "runAfter": {}
+            },
+            "Insert_documents_in_media_group": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Insert documents in media_group",
+                "n8nNodeType": "n8n-nodes-base.postgres",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "table": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "media_group",
+                    "cachedResultName": "media_group"
+                  },
+                  "schema": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "public"
+                  },
+                  "columns": {
+                    "value": {
+                      "media_group": "={{ $('Telegram Trigger').item.json.message.media_group_id }}",
+                      "file_description": "={{ $json.message }}"
+                    },
+                    "schema": [
+                      {
+                        "id": "id",
+                        "type": "number",
+                        "display": true,
+                        "removed": true,
+                        "required": false,
+                        "displayName": "id",
+                        "defaultMatch": true,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "media_group",
+                        "type": "string",
+                        "display": true,
+                        "required": true,
+                        "displayName": "media_group",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "file_description",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "required": false,
+                        "displayName": "file_description",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      }
+                    ],
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [
+                      "id"
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                  },
+                  "options": {}
+                }
+              },
+              "runAfter": {
+                "Media_group_2": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Insert_media_queue_with_captions_Trigger": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Insert media_queue with captions (Trigger)",
+                "n8nNodeType": "n8n-nodes-base.postgres",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "table": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "media_queue",
+                    "cachedResultName": "media_queue"
+                  },
+                  "schema": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "public"
+                  },
+                  "columns": {
+                    "value": {
+                      "chat_id": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+                      "captions": "={{ $('Telegram Trigger').item.json.message.caption }}",
+                      "media_group_id": "={{ $('Telegram Trigger').item.json.message.media_group_id }}"
+                    },
+                    "schema": [
+                      {
+                        "id": "media_group_id",
+                        "type": "string",
+                        "display": true,
+                        "required": true,
+                        "displayName": "media_group_id",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "chat_id",
+                        "type": "number",
+                        "display": true,
+                        "required": true,
+                        "displayName": "chat_id",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "captions",
+                        "type": "string",
+                        "display": true,
+                        "required": false,
+                        "displayName": "captions",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      }
+                    ],
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                  },
+                  "options": {}
+                }
+              },
+              "runAfter": {
+                "Insert_documents_in_media_group": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Get_file_and_captions": {
+              "type": "Compose",
+              "inputs": {
+                "message": "Captions: @{body('Telegram_Trigger')?['message']?['caption']}\n@{body('Media_group_2')?['message']}",
+                "chat_id": "@body('Media_group_2')?['chat_id']"
+              },
+              "runAfter": {
+                "Media_group_2": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "Media_group_3": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "Media_group?3",
+                  "n8nNodeType": "n8n-nodes-base.if",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "options": {},
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "df19fe9e-d1bd-42e4-9617-654fb984cc55",
+                          "operator": {
+                            "type": "string",
+                            "operation": "exists",
+                            "singleValue": true
+                          },
+                          "leftValue": "={{ $('Telegram Trigger').first().json.message.media_group_id }}",
+                          "rightValue": ""
+                        }
+                      ]
+                    }
+                  }
+                },
+                "runAfter": {}
+              },
+              "Insert_documents_in_media_group1": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "Insert documents in media_group1",
+                  "n8nNodeType": "n8n-nodes-base.postgres",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "table": {
+                      "__rl": true,
+                      "mode": "list",
+                      "value": "media_group",
+                      "cachedResultName": "media_group"
+                    },
+                    "schema": {
+                      "__rl": true,
+                      "mode": "list",
+                      "value": "public",
+                      "cachedResultName": "public"
+                    },
+                    "columns": {
+                      "value": {
+                        "media_group": "={{ $('Telegram Trigger').item.json.message.media_group_id }}",
+                        "file_description": "={{ $json.message }}"
+                      },
+                      "schema": [
+                        {
+                          "id": "id",
+                          "type": "number",
+                          "display": true,
+                          "removed": true,
+                          "required": false,
+                          "displayName": "id",
+                          "defaultMatch": true,
+                          "canBeUsedToMatch": true
+                        },
+                        {
+                          "id": "media_group",
+                          "type": "string",
+                          "display": true,
+                          "required": true,
+                          "displayName": "media_group",
+                          "defaultMatch": false,
+                          "canBeUsedToMatch": true
+                        },
+                        {
+                          "id": "file_description",
+                          "type": "string",
+                          "display": true,
+                          "removed": false,
+                          "required": false,
+                          "displayName": "file_description",
+                          "defaultMatch": false,
+                          "canBeUsedToMatch": true
+                        }
+                      ],
+                      "mappingMode": "defineBelow",
+                      "matchingColumns": [
+                        "id"
+                      ],
+                      "attemptToConvertTypes": false,
+                      "convertFieldsToString": false
+                    },
+                    "options": {}
+                  }
+                },
+                "runAfter": {
+                  "Media_group_3": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Wait": {
+                "type": "Wait",
+                "inputs": {
+                  "interval": {
+                    "count": 2,
+                    "unit": "Second"
+                  }
+                },
+                "runAfter": {
+                  "Insert_documents_in_media_group1": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Insert_media_queue_Trigger": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "Insert media_queue (Trigger)",
+                  "n8nNodeType": "n8n-nodes-base.postgres",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "table": {
+                      "__rl": true,
+                      "mode": "list",
+                      "value": "media_queue",
+                      "cachedResultName": "media_queue"
+                    },
+                    "schema": {
+                      "__rl": true,
+                      "mode": "list",
+                      "value": "public"
+                    },
+                    "columns": {
+                      "value": {
+                        "chat_id": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+                        "media_group_id": "={{ $('Telegram Trigger').item.json.message.media_group_id }}"
+                      },
+                      "schema": [
+                        {
+                          "id": "media_group_id",
+                          "type": "string",
+                          "display": true,
+                          "required": true,
+                          "displayName": "media_group_id",
+                          "defaultMatch": false,
+                          "canBeUsedToMatch": true
+                        },
+                        {
+                          "id": "chat_id",
+                          "type": "number",
+                          "display": true,
+                          "required": true,
+                          "displayName": "chat_id",
+                          "defaultMatch": false,
+                          "canBeUsedToMatch": true
+                        },
+                        {
+                          "id": "captions",
+                          "type": "string",
+                          "display": true,
+                          "required": false,
+                          "displayName": "captions",
+                          "defaultMatch": false,
+                          "canBeUsedToMatch": true
+                        }
+                      ],
+                      "mappingMode": "defineBelow",
+                      "matchingColumns": [],
+                      "attemptToConvertTypes": false,
+                      "convertFieldsToString": false
+                    },
+                    "options": {}
+                  }
+                },
+                "runAfter": {
+                  "Wait": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Get_only_file": {
+                "type": "Compose",
+                "inputs": {
+                  "message": "File description: @{body('Media_group_3')?['message']}",
+                  "chat_id": "@body('Media_group_3')?['chat_id']"
+                },
+                "runAfter": {
+                  "Media_group_3": [
+                    "Succeeded"
+                  ]
+                }
+              }
+            }
+          },
+          "runAfter": {
+            "get_message_File_message": [
+              "Succeeded"
+            ],
+            "get_message_Media_message": [
+              "Succeeded"
+            ]
+          }
+        },
+        "get_message_text": {
+          "type": "Compose",
+          "inputs": {
+            "message": "@body('Input_Message_Router1')?['message']?['text']",
+            "chat_id": "@body('Telegram_Trigger')?['message']?['chat']?['id']"
+          },
+          "runAfter": {
+            "Input_Message_Router1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "unified_variables": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Get_all_files_from_group_id'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst allItems = $input.all().map((item) => item.json);\n\nlet telegramItems = [];\ntry {\n  telegramItems = __node('Media_queue_Trigger').all().map((item) => item.json);\n} catch (e) {\n  telegramItems = [];\n}\n\n// Capturamos el caption (solo una vez, del primer elemento disponible)\nconst caption = telegramItems[0]?.payload?.captions || \"\";\n\n// Creamos la lista de archivos usando file_description\nconst fileList = allItems.map((item, index) => {\n  const fileDesc = item.file_description || \"\";\n  return `file${index + 1}: ${fileDesc}`;\n});\n\n// Unificamos el mensaje\nconst unifiedMessage = `caption: ${caption}\\n${fileList.join(\"\\n\")}`;\n\nreturn {\n  json: {\n    unifiedMessage\n  }\n};\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Get_all_files_from_group_id": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_for_all_the_files": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 1,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "get_chat_id": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_all_files_from_group_id": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get all files from group_id",
+            "n8nNodeType": "n8n-nodes-base.postgres",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "table": {
+                "__rl": true,
+                "mode": "list",
+                "value": "media_group",
+                "cachedResultName": "media_group"
+              },
+              "where": {
+                "values": [
+                  {
+                    "value": "={{ $('get_chat_id').item.json.payload.media_group_id }}",
+                    "column": "media_group"
+                  }
+                ]
+              },
+              "schema": {
+                "__rl": true,
+                "mode": "list",
+                "value": "public"
+              },
+              "options": {},
+              "operation": "select"
+            }
+          },
+          "runAfter": {
+            "Wait_for_all_the_files": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Media_queue_Trigger": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Media_queue Trigger",
+            "n8nNodeType": "n8n-nodes-base.postgresTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "schema": {
+                "__rl": true,
+                "mode": "list",
+                "value": "public",
+                "cachedResultName": "public"
+              },
+              "options": {},
+              "tableName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "media_queue",
+                "cachedResultName": "media_queue"
+              },
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "get_chat_id": {
+          "type": "Compose",
+          "inputs": {
+            "chat_id": "@body('Media_queue_Trigger')?['payload']?['chat_id']",
+            "payload.media_group_id": "@body('Media_queue_Trigger')?['payload']?['media_group_id']"
+          },
+          "runAfter": {
+            "Media_queue_Trigger": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Create_Tables": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": " Create Tables",
+            "n8nNodeType": "n8n-nodes-base.postgres",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "query": "CREATE TABLE IF NOT EXISTS public.media_group (\n  id bigint GENERATED BY DEFAULT AS IDENTITY NOT NULL,\n  media_group text NOT NULL,\n  file_description text NULL,\n  CONSTRAINT media_group_pkey PRIMARY KEY (id)\n) TABLESPACE pg_default;\n\nCREATE TABLE IF NOT EXISTS public.media_queue (\n  media_group_id text NOT NULL,\n  chat_id bigint NOT NULL,\n  captions text NULL,\n  CONSTRAINT media_queue_pkey PRIMARY KEY (media_group_id),\n  CONSTRAINT media_queue_media_group_id_key UNIQUE (media_group_id)\n) TABLESPACE pg_default;\n\nCREATE TABLE IF NOT EXISTS public.chat_histories (\n  id serial NOT NULL,\n  session_id character varying(255) NOT NULL,\n  message jsonb NOT NULL,\n  CONSTRAINT chat_histories_pkey PRIMARY KEY (id)\n) TABLESPACE pg_default;\n\nCREATE INDEX IF NOT EXISTS idx_pch_session \n  ON public.chat_histories USING btree (session_id) TABLESPACE pg_default;\n\nCREATE INDEX IF NOT EXISTS idx_pch_message_gin \n  ON public.chat_histories USING gin (message) TABLESPACE pg_default;\n\nCREATE INDEX IF NOT EXISTS idx_pch_message_type \n  ON public.chat_histories USING btree (((message ->> 'type'::text))) TABLESPACE pg_default;\n",
+              "options": {},
+              "operation": "executeQuery"
+            }
+          },
+          "runAfter": {}
+        },
+        "AI_Agent1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "AI Agent1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "={{ $json.message }}",
+              "options": {
+                "systemMessage": "",
+                "returnIntermediateSteps": true
+              },
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "Normalize_input": [
+              "Succeeded"
+            ],
+            "Postgres_Chat_Memory": [
+              "Succeeded"
+            ],
+            "Google_Gemini_Chat_Model": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Group_Similar_Documents": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Input_Message_Router1'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst results = [];\nfor (const item of $input.all()) {\n  const fileName = item.json?.fileName || item.json?.message?.document?.file_name || '';\n  const ext = fileName.toLowerCase().split('.').pop();\n\n  let type = 'fallback';\n  if (['csv'].includes(ext)) type = 'csv';\n  else if (['html', 'htm'].includes(ext)) type = 'html';\n  else if (['ics'].includes(ext)) type = 'ics';\n  else if (['json'].includes(ext)) type = 'json';\n  else if (['ods'].includes(ext)) type = 'ods';\n  else if (['pdf'].includes(ext)) type = 'pdf';\n  else if (['rtf'].includes(ext)) type = 'rtf';\n  else if (['txt', 'md', 'log'].includes(ext)) type = 'text file';\n  else if (['xml'].includes(ext)) type = 'xml';\n  else if (['xls', 'xlsx'].includes(ext)) type = 'spreadsheet';\n  else if (['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'tiff'].includes(ext)) type = 'image';\n  else if (['mp3', 'wav', 'ogg', 'm4a', 'flac'].includes(ext)) type = 'audio';\n  else if (['mp4', 'mov', 'avi', 'mkv', 'webm'].includes(ext)) type = 'video';\n\n  item.json.fileTypeCategory = type;\n  results.push(item);\n}\nreturn results;\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Input_Message_Router1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_CSV": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Download CSV",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileId": "={{ ($json.message.photo?.[3]?.file_id ?? $json.message.photo?.[2]?.file_id ?? $json.message.photo?.[1]?.file_id ?? $json.message.photo?.[0]?.file_id) ?? $json.message.document?.file_id ?? $json.message.video?.file_id ?? $json.message.voice?.file_id ?? $json.message.video_note?.file_id }}",
+              "resource": "file",
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {
+            "Switch": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_from_CSV": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Extract from CSV",
+            "n8nNodeType": "n8n-nodes-base.extractFromFile",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Download_CSV": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_HTML": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Download HTML",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileId": "={{ ($json.message.photo?.[3]?.file_id ?? $json.message.photo?.[2]?.file_id ?? $json.message.photo?.[1]?.file_id ?? $json.message.photo?.[0]?.file_id) ?? $json.message.document?.file_id ?? $json.message.video?.file_id ?? $json.message.voice?.file_id ?? $json.message.video_note?.file_id }}",
+              "resource": "file",
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {
+            "Switch": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_ICS": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Download ICS",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileId": "={{ ($json.message.photo?.[3]?.file_id ?? $json.message.photo?.[2]?.file_id ?? $json.message.photo?.[1]?.file_id ?? $json.message.photo?.[0]?.file_id) ?? $json.message.document?.file_id ?? $json.message.video?.file_id ?? $json.message.voice?.file_id ?? $json.message.video_note?.file_id }}",
+              "resource": "file",
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {
+            "Switch": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_from_ICS": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Extract from ICS",
+            "n8nNodeType": "n8n-nodes-base.extractFromFile",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "operation": "fromIcs"
+            }
+          },
+          "runAfter": {
+            "Download_ICS": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_JSON": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Download JSON",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileId": "={{ ($json.message.photo?.[3]?.file_id ?? $json.message.photo?.[2]?.file_id ?? $json.message.photo?.[1]?.file_id ?? $json.message.photo?.[0]?.file_id) ?? $json.message.document?.file_id ?? $json.message.video?.file_id ?? $json.message.voice?.file_id ?? $json.message.video_note?.file_id }}",
+              "resource": "file",
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {
+            "Switch": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_from_JSON": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Extract from JSON",
+            "n8nNodeType": "n8n-nodes-base.extractFromFile",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "operation": "fromJson"
+            }
+          },
+          "runAfter": {
+            "Download_JSON": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_ODS": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Download ODS",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileId": "={{ ($json.message.photo?.[3]?.file_id ?? $json.message.photo?.[2]?.file_id ?? $json.message.photo?.[1]?.file_id ?? $json.message.photo?.[0]?.file_id) ?? $json.message.document?.file_id ?? $json.message.video?.file_id ?? $json.message.voice?.file_id ?? $json.message.video_note?.file_id }}",
+              "resource": "file",
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {
+            "Switch": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_from_ODS": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Extract from ODS",
+            "n8nNodeType": "n8n-nodes-base.extractFromFile",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "operation": "ods"
+            }
+          },
+          "runAfter": {
+            "Download_ODS": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_PDF": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Download PDF",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileId": "={{ ($json.message.photo?.[3]?.file_id ?? $json.message.photo?.[2]?.file_id ?? $json.message.photo?.[1]?.file_id ?? $json.message.photo?.[0]?.file_id) ?? $json.message.document?.file_id ?? $json.message.video?.file_id ?? $json.message.voice?.file_id ?? $json.message.video_note?.file_id }}",
+              "resource": "file",
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {
+            "Switch": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_from_PDF": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Extract from PDF",
+            "n8nNodeType": "n8n-nodes-base.extractFromFile",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "operation": "pdf"
+            }
+          },
+          "runAfter": {
+            "Download_PDF": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_RTF": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Download RTF",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileId": "={{ ($json.message.photo?.[3]?.file_id ?? $json.message.photo?.[2]?.file_id ?? $json.message.photo?.[1]?.file_id ?? $json.message.photo?.[0]?.file_id) ?? $json.message.document?.file_id ?? $json.message.video?.file_id ?? $json.message.voice?.file_id ?? $json.message.video_note?.file_id }}",
+              "resource": "file",
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {
+            "Switch": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_from_RTF": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Extract from RTF",
+            "n8nNodeType": "n8n-nodes-base.extractFromFile",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "operation": "rtf"
+            }
+          },
+          "runAfter": {
+            "Download_RTF": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_TEXT_FILE": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Download TEXT FILE",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileId": "={{ ($json.message.photo?.[3]?.file_id ?? $json.message.photo?.[2]?.file_id ?? $json.message.photo?.[1]?.file_id ?? $json.message.photo?.[0]?.file_id) ?? $json.message.document?.file_id ?? $json.message.video?.file_id ?? $json.message.voice?.file_id ?? $json.message.video_note?.file_id }}",
+              "resource": "file",
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {
+            "Switch": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_from_File": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Extract from File",
+            "n8nNodeType": "n8n-nodes-base.extractFromFile",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "operation": "text"
+            }
+          },
+          "runAfter": {
+            "Download_TEXT_FILE": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_XML": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Download XML",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileId": "={{ ($json.message.photo?.[3]?.file_id ?? $json.message.photo?.[2]?.file_id ?? $json.message.photo?.[1]?.file_id ?? $json.message.photo?.[0]?.file_id) ?? $json.message.document?.file_id ?? $json.message.video?.file_id ?? $json.message.voice?.file_id ?? $json.message.video_note?.file_id }}",
+              "resource": "file",
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {
+            "Switch": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_XLSX": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Download XLSX",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileId": "={{ ($json.message.photo?.[3]?.file_id ?? $json.message.photo?.[2]?.file_id ?? $json.message.photo?.[1]?.file_id ?? $json.message.photo?.[0]?.file_id) ?? $json.message.document?.file_id ?? $json.message.video?.file_id ?? $json.message.voice?.file_id ?? $json.message.video_note?.file_id }}",
+              "resource": "file",
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {
+            "Switch": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_from_XLSX": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Extract from XLSX",
+            "n8nNodeType": "n8n-nodes-base.extractFromFile",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "operation": "xlsx"
+            }
+          },
+          "runAfter": {
+            "Download_XLSX": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_IMAGE": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Download IMAGE",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileId": "={{ $json.message.photo[3]?.file_id || $json.message.photo[2]?.file_id || $json.message.photo[1]?.file_id }}",
+              "resource": "file",
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {
+            "Input_Message_Router1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_AUDIO": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Download AUDIO",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileId": "={{ $json.message.audio.file_id }}",
+              "resource": "file",
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {
+            "Input_Message_Router1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_VIDEO": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Download VIDEO",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileId": "={{ ($json.message.photo?.[3]?.file_id ?? $json.message.photo?.[2]?.file_id ?? $json.message.photo?.[1]?.file_id ?? $json.message.photo?.[0]?.file_id) ?? $json.message.document?.file_id ?? $json.message.video?.file_id ?? $json.message.voice?.file_id ?? $json.message.video_note?.file_id }}",
+              "resource": "file",
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {
+            "Input_Message_Router1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Analyze_image": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Analyze image",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.googleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "What's in this image from telegram user?",
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "models/gemini-2.5-flash",
+                "cachedResultName": "models/gemini-2.5-flash"
+              },
+              "options": {},
+              "resource": "image",
+              "inputType": "binary",
+              "operation": "analyze"
+            }
+          },
+          "runAfter": {
+            "Fix_mime5": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Analyze_video": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Analyze video",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.googleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "What's in this video from telegram user?",
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "models/gemini-2.5-pro",
+                "cachedResultName": "models/gemini-2.5-pro"
+              },
+              "options": {},
+              "resource": "video",
+              "inputType": "binary",
+              "operation": "analyze"
+            }
+          },
+          "runAfter": {
+            "Fix_mime4": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Gemini_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Gemini Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "modelName": "models/gemini-2.5-pro"
+            }
+          },
+          "runAfter": {}
+        },
+        "Analyze_voice_message": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Analyze voice message",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.googleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "What's in this audio message from telegram user?",
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "models/gemini-2.5-pro",
+                "cachedResultName": "models/gemini-2.5-pro"
+              },
+              "options": {},
+              "resource": "audio",
+              "inputType": "binary",
+              "operation": "analyze"
+            }
+          },
+          "runAfter": {
+            "Fix_mime": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Analyze_audio": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Analyze audio",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.googleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "What's in this audio from telegram user?",
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "models/gemini-2.5-flash",
+                "cachedResultName": "models/gemini-2.5-flash"
+              },
+              "options": {},
+              "resource": "audio",
+              "inputType": "binary",
+              "operation": "analyze"
+            }
+          },
+          "runAfter": {
+            "Fix_mime6": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fix_mime4": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Fix mime4",
+            "n8nNodeType": "n8n-nodes-base.code",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsCode": "// --- Mapa Extendido de Tipos MIME ---\n// Una lista completa para cubrir la mayoría de los formatos de archivo comunes.\nconst mimeMap = {\n  // --- Formatos de Documentos ---\n  'pdf': 'application/pdf',\n  'txt': 'text/plain',\n  'rtf': 'application/rtf',\n  'csv': 'text/csv',\n  'html': 'text/html',\n  'htm': 'text/html',\n  'json': 'application/json',\n  'xml': 'application/xml', // 'text/xml' también es válido pero 'application/xml' es más común\n  'yaml': 'application/x-yaml',\n  'yml': 'application/x-yaml',\n\n  // --- Formatos de Microsoft Office ---\n  'doc': 'application/msword',\n  'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',\n  'xls': 'application/vnd.ms-excel',\n  'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',\n  'ppt': 'application/vnd.ms-powerpoint',\n  'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',\n  'pub': 'application/vnd.ms-publisher',\n\n  // --- Formatos de OpenOffice / LibreOffice ---\n  'odt': 'application/vnd.oasis.opendocument.text',\n  'ods': 'application/vnd.oasis.opendocument.spreadsheet',\n  'odp': 'application/vnd.oasis.opendocument.presentation',\n  'odg': 'application/vnd.oasis.opendocument.graphics',\n\n  // --- Formatos de Apple iWork ---\n  'pages': 'application/vnd.apple.pages',\n  'numbers': 'application/vnd.apple.numbers',\n  'key': 'application/vnd.apple.keynote',\n\n  // --- Formatos de Imagen ---\n  'png': 'image/png',\n  'jpg': 'image/jpeg',\n  'jpeg': 'image/jpeg',\n  'gif': 'image/gif',\n  'webp': 'image/webp',\n  'svg': 'image/svg+xml',\n  'bmp': 'image/bmp',\n  'ico': 'image/vnd.microsoft.icon',\n  'tif': 'image/tiff',\n  'tiff': 'image/tiff',\n  'heic': 'image/heic',\n  'heif': 'image/heif',\n\n  // --- Formatos de Audio ---\n  'mp3': 'audio/mpeg',\n  'wav': 'audio/wav',\n  'oga': 'audio/ogg',\n  'ogg': 'audio/ogg',\n  'flac': 'audio/flac',\n  'm4a': 'audio/mp4',\n  'aac': 'audio/aac',\n  'opus': 'audio/opus',\n  'wma': 'audio/x-ms-wma',\n  'mid': 'audio/midi',\n  'midi': 'audio/midi',\n\n  // --- Formatos de Video ---\n  'mp4': 'video/mp4',\n  'mov': 'video/quicktime',\n  'webm': 'video/webm',\n  'mpeg': 'video/mpeg',\n  'mpg': 'video/mpeg',\n  'avi': 'video/x-msvideo',\n  'wmv': 'video/x-ms-wmv',\n  'flv': 'video/x-flv',\n  'mkv': 'video/x-matroska',\n\n  // --- Formatos de Archivos y Compresión ---\n  'zip': 'application/zip',\n  'rar': 'application/vnd.rar',\n  '7z': 'application/x-7z-compressed',\n  'tar': 'application/x-tar',\n  'gz': 'application/gzip',\n  'bz2': 'application/x-bzip2',\n\n  // --- Otros Formatos ---\n  'epub': 'application/epub+zip',\n  'ics': 'text/calendar',\n  'vcf': 'text/vcard',\n  'js': 'text/javascript',\n  'css': 'text/css',\n  'sh': 'application/x-sh',\n  'py': 'text/x-python',\n};\n\n// --- Lógica de Procesamiento (sin cambios) ---\n\n// Obtenemos todos los items que llegan al nodo\nconst items = $input.all();\n\n// Iteramos sobre cada item para procesarlo\nfor (const item of items) {\n  // Verificamos que el item tenga datos binarios para procesar\n  if (item.binary && item.binary['data']) {\n    // Obtenemos el nombre del archivo de forma segura\n    const fileName = item.binary['data'].fileName || '';\n    if (!fileName) {\n      continue; // Si no hay nombre de archivo, pasamos al siguiente item\n    }\n\n    // Extraemos la extensión del archivo de forma robusta\n    const extension = fileName.slice((fileName.lastIndexOf(\".\") - 1 >>> 0) + 2).toLowerCase();\n\n    // Buscamos la extensión en nuestro mapa\n    const newMimeType = mimeMap[extension];\n\n    // Si encontramos una coincidencia en el mapa, actualizamos el mimeType\n    if (newMimeType) {\n      if(item.binary['data'].mimeType !== newMimeType) {\n        console.log(`Cambiando mimeType para '${fileName}' de '${item.binary['data'].mimeType}' a '${newMimeType}'.`);\n        item.binary['data'].mimeType = newMimeType;\n      }\n    }\n  }\n}\n\n// Devolvemos todos los items, modificados o no\nreturn items;"
+            }
+          },
+          "runAfter": {
+            "Download_VIDEO": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Switch": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Switch",
+            "n8nNodeType": "n8n-nodes-base.switch",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "rules": {
+                "values": [
+                  {
+                    "outputKey": "csv",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "f1aefe24-17fb-4bf8-84fb-949a6802b66e",
+                          "operator": {
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.fileTypeCategory }}",
+                          "rightValue": "csv"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "html",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "b09d29b5-b263-4115-963d-d6879de78649",
+                          "operator": {
+                            "name": "filter.operator.equals",
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.fileTypeCategory }}",
+                          "rightValue": "html"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "ics",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "2a7822f4-889b-41d3-8a1c-7f4405eacb42",
+                          "operator": {
+                            "name": "filter.operator.equals",
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.fileTypeCategory }}",
+                          "rightValue": "ics"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "json",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "f09cd376-96df-4f3d-9218-6a918715335a",
+                          "operator": {
+                            "name": "filter.operator.equals",
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.fileTypeCategory }}",
+                          "rightValue": "json"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "ods",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "1bf5c1f9-38a9-4bc5-8757-b85f98441579",
+                          "operator": {
+                            "name": "filter.operator.equals",
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.fileTypeCategory }}",
+                          "rightValue": "ods"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "pdf",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "4988d14f-4e3f-4494-96b0-a1a9d70a2787",
+                          "operator": {
+                            "name": "filter.operator.equals",
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.fileTypeCategory }}",
+                          "rightValue": "pdf"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "rtf",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "f5bc921e-c083-4b12-8167-86a24e39fe5c",
+                          "operator": {
+                            "name": "filter.operator.equals",
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.fileTypeCategory }}",
+                          "rightValue": "rtf"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "text file",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "29251fca-c611-419c-85a2-a9e1ad6bd102",
+                          "operator": {
+                            "name": "filter.operator.equals",
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.fileTypeCategory }}",
+                          "rightValue": "text file"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "xml",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "fd1cbb91-f3c6-4b20-91dc-2e490f77fe96",
+                          "operator": {
+                            "name": "filter.operator.equals",
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.fileTypeCategory }}",
+                          "rightValue": "xml"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "spreadsheet",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "16fc2a80-c341-4a5d-9d50-a1856ffb5242",
+                          "operator": {
+                            "name": "filter.operator.equals",
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.fileTypeCategory }}",
+                          "rightValue": "spreadsheet"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  }
+                ]
+              },
+              "options": {
+                "fallbackOutput": "extra"
+              }
+            }
+          },
+          "runAfter": {
+            "Group_Similar_Documents": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_VIDEO_NOTE": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Download VIDEO NOTE",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileId": "={{ ($json.message.photo?.[3]?.file_id ?? $json.message.photo?.[2]?.file_id ?? $json.message.photo?.[1]?.file_id ?? $json.message.photo?.[0]?.file_id) ?? $json.message.document?.file_id ?? $json.message.video?.file_id ?? $json.message.voice?.file_id ?? $json.message.video_note?.file_id }}",
+              "resource": "file",
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {
+            "Input_Message_Router1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Analyze_video_note": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Analyze video note",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.googleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "What's in this video message from telegram user? don't talk about the circular frame of telegram",
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "models/gemini-2.5-pro",
+                "cachedResultName": "models/gemini-2.5-pro"
+              },
+              "options": {},
+              "resource": "video",
+              "simplify": false,
+              "inputType": "=binary",
+              "operation": "analyze"
+            }
+          },
+          "runAfter": {
+            "Fix_mime1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "get_message_Audio_Video_message": {
+          "type": "Compose",
+          "inputs": {
+            "message": "Media Message Transcription:@{body('Analyze_video_note')?['candidates']?.[0]?.content?.parts?.[0]?.text || body('Analyze_video_note')?['content']?.parts?.[0]?.text}",
+            "chat_id": "@body('Telegram_Trigger')?['message']?['chat']?['id']"
+          },
+          "runAfter": {
+            "Analyze_video_note": [
+              "Succeeded"
+            ],
+            "Analyze_voice_message": [
+              "Succeeded"
+            ]
+          }
+        },
+        "get_message_Media_message": {
+          "type": "Compose",
+          "inputs": {
+            "message": "Media description: @{body('Analyze_audio')?['content']?['parts'][0].text}",
+            "chat_id": "@body('Telegram_Trigger')?['message']?['chat']?['id']"
+          },
+          "runAfter": {
+            "Analyze_audio": [
+              "Succeeded"
+            ],
+            "Analyze_image": [
+              "Succeeded"
+            ],
+            "Analyze_video": [
+              "Succeeded"
+            ],
+            "get_error_message1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "get_message_File_message": {
+          "type": "Compose",
+          "inputs": {
+            "message": "File name:@{body('Telegram_Trigger')?['message']?['document']?['file_name']}\nFile type:@{first(body('Group_Similar_Documents'))?['fileTypeCategory']}\nExtracted data from file:\n@{body('Normalize_CSV')?['data']}",
+            "chat_id": "@first(body('Telegram_Trigger'))?['message']?['chat']?['id']"
+          },
+          "runAfter": {
+            "Normalize_CSV": [
+              "Succeeded"
+            ],
+            "Normalize_ICS": [
+              "Succeeded"
+            ],
+            "Normalize_ODS": [
+              "Succeeded"
+            ],
+            "Text": [
+              "Succeeded"
+            ],
+            "Normalize_RTF": [
+              "Succeeded"
+            ],
+            "Normalize_XML": [
+              "Succeeded"
+            ],
+            "Normalize_HTML": [
+              "Succeeded"
+            ],
+            "Normalize_JSON": [
+              "Succeeded"
+            ],
+            "Normalize_XLSX": [
+              "Succeeded"
+            ],
+            "get_error_message": [
+              "Succeeded"
+            ],
+            "Normalize_text_file": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Typing": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Typing…",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "chatId": "={{ $json.message.chat.id }}",
+              "operation": "sendChatAction"
+            }
+          },
+          "runAfter": {}
+        },
+        "Fix_mime": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Fix mime",
+            "n8nNodeType": "n8n-nodes-base.code",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsCode": "// --- Mapa Extendido de Tipos MIME ---\n// Una lista completa para cubrir la mayoría de los formatos de archivo comunes.\nconst mimeMap = {\n  // --- Formatos de Documentos ---\n  'pdf': 'application/pdf',\n  'txt': 'text/plain',\n  'rtf': 'application/rtf',\n  'csv': 'text/csv',\n  'html': 'text/html',\n  'htm': 'text/html',\n  'json': 'application/json',\n  'xml': 'application/xml', // 'text/xml' también es válido pero 'application/xml' es más común\n  'yaml': 'application/x-yaml',\n  'yml': 'application/x-yaml',\n\n  // --- Formatos de Microsoft Office ---\n  'doc': 'application/msword',\n  'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',\n  'xls': 'application/vnd.ms-excel',\n  'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',\n  'ppt': 'application/vnd.ms-powerpoint',\n  'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',\n  'pub': 'application/vnd.ms-publisher',\n\n  // --- Formatos de OpenOffice / LibreOffice ---\n  'odt': 'application/vnd.oasis.opendocument.text',\n  'ods': 'application/vnd.oasis.opendocument.spreadsheet',\n  'odp': 'application/vnd.oasis.opendocument.presentation',\n  'odg': 'application/vnd.oasis.opendocument.graphics',\n\n  // --- Formatos de Apple iWork ---\n  'pages': 'application/vnd.apple.pages',\n  'numbers': 'application/vnd.apple.numbers',\n  'key': 'application/vnd.apple.keynote',\n\n  // --- Formatos de Imagen ---\n  'png': 'image/png',\n  'jpg': 'image/jpeg',\n  'jpeg': 'image/jpeg',\n  'gif': 'image/gif',\n  'webp': 'image/webp',\n  'svg': 'image/svg+xml',\n  'bmp': 'image/bmp',\n  'ico': 'image/vnd.microsoft.icon',\n  'tif': 'image/tiff',\n  'tiff': 'image/tiff',\n  'heic': 'image/heic',\n  'heif': 'image/heif',\n\n  // --- Formatos de Audio ---\n  'mp3': 'audio/mpeg',\n  'wav': 'audio/wav',\n  'oga': 'audio/ogg',\n  'ogg': 'audio/ogg',\n  'flac': 'audio/flac',\n  'm4a': 'audio/mp4',\n  'aac': 'audio/aac',\n  'opus': 'audio/opus',\n  'wma': 'audio/x-ms-wma',\n  'mid': 'audio/midi',\n  'midi': 'audio/midi',\n\n  // --- Formatos de Video ---\n  'mp4': 'video/mp4',\n  'mov': 'video/quicktime',\n  'webm': 'video/webm',\n  'mpeg': 'video/mpeg',\n  'mpg': 'video/mpeg',\n  'avi': 'video/x-msvideo',\n  'wmv': 'video/x-ms-wmv',\n  'flv': 'video/x-flv',\n  'mkv': 'video/x-matroska',\n\n  // --- Formatos de Archivos y Compresión ---\n  'zip': 'application/zip',\n  'rar': 'application/vnd.rar',\n  '7z': 'application/x-7z-compressed',\n  'tar': 'application/x-tar',\n  'gz': 'application/gzip',\n  'bz2': 'application/x-bzip2',\n\n  // --- Otros Formatos ---\n  'epub': 'application/epub+zip',\n  'ics': 'text/calendar',\n  'vcf': 'text/vcard',\n  'js': 'text/javascript',\n  'css': 'text/css',\n  'sh': 'application/x-sh',\n  'py': 'text/x-python',\n};\n\n// --- Lógica de Procesamiento (sin cambios) ---\n\n// Obtenemos todos los items que llegan al nodo\nconst items = $input.all();\n\n// Iteramos sobre cada item para procesarlo\nfor (const item of items) {\n  // Verificamos que el item tenga datos binarios para procesar\n  if (item.binary && item.binary['data']) {\n    // Obtenemos el nombre del archivo de forma segura\n    const fileName = item.binary['data'].fileName || '';\n    if (!fileName) {\n      continue; // Si no hay nombre de archivo, pasamos al siguiente item\n    }\n\n    // Extraemos la extensión del archivo de forma robusta\n    const extension = fileName.slice((fileName.lastIndexOf(\".\") - 1 >>> 0) + 2).toLowerCase();\n\n    // Buscamos la extensión en nuestro mapa\n    const newMimeType = mimeMap[extension];\n\n    // Si encontramos una coincidencia en el mapa, actualizamos el mimeType\n    if (newMimeType) {\n      if(item.binary['data'].mimeType !== newMimeType) {\n        console.log(`Cambiando mimeType para '${fileName}' de '${item.binary['data'].mimeType}' a '${newMimeType}'.`);\n        item.binary['data'].mimeType = newMimeType;\n      }\n    }\n  }\n}\n\n// Devolvemos todos los items, modificados o no\nreturn items;"
+            }
+          },
+          "runAfter": {
+            "Download_Voice_Message": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fix_mime1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Fix mime1",
+            "n8nNodeType": "n8n-nodes-base.code",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsCode": "// --- Mapa Extendido de Tipos MIME ---\n// Una lista completa para cubrir la mayoría de los formatos de archivo comunes.\nconst mimeMap = {\n  // --- Formatos de Documentos ---\n  'pdf': 'application/pdf',\n  'txt': 'text/plain',\n  'rtf': 'application/rtf',\n  'csv': 'text/csv',\n  'html': 'text/html',\n  'htm': 'text/html',\n  'json': 'application/json',\n  'xml': 'application/xml', // 'text/xml' también es válido pero 'application/xml' es más común\n  'yaml': 'application/x-yaml',\n  'yml': 'application/x-yaml',\n\n  // --- Formatos de Microsoft Office ---\n  'doc': 'application/msword',\n  'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',\n  'xls': 'application/vnd.ms-excel',\n  'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',\n  'ppt': 'application/vnd.ms-powerpoint',\n  'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',\n  'pub': 'application/vnd.ms-publisher',\n\n  // --- Formatos de OpenOffice / LibreOffice ---\n  'odt': 'application/vnd.oasis.opendocument.text',\n  'ods': 'application/vnd.oasis.opendocument.spreadsheet',\n  'odp': 'application/vnd.oasis.opendocument.presentation',\n  'odg': 'application/vnd.oasis.opendocument.graphics',\n\n  // --- Formatos de Apple iWork ---\n  'pages': 'application/vnd.apple.pages',\n  'numbers': 'application/vnd.apple.numbers',\n  'key': 'application/vnd.apple.keynote',\n\n  // --- Formatos de Imagen ---\n  'png': 'image/png',\n  'jpg': 'image/jpeg',\n  'jpeg': 'image/jpeg',\n  'gif': 'image/gif',\n  'webp': 'image/webp',\n  'svg': 'image/svg+xml',\n  'bmp': 'image/bmp',\n  'ico': 'image/vnd.microsoft.icon',\n  'tif': 'image/tiff',\n  'tiff': 'image/tiff',\n  'heic': 'image/heic',\n  'heif': 'image/heif',\n\n  // --- Formatos de Audio ---\n  'mp3': 'audio/mpeg',\n  'wav': 'audio/wav',\n  'oga': 'audio/ogg',\n  'ogg': 'audio/ogg',\n  'flac': 'audio/flac',\n  'm4a': 'audio/mp4',\n  'aac': 'audio/aac',\n  'opus': 'audio/opus',\n  'wma': 'audio/x-ms-wma',\n  'mid': 'audio/midi',\n  'midi': 'audio/midi',\n\n  // --- Formatos de Video ---\n  'mp4': 'video/mp4',\n  'mov': 'video/quicktime',\n  'webm': 'video/webm',\n  'mpeg': 'video/mpeg',\n  'mpg': 'video/mpeg',\n  'avi': 'video/x-msvideo',\n  'wmv': 'video/x-ms-wmv',\n  'flv': 'video/x-flv',\n  'mkv': 'video/x-matroska',\n\n  // --- Formatos de Archivos y Compresión ---\n  'zip': 'application/zip',\n  'rar': 'application/vnd.rar',\n  '7z': 'application/x-7z-compressed',\n  'tar': 'application/x-tar',\n  'gz': 'application/gzip',\n  'bz2': 'application/x-bzip2',\n\n  // --- Otros Formatos ---\n  'epub': 'application/epub+zip',\n  'ics': 'text/calendar',\n  'vcf': 'text/vcard',\n  'js': 'text/javascript',\n  'css': 'text/css',\n  'sh': 'application/x-sh',\n  'py': 'text/x-python',\n};\n\n// --- Lógica de Procesamiento (sin cambios) ---\n\n// Obtenemos todos los items que llegan al nodo\nconst items = $input.all();\n\n// Iteramos sobre cada item para procesarlo\nfor (const item of items) {\n  // Verificamos que el item tenga datos binarios para procesar\n  if (item.binary && item.binary['data']) {\n    // Obtenemos el nombre del archivo de forma segura\n    const fileName = item.binary['data'].fileName || '';\n    if (!fileName) {\n      continue; // Si no hay nombre de archivo, pasamos al siguiente item\n    }\n\n    // Extraemos la extensión del archivo de forma robusta\n    const extension = fileName.slice((fileName.lastIndexOf(\".\") - 1 >>> 0) + 2).toLowerCase();\n\n    // Buscamos la extensión en nuestro mapa\n    const newMimeType = mimeMap[extension];\n\n    // Si encontramos una coincidencia en el mapa, actualizamos el mimeType\n    if (newMimeType) {\n      if(item.binary['data'].mimeType !== newMimeType) {\n        console.log(`Cambiando mimeType para '${fileName}' de '${item.binary['data'].mimeType}' a '${newMimeType}'.`);\n        item.binary['data'].mimeType = newMimeType;\n      }\n    }\n  }\n}\n\n// Devolvemos todos los items, modificados o no\nreturn items;"
+            }
+          },
+          "runAfter": {
+            "Download_VIDEO_NOTE": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fix_mime5": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Fix mime5",
+            "n8nNodeType": "n8n-nodes-base.code",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsCode": "// --- Mapa Extendido de Tipos MIME ---\n// Una lista completa para cubrir la mayoría de los formatos de archivo comunes.\nconst mimeMap = {\n  // --- Formatos de Documentos ---\n  'pdf': 'application/pdf',\n  'txt': 'text/plain',\n  'rtf': 'application/rtf',\n  'csv': 'text/csv',\n  'html': 'text/html',\n  'htm': 'text/html',\n  'json': 'application/json',\n  'xml': 'application/xml', // 'text/xml' también es válido pero 'application/xml' es más común\n  'yaml': 'application/x-yaml',\n  'yml': 'application/x-yaml',\n\n  // --- Formatos de Microsoft Office ---\n  'doc': 'application/msword',\n  'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',\n  'xls': 'application/vnd.ms-excel',\n  'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',\n  'ppt': 'application/vnd.ms-powerpoint',\n  'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',\n  'pub': 'application/vnd.ms-publisher',\n\n  // --- Formatos de OpenOffice / LibreOffice ---\n  'odt': 'application/vnd.oasis.opendocument.text',\n  'ods': 'application/vnd.oasis.opendocument.spreadsheet',\n  'odp': 'application/vnd.oasis.opendocument.presentation',\n  'odg': 'application/vnd.oasis.opendocument.graphics',\n\n  // --- Formatos de Apple iWork ---\n  'pages': 'application/vnd.apple.pages',\n  'numbers': 'application/vnd.apple.numbers',\n  'key': 'application/vnd.apple.keynote',\n\n  // --- Formatos de Imagen ---\n  'png': 'image/png',\n  'jpg': 'image/jpeg',\n  'jpeg': 'image/jpeg',\n  'gif': 'image/gif',\n  'webp': 'image/webp',\n  'svg': 'image/svg+xml',\n  'bmp': 'image/bmp',\n  'ico': 'image/vnd.microsoft.icon',\n  'tif': 'image/tiff',\n  'tiff': 'image/tiff',\n  'heic': 'image/heic',\n  'heif': 'image/heif',\n\n  // --- Formatos de Audio ---\n  'mp3': 'audio/mpeg',\n  'wav': 'audio/wav',\n  'oga': 'audio/ogg',\n  'ogg': 'audio/ogg',\n  'flac': 'audio/flac',\n  'm4a': 'audio/mp4',\n  'aac': 'audio/aac',\n  'opus': 'audio/opus',\n  'wma': 'audio/x-ms-wma',\n  'mid': 'audio/midi',\n  'midi': 'audio/midi',\n\n  // --- Formatos de Video ---\n  'mp4': 'video/mp4',\n  'mov': 'video/quicktime',\n  'webm': 'video/webm',\n  'mpeg': 'video/mpeg',\n  'mpg': 'video/mpeg',\n  'avi': 'video/x-msvideo',\n  'wmv': 'video/x-ms-wmv',\n  'flv': 'video/x-flv',\n  'mkv': 'video/x-matroska',\n\n  // --- Formatos de Archivos y Compresión ---\n  'zip': 'application/zip',\n  'rar': 'application/vnd.rar',\n  '7z': 'application/x-7z-compressed',\n  'tar': 'application/x-tar',\n  'gz': 'application/gzip',\n  'bz2': 'application/x-bzip2',\n\n  // --- Otros Formatos ---\n  'epub': 'application/epub+zip',\n  'ics': 'text/calendar',\n  'vcf': 'text/vcard',\n  'js': 'text/javascript',\n  'css': 'text/css',\n  'sh': 'application/x-sh',\n  'py': 'text/x-python',\n};\n\n// --- Lógica de Procesamiento (sin cambios) ---\n\n// Obtenemos todos los items que llegan al nodo\nconst items = $input.all();\n\n// Iteramos sobre cada item para procesarlo\nfor (const item of items) {\n  // Verificamos que el item tenga datos binarios para procesar\n  if (item.binary && item.binary['data']) {\n    // Obtenemos el nombre del archivo de forma segura\n    const fileName = item.binary['data'].fileName || '';\n    if (!fileName) {\n      continue; // Si no hay nombre de archivo, pasamos al siguiente item\n    }\n\n    // Extraemos la extensión del archivo de forma robusta\n    const extension = fileName.slice((fileName.lastIndexOf(\".\") - 1 >>> 0) + 2).toLowerCase();\n\n    // Buscamos la extensión en nuestro mapa\n    const newMimeType = mimeMap[extension];\n\n    // Si encontramos una coincidencia en el mapa, actualizamos el mimeType\n    if (newMimeType) {\n      if(item.binary['data'].mimeType !== newMimeType) {\n        console.log(`Cambiando mimeType para '${fileName}' de '${item.binary['data'].mimeType}' a '${newMimeType}'.`);\n        item.binary['data'].mimeType = newMimeType;\n      }\n    }\n  }\n}\n\n// Devolvemos todos los items, modificados o no\nreturn items;"
+            }
+          },
+          "runAfter": {
+            "Download_IMAGE": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fix_mime6": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Fix mime6",
+            "n8nNodeType": "n8n-nodes-base.code",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsCode": "// --- Mapa Extendido de Tipos MIME ---\n// Una lista completa para cubrir la mayoría de los formatos de archivo comunes.\nconst mimeMap = {\n  // --- Formatos de Documentos ---\n  'pdf': 'application/pdf',\n  'txt': 'text/plain',\n  'rtf': 'application/rtf',\n  'csv': 'text/csv',\n  'html': 'text/html',\n  'htm': 'text/html',\n  'json': 'application/json',\n  'xml': 'application/xml', // 'text/xml' también es válido pero 'application/xml' es más común\n  'yaml': 'application/x-yaml',\n  'yml': 'application/x-yaml',\n\n  // --- Formatos de Microsoft Office ---\n  'doc': 'application/msword',\n  'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',\n  'xls': 'application/vnd.ms-excel',\n  'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',\n  'ppt': 'application/vnd.ms-powerpoint',\n  'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',\n  'pub': 'application/vnd.ms-publisher',\n\n  // --- Formatos de OpenOffice / LibreOffice ---\n  'odt': 'application/vnd.oasis.opendocument.text',\n  'ods': 'application/vnd.oasis.opendocument.spreadsheet',\n  'odp': 'application/vnd.oasis.opendocument.presentation',\n  'odg': 'application/vnd.oasis.opendocument.graphics',\n\n  // --- Formatos de Apple iWork ---\n  'pages': 'application/vnd.apple.pages',\n  'numbers': 'application/vnd.apple.numbers',\n  'key': 'application/vnd.apple.keynote',\n\n  // --- Formatos de Imagen ---\n  'png': 'image/png',\n  'jpg': 'image/jpeg',\n  'jpeg': 'image/jpeg',\n  'gif': 'image/gif',\n  'webp': 'image/webp',\n  'svg': 'image/svg+xml',\n  'bmp': 'image/bmp',\n  'ico': 'image/vnd.microsoft.icon',\n  'tif': 'image/tiff',\n  'tiff': 'image/tiff',\n  'heic': 'image/heic',\n  'heif': 'image/heif',\n\n  // --- Formatos de Audio ---\n  'mp3': 'audio/mpeg',\n  'wav': 'audio/wav',\n  'oga': 'audio/ogg',\n  'ogg': 'audio/ogg',\n  'flac': 'audio/flac',\n  'm4a': 'audio/mp4',\n  'aac': 'audio/aac',\n  'opus': 'audio/opus',\n  'wma': 'audio/x-ms-wma',\n  'mid': 'audio/midi',\n  'midi': 'audio/midi',\n\n  // --- Formatos de Video ---\n  'mp4': 'video/mp4',\n  'mov': 'video/quicktime',\n  'webm': 'video/webm',\n  'mpeg': 'video/mpeg',\n  'mpg': 'video/mpeg',\n  'avi': 'video/x-msvideo',\n  'wmv': 'video/x-ms-wmv',\n  'flv': 'video/x-flv',\n  'mkv': 'video/x-matroska',\n\n  // --- Formatos de Archivos y Compresión ---\n  'zip': 'application/zip',\n  'rar': 'application/vnd.rar',\n  '7z': 'application/x-7z-compressed',\n  'tar': 'application/x-tar',\n  'gz': 'application/gzip',\n  'bz2': 'application/x-bzip2',\n\n  // --- Otros Formatos ---\n  'epub': 'application/epub+zip',\n  'ics': 'text/calendar',\n  'vcf': 'text/vcard',\n  'js': 'text/javascript',\n  'css': 'text/css',\n  'sh': 'application/x-sh',\n  'py': 'text/x-python',\n};\n\n// --- Lógica de Procesamiento (sin cambios) ---\n\n// Obtenemos todos los items que llegan al nodo\nconst items = $input.all();\n\n// Iteramos sobre cada item para procesarlo\nfor (const item of items) {\n  // Verificamos que el item tenga datos binarios para procesar\n  if (item.binary && item.binary['data']) {\n    // Obtenemos el nombre del archivo de forma segura\n    const fileName = item.binary['data'].fileName || '';\n    if (!fileName) {\n      continue; // Si no hay nombre de archivo, pasamos al siguiente item\n    }\n\n    // Extraemos la extensión del archivo de forma robusta\n    const extension = fileName.slice((fileName.lastIndexOf(\".\") - 1 >>> 0) + 2).toLowerCase();\n\n    // Buscamos la extensión en nuestro mapa\n    const newMimeType = mimeMap[extension];\n\n    // Si encontramos una coincidencia en el mapa, actualizamos el mimeType\n    if (newMimeType) {\n      if(item.binary['data'].mimeType !== newMimeType) {\n        console.log(`Cambiando mimeType para '${fileName}' de '${item.binary['data'].mimeType}' a '${newMimeType}'.`);\n        item.binary['data'].mimeType = newMimeType;\n      }\n    }\n  }\n}\n\n// Devolvemos todos los items, modificados o no\nreturn items;"
+            }
+          },
+          "runAfter": {
+            "Download_AUDIO": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Aggregate": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Aggregate",
+            "n8nNodeType": "n8n-nodes-base.aggregate",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "aggregate": "aggregateAllItemData"
+            }
+          },
+          "runAfter": {
+            "Extract_from_CSV": [
+              "Succeeded"
+            ]
+          }
+        },
+        "get_error_message": {
+          "type": "Compose",
+          "inputs": {
+            "message": "=It was not possible to process the file.File type not supported.",
+            "chat_id": "@body('Telegram_Trigger')?['message']?['chat']?['id']"
+          },
+          "runAfter": {
+            "Switch": [
+              "Succeeded"
+            ]
+          }
+        },
+        "HTML_Extract_Generic1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "HTML Extract Generic1",
+            "n8nNodeType": "n8n-nodes-base.html",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "cleanUpText": true
+              },
+              "operation": "extractHtmlContent",
+              "sourceData": "binary",
+              "extractionValues": {
+                "values": [
+                  {
+                    "key": "pageTitle",
+                    "cssSelector": "title"
+                  },
+                  {
+                    "key": "metaDescription",
+                    "cssSelector": "meta[name=\"description\"]"
+                  },
+                  {
+                    "key": "fullBodyText",
+                    "cssSelector": "body",
+                    "returnValue": "html"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Download_HTML": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_ODS_data": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Extract_from_ODS'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Get the first item from the input array.\nconst firstItem = items[0];\n\n// Create a new object that has a single key: \"data\".\n// The value of \"data\" will be the entire json object from the input.\n// This gathers all fields (First Name, Last Name, Age, etc.) dynamically.\nconst result = {\n  data: firstItem.json\n};\n\n// Return the newly structured object.\n// It will be outputted as a single item with a 'json' property\n// containing the 'data' object.\nreturn result;\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Extract_from_ODS": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Normalize_ODS": {
+          "type": "Compose",
+          "inputs": {
+            "data": "@body('Get_ODS_data')?['data']"
+          },
+          "runAfter": {
+            "Get_ODS_data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Normalize_CSV": {
+          "type": "Compose",
+          "inputs": {
+            "data": "@body('Aggregate')?['data']"
+          },
+          "runAfter": {
+            "Aggregate": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Normalize_HTML": {
+          "type": "Compose",
+          "inputs": {
+            "data": "Page title:  @{body('HTML_Extract_Generic1')?['pageTitle']}\nMeta description: @{body('HTML_Extract_Generic1')?['metaDescription']}\nbody: @{body('HTML_Extract_Generic1')?['fullBodyText']}"
+          },
+          "runAfter": {
+            "HTML_Extract_Generic1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Normalize_ICS": {
+          "type": "Compose",
+          "inputs": {
+            "data": "@body('Extract_from_ICS')?['data']"
+          },
+          "runAfter": {
+            "Extract_from_ICS": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Normalize_JSON": {
+          "type": "Compose",
+          "inputs": {
+            "data": "@body('Extract_from_JSON')?['data']"
+          },
+          "runAfter": {
+            "Extract_from_JSON": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Normalize_RTF": {
+          "type": "Compose",
+          "inputs": {
+            "data": "@body('Get_RTF_data')?['data']"
+          },
+          "runAfter": {
+            "Get_RTF_data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Normalize_text_file": {
+          "type": "Compose",
+          "inputs": {
+            "data": "@body('Extract_from_File')?['data']"
+          },
+          "runAfter": {
+            "Extract_from_File": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Normalize_XML": {
+          "type": "Compose",
+          "inputs": {
+            "data": "@body('Extract_from_XML')?['data']"
+          },
+          "runAfter": {
+            "Extract_from_XML": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_from_XML": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Extract from XML",
+            "n8nNodeType": "n8n-nodes-base.extractFromFile",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "operation": "xml"
+            }
+          },
+          "runAfter": {
+            "Download_XML": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Normalize_XLSX": {
+          "type": "Compose",
+          "inputs": {
+            "data": "@body('Get_RTF_data1')?['data']"
+          },
+          "runAfter": {
+            "Get_RTF_data1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_RTF_data": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Extract_from_RTF'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Get the first item from the input array.\nconst firstItem = items[0];\n\n// Create a new object that has a single key: \"data\".\n// The value of \"data\" will be the entire json object from the input.\n// This gathers all fields (First Name, Last Name, Age, etc.) dynamically.\nconst result = {\n  data: firstItem.json\n};\n\n// Return the newly structured object.\n// It will be outputted as a single item with a 'json' property\n// containing the 'data' object.\nreturn result;\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Extract_from_RTF": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_RTF_data1": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Extract_from_XLSX'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Get the first item from the input array.\nconst firstItem = items[0];\n\n// Create a new object that has a single key: \"data\".\n// The value of \"data\" will be the entire json object from the input.\n// This gathers all fields (First Name, Last Name, Age, etc.) dynamically.\nconst result = {\n  data: firstItem.json\n};\n\n// Return the newly structured object.\n// It will be outputted as a single item with a 'json' property\n// containing the 'data' object.\nreturn result;\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Extract_from_XLSX": [
+              "Succeeded"
+            ]
+          }
+        },
+        "get_error_message1": {
+          "type": "Compose",
+          "inputs": {
+            "message": "=It was not possible to process the file.File type not supported.",
+            "chat_id": "@body('Telegram_Trigger')?['message']?['chat']?['id']"
+          },
+          "runAfter": {
+            "Input_Message_Router1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Text": {
+          "type": "If",
+          "expression": {
+            "not": {
+              "empty": [
+                "@body('Extract_from_PDF')?['text']"
+              ]
+            }
+          },
+          "actions": {
+            "Normalize_PDF": {
+              "type": "Compose",
+              "inputs": {
+                "data": "@triggerBody()?['text']"
+              },
+              "runAfter": {}
+            }
+          },
+          "else": {
+            "actions": {
+              "Analyze_document": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "Analyze document",
+                  "n8nNodeType": "@n8n/n8n-nodes-langchain.googleGemini",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "modelId": {
+                      "__rl": true,
+                      "mode": "list",
+                      "value": "models/gemini-2.5-pro",
+                      "cachedResultName": "models/gemini-2.5-pro"
+                    },
+                    "options": {},
+                    "resource": "document",
+                    "inputType": "binary"
+                  }
+                },
+                "runAfter": {
+                  "Merge": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Normalize_PDF_AI": {
+                "type": "Compose",
+                "inputs": {
+                  "data": "@body('Analyze_document')?['content']?['parts'][0].text"
+                },
+                "runAfter": {
+                  "Analyze_document": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Merge": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "Merge",
+                  "n8nNodeType": "n8n-nodes-base.merge",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "mode": "chooseBranch",
+                    "useDataOfInput": 2
+                  }
+                },
+                "runAfter": {}
+              }
+            }
+          },
+          "runAfter": {
+            "Extract_from_PDF": [
+              "Succeeded"
+            ]
+          }
+        },
+        "MarkdownV2": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "MarkdownV2",
+            "n8nNodeType": "n8n-nodes-base.code",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsCode": "/**\n * MarkdownV2-safe formatter + auto-chunker for Telegram (n8n Code node)\n * --------------------------------------------------------------------\n * - Allows: *bold*, _italic_, ||spoiler||, [label](url)\n * - Escapes everything else for Telegram MarkdownV2\n * - Validates/normalizes URLs\n * - Converts \"# Heading\" lines to bold titles\n * - Splits long messages into <= 4096-char chunks (uses a 4000-char budget)\n * - Outputs one item per chunk so the Telegram node sends all parts\n *\n * Recommended: Run this node in \"Run Once for All Items\".\n */\n\nconst MAX_TELEGRAM = 4096;\nconst SAFE_BUDGET = 4000; // small margin to avoid edge overflows\n\n// ============ MarkdownV2 helpers ============\nfunction escapeMarkdownV2(text) {\n  if (!text) return '';\n  return String(text).replace(/([\\\\_*[\\]()~`>#+\\-=|{}.!])/g, '\\\\$1');\n}\n\nfunction escapeForUrl(url) {\n  return String(url).replace(/[)\\\\]/g, '\\\\$&');\n}\n\nfunction normalizeAndValidateUrl(url) {\n  let raw = String(url || '').trim();\n  try {\n    const u = new URL(raw);\n    return u.toString();\n  } catch {}\n  // Try https:// for bare domains\n  const domainLike = /^[a-z0-9.-]+\\.[a-z]{2,}([/:?#].*)?$/i.test(raw);\n  if (domainLike) {\n    try {\n      const u2 = new URL('https://' + raw);\n      return u2.toString();\n    } catch {}\n  }\n  return null;\n}\n\nfunction normalizeHeadings(text) {\n  // Turn \"# Title\" → \"*Title*\"\n  return text.replace(/^(#{1,6})\\s+(.*)$/gm, (m, hashes, title) => `*${title.trim()}*`);\n}\n\nfunction normalizeCommonMd(text) {\n  return String(text)\n    .replace(/\\*\\*([\\s\\S]*?)\\*\\*/g, '*$1*') // **bold** → *bold*\n    .replace(/__([\\s\\S]*?)__/g, '_$1_');    // __italic__ → _italic_\n}\n\n/**\n * Convert incoming text to Telegram-safe MarkdownV2.\n */\nfunction processMarkdownV2Safe(inputText) {\n  if (!inputText) return '';\n\n  let text = normalizeCommonMd(String(inputText));\n  text = normalizeHeadings(text);\n\n  const placeholders = { links: [], bolds: [], italics: [], spoilers: [] };\n\n  // Links: keep safe via placeholders during escaping\n  text = text.replace(/\\[([^\\]\\n]+)\\]\\(([^)]+)\\)/g, (m, label, url) => {\n    const normalizedUrl = normalizeAndValidateUrl(url);\n    if (!normalizedUrl) return escapeMarkdownV2(label);\n    const idx = placeholders.links.length;\n    const ph = `⟬L${idx}⟭`;\n    const safeLabel = escapeMarkdownV2(label);\n    const safeUrl = escapeForUrl(normalizedUrl);\n    placeholders.links.push(`[${safeLabel}](${safeUrl})`);\n    return ph;\n  });\n\n  // Bold\n  text = text.replace(/\\*([\\s\\S]+?)\\*/g, (m, inner) => {\n    const idx = placeholders.bolds.length;\n    const ph = `⟬B${idx}⟭`;\n    placeholders.bolds.push(`*${escapeMarkdownV2(inner)}*`);\n    return ph;\n  });\n\n  // Italic\n  text = text.replace(/_([\\s\\S]+?)_/g, (m, inner) => {\n    const idx = placeholders.italics.length;\n    const ph = `⟬I${idx}⟭`;\n    placeholders.italics.push(`_${escapeMarkdownV2(inner)}_`);\n    return ph;\n  });\n\n  // Spoilers\n  text = text.replace(/\\|\\|([\\s\\S]+?)\\|\\|/g, (m, inner) => {\n    const idx = placeholders.spoilers.length;\n    const ph = `⟬S${idx}⟭`;\n    placeholders.spoilers.push(`||${escapeMarkdownV2(inner)}||`);\n    return ph;\n  });\n\n  // Escape everything else\n  text = escapeMarkdownV2(text);\n\n  // Restore placeholders\n  placeholders.links.forEach((md, i) => { text = text.replace(`⟬L${i}⟭`, md); });\n  placeholders.bolds.forEach((md, i) => { text = text.replace(`⟬B${i}⟭`, md); });\n  placeholders.italics.forEach((md, i) => { text = text.replace(`⟬I${i}⟭`, md); });\n  placeholders.spoilers.forEach((md, i) => { text = text.replace(`⟬S${i}⟭`, md); });\n\n  return text;\n}\n\n// ============ Chunking helpers ============\n/**\n * Split text into Telegram-safe chunks <= maxLen.\n * Prefers paragraph boundaries, then sentence boundaries, then words.\n * Falls back to hard cuts only when unavoidable (e.g., extremely long URL).\n */\nfunction chunkForTelegram(text, maxLen = SAFE_BUDGET) {\n  if (!text || text.length <= maxLen) return [text || ''];\n\n  const parts = [];\n  let buffer = '';\n\n  const flush = () => {\n    if (buffer) {\n      parts.push(buffer);\n      buffer = '';\n    }\n  };\n\n  // 1) Paragraph-level packing\n  const paragraphs = text.split(/\\n{2,}/);\n  for (const pRaw of paragraphs) {\n    const p = pRaw; // keep paragraph as-is\n    const candidate = buffer ? buffer + '\\n\\n' + p : p;\n    if (candidate.length <= maxLen) {\n      buffer = candidate;\n      continue;\n    }\n    if (p.length <= maxLen) {\n      flush();\n      buffer = p;\n      continue;\n    }\n\n    // 2) Sentence-level packing (paragraph is still too big)\n    flush();\n    const sentences = p.split(/(?<=[.!?…])\\s+(?=[^\\s])/u);\n    let sBuf = '';\n    for (const s of sentences) {\n      const sCandidate = sBuf ? sBuf + ' ' + s : s;\n      if (sCandidate.length <= maxLen) {\n        sBuf = sCandidate;\n        continue;\n      }\n      if (s.length <= maxLen) {\n        if (sBuf) parts.push(sBuf);\n        sBuf = s;\n        continue;\n      }\n\n      // 3) Word-level packing (sentence is still too big)\n      if (sBuf) { parts.push(sBuf); sBuf = ''; }\n      let wBuf = '';\n      const words = s.split(/\\s+/);\n      for (const w of words) {\n        const wCandidate = wBuf ? wBuf + ' ' + w : w;\n        if (wCandidate.length <= maxLen) {\n          wBuf = wCandidate;\n          continue;\n        }\n        if (w.length <= maxLen) {\n          if (wBuf) parts.push(wBuf);\n          wBuf = w;\n          continue;\n        }\n        // 4) Hard split (extremely long token, e.g., massive URL)\n        if (wBuf) { parts.push(wBuf); wBuf = ''; }\n        const re = new RegExp(`.{1,${maxLen}}`, 'g');\n        const hardPieces = w.match(re) || [];\n        parts.push(...hardPieces);\n      }\n      if (wBuf) parts.push(wBuf);\n    }\n    if (sBuf) parts.push(sBuf);\n  }\n  if (buffer) parts.push(buffer);\n\n  // Final safety pass: trim chunks that might still exceed MAX_TELEGRAM\n  return parts.flatMap(part => {\n    if (part.length <= MAX_TELEGRAM) return [part];\n    const re = new RegExp(`.{1,${SAFE_BUDGET}}`, 'g');\n    return part.match(re) || [];\n  });\n}\n\n// ============ Main ============\nconst inputItems = $input.all();\nconst out = [];\n\nfor (const item of inputItems) {\n  const j = item.json || {};\n  const raw =\n    j.message ?? j.output ?? j.text ?? j.content ?? '';\n\n  const formatted = processMarkdownV2Safe(raw);\n  const chunks = chunkForTelegram(formatted, SAFE_BUDGET);\n\n  chunks.forEach((chunk, idx) => {\n    out.push({\n      json: {\n        ...j,\n        message: chunk,\n        message_part_index: idx + 1,\n        message_parts_total: chunks.length,\n      },\n      binary: item.binary,\n    });\n  });\n}\n\nreturn out;\n"
+            }
+          },
+          "runAfter": {
+            "AI_Agent1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Postgres_Chat_Memory": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Postgres Chat Memory",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "tableName": "chat_histories",
+              "sessionKey": "={{ $json.chat_id }}",
+              "sessionIdType": "customKey"
+            }
+          },
+          "runAfter": {}
+        },
+        "Get_message_multiple_files": {
+          "type": "Compose",
+          "inputs": {
+            "message": "@body('unified_variables')?['unifiedMessage']",
+            "chat_id": "@first(body('get_chat_id'))?['chat_id']"
+          },
+          "runAfter": {
+            "unified_variables": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Telegram_Trigger": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Telegram Trigger",
+            "n8nNodeType": "n8n-nodes-base.telegramTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "updates": [
+                "message"
+              ],
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Normalize_input": {
+          "type": "Compose",
+          "inputs": {
+            "message": "@body('Captions_1')?['message']",
+            "chat_id": "@body('Captions_1')?['chat_id']"
+          },
+          "runAfter": {
+            "Captions_1": [
+              "Succeeded"
+            ],
+            "get_message_text": [
+              "Succeeded"
+            ],
+            "Get_message_multiple_files": [
+              "Succeeded"
+            ],
+            "get_message_Audio_Video_message": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "When_clicking_Execute_workflow",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "telegrambotip_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/telegrambotip"
+    }
+  }
+}

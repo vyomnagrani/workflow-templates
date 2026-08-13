@@ -1,0 +1,249 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "automated-daily-financial-analysis-from-loyverse-pos-with-google-sheets-email",
+    "name": "Automated daily financial analysis from Loyverse POS with Google Sheets & email",
+    "description": "Automatically fetches daily sales, shifts, and receipts from Loyverse. Calculates gross profit, net operating profit, other key metrics, saves them to a Google Sheet and sends out a daily report via email.\n\n## Who’s it for\nThis template is for any business owner, manager, or analyst using Loyverse POS who needs more advanced financial reporting. If you're a restaurant, bar, or retail owner who wants to automatically track daily net profit, compare sales to historical averages, and build a custom financial dashboard in Google Sheets, this workflow is for you.\n\n## How it works / What it does\nThis workflow runs automatically on a daily schedule. It fetches all sales data and receipts from your Loyverse account for the previous business day, defined by your custom shift times (even past midnight). \nA powerful Code node then processes all the data to calculate the metrics that Loyverse either doesn't provide at all, or only spreads out across several separate reports instead of in one consolidated place. \n\nAlready set up are metrics like...\n- -Total Revenue, Gross Profit, and Net Operating Profit\n- Cash handling differences (over/under)\n- Average spend per receipt (ATV)\n- 30-day rolling Net Operating Profit (NOP)\n- Performance vs. your historical weekday average\n\nFinally, it appends the single, calculated row of daily metrics to a Google Sheet and sends an easily customizable summary report to your email.\n\n## How to set up\nThis workflow includes detailed Sticky Notes to guide you through the setup process.\n\nBecause every business has a unique POS configuration (different POS devices, categories, and payment types), you'll need to set up a few things manually before executing the workflow. I've tried to make this as easy as possible to follow, and the entire setup should only take about 15 minutes.\n\n### Preparations & Credential setup\n1. Subscribe to \"Integrations\" Add-on in Loyverse ($9 / month) to gain API access.\n2. Create an Access token in Loyverse\n3. Create Credentials: In your n8n instance, create credentials for Loyverse (use \"Generic\" &gt; \"Bearer Auth\"), Google Sheets (OAuth2), and your Email (SMTP or other).\n\n### Make a copy of a prep-configured Google Spreadsheet\n*(Link in the second sticky note inside the workflow).*\n\n### Fill MASTER CONFIG: \nOpen the MASTER CONFIG node. Follow the comments inside to add your Google Sheet ID, Sheet Names, business hours, timezone, and Loyverse IDs (for POS devices, payment types, and categories).\n\n### Configure Google Sheet Nodes\n\n1. **Configure Read Historical Data:** Open this node. Follow the instructions in the nearby Sticky Note to paste the expressions for your Document ID and Sheet Name.\n2. **Configure Save Product List:** Open this node. Paste in the expressions for Document ID and Sheet Name. The column mapper will load; map your sheet columns (e.g., item_name) to the data on the left (e.g., {{ $json.item_name }}).\n3. **Configure Save Latest Sales Data:** Open this node. Paste in the expressions for Document ID and Sheet Name. Save and run the workflow. After that, the column mapper will load. This is the most important step: map your sheet's column names (e.g., \"Total Revenue\") to the calculated metrics from the Calculate All Metrics node (e.g., {{ $json.totalGrossRevenue }}).\n\nActivate the workflow. 🫡\n\n### Requirements\n- Loyverse Integrations Subscription\n- Loyverse Access Token\n- Credentials for Loyverse (Bearer Auth)\n- Credentials for Google Sheets (OAuth2)\n- Credentials for Email/SMTP sender\n\n## How to customize the workflow\nThis template is designed to be highly flexible.\n\n### Central Configuration:\nAlmost all customization (POS devices, categories, payment types, sheet names) is done in the MASTER CONFIG node. You don't need to dig through other nodes.\n\n### Add/Remove Metrics:\nThe Calculate All Metrics node has additional metrics already set up, just add the relevant collumns to the SalesData sheet or even add your own calculations to the node. Any new metric you add (e.g., metrics.myNewMetric = 123) will be available to map in the Save Latest Sales Data node.\n\n### Email Body:\nYou can easily edit the Send email node to change the text or add new metrics from the Calculate All Metrics node.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Document Extraction",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "When_clicking_Execute_workflow": {
+          "type": "Request",
+          "kind": "Http"
+        },
+        "Run_Daily_at_8_15AM_open_to_change": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Read_Historical_Data": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_SPREADSHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_WORKSHEET'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Get_Yesterday_s_Receipts_From_Loyverse": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Calculate_All_Metrics": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Read_Historical_Data'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// --- Read Config ---\n// Read the configuration from the MASTER CONFIG node\nconst CONFIG = $node[\"MASTER CONFIG\"].json.loyverse_ids;\n\n// --- Main Logic ---\nconst shiftsData = $items(\"Get Yesterday's Shifts From Loyverse\");\nconst receiptsData = $items(\"Get Yesterday's Receipts From Loyverse\");\nconst itemMasterData = $items(\"Format Product Data\");\nconst historicalData = $items(\"Read Historical Data\").map(item => item.json);\nconst shifts = (shiftsData.length > 0 && shiftsData[0].json) ? shiftsData[0].json.shifts || [] : [];\nconst receipts = (receiptsData.length > 0 && receiptsData[0].json) ? receiptsData[0].json.receipts || [] : [];\nconst allItems = itemMasterData.map(item => item.json);\n\nif (shifts.length === 0 && receipts.length === 0) {\n  return [{ json: { \"message\": \"No shifts or receipts found to process.\" } }];\n}\n\n// Build a map of all items for fast lookup\nconst itemMap = {};\nfor (const item of allItems) {\n  itemMap[item.variant_id] = item;\n}\n\nconst businessDateString = $items(\"Calculate Shift Time\")[0].json.businessDate;\nconst businessDate = new Date(businessDateString + 'T12:00:00Z');\n\n// --- Initialize Metrics ---\nconst metrics = {\n  date: businessDateString,\n  weekday: businessDate.toLocaleString('en-US', { timeZone: 'UTC', weekday: 'short' }),\n  gross_profit: 0,\n  net_operating_profit: 0,\n  best_seller_by_quantity_name: 'N/A',\n  best_seller_by_quantity_count: 0,\n  best_seller_by_profit_name: 'N/A',\n  best_seller_by_profit_amount: 0,\n  weekday_performance_vs_avg: 'N/A',\n  weekday_rank: 'N/A',\n  month_performance_vs_avg: 'N/A',\n  ATV: 0,\n  IPT: 0,\n  total_discounts_amount: 0,\n  total_discounts_count: 0,\n  rolling_30_day_nop: 0,\n  wtd_net_operating_profit: 0,\n  profit_tendency: '➡️',\n  // New generic totals\n  total_cash_net: 0,\n  total_qr_payments: 0,\n  total_cash_difference: 0,\n  totalGrossRevenue: 0 // Will be calculated from receipts\n};\n\n// Dynamically create category metrics\nfor (const categoryName of Object.values(CONFIG.CATEGORIES)) {\n  const safeCategoryName = categoryName.replace(/ /g, '_').replace(/\\./g, '');\n  metrics[`${safeCategoryName}_items_sold`] = 0;\n  metrics[`${safeCategoryName}_revenue`] = 0;\n  metrics[`${safeCategoryName}_profit`] = 0;\n}\n\n// --- Process Shifts (Flexible) ---\nlet total_paid_out = 0;\nconst relevantShifts = shifts.filter(s => CONFIG.pos_device_ids.includes(s.pos_device_id));\n\nfor (const shift of relevantShifts) {\n  metrics.total_cash_net += (shift.actual_cash - shift.starting_cash);\n  metrics.total_discounts_amount += shift.discounts || 0;\n  metrics.total_cash_difference += (shift.actual_cash - shift.expected_cash);\n  total_paid_out += shift.paid_out || 0;\n\n  // Find all QR payments for this shift\n  for (const payment of shift.payments) {\n    if (CONFIG.qr_payment_type_ids.includes(payment.payment_type_id)) {\n      metrics.total_qr_payments += payment.money_amount;\n    }\n  }\n}\n\n// --- Process Receipts ---\nconst itemCounts = {};\nconst itemProfits = {};\nlet totalItemsSold = 0;\n\nfor (const receipt of receipts) {\n  if (receipt.total_discounts > 0) {\n    metrics.total_discounts_count++;\n  }\n\n  for (const lineItem of receipt.line_items) {\n    totalItemsSold += lineItem.quantity;\n    const masterItem = itemMap[lineItem.variant_id];\n    if (!masterItem) continue;\n\n    const cost = masterItem.cost || 0;\n    const grossRevenue = lineItem.total_money || 0;\n    metrics.totalGrossRevenue += grossRevenue; // Use this as the main revenue metric\n    const revenueBeforeVat = (grossRevenue / 107) * 100;\n    const profit = revenueBeforeVat - (cost * lineItem.quantity);\n    \n    metrics.gross_profit += profit;\n\n    const itemName = masterItem.variant_name === 'Default' ? masterItem.item_name : `${masterItem.item_name} (${masterItem.variant_name})`;\n    itemCounts[itemName] = (itemCounts[itemName] || 0) + lineItem.quantity;\n    itemProfits[itemName] = (itemProfits[itemName] || 0) + profit;\n\n    // Add to category totals\n    const categoryName = CONFIG.CATEGORIES[masterItem.category_id];\n    if (categoryName) {\n      const safeCategoryName = categoryName.replace(/ /g, '_').replace(/\\./g, '');\n      metrics[`${safeCategoryName}_revenue`] += grossRevenue;\n      metrics[`${safeCategoryName}_profit`] += profit;\n    }\n  }\n}\n\n// --- Final Calculations ---\nmetrics.net_operating_profit = metrics.gross_profit - total_paid_out;\n\nif (receipts.length > 0) {\n  metrics.ATV = metrics.totalGrossRevenue / receipts.length;\n  metrics.IPT = totalItemsSold / receipts.length;\n}\n\n// Best Seller (Quantity)\nlet maxQuantity = 0;\nfor (const itemName in itemCounts) {\n  if (itemCounts[itemName] > maxQuantity) {\n    maxQuantity = itemCounts[itemName];\n    metrics.best_seller_by_quantity_name = itemName;\n    metrics.best_seller_by_quantity_count = maxQuantity;\n  }\n}\n\n// Best Seller (Profit)\nlet maxProfit = -Infinity;\nfor (const itemName in itemProfits) {\n  if (itemProfits[itemName] > maxProfit) {\n    maxProfit = itemProfits[itemName];\n    metrics.best_seller_by_profit_name = itemName;\n    metrics.best_seller_by_profit_amount = maxProfit;\n  }\n}\n\n// --- Historical Calculations ---\n// Note: This uses totalGrossRevenue (from receipts) as the \"Total Revenue\"\nconst todayRevenue = metrics.totalGrossRevenue; \nconst todayWeekday = metrics.weekday;\nconst todayMonth = businessDate.getMonth();\nconst todayYear = businessDate.getFullYear();\nconst oneYearAgo = new Date();\noneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);\n\n// Weekday Performance\nconst sameWeekdayHistory = historicalData.filter(row => {\n  const rowDate = new Date(row.Date);\n  const rowWeekday = rowDate.toLocaleString('en-US', { timeZone: 'UTC', weekday: 'short' });\n  return rowWeekday === todayWeekday && rowDate >= oneYearAgo;\n});\nif (sameWeekdayHistory.length > 0) {\n  const totalRevenue = sameWeekdayHistory.reduce((sum, row) => sum + (parseFloat(row['Total Revenue']) || 0), 0);\n  const avgRevenue = totalRevenue / sameWeekdayHistory.length;\n  metrics.weekday_performance_vs_avg = (((todayRevenue / avgRevenue) - 1) * 100).toFixed(2) + '%';\n  const allRevenues = sameWeekdayHistory.map(row => parseFloat(row['Total Revenue']) || 0);\n  allRevenues.push(todayRevenue);\n  allRevenues.sort((a, b) => b - a);\n  const rank = allRevenues.indexOf(todayRevenue) + 1;\n  metrics.weekday_rank = `${rank} of ${allRevenues.length}`;\n}\n\n// Month Performance\nconst sameMonthHistory = historicalData.filter(row => {\n  const rowDate = new Date(row.Date);\n  return rowDate.getMonth() === todayMonth && rowDate.getFullYear() === todayYear;\n});\nif (sameMonthHistory.length > 0) {\n  const totalRevenue = sameMonthHistory.reduce((sum, row) => sum + (parseFloat(row['Total Revenue']) || 0), 0);\n  const avgRevenue = totalRevenue / sameMonthHistory.length;\n  metrics.month_performance_vs_avg = (((todayRevenue / avgRevenue) - 1) * 100).toFixed(2) + '%';\n}\n\n// --- Rolling 30-Day & WTD Calculations ---\nfunction getStartOfWeek(date) {\n  const d = new Date(date);\n  const day = d.getDay();\n  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday\n  d.setHours(0, 0, 0, 0); // Normalize time\n  return new Date(d.setDate(diff));\n}\n\nconst today = businessDate; \nconst startOfCurrentWeek = getStartOfWeek(today);\n\n// Rolling 30-Day\nconst endDate = new Date(today);\nconst startDate = new Date(today);\nstartDate.setDate(startDate.getDate() - 29); // 30-day window\nconst rolling30DayData = historicalData.filter(row => {\n  const rowDate = new Date(row.Date + 'T12:00:00Z');\n  return rowDate >= startDate && rowDate < endDate;\n});\nconst historical30DayProfit = rolling30DayData.reduce((sum, row) => {\n  return sum + (parseFloat(row['Net Operating Profit']) || 0);\n}, 0);\nmetrics.rolling_30_day_nop = historical30DayProfit + metrics.net_operating_profit;\n\n// Week-to-Date\nconst sameWeekData = historicalData.filter(row => {\n  const rowDate = new Date(row.Date + 'T12:00:00Z');\n  return rowDate >= startOfCurrentWeek && rowDate < today;\n});\nconst historicalWtdProfit = sameWeekData.reduce((sum, row) => {\n  return sum + (parseFloat(row['Net Operating Profit']) || 0);\n}, 0);\nmetrics.wtd_net_operating_profit = historicalWtdProfit + metrics.net_operating_profit;\n\n// Profit Tendency\nconst fourWeeksAgo = new Date(startOfCurrentWeek);\nfourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28);\nconst last4WeeksData = historicalData.filter(row => {\n  const rowDate = new Date(row.Date + 'T12:00:00Z');\n  return rowDate >= fourWeeksAgo && rowDate < startOfCurrentWeek;\n});\nif (last4WeeksData.length > 0) {\n  const last4WeeksTotalProfit = last4WeeksData.reduce((sum, row) => {\n    return sum + (parseFloat(row['Net Operating Profit']) || 0);\n  }, 0);\n  const avgWeeklyProfit = last4WeeksTotalProfit / 4;\n  if (metrics.wtd_net_operating_profit > avgWeeklyProfit) {\n    metrics.profit_tendency = '⬆️';\n  } else if (metrics.wtd_net_operating_profit < avgWeeklyProfit) {\n    metrics.profit_tendency = '⬇️';\n  }\n}\n\nreturn [{ json: metrics }];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Read_Historical_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_all_products_from_Loyverse": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.loyverse.com/v1.0/items"
+          },
+          "runAfter": {
+            "MASTER_CONFIG": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Format_Product_Data": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Get_all_products_from_Loyverse'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n\nconst allItems = $items(\"Get all products from Loyverse\")[0].json.items;\nconst flattenedItems = [];\n\nfor (const item of allItems) {\n  if (item.variants && item.variants.length > 0) {\n    for (const variant of item.variants) {\n      const variantStoreInfo = variant.stores && variant.stores.length > 0 ? variant.stores[0] : {};\n      const itemStoreInfo = item.stores && item.stores.length > 0 ? item.stores[0] : {};\n\n      flattenedItems.push({\n        json: {\n          variant_id: variant.variant_id,\n          barcode: variant.barcode || item.barcode,\n          cost: variant.cost,\n          price: variantStoreInfo.price !== undefined ? variantStoreInfo.price : itemStoreInfo.price,\n          sku: variant.sku,\n          available_for_sale: variant.available_for_sale,\n          option1_value: variant.option1_value,\n          option2_value: variant.option2_value,\n          option3_value: variant.option3_value,\n          item_id: item.id,\n          handle: item.handle,\n          item_name: item.item_name,\n          is_composite: item.is_composite,\n          category_id: item.category_id,\n          modifier_ids: item.modifier_ids ? item.modifier_ids.join(', ') : null,\n          option1_name: item.option1_name,\n          option2_name: item.option2_name,\n          option3_name: item.option3_name,\n          created_at: item.created_at,\n          updated_at: item.updated_at,\n          deleted_at: item.deleted_at,\n          // **NEW:** Add the components array for this variant\n          components: variant.components || null\n        }\n      });\n    }\n  } else {\n    console.log(`Warning: Item '${item.item_name}' (ID: ${item.id}) has no variants array and will be skipped.`);\n  }\n}\n\nreturn flattenedItems;\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Get_all_products_from_Loyverse": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Calculate_Shift_Time": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Save_Product_List'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// --- CONFIGURATION ---\n// Get config from the MASTER CONFIG node\nconst config = $node[\"MASTER CONFIG\"].json.business_settings;\n\n// Get the shift end time (e.g., \"02:00\") from the config\nconst shiftEndTime = config.shiftEnd; \n\n// Get the timezone (e.g., \"Asia/Bangkok\")\nconst TIMEZONE = config.timezone;\n\n\n// 1. Calculate the new \"Changeover\" time\n// Parse the \"HH:mm\" string into numbers\nconst [endHour, endMinute] = shiftEndTime.split(':').map(Number);\n\n// Calculate the changeover time (2 hours after shift end)\n// setHours() is smart and handles hour numbers > 23 automatically\nconst changeoverHour = endHour + 2; \nconst changeoverMinute = endMinute;\n\n// 2. Get the current time in your specified timezone\nconst nowInUserTz = new Date(new Date().toLocaleString('en-US', { timeZone: TIMEZONE }));\n\n// 3. Determine the end of the report window\n// First, set a potential end date to *today's* changeover time\nlet reportEndDate = new Date(nowInUserTz);\nreportEndDate.setHours(changeoverHour, changeoverMinute, 0, 0);\n\n// 4. Check if the current time is *before* today's changeover\n// We must create a separate date object for this comparison\nlet changeoverToday = new Date(nowInUserTz);\nchangeoverToday.setHours(changeoverHour, changeoverMinute, 0, 0);\n\n// If \"now\" is before the changeover, the business day hasn't ended.\n// We must report on the *previous* day's window.\nif (nowInUserTz < changeoverToday) {\n  // Wind the report end date back to *yesterday's* changeover time\n  reportEndDate.setDate(reportEndDate.getDate() - 1);\n}\n\n// 5. Calculate the start of the report window\n// The API query window starts exactly 24 hours before the end time.\nconst reportStartDate = new Date(reportEndDate.getTime() - (24 * 60 * 60 * 1000));\n\n// 6. Determine the \"business date\" (the calendar date the shift started)\nconst year = reportStartDate.getFullYear();\nconst month = String(reportStartDate.getMonth() + 1).padStart(2, '0');\nconst day = String(reportStartDate.getDate()).padStart(2, '0');\nconst businessDateString = `${year}-${month}-${day}`;\n\n// 7. Return the dates as UTC ISO strings for the Loyverse API\nreturn [{ \n  json: {\n    start_of_day: reportStartDate.toISOString(), \n    end_of_day: reportEndDate.toISOString(),\n    businessDate: businessDateString // Pass the correct date to the next nodes\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Save_Product_List": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_Yesterday_s_Shifts_From_Loyverse": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.loyverse.com/v1.0/shifts"
+          },
+          "runAfter": {
+            "Calculate_Shift_Time": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_Yesterday_s_Receipts_From_Loyverse": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.loyverse.com/v1.0/receipts\n"
+          },
+          "runAfter": {
+            "Get_Yesterday_s_Shifts_From_Loyverse": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_email": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Send email",
+            "n8nNodeType": "n8n-nodes-base.emailSend",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "==📊 REPORT 📊\n👇👇👇👇👇👇👇\n {{ $items(\"Calculate All Metrics\")[0].json.weekday }} , {{ $items(\"Calculate All Metrics\")[0].json.date }}\n\n💰 Total income: {{ $items(\"Calculate All Metrics\")[0].json.totalGrossRevenue.toFixed(2)}} THB\n🤑 Final Net Profit: {{ $items(\"Calculate All Metrics\")[0].json.net_operating_profit.toFixed(2) }} THB\n\n⎯⎯⎯⎯⎯⎯⎯\n\n🚨 CASH HANDLING 🚨\n\nTotal Cash Difference: {{ $items(\"Calculate All Metrics\")[0].json.total_cash_difference.toFixed(2) }} THB\n\n⎯⎯⎯⎯⎯⎯⎯\n\n📈 PERFORMANCE 📉\n\n...compared with same day average: \n{{ $items(\"Calculate All Metrics\")[0].json.weekday_performance_vs_avg }}\n\n📊 CUMULATIVE NET OPERATING PROFIT 📊\n\n👉 This Week: {{ $items(\"Calculate All Metrics\")[0].json.wtd_net_operating_profit.toFixed(2) }} THB\n👉 30 days rolling: {{ $items(\"Calculate All Metrics\")[0].json.rolling_30_day_nop.toFixed(2) }} THB\n👉 Trend (vs. last 4wks): {{ $items(\"Calculate All Metrics\")[0].json.profit_tendency }}",
+              "options": {},
+              "subject": "=Daily Report for {{ $items(\"Calculate All Metrics\")[0].json.date }}",
+              "toEmail": "={{ $node[\"MASTER CONFIG\"].json.business_settings.reportEmailReceiver }}",
+              "fromEmail": "user@example.com",
+              "emailFormat": "text"
+            }
+          },
+          "runAfter": {
+            "Calculate_All_Metrics": [
+              "Succeeded"
+            ]
+          }
+        },
+        "MASTER_CONFIG": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.trigger.outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n/*\nYOUR_AWS_SECRET_KEY_HERE======\nUSER CONFIGURATION\nYOUR_AWS_SECRET_KEY_HERE======\nThis is the ONLY node you need to edit.\n*/\n\nconst config = {\n  // --- 1. Google Sheet Settings ---\n  google_sheet_settings: {\n    SpreadsheetID: \"PASTE_SPREADSHEET_ID_HERE\", // ---(String after 'https://docs.google.com/spreadsheets/d/' in your browser adress bar when accessing the Spreadsheet; Spreadsheet must be shared via link.) ---\n    ProductListSheet: \"ProductList\",\n    SalesDataSheet: \"SalesData\"\n  },\n\n  // --- 2. Business & Report Settings ---\n  business_settings: {\n    shiftStart: \"PASTE_SHIFT_START_HERE\", // e.g., \"08:00\"\n    shiftEnd: \"PASTE_SHIFT_END_HERE\",     // e.g., \"02:00\"\n    timezone: \"ENTER_SAME_TIMEZONE_AS_SET_IN_WORKFLOW_SETTINGS\", // e.g., \"Asia/Bangkok\"\n    reportEmailReceiver: \"PASTE_EMAIL_RECEIVER_HERE\"\n  },\n\n  // --- 4. Loyverse IDs & Config ---\n  loyverse_ids: { // <--- **FIX 2: MOVED THIS TO BE A SEPARATE KEY**\n    pos_device_ids: [\n      'PASTE_POS_ID_1_HERE',\n      'PASTE_POS_ID_2_HERE'\n    ],\n    qr_payment_type_ids: [\n      'PASTE_QR_PAYMENT_ID_1_HERE'\n    ],\n    CATEGORIES: {\n      '5f22222235-713f-4ca6-9b22-dab34sab77db': 'SampleCategory1',\n      '1f2229dab-e88e-4d64-bbbd-862141295f4fb': 'SampleCategory2',\n      'da2222-b1b6-4bce-aecb-12444490ac554': 'SampleCategory3',\n    }\n  }\n}; // <--- config object closes here\n\nreturn config;\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {}
+        },
+        "Save_Product_List": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Save Product List",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "operation": "appendOrUpdate",
+              "sheetName": {
+                "__rl": true,
+                "mode": "name",
+                "value": ""
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "id",
+                "value": ""
+              }
+            }
+          },
+          "runAfter": {
+            "Format_Product_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Save_Latest_Sales_Data": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Save Latest Sales Data",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "operation": "appendOrUpdate",
+              "sheetName": {
+                "__rl": true,
+                "mode": "name",
+                "value": ""
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "id",
+                "value": ""
+              }
+            }
+          },
+          "runAfter": {
+            "Calculate_All_Metrics": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "When_clicking_Execute_workflow",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

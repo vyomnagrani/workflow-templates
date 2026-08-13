@@ -1,0 +1,202 @@
+{
+  "sourceWorkflowName": "PPC campaign intelligence & optimization with Google Ads, Sheets & Slack",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 16,
+  "totalNodes": 23,
+  "coverage": 0.6957,
+  "diagnostics": [
+    {
+      "code": "IF_BRANCH_SHAPE_UNSUPPORTED",
+      "message": "IF conversion currently requires at most one destination per true/false output.",
+      "severity": "warning",
+      "node_name": "Route by Performance",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleAds.",
+      "severity": "warning",
+      "node_name": "Fetch Google Ads Data",
+      "node_type": "n8n-nodes-base.googleAds",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "AI Performance Analysis",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.if is not safely supported.",
+      "severity": "warning",
+      "node_name": "Route by Performance",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Google Sheets operation 'appendOrUpdate' is not safely equivalent to a single LAA connector action.",
+      "severity": "warning",
+      "node_name": "Update Campaign Dashboard",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.googleSheets is not safely supported.",
+      "severity": "warning",
+      "node_name": "Update Campaign Dashboard",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Update Campaign Dashboard",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Google Sheets operation 'appendOrUpdate' is not safely equivalent to a single LAA connector action.",
+      "severity": "warning",
+      "node_name": "Log All Campaigns",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.googleSheets is not safely supported.",
+      "severity": "warning",
+      "node_name": "Log All Campaigns",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Log All Campaigns",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.slack.",
+      "severity": "warning",
+      "node_name": "Alert: Scale Opportunity",
+      "node_type": "n8n-nodes-base.slack",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Generate Action Plan",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Generate Action Plan",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.emailSend.",
+      "severity": "warning",
+      "node_name": "Email Performance Report",
+      "node_type": "n8n-nodes-base.emailSend",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.slack.",
+      "severity": "warning",
+      "node_name": "Alert: Issues Detected",
+      "node_type": "n8n-nodes-base.slack",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Alert: Issues Detected",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $input.all().length }}",
+      "severity": "warning",
+      "node_name": "Generate Daily Summary",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $input.all().filter(item => item.json.performanceTier === 'Excellent').length }}",
+      "severity": "warning",
+      "node_name": "Generate Daily Summary",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $input.all().filter(item => item.json.performanceTier === 'Good').length }}",
+      "severity": "warning",
+      "node_name": "Generate Daily Summary",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $input.all().filter(item => item.json.performanceTier === 'Fair').length }}",
+      "severity": "warning",
+      "node_name": "Generate Daily Summary",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $input.all().filter(item => item.json.performanceTier === 'Underperforming').length }}",
+      "severity": "warning",
+      "node_name": "Generate Daily Summary",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$input.all().reduce((sum, item) => sum + parseFloat(item.json.metrics.cost || 0), 0).toFixed(2)",
+      "severity": "warning",
+      "node_name": "Generate Daily Summary",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =${{ $input.all().reduce((sum, item) => sum + parseFloat(item.json.metrics.cost || 0), 0).toFixed(2) }}",
+      "severity": "warning",
+      "node_name": "Generate Daily Summary",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $input.all().reduce((sum, item) => sum + parseInt(item.json.metrics.conversions || 0), 0) }}",
+      "severity": "warning",
+      "node_name": "Generate Daily Summary",
+      "node_type": null,
+      "json_path": null
+    }
+  ]
+}

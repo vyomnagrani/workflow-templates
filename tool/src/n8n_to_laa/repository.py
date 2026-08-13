@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from .converter import ConversionOptions, convert_workflow
+from .sanitization import sanitize_secrets
 
 
 def write_conversion(
@@ -26,7 +27,8 @@ def write_conversion(
         encoding="utf-8",
     )
     (target / "source.n8n.json").write_text(
-        json.dumps(workflow, indent=2, ensure_ascii=False) + "\n",
+        json.dumps(sanitize_secrets(workflow), indent=2, ensure_ascii=False)
+        + "\n",
         encoding="utf-8",
     )
     attribution = {

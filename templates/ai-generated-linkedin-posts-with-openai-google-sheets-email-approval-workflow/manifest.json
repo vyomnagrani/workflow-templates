@@ -1,0 +1,513 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "ai-generated-linkedin-posts-with-openai-google-sheets-email-approval-workflow",
+    "name": "AI-generated LinkedIn posts with OpenAI, Google Sheets & email approval workflow",
+    "description": "### How it works\nThis workflow automates the process of creating, approving, and optionally posting LinkedIn content from a Google Sheet. Here's a high-level overview:\n1. **Scheduled Trigger**: Runs automatically based on your defined time interval (daily, weekly, etc.).\n2. **Fetch Data from Google Sheets**: Pulls the first row from your sheet where Status is marked as Pending.\n3. **Generate LinkedIn Post Content**: Uses OpenAI to create a professional LinkedIn post using the Post Description and Instructions from the sheet.\n4. **Format & Prepare Data**: Formats the generated content along with the original instruction and post description for email.\n5. **Send for Approval**: Sends an email to a predefined user (e.g., marketing team) with a custom form for approval, including a dropdown to accept/reject and an optional field for edits.\n6. **(Optional) Image Fetch**: Downloads an image from a URL (if provided in the sheet) for future use in post visuals.\n\n\n### Set up steps\nYou’ll need the following before you start:\n\n- A Google Sheet with the following columns: Post Description, Instructions, Image (URL), Status\n- Access to an OpenAI API key\n- A connected Gmail account for sending approval emails\n- Your own Google Sheets and Gmail credentials added in n8n\n\n### Steps:\n1. Google Sheet Preparation:\nCreate a new Google Sheet with the mentioned columns (Post Description, Instructions, Image, Status, Output, Post Link).\nAdd a row with test data and set Status to Pending.\n\n2. Credentials:\nIn n8n, create OAuth2 credentials for:\na. Google Sheets\nb. Gmail\nc. OpenAI (API Key)\nAssign these credentials to the respective nodes in the JSON.\n\n3. OpenAI Model:\nChoose a model like gpt-4o-mini (used here) or any other available in your plan.\nAdjust the prompt in the \"Generate Post Content\" node if needed.\n\n4. Email Configuration:\nIn the Gmail node, set the recipient email to your own or your team’s address.\nCustomize the email message template if necessary.\n\n5. Schedule the Workflow:\nSet the trigger interval (e.g., every morning at 9 AM).\n\n6. Testing:\nRun the workflow manually first to confirm everything works.\nCheck Gmail for the approval form, respond, and verify the results.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "connectionProviders/Http",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Schedule_Trigger": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "OpenAI_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Get_Data_from_Sheets": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('1EAdLU9-l0ATGDa5_xwTwFO-rPhvZurM2BOSKjH2P-W8'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {}
+        },
+        "Generate_Post_Content": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Generate Post Content",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chainLlm",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=# LinkedIn Post Generation\n\n## Post Description:\n{{ $json[\"Post Description\"] }}\n\n## Instructions:\n{{ $json[\"Instructions\"] }}\n\n---\n\n**Task:**\nUsing the information above, generate the content for a LinkedIn post:\n- Use the Description and Instructions to create a new post.\n- Ensure your output is positive, professional, clear, and follows all provided instructions and feedback.\n- Do not include any explanations, just the final post content only, ready to publish on LinkedIn.\n- Limit to 1300 characters.\n- If the user demands to keep the same post as the Post Descrioption (in the instructions), then keep the same post content as provided in the Post Description, and output it.",
+              "messages": {
+                "messageValues": [
+                  {
+                    "message": "=You are an expert social media and LinkedIn content writer.\n\nYou will be provided with:\n- A brief post description\n- Specific instructions from the user\n\nPlease follow these steps:\n\n1. Initial Creation:\nIf you are given a post description and instructions, write a polished, professionally worded LinkedIn post suitable for sharing. Strictly follow the instructions and ensure the message is engaging and succinct.\nIf instructed, add a call to action or particular phrase (for example, \"Connect with me\" at the bottom).\n\n2. Formatting:\nKeep the tone positive, inclusive, and professional.\nAdd relevant hashtags in small case.\nLimit the content to within 1300 characters.\nPlace the call to action or special instruction at the end if requested.\nOutput ONLY the final LinkedIn post content. Do NOT include any explanations, markdown, headings, or commentary—just the post text, ready to copy and share on LinkedIn."
+                  }
+                ]
+              },
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ],
+            "Get_Data_from_Sheets": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Data_Formatting_1": {
+          "type": "Compose",
+          "inputs": {
+            "Post Content": "@body('Generate_Post_Content')?['text']",
+            "Post Description": "@body('Get_Data_from_Sheets')?['Post Description']",
+            "Instructions": "@body('Get_Data_from_Sheets')?['Instructions']"
+          },
+          "runAfter": {
+            "Generate_Post_Content": [
+              "Succeeded"
+            ],
+            "Regenerate_Post_Content": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_Content_Confirmation": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Send Content Confirmation",
+            "n8nNodeType": "n8n-nodes-base.gmail",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "sendTo": "user@example.com",
+              "message": "=Generated Post:\n{{ $json['Post Content'] }}\n\n----------\n\nPost Description:\n{{ $json['Post Description'] }}\n\n----------\n\nInstructions:\n{{ $json.Instructions }}",
+              "options": {},
+              "subject": "Approval for LinkedIn Post",
+              "operation": "sendAndWait",
+              "formFields": {
+                "values": [
+                  {
+                    "fieldType": "dropdown",
+                    "fieldLabel": "Confirm  Content?",
+                    "fieldOptions": {
+                      "values": [
+                        {
+                          "option": "Yes"
+                        },
+                        {
+                          "option": "No"
+                        },
+                        {
+                          "option": "Cancel"
+                        }
+                      ]
+                    },
+                    "requiredField": true
+                  },
+                  {
+                    "fieldType": "textarea",
+                    "fieldLabel": "Any Changes?"
+                  }
+                ]
+              },
+              "responseType": "customForm"
+            }
+          },
+          "runAfter": {
+            "Data_Formatting_1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Content_Confirmation_Logic": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Content Confirmation Logic",
+            "n8nNodeType": "n8n-nodes-base.switch",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "rules": {
+                "values": [
+                  {
+                    "outputKey": "Yes",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "99ec185e-80ac-451d-bb69-662f84a7cf52",
+                          "operator": {
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.data['Confirm  Content?'] }}",
+                          "rightValue": "Yes"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "No",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "77031007-a912-4b9b-9cca-846c57ffaec8",
+                          "operator": {
+                            "name": "filter.operator.equals",
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.data['Confirm  Content?'] }}",
+                          "rightValue": "No"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "Cancel",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "e94de530-6451-48aa-892c-924a9c41cfb0",
+                          "operator": {
+                            "name": "filter.operator.equals",
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.data['Confirm  Content?'] }}",
+                          "rightValue": "Cancel"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  }
+                ]
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Send_Content_Confirmation": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Regenerate_Post_Content": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Regenerate Post Content",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chainLlm",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=Apply the modification requests on the following LinkedIn post. Besides applying the reqested modifications, return the same linkedin post.\n\nLinkedIn post:\n```\n{{ $('Data Formatting 1').item.json['Post Content'] }}\n```\n\nChange requests:\n{{ $('Send Content Confirmation').item.json.data['Any Changes?'] }}\n\n**Task:**\nUsing the information above, update the LinkedIn post content:\n- Do not include any explanations, just the final post content only (with all the change requests included in the post), ready to publish on LinkedIn.\n- Limit to 1300 characters.\n- If the user demands to keep the same post as the Post Description (in the instructions), then keep the same post content as provided in the Post Description, and output it.",
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ],
+            "Content_Confirmation_Logic": [
+              "Succeeded"
+            ]
+          }
+        },
+        "If_Image_Provided": {
+          "type": "If",
+          "expression": {
+            "not": {
+              "empty": [
+                "@body('Get_Data_from_Sheets')?['Image']"
+              ]
+            }
+          },
+          "actions": {
+            "Get_Image": {
+              "type": "Http",
+              "inputs": {
+                "method": "GET",
+                "uri": "@body('Get_Data_from_Sheets')?['Image']"
+              },
+              "runAfter": {}
+            },
+            "Post_With_Image": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Post With Image",
+                "n8nNodeType": "n8n-nodes-base.linkedIn",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "text": "={{ $('Data Formatting 1').item.json['Post Content'] }}",
+                  "person": "pM247vR8Se",
+                  "additionalFields": {},
+                  "shareMediaCategory": "IMAGE"
+                }
+              },
+              "runAfter": {
+                "Get_Image": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "Post_Without_Image": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "Post Without Image",
+                  "n8nNodeType": "n8n-nodes-base.linkedIn",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "text": "={{ $('Data Formatting 1').item.json['Post Content'] }}",
+                    "person": "pM247vR8Se",
+                    "additionalFields": {}
+                  }
+                },
+                "runAfter": {}
+              }
+            }
+          },
+          "runAfter": {
+            "Content_Confirmation_Logic": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Update_Google_Sheet": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update Google Sheet",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "Output": "={{ $json.urn }}",
+                  "Status": "=Completed",
+                  "Post Link": "={{ $json.urn }}",
+                  "row_number": "={{ $('Get Data from Sheets').item.json.row_number }}"
+                },
+                "schema": [
+                  {
+                    "id": "Post Description",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Post Description",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Instructions",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Instructions",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Image",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Image",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Status",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "Status",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Output",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Output",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Post Link",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Post Link",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "row_number",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "row_number",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "row_number"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "update",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gid=0",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EAdLU9-l0ATGDa5_xwTwFO-rPhvZurM2BOSKjH2P-W8/edit#gid=0",
+                "cachedResultName": "Sheet1"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1EAdLU9-l0ATGDa5_xwTwFO-rPhvZurM2BOSKjH2P-W8",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EAdLU9-l0ATGDa5_xwTwFO-rPhvZurM2BOSKjH2P-W8/edit?usp=drivesdk",
+                "cachedResultName": "LinkedIn Post Automation"
+              }
+            }
+          },
+          "runAfter": {
+            "If_Image_Provided": [
+              "Succeeded"
+            ],
+            "Content_Confirmation_Logic": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Schedule_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

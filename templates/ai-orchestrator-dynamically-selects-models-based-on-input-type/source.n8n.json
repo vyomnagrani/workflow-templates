@@ -1,0 +1,515 @@
+{
+  "id": "7004",
+  "meta": {
+    "instanceId": "a4bfc93e975ca233ac45ed7c9227d84cf5a2329310525917adaf3312e10d5462",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "AI orchestrator: dynamically selects models based on input type",
+  "tags": [
+    "Engineering",
+    "AI Chatbot"
+  ],
+  "nodes": [
+    {
+      "id": "daf34daa-19e5-42a8-b820-5aa3d78c29a4",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        -528,
+        -112
+      ],
+      "webhookId": "56b65a7f-0698-4e99-81eb-fd87e0cb5bfa",
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "85be9290-50ac-457e-9fa1-0c00a88667da",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        160,
+        -112
+      ],
+      "parameters": {
+        "text": "={{ $('When chat message received').item.json.chatInput }}",
+        "options": {
+          "returnIntermediateSteps": true
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "0721d812-2dc6-4069-87e6-844b8f94214b",
+      "name": "Model Selector",
+      "type": "@n8n/n8n-nodes-langchain.modelSelector",
+      "position": [
+        80,
+        128
+      ],
+      "parameters": {
+        "rules": {
+          "rule": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "976d83bb-7e9e-4aab-9722-25a9e238164f",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output.request_type }}",
+                    "rightValue": "coding"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "1e68688d-73fe-47c1-9b35-a1e226220bcd",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output.request_type }}",
+                    "rightValue": "reasoning"
+                  }
+                ]
+              },
+              "modelIndex": 2
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "61d58197-db59-4cd7-bc41-bbeaf5e7b069",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output.request_type }}",
+                    "rightValue": "general"
+                  }
+                ]
+              },
+              "modelIndex": 3
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "fca2ec99-fd1d-458f-9919-73bfbba55c4f",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output.request_type }}",
+                    "rightValue": "search"
+                  }
+                ]
+              },
+              "modelIndex": 4
+            }
+          ]
+        },
+        "numberInputs": 4
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "449b0bae-3749-493d-b6f6-dad155537bc9",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        -80,
+        32
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n\t\t\"request_type\": {\n\t\t\t\"type\": \"string\"\n\t\t}\n\t}\n}"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "03339701-3ed8-43c9-a490-3ebca30d39bb",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        400,
+        128
+      ],
+      "parameters": {
+        "sessionKey": "={{ $('When chat message received').item.json.sessionId }}",
+        "sessionIdType": "customKey"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "1d86d306-bbdd-45b0-9b96-fce0cbcdc0a0",
+      "name": "Request Type",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        -288,
+        -112
+      ],
+      "parameters": {
+        "batching": {},
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Your task is to classify the type of request you receive as input.\nYou must provide the following output:\n- general: if it is a general request\n- reasoning: if it is a reasoning request\n- coding: if it is a request related to code development\n- search: if it is a request that involves the use of Google tools"
+            }
+          ]
+        },
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.7
+    },
+    {
+      "id": "f49883cd-fc48-4c26-8596-6267beb74c3d",
+      "name": "Opus 4",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "position": [
+        -64,
+        352
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-20250514",
+          "cachedResultName": "Claude 4 Sonnet"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "credential-id",
+          "name": "anthropicApi Credential"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "0f19c20b-298b-45d8-b855-3a92c0dac675",
+      "name": "Gemini Thinking Pro",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        80,
+        352
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-2.0-flash-thinking-exp"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "credential-id",
+          "name": "googlePalmApi Credential"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d2676326-64f2-47db-84f4-17fbf194d31b",
+      "name": "GPT 4.1 mini",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        224,
+        352
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "credential-id",
+          "name": "openAiApi Credential"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "1f8d38d9-0298-4588-a763-7fac0132edf5",
+      "name": "Perplexity",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "position": [
+        352,
+        352
+      ],
+      "parameters": {
+        "model": "perplexity/sonar",
+        "options": {}
+      },
+      "credentials": {
+        "openRouterApi": {
+          "id": "credential-id",
+          "name": "openRouterApi Credential"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fc7a67be-d46a-4fec-b1d2-9f8ce3b86462",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -320,
+        48
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "credential-id",
+          "name": "openAiApi Credential"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "de2fc53a-bf97-475a-b978-0cde88483ee0",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -528,
+        -416
+      ],
+      "parameters": {
+        "width": 624,
+        "height": 256,
+        "content": "## AI Orchestrator: dynamically Selects Models Based on Input Type\n\nThis workflow is designed to intelligently **route user queries to the most suitable large language model (LLM)** based on the type of request received in a chat environment. It uses structured classification and model selection to optimize both performance and cost-efficiency in AI-driven conversations.\n\nIt dynamically routes requests to specialized AI models based on content type, optimizing response quality and efficiency."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d852ebdf-2860-4611-a58e-e58c8cd4cc35",
+  "connections": {
+    "Opus 4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Model Selector",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Perplexity": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Model Selector",
+            "type": "ai_languageModel",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "GPT 4.1 mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Model Selector",
+            "type": "ai_languageModel",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Request Type": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Model Selector": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Request Type",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Thinking Pro": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Model Selector",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Request Type",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Request Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "description": "This workflow is designed to intelligently **route user queries to the most suitable large language model (LLM)** based on the type of request received in a chat environment. It uses structured classification and model selection to optimize both performance and cost-efficiency in AI-driven conversations.\n\nIt dynamically routes requests to specialized AI models based on content type, optimizing response quality and efficiency.\n\n---\n\n###  **Benefits**\n\n* **Smart Model Routing**: Reduces costs by using lighter models for general tasks and reserving heavier models for complex needs.\n* **Scalability**: Easily expandable by adding more request types or LLMs.\n* **Maintainability**: Clear logic separation between classification, model routing, and execution.\n* **Personalization**: Can be integrated with session IDs for per-user memory, enabling personalized conversations.\n* **Speed Optimization**: Fast models like `GPT-4.1 mini` or `Gemini Flash` are chosen for tasks where speed is a priority.\n---\n\n### **How It Works**\n1. **Input Handling**:  \n   - The workflow starts with the \"When chat message received\" node, which triggers the process when a chat message is received. The input includes the chat message (`chatInput`) and a session ID (`sessionId`).\n\n2. **Request Classification**:  \n   - The \"Request Type\" node uses an OpenAI model (`gpt-4.1-mini`) to classify the incoming request into one of four categories:  \n     - `general`: For general queries.  \n     - `reasoning`: For reasoning-based questions.  \n     - `coding`: For code-related requests.  \n     - `search`: For queries requiring search tools.  \n   - The classification is structured using the \"Structured Output Parser\" node, which enforces a consistent output format.\n\n3. **Model Selection**:  \n   - The \"Model Selector\" node routes the request to one of four AI models based on the classification:  \n     - **Opus 4** (Claude 4 Sonnet): Used for `coding` requests.  \n     - **Gemini Thinking Pro**: Used for `reasoning` requests.  \n     - **GPT 4.1 mini**: Used for `general` requests.  \n     - **Perplexity**: Used for `search` (Google-related) requests.  \n\n4. **AI Processing**:  \n   - The selected model processes the request via the \"AI Agent\" node, which includes intermediate steps for complex tasks.  \n   - The \"Simple Memory\" node retains session context using the provided `sessionId`, enabling multi-turn conversations.  \n\n5. **Output**:  \n   - The final response is generated by the chosen model and returned to the user.  \n\n---\n\n### **Set Up Steps**\n1. **Configure Trigger**:  \n   - Ensure the \"When chat message received\" node is set up with the correct webhook ID to receive chat inputs.  \n\n2. **Define Classification Logic**:  \n   - Adjust the prompt in the \"Request Type\" node to refine classification accuracy.  \n   - Verify the output schema in the \"Structured Output Parser\" node matches expected categories (`general`, `reasoning`, `coding`, `search`).  \n\n3. **Connect AI Models**:  \n   - Link each model node (Opus 4, Gemini Thinking Pro, GPT 4.1 mini, Perplexity) to the \"Model Selector\" node.  \n   - Ensure credentials (API keys) for each model are correctly configured in their respective nodes.  \n\n4. **Set Up Memory**:  \n   - Configure the \"Simple Memory\" node to use the `sessionId` from the input for context retention.  \n\n5. **Test Workflow**:  \n   - Send test inputs to verify classification and model routing.  \n   - Check intermediate outputs (e.g., `request_type`) to ensure correct model selection.  \n\n6. **Activate Workflow**:  \n   - Toggle the workflow to \"Active\" in n8n after testing.  \n\n---\n### **Need help customizing?**  \n[Contact me](mailto:info@n3w.it) for consulting and support or add me on [Linkedin](https://www.linkedin.com/in/davideboizza/). ",
+  "author": "Davide Boizza",
+  "sourceUrl": "https://n8n.io/workflows/7004/",
+  "sourceMetadata": {
+    "templateId": 7004,
+    "createdAt": "2025-08-05T10:21:49.772Z",
+    "totalViews": 18074,
+    "recentViews": 1,
+    "status": "published",
+    "reviewStatus": "published",
+    "categories": [
+      "Engineering",
+      "AI Chatbot"
+    ],
+    "author": {
+      "name": "Davide Boizza",
+      "username": "n3witalia",
+      "bio": "Full-stack Web Developer based in Italy specialising in Marketing & AI-powered automations. For business enquiries, send me an email at info@n3w.it or add me on Linkedin.com/in/davideboizza and Youtube.com/@n3witalia",
+      "verified": true,
+      "links": [
+        "https://n3w.it"
+      ],
+      "avatar": "https://gravatar.com/avatar/d41b8a0aa81139243509c58870f5b4be292824a507ab57d10ed066d8628ed8da?r=pg&d=retro&size=200"
+    },
+    "workflowInfo": {
+      "nodeCount": 12,
+      "nodeTypes": {
+        "n8n-nodes-base.stickyNote": {
+          "count": 1
+        },
+        "@n8n/n8n-nodes-langchain.agent": {
+          "count": 1
+        },
+        "@n8n/n8n-nodes-langchain.chainLlm": {
+          "count": 1
+        },
+        "@n8n/n8n-nodes-langchain.chatTrigger": {
+          "count": 1
+        },
+        "@n8n/n8n-nodes-langchain.lmChatOpenAi": {
+          "count": 2
+        },
+        "@n8n/n8n-nodes-langchain.modelSelector": {
+          "count": 1
+        },
+        "@n8n/n8n-nodes-langchain.lmChatAnthropic": {
+          "count": 1
+        },
+        "@n8n/n8n-nodes-langchain.lmChatOpenRouter": {
+          "count": 1
+        },
+        "@n8n/n8n-nodes-langchain.lmChatGoogleGemini": {
+          "count": 1
+        },
+        "@n8n/n8n-nodes-langchain.memoryBufferWindow": {
+          "count": 1
+        },
+        "@n8n/n8n-nodes-langchain.outputParserStructured": {
+          "count": 1
+        }
+      }
+    }
+  }
+}

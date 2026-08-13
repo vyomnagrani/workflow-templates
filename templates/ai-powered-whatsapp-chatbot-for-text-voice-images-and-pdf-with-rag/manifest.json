@@ -1,0 +1,989 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "ai-powered-whatsapp-chatbot-for-text-voice-images-and-pdf-with-rag",
+    "name": "AI-powered WhatsApp chatbot for text, voice, images, and PDF with RAG",
+    "description": "### Who is this for?\nThis template is designed for internal support teams, product specialists, and knowledge managers in technology companies who want to automate ingestion of product documentation and enable AI-driven, retrieval-augmented question answering via WhatsApp.\n\n### What problem is this workflow solving?\nSupport agents often spend too much time manually searching through lengthy documentation, leading to inconsistent or delayed answers. This solution automates importing, chunking, and indexing product manuals, then uses retrieval-augmented generation (RAG) to answer user queries accurately and quickly with AI via WhatsApp messaging.\n\n### What these workflows do\n\n#### Workflow 1: Document Ingestion & Indexing\n\n- Manually triggered to import product documentation from Google Docs.\n- Automatically splits large documents into chunks for efficient searching.\n- Generates vector embeddings for each chunk using OpenAI embeddings.\n- Inserts the embedded chunks and metadata into a MongoDB Atlas vector store, enabling fast semantic search.\n\n#### Workflow 2: AI-Powered Query & Response via WhatsApp\n\n- Listens for incoming WhatsApp user messages, supporting various types:\n\t- Text messages: Plain text queries from users.\n\t- Audio messages: Voice notes transcribed into text for processing.\n\t- Image messages: Photos or screenshots analyzed to provide contextual answers.\n\t- Document messages: PDFs, spreadsheets, or other files parsed for relevant content.\n- Converts incoming queries to vector embeddings and performs similarity search on the MongoDB vector store.\n- Uses OpenAI’s GPT-4o-mini model with retrieval-augmented generation to produce concise, context-aware answers.\n- Maintains conversation context across multiple turns using a memory buffer node.\n- Routes different message types to appropriate processing nodes to maximize answer quality.\n\n### Setup\n\n#### Setting up vector embeddings\n\n1. Authenticate Google Docs and connect your Google Docs URL containing the product documentation you want to index.\n2. Authenticate MongoDB Atlas and connect the collection where you want to store the vector embeddings. Create a search index on this collection to support vector similarity queries.\n3. Ensure the index name matches the one configured in n8n (data_index).\n4. See the example MongoDB search index template below for reference.\n\n#### Setting up chat\n\n1. Authenticate the WhatsApp node with your Meta account credentials to enable message receiving and sending.\n2. Connect the MongoDB collection containing embedded product documentation to the MongoDB Vector Search node used for similarity queries.\n3. Set up the system prompt in the Knowledge Base Agent node to reflect your company’s tone, answering style, and any business rules, ensuring it references the connected MongoDB collection for context retrieval.\n\n### Make sure\n\nBoth MongoDB nodes (in ingestion and chat workflows) are connected to the same collection with:\n\nAn embedding field storing vector data,\n\nRelevant metadata fields (e.g., document ID, source), and\n\nThe same vector index name configured (e.g., data_index).\n\n### Search Index Example:\n\n{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"_id\": { \"type\": \"string\" },\n      \"text\": { \"type\": \"string\" },\n      \"embedding\": {\n        \"type\": \"knnVector\",\n        \"dimensions\": 1536,\n        \"similarity\": \"cosine\"\n      },\n      \"source\": { \"type\": \"string\" },\n      \"doc_id\": { \"type\": \"string\" }\n    }\n  }\n}",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Support Chatbot",
+      "AI RAG",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "When_clicking_Execute_Workflow": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Knowledge_Base_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Knowledge Base Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "={{ $json.text }}",
+              "options": {
+                "systemMessage": ""
+              },
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "Route_Types": [
+              "Succeeded"
+            ],
+            "Simple_Memory": [
+              "Succeeded"
+            ],
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ],
+            "MongoDB_Vector_Search": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenAI_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Embeddings_OpenAI": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Embeddings OpenAI",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Simple_Memory": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Simple Memory",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "sessionKey": "=memory_{{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+              "sessionIdType": "customKey"
+            }
+          },
+          "runAfter": {}
+        },
+        "MongoDB_Vector_Search": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "MongoDB Vector Search",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.vectorStoreMongoDBAtlas",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "retrieve-as-tool",
+              "options": {},
+              "toolName": "productDocs",
+              "mongoCollection": {
+                "__rl": true,
+                "mode": "list",
+                "value": "n8n-template",
+                "cachedResultName": "n8n-template"
+              },
+              "toolDescription": "retreive documentation",
+              "vectorIndexName": "data_index"
+            }
+          },
+          "runAfter": {
+            "Embeddings_OpenAI": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Document_Section_Loader": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Document Section Loader",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "metadata": {
+                  "metadataValues": [
+                    {
+                      "name": "doc_id",
+                      "value": "={{ $json.documentId }}"
+                    }
+                  ]
+                }
+              },
+              "jsonData": "={{ $json.content }}",
+              "jsonMode": "expressionData"
+            }
+          },
+          "runAfter": {
+            "Document_Chunker": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Document_Chunker": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Document Chunker",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "splitCode": "markdown"
+              },
+              "chunkSize": 3000,
+              "chunkOverlap": 200
+            }
+          },
+          "runAfter": {}
+        },
+        "MongoDB_Vector_Store_Inserter": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "MongoDB Vector Store Inserter",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.vectorStoreMongoDBAtlas",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "insert",
+              "options": {},
+              "mongoCollection": {
+                "__rl": true,
+                "mode": "list",
+                "value": "n8n-template",
+                "cachedResultName": "n8n-template"
+              },
+              "vectorIndexName": "data_index"
+            }
+          },
+          "runAfter": {
+            "Google_Docs_Importer": [
+              "Succeeded"
+            ],
+            "Document_Section_Loader": [
+              "Succeeded"
+            ],
+            "OpenAI_Embeddings_Generator": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenAI_Embeddings_Generator": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Embeddings Generator",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Google_Docs_Importer": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Docs Importer",
+            "n8nNodeType": "n8n-nodes-base.googleDocs",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "operation": "get",
+              "documentURL": "https://docs.google.com/document/d/1gvgp71e9edob8WLqFIYCdzC7kUq3pLO37VKb-a-vVW4/edit?tab=t.0"
+            }
+          },
+          "runAfter": {}
+        },
+        "WhatsApp_Trigger": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "WhatsApp Trigger",
+            "n8nNodeType": "n8n-nodes-base.whatsAppTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "updates": [
+                "messages"
+              ]
+            }
+          },
+          "runAfter": {}
+        },
+        "Route_Types": {
+          "type": "If",
+          "expression": {
+            "equals": [
+              "@body('WhatsApp_Trigger')?['messages'][0].type",
+              "text"
+            ]
+          },
+          "actions": {
+            "Map_text_prompt": {
+              "type": "Compose",
+              "inputs": {
+                "text": "@triggerBody()?['messages'][0].text.body"
+              },
+              "runAfter": {}
+            }
+          },
+          "else": {
+            "actions": {
+              "Rule_2": {
+                "type": "If",
+                "expression": {
+                  "equals": [
+                    "@body('WhatsApp_Trigger')?['messages'][0].type",
+                    "audio"
+                  ]
+                },
+                "actions": {
+                  "OpenAI": {
+                    "type": "Compose",
+                    "inputs": {
+                      "conversionStatus": "unsupported",
+                      "n8nNodeName": "OpenAI",
+                      "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+                      "message": "Replace this placeholder with an equivalent LAA action."
+                    },
+                    "description": "Generated placeholder for an unsupported n8n node.",
+                    "metadata": {
+                      "x-n8n-original-parameters": {
+                        "options": {},
+                        "resource": "audio",
+                        "operation": "translate"
+                      }
+                    },
+                    "runAfter": {
+                      "Download_Voicemail": [
+                        "Succeeded"
+                      ]
+                    }
+                  },
+                  "Gets_WhatsApp_Voicemail_Source_URL": {
+                    "type": "Compose",
+                    "inputs": {
+                      "conversionStatus": "unsupported",
+                      "n8nNodeName": "Gets WhatsApp Voicemail Source URL",
+                      "n8nNodeType": "n8n-nodes-base.whatsApp",
+                      "message": "Replace this placeholder with an equivalent LAA action."
+                    },
+                    "description": "Generated placeholder for an unsupported n8n node.",
+                    "metadata": {
+                      "x-n8n-original-parameters": {
+                        "resource": "media",
+                        "operation": "mediaUrlGet",
+                        "mediaGetId": "={{ $json.messages[0].audio.id}}"
+                      }
+                    },
+                    "runAfter": {}
+                  },
+                  "Download_Voicemail": {
+                    "type": "Http",
+                    "inputs": {
+                      "method": "GET",
+                      "uri": "@body('Gets_WhatsApp_Voicemail_Source_URL')?['url']"
+                    },
+                    "runAfter": {
+                      "Gets_WhatsApp_Voicemail_Source_URL": [
+                        "Succeeded"
+                      ]
+                    }
+                  }
+                },
+                "else": {
+                  "actions": {
+                    "Rule_3": {
+                      "type": "If",
+                      "expression": {
+                        "equals": [
+                          "@body('WhatsApp_Trigger')?['messages'][0].type",
+                          "image"
+                        ]
+                      },
+                      "actions": {
+                        "OpenAI1": {
+                          "type": "Compose",
+                          "inputs": {
+                            "conversionStatus": "unsupported",
+                            "n8nNodeName": "OpenAI1",
+                            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+                            "message": "Replace this placeholder with an equivalent LAA action."
+                          },
+                          "description": "Generated placeholder for an unsupported n8n node.",
+                          "metadata": {
+                            "x-n8n-original-parameters": {
+                              "modelId": {
+                                "__rl": true,
+                                "mode": "list",
+                                "value": "gpt-4o-mini",
+                                "cachedResultName": "GPT-4O-MINI"
+                              },
+                              "options": {
+                                "detail": "auto"
+                              },
+                              "resource": "image",
+                              "inputType": "base64",
+                              "operation": "analyze"
+                            }
+                          },
+                          "runAfter": {
+                            "Download_Image": [
+                              "Succeeded"
+                            ]
+                          }
+                        },
+                        "Map_image_prompt": {
+                          "type": "Compose",
+                          "inputs": {
+                            "text": "User image description: @{body('OpenAI1')?['content']}\n\nUser image caption: @{body('Route_Types')?['messages'][0].image.caption}"
+                          },
+                          "runAfter": {
+                            "OpenAI1": [
+                              "Succeeded"
+                            ]
+                          }
+                        },
+                        "Gets_WhatsApp_Image_Source_URL": {
+                          "type": "Compose",
+                          "inputs": {
+                            "conversionStatus": "unsupported",
+                            "n8nNodeName": "Gets WhatsApp Image Source URL",
+                            "n8nNodeType": "n8n-nodes-base.whatsApp",
+                            "message": "Replace this placeholder with an equivalent LAA action."
+                          },
+                          "description": "Generated placeholder for an unsupported n8n node.",
+                          "metadata": {
+                            "x-n8n-original-parameters": {
+                              "resource": "media",
+                              "operation": "mediaUrlGet",
+                              "mediaGetId": "={{ $json.messages[0].image.id }}"
+                            }
+                          },
+                          "runAfter": {}
+                        },
+                        "Download_Image": {
+                          "type": "Http",
+                          "inputs": {
+                            "method": "GET",
+                            "uri": "@body('Gets_WhatsApp_Image_Source_URL')?['url']"
+                          },
+                          "runAfter": {
+                            "Gets_WhatsApp_Image_Source_URL": [
+                              "Succeeded"
+                            ]
+                          }
+                        }
+                      },
+                      "else": {
+                        "actions": {
+                          "Rule_4": {
+                            "type": "If",
+                            "expression": {
+                              "equals": [
+                                "@body('WhatsApp_Trigger')?['messages'][0].type",
+                                "document"
+                              ]
+                            },
+                            "actions": {
+                              "Extract_from_PDF": {
+                                "type": "Compose",
+                                "inputs": {
+                                  "conversionStatus": "unsupported",
+                                  "n8nNodeName": "Extract from PDF",
+                                  "n8nNodeType": "n8n-nodes-base.extractFromFile",
+                                  "message": "Replace this placeholder with an equivalent LAA action."
+                                },
+                                "description": "Generated placeholder for an unsupported n8n node.",
+                                "metadata": {
+                                  "x-n8n-original-parameters": {
+                                    "options": {},
+                                    "operation": "pdf"
+                                  }
+                                },
+                                "runAfter": {
+                                  "Route_Document_Types": [
+                                    "Succeeded"
+                                  ]
+                                }
+                              },
+                              "Extract_from_XLS": {
+                                "type": "Compose",
+                                "inputs": {
+                                  "conversionStatus": "unsupported",
+                                  "n8nNodeName": "Extract from XLS",
+                                  "n8nNodeType": "n8n-nodes-base.extractFromFile",
+                                  "message": "Replace this placeholder with an equivalent LAA action."
+                                },
+                                "description": "Generated placeholder for an unsupported n8n node.",
+                                "metadata": {
+                                  "x-n8n-original-parameters": {
+                                    "options": {},
+                                    "operation": "xls"
+                                  }
+                                },
+                                "runAfter": {
+                                  "Route_Document_Types": [
+                                    "Succeeded"
+                                  ]
+                                }
+                              },
+                              "Extract_from_XLSX": {
+                                "type": "Compose",
+                                "inputs": {
+                                  "conversionStatus": "unsupported",
+                                  "n8nNodeName": "Extract from XLSX",
+                                  "n8nNodeType": "n8n-nodes-base.extractFromFile",
+                                  "message": "Replace this placeholder with an equivalent LAA action."
+                                },
+                                "description": "Generated placeholder for an unsupported n8n node.",
+                                "metadata": {
+                                  "x-n8n-original-parameters": {
+                                    "options": {},
+                                    "operation": "xlsx",
+                                    "binaryPropertyName": "=data"
+                                  }
+                                },
+                                "runAfter": {
+                                  "Route_Document_Types": [
+                                    "Succeeded"
+                                  ]
+                                }
+                              },
+                              "Map_JSON": {
+                                "type": "Compose",
+                                "inputs": {
+                                  "data": "@body('Extract_from_XLS')"
+                                },
+                                "runAfter": {
+                                  "Extract_from_XLS": [
+                                    "Succeeded"
+                                  ],
+                                  "Extract_from_XLSX": [
+                                    "Succeeded"
+                                  ],
+                                  "Route_Document_Types": [
+                                    "Succeeded"
+                                  ]
+                                }
+                              },
+                              "Map_file_extensions": {
+                                "type": "JavaScriptCode",
+                                "inputs": {
+                                  "code": "const __inputRaw = workflowContext.actions['Download_Document'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nlet requests = __node('Download_Document').all()\n\nrequests.forEach((request) => {\n  let mime_type = request.json.mime_type\n\n  if (\n    mime_type === \"text/calendar\" || \n    mime_type === \"application/ics\" || \n    mime_type === \"text/x-calendar\"\n  ) {\n    request.json.mime_type = \"mapped/calendar\"\n  }\n\n  if (\n    mime_type === \"application/xml\" || \n    mime_type === \"text/xml\") {\n    request.json.mime_type = \"mapped/xml\"\n  }\n\n  if (!mime_type) {\n    request.json.mime_type = __node('Gets_WhatsApp_Document_Source_URL').first().json.mime_type\n  }\n})\n\nreturn requests;\n})();\nreturn { body: __unwrap(__result) };"
+                                },
+                                "runAfter": {
+                                  "Download_Document": [
+                                    "Succeeded"
+                                  ]
+                                }
+                              },
+                              "Map_document_prompt": {
+                                "type": "Compose",
+                                "inputs": {
+                                  "text": "Parsed text: @{body('Map_JSON')?['text'] || body('Map_JSON')?['data'] || body('Map_JSON')}\n\nCaption text: @{body('Route_Types')?['messages'][0].document.caption}\n\nMimeType: @{body('Gets_WhatsApp_Document_Source_URL')?['mime_type']}"
+                                },
+                                "runAfter": {
+                                  "Map_JSON": [
+                                    "Succeeded"
+                                  ],
+                                  "Extract_from_PDF": [
+                                    "Succeeded"
+                                  ],
+                                  "Route_Document_Types": [
+                                    "Succeeded"
+                                  ]
+                                }
+                              },
+                              "Gets_WhatsApp_Document_Source_URL": {
+                                "type": "Compose",
+                                "inputs": {
+                                  "conversionStatus": "unsupported",
+                                  "n8nNodeName": "Gets WhatsApp Document Source URL",
+                                  "n8nNodeType": "n8n-nodes-base.whatsApp",
+                                  "message": "Replace this placeholder with an equivalent LAA action."
+                                },
+                                "description": "Generated placeholder for an unsupported n8n node.",
+                                "metadata": {
+                                  "x-n8n-original-parameters": {
+                                    "resource": "media",
+                                    "operation": "mediaUrlGet",
+                                    "mediaGetId": "={{ $json.messages[0].document.id }}"
+                                  }
+                                },
+                                "runAfter": {}
+                              },
+                              "Download_Document": {
+                                "type": "Http",
+                                "inputs": {
+                                  "method": "GET",
+                                  "uri": "@body('Gets_WhatsApp_Document_Source_URL')?['url']"
+                                },
+                                "runAfter": {
+                                  "Gets_WhatsApp_Document_Source_URL": [
+                                    "Succeeded"
+                                  ]
+                                }
+                              },
+                              "Route_Document_Types": {
+                                "type": "Compose",
+                                "inputs": {
+                                  "conversionStatus": "unsupported",
+                                  "n8nNodeName": "Route Document Types",
+                                  "n8nNodeType": "n8n-nodes-base.switch",
+                                  "message": "Replace this placeholder with an equivalent LAA action."
+                                },
+                                "description": "Generated placeholder for an unsupported n8n node.",
+                                "metadata": {
+                                  "x-n8n-original-parameters": {
+                                    "rules": {
+                                      "values": [
+                                        {
+                                          "outputKey": "CSV",
+                                          "conditions": {
+                                            "options": {
+                                              "version": 2,
+                                              "leftValue": "",
+                                              "caseSensitive": true,
+                                              "typeValidation": "strict"
+                                            },
+                                            "combinator": "and",
+                                            "conditions": [
+                                              {
+                                                "id": "14e23243-cd44-4cb1-99bd-9e6905d511ad",
+                                                "operator": {
+                                                  "name": "filter.operator.equals",
+                                                  "type": "string",
+                                                  "operation": "equals"
+                                                },
+                                                "leftValue": "={{ $json.mime_type }}",
+                                                "rightValue": "text/csv"
+                                              }
+                                            ]
+                                          },
+                                          "renameOutput": true
+                                        },
+                                        {
+                                          "outputKey": "HTML",
+                                          "conditions": {
+                                            "options": {
+                                              "version": 2,
+                                              "leftValue": "",
+                                              "caseSensitive": true,
+                                              "typeValidation": "strict"
+                                            },
+                                            "combinator": "and",
+                                            "conditions": [
+                                              {
+                                                "id": "6d7616c5-6bdd-47b7-923e-639491d15a4e",
+                                                "operator": {
+                                                  "type": "string",
+                                                  "operation": "equals"
+                                                },
+                                                "leftValue": "={{ $json.mime_type }}",
+                                                "rightValue": "text/html"
+                                              }
+                                            ]
+                                          },
+                                          "renameOutput": true
+                                        },
+                                        {
+                                          "outputKey": "Calendar",
+                                          "conditions": {
+                                            "options": {
+                                              "version": 2,
+                                              "leftValue": "",
+                                              "caseSensitive": true,
+                                              "typeValidation": "strict"
+                                            },
+                                            "combinator": "and",
+                                            "conditions": [
+                                              {
+                                                "id": "a2174e02-378a-41ff-b269-61f4fc3f1de9",
+                                                "operator": {
+                                                  "name": "filter.operator.equals",
+                                                  "type": "string",
+                                                  "operation": "equals"
+                                                },
+                                                "leftValue": "={{ $json.mime_type }}",
+                                                "rightValue": "=mapped/calendar"
+                                              }
+                                            ]
+                                          },
+                                          "renameOutput": true
+                                        },
+                                        {
+                                          "outputKey": "RTF",
+                                          "conditions": {
+                                            "options": {
+                                              "version": 2,
+                                              "leftValue": "",
+                                              "caseSensitive": true,
+                                              "typeValidation": "strict"
+                                            },
+                                            "combinator": "and",
+                                            "conditions": [
+                                              {
+                                                "id": "f3b406d7-362d-473e-8edd-c3e5f2d9c44c",
+                                                "operator": {
+                                                  "name": "filter.operator.equals",
+                                                  "type": "string",
+                                                  "operation": "equals"
+                                                },
+                                                "leftValue": "={{ $json.mime_type }}",
+                                                "rightValue": "text/rtf"
+                                              }
+                                            ]
+                                          },
+                                          "renameOutput": true
+                                        },
+                                        {
+                                          "outputKey": "TXT",
+                                          "conditions": {
+                                            "options": {
+                                              "version": 2,
+                                              "leftValue": "",
+                                              "caseSensitive": true,
+                                              "typeValidation": "strict"
+                                            },
+                                            "combinator": "and",
+                                            "conditions": [
+                                              {
+                                                "id": "64dd4658-54e7-4453-adbc-7067dffcd555",
+                                                "operator": {
+                                                  "name": "filter.operator.equals",
+                                                  "type": "string",
+                                                  "operation": "equals"
+                                                },
+                                                "leftValue": "={{ $json.mime_type }}",
+                                                "rightValue": "text/plain"
+                                              }
+                                            ]
+                                          },
+                                          "renameOutput": true
+                                        },
+                                        {
+                                          "outputKey": "XML",
+                                          "conditions": {
+                                            "options": {
+                                              "version": 2,
+                                              "leftValue": "",
+                                              "caseSensitive": true,
+                                              "typeValidation": "strict"
+                                            },
+                                            "combinator": "and",
+                                            "conditions": [
+                                              {
+                                                "id": "7540a3ab-b48e-4bec-94e9-a5dfc3d65a4c",
+                                                "operator": {
+                                                  "name": "filter.operator.equals",
+                                                  "type": "string",
+                                                  "operation": "equals"
+                                                },
+                                                "leftValue": "={{ $json.mime_type }}",
+                                                "rightValue": "mapped/xml"
+                                              }
+                                            ]
+                                          },
+                                          "renameOutput": true
+                                        },
+                                        {
+                                          "outputKey": "PDF",
+                                          "conditions": {
+                                            "options": {
+                                              "version": 2,
+                                              "leftValue": "",
+                                              "caseSensitive": true,
+                                              "typeValidation": "strict"
+                                            },
+                                            "combinator": "and",
+                                            "conditions": [
+                                              {
+                                                "id": "88b618fd-9a88-491e-91dd-c5fc9efa36e3",
+                                                "operator": {
+                                                  "name": "filter.operator.equals",
+                                                  "type": "string",
+                                                  "operation": "equals"
+                                                },
+                                                "leftValue": "={{ $json.mime_type }}",
+                                                "rightValue": "application/pdf"
+                                              }
+                                            ]
+                                          },
+                                          "renameOutput": true
+                                        },
+                                        {
+                                          "outputKey": "JSON",
+                                          "conditions": {
+                                            "options": {
+                                              "version": 2,
+                                              "leftValue": "",
+                                              "caseSensitive": true,
+                                              "typeValidation": "strict"
+                                            },
+                                            "combinator": "and",
+                                            "conditions": [
+                                              {
+                                                "id": "9c4d90aa-b4ea-4a63-b15e-666899c8360e",
+                                                "operator": {
+                                                  "name": "filter.operator.equals",
+                                                  "type": "string",
+                                                  "operation": "equals"
+                                                },
+                                                "leftValue": "={{ $json.mime_type }}",
+                                                "rightValue": "application/json"
+                                              }
+                                            ]
+                                          },
+                                          "renameOutput": true
+                                        },
+                                        {
+                                          "outputKey": "XLS",
+                                          "conditions": {
+                                            "options": {
+                                              "version": 2,
+                                              "leftValue": "",
+                                              "caseSensitive": true,
+                                              "typeValidation": "strict"
+                                            },
+                                            "combinator": "and",
+                                            "conditions": [
+                                              {
+                                                "id": "9baa7c88-3950-4099-8498-99a4640b95e7",
+                                                "operator": {
+                                                  "name": "filter.operator.equals",
+                                                  "type": "string",
+                                                  "operation": "equals"
+                                                },
+                                                "leftValue": "={{ $json.mime_type }}",
+                                                "rightValue": "application/vnd.ms-excel"
+                                              }
+                                            ]
+                                          },
+                                          "renameOutput": true
+                                        },
+                                        {
+                                          "outputKey": "XLSX",
+                                          "conditions": {
+                                            "options": {
+                                              "version": 2,
+                                              "leftValue": "",
+                                              "caseSensitive": true,
+                                              "typeValidation": "strict"
+                                            },
+                                            "combinator": "and",
+                                            "conditions": [
+                                              {
+                                                "id": "b83e540c-ba1e-42d0-ac83-f675e25e6aea",
+                                                "operator": {
+                                                  "name": "filter.operator.equals",
+                                                  "type": "string",
+                                                  "operation": "equals"
+                                                },
+                                                "leftValue": "={{ $json.mime_type }}",
+                                                "rightValue": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                              }
+                                            ]
+                                          },
+                                          "renameOutput": true
+                                        },
+                                        {
+                                          "outputKey": "ELSE",
+                                          "conditions": {
+                                            "options": {
+                                              "version": 2,
+                                              "leftValue": "",
+                                              "caseSensitive": true,
+                                              "typeValidation": "strict"
+                                            },
+                                            "combinator": "and",
+                                            "conditions": [
+                                              {
+                                                "id": "ea3be820-2ead-4ec2-b292-42d3c7804b55",
+                                                "operator": {
+                                                  "type": "string",
+                                                  "operation": "exists",
+                                                  "singleValue": true
+                                                },
+                                                "leftValue": "={{ $json.mime_type }}",
+                                                "rightValue": ""
+                                              }
+                                            ]
+                                          },
+                                          "renameOutput": true
+                                        }
+                                      ]
+                                    },
+                                    "options": {}
+                                  }
+                                },
+                                "runAfter": {
+                                  "Map_file_extensions": [
+                                    "Succeeded"
+                                  ]
+                                }
+                              },
+                              "Send_Unsupported_Response": {
+                                "type": "Compose",
+                                "inputs": {
+                                  "conversionStatus": "unsupported",
+                                  "n8nNodeName": "Send Unsupported Response",
+                                  "n8nNodeType": "n8n-nodes-base.whatsApp",
+                                  "message": "Replace this placeholder with an equivalent LAA action."
+                                },
+                                "description": "Generated placeholder for an unsupported n8n node.",
+                                "metadata": {
+                                  "x-n8n-original-parameters": {
+                                    "textBody": "=The File type you provided is unsupported.",
+                                    "operation": "send",
+                                    "phoneNumberId": "677680658761861",
+                                    "additionalFields": {},
+                                    "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}"
+                                  }
+                                },
+                                "runAfter": {
+                                  "Route_Document_Types": [
+                                    "Succeeded"
+                                  ]
+                                }
+                              }
+                            },
+                            "else": {
+                              "actions": {}
+                            },
+                            "runAfter": {}
+                          }
+                        }
+                      },
+                      "runAfter": {}
+                    }
+                  }
+                },
+                "runAfter": {}
+              }
+            }
+          },
+          "runAfter": {
+            "WhatsApp_Trigger": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_Response": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Send Response",
+            "n8nNodeType": "n8n-nodes-base.whatsApp",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "textBody": "={{ $json.output }}",
+              "operation": "send",
+              "phoneNumberId": "677680658761861",
+              "additionalFields": {},
+              "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}"
+            }
+          },
+          "runAfter": {
+            "Knowledge_Base_Agent": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "When_clicking_Execute_Workflow",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

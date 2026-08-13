@@ -1,0 +1,281 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "track-seo-keyword-rankings-with-bright-data-mcp-and-gpt-5-2-ai-analysis",
+    "name": "Track SEO keyword rankings with Bright Data MCP and GPT-5.2 AI analysis",
+    "description": "*This workflow contains community nodes that are only compatible with the self-hosted version of n8n.*\n\nThis workflow automatically monitors keyword rankings across search engines to track SEO performance and identify optimization opportunities. It saves you time by eliminating the need to manually check keyword positions and provides comprehensive ranking data for strategic SEO decision making.\n\n## Overview\n\nThis workflow automatically scrapes search engine results pages (SERPs) to track keyword rankings, competitor positions, and search features. It uses Bright Data to access search results without restrictions and AI to intelligently parse ranking data, track changes, and identify SEO opportunities.\n\n## Tools Used\n\n- **n8n**: The automation platform that orchestrates the workflow\n- **Bright Data**: For scraping search engine results without being blocked\n- **OpenAI**: AI agent for intelligent ranking analysis and SEO insights\n- **Google Sheets**: For storing keyword ranking data and tracking changes\n\n## How to Install\n\n1. **Import the Workflow**: Download the .json file and import it into your n8n instance\n2. **Configure Bright Data**: Add your Bright Data credentials to the MCP Client node\n3. **Set Up OpenAI**: Configure your OpenAI API credentials\n4. **Configure Google Sheets**: Connect your Google Sheets account and set up your ranking tracking spreadsheet\n5. **Customize**: Define target keywords and ranking monitoring parameters\n\n## Use Cases\n\n- **SEO Teams**: Track keyword performance and identify ranking improvements\n- **Content Marketing**: Monitor content ranking success and optimization needs\n- **Competitive Analysis**: Track competitor keyword rankings and strategies\n- **Digital Marketing**: Measure organic search performance and ROI\n\n## Connect with Me\n\n- **Website**: https://www.nofluff.online\n- **YouTube**: https://www.youtube.com/@YaronBeen/videos\n- **LinkedIn**: https://www.linkedin.com/in/yaronbeen/\n- **Get Bright Data**: https://get.brightdata.com/1tndi4600b25 (Using this link supports my free workflows with a small commission)\n\n#n8n #automation #keywordrankings #seo #searchrankings #brightdata #webscraping #seotools #n8nworkflow #workflow #nocode #ranktracking #keywordmonitoring #seoautomation #searchmarketing #organicseo #seoresearch #rankinganalysis #keywordanalysis #searchengines #seomonitoring #digitalmarketing #serp #keywordtracking #seoanalytics #searchoptimization #rankingreports #keywordresearch #seoinsights #searchperformance",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Market Research",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/inlineCode",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Trigger_Run_Daily_Weekly": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "OpenAI_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "id",
+                "value": "gpt-5.2"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "MCP_Client": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "MCP Client",
+            "n8nNodeType": "n8n-nodes-mcp.mcpClientTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "Input_Keyword_Domain": {
+          "type": "Compose",
+          "inputs": {
+            "keyword": "best running shoes"
+          },
+          "runAfter": {}
+        },
+        "SERP_Scraper_Agent_MCP": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "🤖 SERP Scraper Agent (MCP)",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=Based on the following keyword, provide me ranking of the 1st 5 website.\nkeyword: {{ $json.keyword }}",
+              "options": {},
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ],
+            "Auto_fixing_Output_Parser": [
+              "Succeeded"
+            ],
+            "Input_Keyword_Domain": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Format_SERP_Results": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['SERP_Scraper_Agent_MCP'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Get the SERP list from the incoming item\nconst serpList = items[0].json.output;\n\n// Emit each result as a separate item\nreturn serpList.map(result => {\n  return {\n    json: result\n  };\n});\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "SERP_Scraper_Agent_MCP": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Log_to_Google_Sheets": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "📊 Log to Google Sheets",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "URL": "={{ $json.url }}",
+                  "Rank": "={{ $json.rank }}",
+                  "Title": "={{ $json.title }}",
+                  "Description": "={{ $json.description }}"
+                },
+                "schema": [
+                  {
+                    "id": "Title",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Title",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "URL",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "URL",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Description",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Description",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Rank",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Rank",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "appendOrUpdate",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gid=0",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1p64unH_JjzG978cAxPZC4kSZmoXgvYTA-Q7qdfnxr8Y/edit#gid=0",
+                "cachedResultName": "Sheet1"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1p64unH_JjzG978cAxPZC4kSZmoXgvYTA-Q7qdfnxr8Y",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1p64unH_JjzG978cAxPZC4kSZmoXgvYTA-Q7qdfnxr8Y/edit?usp=drivesdk",
+                "cachedResultName": "Website Ranking"
+              }
+            }
+          },
+          "runAfter": {
+            "Format_SERP_Results": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Auto_fixing_Output_Parser": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Auto-fixing Output Parser",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "OpenAI_Chat_Model1": [
+              "Succeeded"
+            ],
+            "Structured_Output_Parser1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenAI_Chat_Model1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "id",
+                "value": "gpt-5.2"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Structured_Output_Parser1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Structured Output Parser1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsonSchemaExample": "[\n  {\n    \"rank\": 1,\n    \"title\": \"Runner's World\",\n    \"url\": \"https://www.runnersworld.com/gear/a19663621/best-running-shoes/\",\n    \"description\": \"A comprehensive guide on the best running shoes, recommending models like Brooks Ghost and Nike Pegasus for new runners.\"\n  },\n  {\n    \"rank\": 2,\n    \"title\": \"RunRepeat\",\n    \"url\": \"https://runrepeat.com/catalog/running-shoes\",\n    \"description\": \"Offers running shoe reviews with ratings for various models such as Nike Pegasus 41 and Hoka Mach 6.\"\n  },\n  {\n    \"rank\": 3,\n    \"title\": \"Believe in the Run\",\n    \"url\": \"https://believeintherun.com/shoe-reviews/best-running-shoes-2025/\",\n    \"description\": \"Features an in-depth guide to the best running shoes of 2025 across different categories.\"\n  },\n  {\n    \"rank\": 4,\n    \"title\": \"The Run Testers\",\n    \"url\": \"https://theruntesters.com/running-shoes/the-best-running-shoes-to-buy/\",\n    \"description\": \"Reviews the best running shoes available, highlighting their performance and value.\"\n  },\n  {\n    \"rank\": 5,\n    \"title\": \"Men's Health\",\n    \"url\": \"https://www.menshealth.com/fitness/a64476227/running-shoes-editors-picks/\",\n    \"description\": \"Provides a selection of top running shoes recommended by Men's Health editors.\"\n  }\n]\n"
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Trigger_Run_Daily_Weekly",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

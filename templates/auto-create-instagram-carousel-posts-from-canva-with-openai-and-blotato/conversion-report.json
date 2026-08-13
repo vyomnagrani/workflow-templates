@@ -1,0 +1,74 @@
+{
+  "sourceWorkflowName": "Auto-create Instagram carousel posts from Canva with OpenAI and Blotato",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 9,
+  "totalNodes": 15,
+  "coverage": 0.6,
+  "diagnostics": [
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.splitOut.",
+      "severity": "warning",
+      "node_name": "Split Out Slides",
+      "node_type": "n8n-nodes-base.splitOut",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @blotato/n8n-nodes-blotato.blotato.",
+      "severity": "warning",
+      "node_name": "Upload media",
+      "node_type": "@blotato/n8n-nodes-blotato.blotato",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.aggregate.",
+      "severity": "warning",
+      "node_name": "Aggregate",
+      "node_type": "n8n-nodes-base.aggregate",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Telegram message/sendAndWait requires text and chatId for deterministic conversion.",
+      "severity": "warning",
+      "node_name": "Send message and wait for response",
+      "node_type": "n8n-nodes-base.telegram",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.telegram is not safely supported.",
+      "severity": "warning",
+      "node_name": "Send message and wait for response",
+      "node_type": "n8n-nodes-base.telegram",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @blotato/n8n-nodes-blotato.blotato.",
+      "severity": "warning",
+      "node_name": "Create post",
+      "node_type": "@blotato/n8n-nodes-blotato.blotato",
+      "json_path": null
+    },
+    {
+      "code": "TELEGRAM_TOKEN_REQUIRED",
+      "message": "Replace the Telegram bot-token placeholder with a secure deployment value before import.",
+      "severity": "warning",
+      "node_name": "Send a text message",
+      "node_type": "n8n-nodes-base.telegram",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.openAi.",
+      "severity": "warning",
+      "node_name": "Caption Generator",
+      "node_type": "@n8n/n8n-nodes-langchain.openAi",
+      "json_path": null
+    }
+  ]
+}

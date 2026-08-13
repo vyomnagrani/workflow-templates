@@ -1,0 +1,245 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "process-large-documents-with-ocr-using-subworkflowai-and-gemini",
+    "name": "Process large documents with OCR using SubworkflowAI and Gemini",
+    "description": "## Working with Large Documents In Your VLM OCR Workflow\n\nDocument workflows are popular ways to use AI but what happens when your document is too large for your app or your AI to handle? Whether its context window or application memory that's grinding to a halt, [Subworkflow.ai](https://subworkflow.ai?utm=n8n) is one approach to keep you going.\n\n&gt; Subworkflow.ai is a third party API service to help AI developers work with documents too large for context windows and runtime memory.\n\n### Prequisites\n1. You'll need a Subworkflow.ai API key to use the Subworkflow.ai service.\n2. Add the API key as a header auth credential. More details in the official docs [https://docs.subworkflow.ai/category/api-reference](https://docs.subworkflow.ai/category/api-reference)\n\n### How it Works\n1. Import your document into your n8n workflow\n2. Upload it to the Subworkflow.ai service via the **Extract API** using the HTTP node. This endpoint takes files up to 100mb.\n3. Once uploaded, this will trigger an `Extract` job on the service's side and the response is a \"job\" record to track progress.\n4. Poll Subworkflow.ai's `Jobs` endpoint and keep polling until the job is finished. You can use the \"IF\" node looping back unto itself to achieve this in n8n.\n5. Once the job is done, the `Dataset` of the uploaded document is ready for retrieval. Use the `Datasets` and `DatasetItems` API to retrieve whatever you need to complete your AI task.\n6. In this example, all pages are retrieved and run through a multimodal LLM to parse into markdown. A well-known process when parsing data tables or graphics are required.\n\n### How to use\n* Integrate Subworkflow's Extract API seemlessly into your existing document workflows to support larger documents from 100mb+ to up to 5000 pages.\n\n### Customising the workflow\n* Sometimes you don't want the entire document back especially if the document is quite large (think 500+ pages!), instead, use query parameters on the `DatasetItems` API to pick individual pages or a range of pages to reduce the load.\n\n### Need Help?\n* **Official API documentation**: [https://docs.subworkflow.ai/category/api-reference](https://docs.subworkflow.ai/category/api-reference)\n* **Join the discord**: [https://discord.gg/RCHeCPJnYw](RCHeCPJnYw)",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Document Extraction",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "When_clicking_Execute_workflow": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Wait": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 1,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Check_Job_Status": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Check_Job_Status": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.subworkflow.ai/v1/jobs/@{body('Job_Complete')?['data']?['id']}"
+          },
+          "runAfter": {
+            "Job_Complete": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_Dataset_Items": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.subworkflow.ai/v1/datasets/@{body('Get_Dataset')?['data']?['id']}/items?row=jpg&limit=10"
+          },
+          "runAfter": {
+            "Get_Dataset": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_Dataset": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.subworkflow.ai/v1/datasets/@{body('Job_Complete')?['data']?['datasetId']}"
+          },
+          "runAfter": {
+            "Job_Complete": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_file": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Download file",
+            "n8nNodeType": "n8n-nodes-base.googleDrive",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "=1wS9U7MQDthj57CvEcqG_Llkr-ek6RqGA"
+              },
+              "options": {},
+              "operation": "download"
+            }
+          },
+          "runAfter": {}
+        },
+        "Split_Out": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Split Out",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldToSplitOut": "data"
+            }
+          },
+          "runAfter": {
+            "Get_Dataset_Items": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_API": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.subworkflow.ai/v1/extract",
+            "body": {
+              "file": null,
+              "expiresInDays": "0"
+            }
+          },
+          "runAfter": {
+            "Download_file": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Job_Complete": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Job Complete?",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "or",
+                "conditions": [
+                  {
+                    "id": "3b76a3df-2333-42ae-adc9-e82c3e6d8cf5",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.data.status }}",
+                    "rightValue": "SUCCESS"
+                  },
+                  {
+                    "id": "5ae3b589-fd55-43ea-8e94-4923dd2bbc5f",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.data.status }}",
+                    "rightValue": "ERROR"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Wait": [
+              "Succeeded"
+            ],
+            "Extract_API": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Document_OCR_via_VLM": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Document OCR via VLM",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.googleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "Transcribe this image to Markdown",
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "models/gemini-2.5-flash",
+                "cachedResultName": "models/gemini-2.5-flash"
+              },
+              "options": {},
+              "resource": "image",
+              "imageUrls": "={{ $json.share.url }}",
+              "operation": "analyze"
+            }
+          },
+          "runAfter": {
+            "Split_Out": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "When_clicking_Execute_workflow",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

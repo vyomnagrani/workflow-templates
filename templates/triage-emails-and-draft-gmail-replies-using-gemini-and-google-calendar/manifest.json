@@ -1,0 +1,653 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "triage-emails-and-draft-gmail-replies-using-gemini-and-google-calendar",
+    "name": "Triage emails and draft Gmail replies using Gemini and Google Calendar",
+    "description": "## Who it's for\n\nThis workflow is for professionals and small business owners who receive a high volume of emails and want to automate triage, labeling, and draft reply generation — without losing the human touch before sending.\n\n## How it works\n\n1. A Gmail trigger polls the inbox every minute for new unread emails and retrieves the current date.\n2. The full email message is fetched, and any existing processing labels are stripped from the thread.\n3. A Gemini 2.5 Pro AI Agent reads the email (and the full thread via a Gmail Thread tool), checks Google Calendar for availability, then classifies the email into one of six categories (Urgent, Reply, Read, Notification, Newsletter, Invoice) and drafts an HTML reply when needed.\n4. A Switch node routes the output: emails requiring a reply (Urgent or Reply) pass through a JavaScript node that appends an HTML signature before saving the message as a Gmail draft.\n5. All paths converge to fetch the matching Gmail label, filter for validity, apply it to the thread, and mark the message as unread so it surfaces for human review.\n\n## How to set up\n\n- [ ] Connect a **Gmail OAuth2** credential to all Gmail nodes (trigger, fetch, remove label, draft, label, mark unread)\n- [ ] Connect a **Google Gemini (PaLM)** API credential to the Gemini Chat Model node\n- [ ] Connect a **Google Calendar OAuth2** credential to the Google Calendar Tool node\n- [ ] Configure the Gmail Trigger label/filter to match your inbox setup\n- [ ] Update the label IDs in `Remove Label from Thread`, `Get label for response`, and `Labelliser` to match your Gmail labels\n- [ ] Customize the HTML signature in the `Build HTML Signature` code node\n\n## Requirements\n\n- Gmail account with OAuth2 access\n- Google Gemini (PaLM) API key\n- Google Calendar account\n\n## How to customize\n\n- Adjust the AI Agent's system prompt to change tone, add new label categories, or modify the reply structure.\n- Extend the Switch node with additional branches (e.g., forward to a team member, archive automatically, create a CRM task).\n- Replace the Gmail draft step with a direct send for fully automated responses on low-risk categories like Notifications.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Ticket Management",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/inlineCode",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Fetch_Email_Details": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Fetch Email Details",
+            "n8nNodeType": "n8n-nodes-base.gmail",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "simple": false,
+              "options": {},
+              "messageId": "={{ $json.id }}",
+              "operation": "get"
+            }
+          },
+          "runAfter": {
+            "Get_Current_Date": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Add_Label_to_Email": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Add Label to Email",
+            "n8nNodeType": "n8n-nodes-base.gmail",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "labelIds": "={{ $json.id }}",
+              "messageId": "={{ $('Fetch Email Details').item.json.id }}",
+              "operation": "addLabels"
+            }
+          },
+          "runAfter": {
+            "Filter_Valid_Label": [
+              "Succeeded"
+            ]
+          }
+        },
+        "When_New_Email_Arrives": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "When New Email Arrives",
+            "n8nNodeType": "n8n-nodes-base.gmailTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "simple": false,
+              "filters": {
+                "labelIds": [
+                  "INBOX"
+                ],
+                "readStatus": "unread"
+              },
+              "options": {},
+              "pollTimes": {
+                "item": [
+                  {
+                    "mode": "everyMinute"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Send_Response_Email": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Send Response Email",
+            "n8nNodeType": "n8n-nodes-base.gmail",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "resource": "label",
+              "returnAll": true
+            }
+          },
+          "runAfter": {
+            "Send_Draft_Email": [
+              "Succeeded"
+            ],
+            "Route_by_Draft_Type": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Filter_Valid_Label": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Filter Valid Label",
+            "n8nNodeType": "n8n-nodes-base.filter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "dbc96cc7-5d0a-4b4e-8e8c-a10d46bd6e8e",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.name }}",
+                    "rightValue": "={{ $('Draft and Label Agent').item.json.output['Libellé'] }}"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Send_Response_Email": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Draft_and_Label_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Draft and Label Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=Analyze this email and classify it according to the system prompt criteria.\n\n📧 EMAIL INFORMATION:\n- From: {{ $('Fetch Email Details').item.json.from }}\n- To: {{ $('Fetch Email Details').item.json.to }}\n- CC: {{ $('Fetch Email Details').item.json.cc }}\n- Subject: {{ $('Fetch Email Details').item.json.subject }}\n- Body: {{ $('Fetch Email Details').item.json.text }}\n- Headers: {{ JSON.stringify($('Fetch Email Details').item.json.headers) }}\n- Date: {{ $('Get Current Date').item.json.date }}\n\n⚠️ IMPORTANT REMINDERS:\n- If the email is part of a thread, use the THREAD tool to retrieve the full context\n- Check whether the user is a DIRECT recipient (To) or only in CC\n- Check if the email is addressed directly to the user (e.g. \"Hello\", \"Hi\" with intent)\n- Apply the \"Reply\" or \"Urgent\" tag ONLY if the email is addressed directly to the user\n- Apply the \"Invoice\" tag to emails mentioning invoices\n- Adapt tone (formal/informal) based on the email received\n- If a meeting is requested, use the CALENDAR tool to propose real time slots\n- For emails with specific requests, respond as if the task has already been completed\n\nReturn your response in the exact JSON format specified in the system prompt.",
+              "options": {
+                "systemMessage": "=You are an assistant specialized in classifying professional emails and drafting replies.\n\n⚠️ CRITICAL FORMAT INSTRUCTION ⚠️\n\nYou must ONLY return a valid JSON object, NOTHING ELSE.\n- No text before the JSON\n- No text after the JSON\n- No markdown (no ```json)\n- No explanation\n- Only raw JSON\n\nExpected format:\n{\"label\": \"...\", \"message\": \"...\"}\n\n## IMPORTANT CONTEXT\n\nYou analyze emails that may belong to existing conversations (threads). If a thread exists, you MUST consider the full conversation context when classifying.\n\n**ABSOLUTE RULE**: You must assign ONLY ONE label per email.\n\n## CLASSIFICATION CATEGORIES (priority order)\n\n### 1. Urgent\nRequires immediate attention (< 2 hours)\n- Angry customer, conflict\n- Service down / blocking issue\n- Critical technical problem\n- Tight deadline (today/tomorrow)\n- Urgent business opportunity\n- Payment or billing issue\n- Keywords: \"URGENT\", \"ASAP\", \"blocked\", \"down\"\n\n### 2. Reply\nRequires a response (< 48h)\n- Quote request\n- Client question\n- Project modification\n- Partner/collaborator message\n- Meeting request\n- First contact\n\n### 3. Read\nInformational only\n- User is in CC\n- Group discussion not requiring input\n- Not directly addressed to the user\n- Reports, updates, newsletters\n\n### 4. Notification\nAutomated emails\n- OTP / verification codes\n- Platform notifications\n- \"noreply\" senders\n- System alerts\n- Confirmations\n\n### 5. Newsletter\nSubscription-based content\n- Marketing emails\n- Contains \"unsubscribe\"\n\n### 6. Invoice\nInvoice-related email\n- Attachments or mentions of \"invoice\"\n- Billing tools\n\n## THREAD LOGIC\n\nIf part of a thread:\n1. Read ALL messages\n2. Understand context\n3. Adapt label:\n   - Same context → keep label\n   - Escalation → upgrade priority\n   - De-escalation → downgrade\n\nIf new thread:\n- Apply normal classification\n\n## DRAFT WRITING\n\nONLY for \"Urgent\" and \"Reply\"\n\n### Tone\n- Match sender tone\n- Informal → informal\n- Formal → formal\n- Default → formal\n- Keep it human, concise\n\n### Structure\n- Greeting\n- Direct answer\n- Clarifying questions if needed\n- Closing\n\n### HTML FORMAT\n- Use `<p>` for paragraphs\n- Use `<br>` for line breaks\n- NO `<html>` `<body>`\n- DO NOT include a signature\n\n### Meetings\n- Use calendar tool\n- Suggest 2–3 slots\n\n## OUTPUT FORMAT\n\nFor Notification or Read:\n{\n  \"label\": \"Notification\",\n  \"message\": \"\"\n}\n\nFor Urgent or Reply:\n{\n  \"label\": \"Urgent\",\n  \"message\": \"<p>Hello,</p><p>...</p>\"\n}\n\n## RULES\n\n1. Only ONE label\n2. Consider thread context\n3. No signature\n4. Adapt tone\n5. Strict JSON output only\n6. Only reply if email is directed to the user"
+              },
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "Gemini_Chat_Model": [
+              "Succeeded"
+            ],
+            "Gmail_Thread_Tool": [
+              "Succeeded"
+            ],
+            "Google_Calendar_Tool": [
+              "Succeeded"
+            ],
+            "Remove_Label_from_Thread": [
+              "Succeeded"
+            ],
+            "Structured_Output_Parser": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_Draft_Email": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Send Draft Email",
+            "n8nNodeType": "n8n-nodes-base.gmail",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "message": "={{ $json.output.message }}",
+              "options": {
+                "ccList": "={{ [...(($('Fetch Email Details').item.json.to?.value || []).filter(r => r.address !== 'hugo@institut-du-referencement.com').map(r => r.address)), ...(($('Fetch Email Details').item.json.cc?.value || []).filter(r => r.address !== 'hugo@institut-du-referencement.com').map(r => r.address))].filter(Boolean).join(', ') }}",
+                "sendTo": "={{ $('Fetch Email Details').item.json.from.value[0].address }}",
+                "threadId": "={{ $('When New Email Arrives').item.json.threadId }}"
+              },
+              "subject": "={{ $('When New Email Arrives').item.json.subject }}",
+              "resource": "draft",
+              "emailType": "html"
+            }
+          },
+          "runAfter": {
+            "Build_HTML_Signature": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Route_by_Draft_Type": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Route by Draft Type",
+            "n8nNodeType": "n8n-nodes-base.switch",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "rules": {
+                "values": [
+                  {
+                    "outputKey": "Urgent",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "6fec23a9-71c4-455d-af78-e127c08ee792",
+                          "operator": {
+                            "name": "filter.operator.equals",
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.output['Libellé'] }}",
+                          "rightValue": "Urgent"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "Répondre",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "20106af7-9760-4588-b705-99458e427805",
+                          "operator": {
+                            "name": "filter.operator.equals",
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.output['Libellé'] }}",
+                          "rightValue": "Répondre"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "Notification",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "7835f679-ff74-4240-9566-7473a804a1c1",
+                          "operator": {
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.output['Libellé'] }}",
+                          "rightValue": "Notification"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "Lire",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "9b668a0e-9ae5-4b77-9af9-15ea76d74fab",
+                          "operator": {
+                            "name": "filter.operator.equals",
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.output['Libellé'] }}",
+                          "rightValue": "Lire"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "Facture",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "16d38e1e-3e24-4e47-8c69-b3e754b8a4da",
+                          "operator": {
+                            "name": "filter.operator.equals",
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.output['Libellé'] }}",
+                          "rightValue": "Facture"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "Newsletter",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "ba641b6b-cad8-446b-976c-d94539ed3e0b",
+                          "operator": {
+                            "name": "filter.operator.equals",
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.output['Libellé'] }}",
+                          "rightValue": "Newsletter"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  }
+                ]
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Draft_and_Label_Agent": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Build_HTML_Signature": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Route_by_Draft_Type'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Signature HTML\nconst signature = `\n<table style=\"border:none;border-collapse:collapse;margin-top:20px\">\n  <colgroup>\n    <col width=\"144\">\n    <col width=\"43\">\n    <col width=\"183\">\n    <col width=\"36\">\n    <col width=\"226\">\n  </colgroup>\n  <tbody>\n    <tr style=\"height:42pt\">\n      <td rowspan=\"3\" style=\"border-right:1.5pt solid rgb(0,0,0);vertical-align:middle;padding:5pt;overflow:hidden\">\n        <p style=\"line-height:1.2;margin:0\">\n          <img src=\"https://lh7-us.googleusercontent.com/VvLaGliwFYP-ed8yKYPZqXb2GCBByMGMxTrkrB--LZGld2NUwexydNBq-NB2hU-VGkK207Mgh_L_zOVHPq8lw7dBRb7wNnbUee7zC0vgeAb2dLE-vbON4oDLlQZzo8yePuWMLZPv5aNqF9JX3PpysQ\" \n               width=\"104\" \n               height=\"105\" \n               style=\"display:block;margin:0\" \n               alt=\"Logo Institut du Référencement\">\n        </p>\n      </td>\n      <td colspan=\"4\" style=\"border-left:1.5pt solid rgb(0,0,0);vertical-align:middle;padding:5pt;overflow:hidden\">\n        <p style=\"line-height:1.38;margin:0 0 0 7px\">\n          <span style=\"font-size:9pt;font-family:Poppins,sans-serif;color:rgb(0,0,0);font-weight:700\">HUGO MARINIER</span>\n        </p>\n        <p style=\"line-height:1.38;margin:0 0 0 7px\">\n          <span style=\"font-size:9pt;font-family:Poppins,sans-serif;color:rgb(0,0,0)\">Fondateur - Consultant spécialiste SEO / SEA</span>\n        </p>\n        <p style=\"line-height:1.38;margin:0 0 0 7px\">\n          <span style=\"font-size:9pt;font-family:Poppins,sans-serif;color:rgb(0,0,0)\">0650933800</span>\n        </p>\n      </td>\n    </tr>\n    <tr style=\"height:23.25pt\">\n      <td style=\"border-left:1.5pt solid rgb(0,0,0);vertical-align:middle;padding:5pt;overflow:hidden\">\n        <p style=\"line-height:1.2;margin:0 0 0 7px\">\n          <a href=\"http://institut-du-referencement.com/\" target=\"_blank\">\n            <img src=\"https://lh7-us.googleusercontent.com/qbH_6YMzb6_I4AUGs5YfG8ZiC6rje-OpkOGAAkRQyEM6KVy5ZL9hg83sJbnLs-1394aKnVAyWg1v8hSK7PypQdsBeCdERmVNaSIyip1jwD-lvBoIK6s1eM-Ik81xFGSdC3DFzlYSmtxUrDyeHBl29w\" \n                 width=\"17\" \n                 height=\"17\" \n                 style=\"display:block;margin:0\" \n                 alt=\"Website\">\n          </a>\n        </p>\n      </td>\n      <td style=\"vertical-align:middle;padding:5pt;overflow:hidden\">\n        <p style=\"line-height:1.2;margin:0\">\n          <a href=\"http://institut-du-referencement.com/\" target=\"_blank\" style=\"font-size:8pt;font-family:Poppins,sans-serif;color:rgb(67,67,67);text-decoration:none\">institut-du-referencement.com</a>\n        </p>\n      </td>\n      <td style=\"vertical-align:middle;padding:5pt;overflow:hidden\">\n        <p style=\"line-height:1.2;margin:0\">\n          <a href=\"mailto:user@example.com\">\n            <img src=\"https://lh7-us.googleusercontent.com/bJ5EecZ12cbyaM0AXrBctw-H6uBh_DFTO6M00tcjUXNQldgphcWGjW8MMW4Ip_AzL5zo0rrH4K4h2nf_v2gUQ57szIzPXKYnVahZbgUN7dE7eSdM-34jaXSFC-z2yYJlS7MOrudjNzipOtsp3GCOGQ\" \n                 width=\"18\" \n                 height=\"18\" \n                 style=\"display:block;margin:0\" \n                 alt=\"Email\">\n          </a>\n        </p>\n      </td>\n      <td style=\"vertical-align:middle;padding:5pt;overflow:hidden\">\n        <p style=\"line-height:1.2;margin:0\">\n          <a href=\"mailto:user@example.com\" style=\"font-size:8pt;font-family:Poppins,sans-serif;color:rgb(67,67,67);text-decoration:none\">user@example.com</a>\n        </p>\n      </td>\n    </tr>\n    <tr style=\"height:24pt\">\n      <td colspan=\"4\" style=\"border-left:1.5pt solid rgb(0,0,0);vertical-align:middle;padding:5pt;overflow:hidden\">\n        <p style=\"line-height:1.2;margin:0 0 0 7px\">\n          <a href=\"https://www.linkedin.com/in/hugo-marinier-6537b633/\" target=\"_blank\">\n            <img src=\"https://lh3.googleusercontent.com/Prw_tSY7_8xLWZe1tnV5fYX_QtnQvO_n7S11xEREpjMX2alziUHWc_j4SyH3u_OntkFXIZfFurl2j3O9NTcdfjnDZeDHtwZk4lR0UlIMxiGXtF0Zbm7AbxaZYFmLFcSAtScaro5i\" \n                 width=\"19\" \n                 height=\"19\" \n                 style=\"display:inline-block;margin:0;vertical-align:middle\" \n                 alt=\"LinkedIn\">\n          </a>\n          &nbsp;&nbsp;\n          <a href=\"https://twitter.com/hugomarinier?lang=fr\" target=\"_blank\">\n            <img src=\"https://lh4.googleusercontent.com/jVuq3kCeQRI-0a1x25ShkqSDVRTgzjBd-s73Abi3fqiuPXfrOHsmjMPokpCXZOnwR7OduazLaoUXFJ5pMvsoG1dn76jlaQ0UhRK4-9yPpgTP2eOc610LNzr3g-4lfeaGqPvFYCjx\" \n                 width=\"21\" \n                 height=\"21\" \n                 style=\"display:inline-block;margin:0;vertical-align:middle\" \n                 alt=\"Twitter\">\n          </a>\n        </p>\n      </td>\n    </tr>\n  </tbody>\n</table>\n`;\n\n// Récupérer le message généré par l'agent\nconst agentOutput = $input.first().json.output;\n\n// Si pas de message (cas Notification ou Lire), ne rien faire\nif (!agentOutput.message || agentOutput.message === '') {\n  return $input.all();\n}\n\n// Ajouter la signature au message\nconst messageWithSignature = agentOutput.message + signature;\n\n// Retourner le résultat modifié\nreturn {\n  json: {\n    output: {\n      Libellé: agentOutput.Libellé,\n      message: messageWithSignature\n    }\n  }\n};\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Route_by_Draft_Type": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_Current_Date": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['When_New_Email_Arrives'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nvar date = new Date().toISOString();\nvar day = new Date().getDay();\nconst weekday = [\"Dimanche\", \"Lundi\", \"Mardi\", \"Mercredi\", \"Jeudi\", \"Vendredi\", \"Samedi\"];\n\nitems[0].json.date_today = date;\nitems[0].json.day_today = weekday[day];\n\nreturn items;\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "When_New_Email_Arrives": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Remove_Label_from_Thread": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Remove Label from Thread",
+            "n8nNodeType": "n8n-nodes-base.gmail",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "labelIds": [
+                "Label_13",
+                "Label_14",
+                "Label_7",
+                "Label_4695+1234567890",
+                "Label_12",
+                "Label_16"
+              ],
+              "resource": "thread",
+              "threadId": "={{ $('Fetch Email Details').item.json.threadId }}",
+              "operation": "removeLabels"
+            }
+          },
+          "runAfter": {
+            "Fetch_Email_Details": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Calendar_Tool": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Calendar Tool",
+            "n8nNodeType": "n8n-nodes-base.googleCalendarTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "timeZone": {
+                  "__rl": true,
+                  "mode": "list",
+                  "value": "Europe/Paris",
+                  "cachedResultName": "Europe/Paris"
+                }
+              },
+              "calendar": {
+                "__rl": true,
+                "mode": "list",
+                "value": "user@example.com",
+                "cachedResultName": "user@example.com"
+              },
+              "operation": "getAll",
+              "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}"
+            }
+          },
+          "runAfter": {}
+        },
+        "Gemini_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Gemini Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "modelName": "models/gemini-2.5-pro"
+            }
+          },
+          "runAfter": {}
+        },
+        "Gmail_Thread_Tool": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Gmail Thread Tool",
+            "n8nNodeType": "n8n-nodes-base.gmailTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "simple": false,
+              "options": {},
+              "resource": "thread",
+              "threadId": "={{ $('Fetch Email Details').item.json.threadId }}",
+              "operation": "get"
+            }
+          },
+          "runAfter": {}
+        },
+        "Structured_Output_Parser": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Structured Output Parser",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsonSchemaExample": "{\n  \"Libellé\": \"Notification|Lire|Répondre|Urgent\",\n  \"message\": \"Contenu HTML du brouillon de réponse (vide si pas de réponse nécessaire)\"\n}"
+            }
+          },
+          "runAfter": {}
+        },
+        "Mark_Email_as_Unread": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Mark Email as Unread",
+            "n8nNodeType": "n8n-nodes-base.gmail",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "messageId": "={{ $('Fetch Email Details').item.json.id }}",
+              "operation": "markAsUnread"
+            }
+          },
+          "runAfter": {
+            "Add_Label_to_Email": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {
+    "When_New_Email_Arrives": {
+      "status": "Succeeded",
+      "outputs": {
+        "statusCode": "200",
+        "body": {
+          "id": "19d25ff8644d2fcf",
+          "to": {
+            "html": "<span class=\"mp_address_group\"><span class=\"mp_address_name\">Hugo Marinier</span> &lt;<a href=\"mailto:hugo@institut-du-referencement.com\" class=\"mp_address_email\">hugo@institut-du-referencement.com</a>&gt;</span>",
+            "text": "\"Hugo Marinier\" <hugo@institut-du-referencement.com>",
+            "value": [
+              {
+                "name": "Hugo Marinier",
+                "address": "hugo@institut-du-referencement.com"
+              }
+            ]
+          },
+          "date": "2026-03-25T17:16:23.000Z",
+          "from": {
+            "html": "<span class=\"mp_address_group\"><span class=\"mp_address_name\">Hugo Marinier</span> &lt;<a href=\"mailto:hgmarinier@gmail.com\" class=\"mp_address_email\">hgmarinier@gmail.com</a>&gt;</span>",
+            "text": "\"Hugo Marinier\" <hgmarinier@gmail.com>",
+            "value": [
+              {
+                "name": "Hugo Marinier",
+                "address": "hgmarinier@gmail.com"
+              }
+            ]
+          },
+          "html": "<div dir=\"ltr\"><div>Salut hugo ça va depuis le temps ?</div><div><br></div><div>Est ce que tu aurais un moment cette semaine pour discuter de la vie ?</div><div><br></div><span class=\"gmail_signature_prefix\">-- </span><br><div dir=\"ltr\" class=\"gmail_signature\" data-smartmail=\"gmail_signature\"><div dir=\"ltr\">A bientôt,<div><br></div><div>Hugo Marinier<div>+33 650 93 38 00</div><div><br></div></div></div></div></div>\n",
+          "text": "Salut hugo ça va depuis le temps ?\n\nEst ce que tu aurais un moment cette semaine pour discuter de la vie ?\n\n-- \nA bientôt,\n\nHugo Marinier\n+33 650 93 38 00\n",
+          "headers": {
+            "to": "To: Hugo Marinier <hugo@institut-du-referencement.com>",
+            "date": "Date: Wed, 25 Mar 2026 18:16:23 +0100",
+            "from": "From: Hugo Marinier <hgmarinier@gmail.com>",
+            "subject": "Subject: Hello mec",
+            "x-gm-gg": "X-Gm-Gg: ATEYQzxR1x1SZKNe6FV04HH7WfoC4dENAQEhG6NOWQFaulmUdq3KC4gyRvaqwxjylFZ\r\n\tP6sGRudSO2R9ttPyxYyRY0MjD2SqsB9FMMrnWiefHtm0E3vz4S+GORxAA8uA9qVaWZCFbqoH/it\r\n\tftlCnPV5MM0H1m6GQYoi4aFtjAFdznhnSi2a1a6sHVfvDgK6JnxvyEt7wWbUnX/h0F2XUMDiH2y\r\n\tZ2VNoG8kjpjZ6KXUZU6/exiEF2GcfZcv4nQayRuFmlo8wJPlonLfgcnFJWCFIKLNJiD9fNchfy1\r\n\tjXLz66rLlhGadPaPltdPWqkXyV6wPBH9sAAsuQ==",
+            "arc-seal": "ARC-Seal: i=1; a=rsa-sha256; t=1774458996; cv=none;\r\n        d=google.com; s=arc-20240605;\r\n        b=gZsfcMsvVWvXOgWLV10V7R40u4A1EWcBEsxw4qJ1lNiIqP7VPNwkXOJN/QH76yZhVn\r\n         gyBxyUZvojnBstZuHBuX59b3xaJrfAD9GBVvIkSjuAI+rNER0aY3OMLveCkc5PXtP+EF\r\n         2LgsGrjbLR/P4yJzqJ5Yhtk7UevuvntidCi3fMyNFWk6YtiEW2EaAenQWFfy3XUA/lAs\r\n         aW73mNSgAdKWD5wwJPX3FA/NXQx5pv0p6TobzPPOVNIk5+dYF7WwfYMhNIdTz47lUwk7\r\n         zhj+7Be/7NA03JMd9kXtT6Z2UAyJ5JHOi37ZRji7kUpkrkkG91Bp3EQTszYyv7aT4ZuL\r\n         gp3Q==",
+            "received": "Received: from mail-sor-f41.google.com (mail-sor-f41.google.com. [209.85.220.41])\r\n        by mx.google.com with SMTPS id 4fb4d7f45d1cf-66ad6a57e9bsor56110a12.12.2026.03.25.10.16.36\r\n        for <hugo@institut-du-referencement.com>\r\n        (Google Transport Security);\r\n        Wed, 25 Mar 2026 10:16:36 -0700 (PDT)",
+            "message-id": "Message-ID: <CANuDJiM3K3nFMEdSQz3XAFuCHaALOYDqhsCcgZjr4iqe2g2_Pw@mail.gmail.com>",
+            "x-received": "X-Received: by 2002:a05:6402:44d8:b0:66a:819b:e8dc with SMTP id\r\n 4fb4d7f45d1cf-66a82618402mr2347013a12.3.1774458995552; Wed, 25 Mar 2026\r\n 10:16:35 -0700 (PDT)",
+            "return-path": "Return-Path: <hgmarinier@gmail.com>",
+            "content-type": "Content-Type: multipart/alternative; boundary=\"0000000000001932ab064ddc6e8a\"",
+            "delivered-to": "Delivered-To: hugo@institut-du-referencement.com",
+            "mime-version": "MIME-Version: 1.0",
+            "received-spf": "Received-SPF: pass (google.com: domain of hgmarinier@gmail.com designates 209.85.220.41 as permitted sender) client-ip=209.85.220.41;",
+            "x-gm-features": "X-Gm-Features: AQROBzCpBEpHi0ChORrlbkyiw9G1e_e-qaQ09N2bbiA4vMRjp6emfH7DSUZvVXE",
+            "dkim-signature": "DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;\r\n        d=gmail.com; s=20251104; t=1774458996; x=1775063796; darn=institut-du-referencement.com;\r\n        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject\r\n         :date:message-id:reply-to;\r\n        bh=WguWEU05krEt+nADTeKOgse/5+fZOYtxCjy84zOKWhA=;\r\n        b=M7gxMNfa98cjndJG5SFmY0Rs8n3RhOHzq5yChYKt8/tiz8LORxjXkj7fvtO2w7FqdF\r\n         REtTz3bv7KGZ94FrpZdjbDjgZoy88nc+I3tn4I+79hY3a5zqol/LiOokZynB/wW0lWyG\r\n         dARHLyuJP384Iw2QaXEZyYfdnHa+OkHqLQo4fTfnOfcaFsOVM+J9K2vzuxszRQLQMe55\r\n         8zgpjipJin8p42KjTpPGCOXoItRRTSxT4NG+SAw9KRrPPLiDaeWHrxK/FyIgYAZhzvw4\r\n         ujC2cBXRmrKVGuxmYJtghiMDUJXowdJljorN5Ul3n0BN3Hkfsk/RIKgElVk3aSBbvzEO\r\n         7uUg==",
+            "x-gm-message-state": "X-Gm-Message-State: AOJu0Yx5eZEo+25yon2APP+2WHLceyA15d9ivDetfszDXiYQqwF+XP9I\r\n\tB//pb2Mldag+fpnZlCBVhZPELPR+wiSxmssywVJLc2GvanElrZubhdbg8igVpr+leRiYAckhtvI\r\n\tekgRL9uCbXmZAzl/eY/LTnQxY+ReJ78BLxw==",
+            "arc-message-signature": "ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;\r\n        h=to:subject:message-id:date:from:mime-version:dkim-signature;\r\n        bh=WguWEU05krEt+nADTeKOgse/5+fZOYtxCjy84zOKWhA=;\r\n        fh=9jjWVfx/lgo26iRly5IKK/TQ5bgn4LCyf6+RcsVzjh4=;\r\n        b=Bf3h6q6QeRBcEtB7NVqDkWZNiwRXssW5f+rY+soZFhuxfsq+sY0YemeQ90ylJW4Ul2\r\n         umBZ73hrwTb9Mnrqs2nuk+DrWCqRiNy6ERnBiZO3FpHHjm7YwJcQGJfOp1fVx2Zct1af\r\n         9IsU/z/9XeIqiqQcAWJ8GGSYvcDzo2QJwbGj+g5EFemE02/8RpP6q4hYqL3ycI8eRfsS\r\n         3YzDdav7E1j1XuNvLVAGQjBXNMDlDOUFako37MhZ/oZwusfWIuJ8OAMul6iLTiU9s6G8\r\n         XLC5IF3wlLf2tfFdbFOUe8bc5Y9O2X9F6RELdSXfM9GihI18ExhlKOY60J2pPdaRsjn9\r\n         r9HA==;\r\n        darn=institut-du-referencement.com",
+            "authentication-results": "Authentication-Results: mx.google.com;\r\n       dkim=pass header.i=@gmail.com header.s=20251104 header.b=M7gxMNfa;\r\n       arc=pass (i=1);\r\n       spf=pass (google.com: domain of hgmarinier@gmail.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=hgmarinier@gmail.com;\r\n       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com;\r\n       dara=neutral header.i=@institut-du-referencement.com",
+            "x-google-dkim-signature": "X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;\r\n        d=1e100.net; s=20251104; t=1774458996; x=1775063796;\r\n        h=to:subject:message-id:date:from:mime-version:x-gm-gg\r\n         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;\r\n        bh=WguWEU05krEt+nADTeKOgse/5+fZOYtxCjy84zOKWhA=;\r\n        b=iO35NRKUweaqm14hBo4FXiUV9t2r9wcysAhmPinlWCD847M8gqopuluUOiq3wsACHF\r\n         g/dZpFaatVkqDBjQttUW8W8BQ04Q2qbG9aPPlkJN8yjPO5XlbvWCdhU05XBU9/PZLjEt\r\n         E/36T8ZzXaz+4MVyjPAZwchTspCfYi1iZuyBJikGLqOPEG61vBr5TaZJzFFUHx0EjhrH\r\n         2iYfSSxeYzpNUEgNKEeRZ7+/PZ//1iD3lRA+gGg25tV0MGXOw5TI19Fh3dIkl40Xy8xr\r\n         r25qUGIP6elW43Z47cdTFqmnGO3iSIT8lVWzHRbrFGrzMJhrGW1MRL8WhxPvGDjGd8jc\r\n         HCeg==",
+            "arc-authentication-results": "ARC-Authentication-Results: i=1; mx.google.com; arc=none"
+          },
+          "subject": "Hello mec",
+          "labelIds": [
+            "UNREAD",
+            "IMPORTANT",
+            "CATEGORY_PERSONAL",
+            "INBOX"
+          ],
+          "threadId": "19d25ff8644d2fcf",
+          "messageId": "<CANuDJiM3K3nFMEdSQz3XAFuCHaALOYDqhsCcgZjr4iqe2g2_Pw@mail.gmail.com>",
+          "textAsHtml": "<p>Salut hugo &ccedil;a va depuis le temps ?</p><p>Est ce que tu aurais un moment cette semaine pour discuter de la vie ?</p><p>--<br/>A bient&ocirc;t,</p><p>Hugo Marinier<br/>+33 650 93 38 00</p>",
+          "sizeEstimate": 7709
+        }
+      }
+    }
+  },
+  "connections": {}
+}

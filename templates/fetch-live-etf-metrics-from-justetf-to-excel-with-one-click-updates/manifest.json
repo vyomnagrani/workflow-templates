@@ -1,0 +1,329 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "fetch-live-etf-metrics-from-justetf-to-excel-with-one-click-updates",
+    "name": "Fetch live ETF metrics from JustETF to Excel with one-click updates",
+    "description": "# Automate Your ETF Comparison: Real-Time Data & Analysis\n\n**Automate ETF research in Excel with one click.**  \nThis n8n workflow pulls live data from **justetf.com** using ISIN codes from your Excel table, extracts key metrics (dividends, fees, 5-year performance), and updates your “Div study” sheet instantly — all triggered by a button in Excel.\n\nPerfect for dividend investors, ETF screeners, or portfolio trackers who want **fresh, accurate data without manual copy-paste**.\n\n---\n\n## How it works\n1. **Trigger**: Click “Update Table” in Excel → calls n8n via webhook  \n2. **Excel**: Logs current time (GMT-2) and reads all rows from “DivComp” table  \n3. **HTTP Request**: Fetches ETF profile page from `justetf.com` using ISIN  \n4. **HTML Extraction**: Parses page with CSS selectors to grab dividends, fees, 5Y performance  \n5. **Code Node**: Cleans & structures data (e.g., last 5 years of dividends, yield, growth)  \n6. **Update Excel**: Writes clean values back to your table (fees, yield, performance, name)\n\n---\n\n## Setup steps\n1. **In Excel**:  \n   - Add a button → assign macro that calls your n8n **webhook URL** (path: `/ETF`)  \n   - Ensure table **“DivComp”** has: `ISIN`, `Dernière mise à jour`, `Frais`, `Performance depuis 5 ans`, etc.\n\n2. **In n8n**:  \n   - Connect **Microsoft Excel** (OneDrive) credential  \n   - Update workbook/worksheet/table references if needed  \n   - Test with 1–2 ISINs first\n\n3. **Click “Update Table”** → watch data refresh in real time!\n\n---\n\n**Tags**: `ETF`, `Excel`, `Web Scraping`, `Investing`, `Finance`, `Automation`, `justetf`, `Dividend Tracking`",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Crypto Trading",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "When_called_by_Excel_Macro": {
+          "type": "Request",
+          "kind": "Http"
+        },
+        "When_clicking_Test_workflow": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Loop_Over_Items": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Loop Over Items",
+            "n8nNodeType": "n8n-nodes-base.splitInBatches",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Extracts_defined_values_in_better_format": [
+              "Succeeded"
+            ],
+            "Extracts_defined_values_with_css_selector": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Logs_the_date_time": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Logs the date & time",
+            "n8nNodeType": "n8n-nodes-base.microsoftExcel",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "table": {
+                "__rl": true,
+                "mode": "list",
+                "value": "{6C5AA61A-4C2D-DC48-942C-AA9581A0C966}",
+                "cachedResultUrl": "https://onedrive.live.com/personal/2d96e50bd60b2b58/_layouts/15/doc.aspx?resid=d60b2b58-e50b-2096-802d-0a3c00000000&cid=2d96e50bd60b2b58&activeCell='Div%20study'!L1:L2",
+                "cachedResultName": "MAJ"
+              },
+              "options": {},
+              "fieldsUi": {
+                "values": [
+                  {
+                    "column": "Dernière mise à jour",
+                    "fieldValue": "={{ new Date().toLocaleString('en-GB', { timeZone: 'Etc/GMT-2', hour12: false }) }}"
+                  }
+                ]
+              },
+              "resource": "table",
+              "workbook": {
+                "__rl": true,
+                "mode": "list",
+                "value": "2D96E50BD60B2B58!15370",
+                "cachedResultUrl": "https://onedrive.live.com/personal/2d96e50bd60b2b58/_layouts/15/doc.aspx?resid=d60b2b58-e50b-2096-802d-0a3c00000000&cid=2d96e50bd60b2b58",
+                "cachedResultName": "My_investandearnings3"
+              },
+              "worksheet": {
+                "__rl": true,
+                "mode": "list",
+                "value": "{4ACB3D1D-2C0C-874A-A62F-93FA8C41A216}",
+                "cachedResultUrl": "https://onedrive.live.com/personal/2d96e50bd60b2b58/_layouts/15/doc.aspx?resid=d60b2b58-e50b-2096-802d-0a3c00000000&cid=2d96e50bd60b2b58&activeCell=Div%20study!A1",
+                "cachedResultName": "Div study"
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Gets_rows_from_table": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Gets rows from table",
+            "n8nNodeType": "n8n-nodes-base.microsoftExcel",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "table": {
+                "__rl": true,
+                "mode": "list",
+                "value": "{B7CA3E16-A781-1145-AAB5-6EFEF4A3162E}",
+                "cachedResultUrl": "https://onedrive.live.com/personal/2d96e50bd60b2b58/_layouts/15/doc.aspx?resid=d60b2b58-e50b-2096-802d-0a3c00000000&cid=2d96e50bd60b2b58&activeCell='Div%20study'!A1:I2",
+                "cachedResultName": "DivComp"
+              },
+              "filters": {},
+              "resource": "table",
+              "workbook": {
+                "__rl": true,
+                "mode": "list",
+                "value": "2D96E50BD60B2B58!15370",
+                "cachedResultUrl": "https://onedrive.live.com/personal/2d96e50bd60b2b58/_layouts/15/doc.aspx?resid=d60b2b58-e50b-2096-802d-0a3c00000000&cid=2d96e50bd60b2b58",
+                "cachedResultName": "My_investandearnings3"
+              },
+              "operation": "getRows",
+              "returnAll": true,
+              "worksheet": {
+                "__rl": true,
+                "mode": "list",
+                "value": "{4ACB3D1D-2C0C-874A-A62F-93FA8C41A216}",
+                "cachedResultUrl": "https://onedrive.live.com/edit.aspx?resid=2D96E50BD60B2B58!14436&activeCell=Div%20study!A1",
+                "cachedResultName": "Div study"
+              }
+            }
+          },
+          "runAfter": {
+            "Logs_the_date_time": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Forge_a_Get_request_with_ISIN_Values": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://www.justetf.com/fr/etf-profile.html?isin=@{body('Gets_rows_from_table')?['ISIN']}"
+          },
+          "runAfter": {
+            "Gets_rows_from_table": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extracts_defined_values_with_css_selector": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Extracts defined values with css selector",
+            "n8nNodeType": "n8n-nodes-base.html",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "operation": "extractHtmlContent",
+              "extractionValues": {
+                "values": [
+                  {
+                    "key": "Dividends",
+                    "cssSelector": "#etf-profile-body > div:nth-child(20)"
+                  },
+                  {
+                    "key": "Frais",
+                    "cssSelector": "#etf-profile-body > div:nth-child(1) > div > div:nth-child(3) > div > div:nth-child(1) > div.val.bold"
+                  },
+                  {
+                    "key": "Performance depuis 5 ans",
+                    "cssSelector": "#etf-profile-body > div:nth-child(18) > div.columns-2 > div:nth-child(1)"
+                  },
+                  {
+                    "key": "Name",
+                    "cssSelector": "#etf-profile-body > div:nth-child(1) > div > div.e_head > div:nth-child(2)"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Forge_a_Get_request_with_ISIN_Values": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extracts_defined_values_in_better_format": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Loop_Over_Items'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Get all incoming input data from the previous node\nconst allData = $input.all();\n\n// Extract the \"Dividends\" data from the first item in the input array\nconst dividendData = allData[0].json['Dividends'] || '';\n\n// Use regex to extract dividends for the past years (1-year, 2023, 2022, 2021, and 2020)\nconst dividendMatches = [...dividendData.matchAll(/(1 an|2024|2023|2022|2021) EUR ([0-9,.]+) ([0-9,.]+%)/g)];\n\n// Format the extracted dividend data\nconst historicDividends = dividendMatches.map(match => ({\n  period: match[1],\n  dividendInEUR: match[2],\n  yieldInPercentage: match[3]\n}));\n\n// Extract the \"Performance depuis 5 ans\" data from the first item in the input array\nconst performanceDataRaw = allData[0].json['Performance depuis 5 ans'] || '';\n\n// Use regex to extract the performance for \"5 ans\"\nconst performance5YearsMatch = performanceDataRaw.match(/5 ans ([+-]?[0-9,.]+%)/);\nconst performance5Years = performance5YearsMatch ? performance5YearsMatch[1] : null;\n\n// Use regex to extract \"Rendement actuel de distribution\"\nconst rendementMatch = dividendData.match(/Rendement actuel de distribution ([0-9,.]+%)/);\nconst rendementActuelDeDistribution = rendementMatch ? rendementMatch[1] : null;\n\n// Use regex to extract \"Frais\"\nconst fraisMatch = allData[0].json['Frais'] ? allData[0].json['Frais'].match(/([\\d,.]+%)/) : null;\nconst frais = fraisMatch ? fraisMatch[1].replace(' p.a.', '') : null; // Clean the fees to return just the percentage\n\n//return the name\nconst fullName = $json[\"Name\"];\nconst nameOnly = fullName.split('\\n')[0].trim();\n\n\n// Return the structured output\nreturn {\n  historicDividends,\n  performance5Years, // Now returns just the performance for 5 years\n  rendementActuelDeDistribution,\n  frais,\n  nameOnly\n};\n\n\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Loop_Over_Items": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Updates_my_table": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Updates my table",
+            "n8nNodeType": "n8n-nodes-base.microsoftExcel",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldsUi": {
+                "values": [
+                  {
+                    "column": "Frais",
+                    "fieldValue": "={{ $json.Frais }}"
+                  },
+                  {
+                    "column": "Rendement de départ",
+                    "fieldValue": "={{ $json['Rendement de départ'] }}"
+                  },
+                  {
+                    "column": "Performance depuis 5 ans",
+                    "fieldValue": "={{ $json['Performance depuis 5 ans'] }}"
+                  },
+                  {
+                    "column": "Dividende 12 mois",
+                    "fieldValue": "={{ $json['Dividende 12 mois'] }}"
+                  },
+                  {
+                    "column": "Dividende année précédente",
+                    "fieldValue": "={{ $json['Dividende année précédente'] }}"
+                  },
+                  {
+                    "column": "Dividende il y a 2 ans",
+                    "fieldValue": "={{ $json['Dividende il y a 2 ans'] }}"
+                  },
+                  {
+                    "column": "Dividende il y a 3 ans",
+                    "fieldValue": "={{ $json['Dividende il y a 3 ans'] }}"
+                  },
+                  {
+                    "column": "Dividende il y a 4 ans",
+                    "fieldValue": "={{ $json['Dividende il y a 4 ans'] }}"
+                  },
+                  {
+                    "column": "Nom",
+                    "fieldValue": "={{ $json.Nom }}"
+                  }
+                ]
+              },
+              "resource": "worksheet",
+              "workbook": {
+                "__rl": true,
+                "mode": "list",
+                "value": "2D96E50BD60B2B58!15370",
+                "cachedResultUrl": "https://onedrive.live.com/personal/2d96e50bd60b2b58/_layouts/15/doc.aspx?resid=d60b2b58-e50b-2096-802d-0a3c00000000&cid=2d96e50bd60b2b58",
+                "cachedResultName": "My_investandearnings3"
+              },
+              "operation": "update",
+              "worksheet": {
+                "__rl": true,
+                "mode": "list",
+                "value": "{4ACB3D1D-2C0C-874A-A62F-93FA8C41A216}",
+                "cachedResultUrl": "https://onedrive.live.com/edit.aspx?resid=2D96E50BD60B2B58!14436&activeCell=Div%20study!A1",
+                "cachedResultName": "Div study"
+              },
+              "valueToMatchOn": "={{ $('Gets rows from table').item.json.ISIN }}",
+              "columnToMatchOn": "ISIN"
+            }
+          },
+          "runAfter": {
+            "Edit_Fields": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Edit_Fields": {
+          "type": "Compose",
+          "inputs": {
+            "Frais": "@{parseFloat(body('Loop_Over_Items')?['frais']?['replace'](\",\", \".\").replace(\"%\", \"\")) / 100}",
+            "Rendement de départ": "@{parseFloat(body('Loop_Over_Items')?['rendementActuelDeDistribution']?['replace'](\",\", \".\").replace(\"%\", \"\")) / 100}",
+            "Performance depuis 5 ans": "@parseFloat(body('Loop_Over_Items')?['performance5Years']?['replace'](\",\", \".\").replace(\"%\", \"\")) / 100",
+            "Dividende 12 mois": "@{body('Loop_Over_Items')?['historicDividends'][0].dividendInEUR.replace(\",\", \".\")}",
+            "Dividende année précédente": "@body('Loop_Over_Items')?['historicDividends'][1].dividendInEUR.replace(\",\", \".\")",
+            "Dividende il y a 2 ans": "@body('Loop_Over_Items')?['historicDividends'][2].dividendInEUR.replace(\",\", \".\")",
+            "Dividende il y a 3 ans": "@body('Loop_Over_Items')?['historicDividends'][3].dividendInEUR.replace(\",\", \".\")",
+            "Dividende il y a 4 ans": "@body('Loop_Over_Items')?['historicDividends'][4].dividendInEUR.replace(\",\", \".\")",
+            "Nom": "@body('Loop_Over_Items')?['nameOnly']"
+          },
+          "runAfter": {
+            "Loop_Over_Items": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "When_called_by_Excel_Macro",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

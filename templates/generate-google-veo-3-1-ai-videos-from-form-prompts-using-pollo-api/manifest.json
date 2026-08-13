@@ -1,0 +1,205 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "generate-google-veo-3-1-ai-videos-from-form-prompts-using-pollo-api",
+    "name": "Generate Google Veo 3.1 AI videos from form prompts using Pollo API",
+    "description": "## Quick overview\nThis workflow collects a video prompt (and optional reference image URL) via an n8n form, sends a generation request to the Pollo API for Google Veo 3.1, polls the task status until it succeeds, and returns the finished video URL and related metadata.\n\n## How it works\n1. Receives a form submission containing a prompt, optional image_url, model_path, and Pollo API key from https://api.pollo.ai/api-keys.\n2. Sends a POST request to the Pollo API generation endpoint for the selected model (for example, google/veo3-1) with the prompt and optional reference image.\n3. Waits 10 seconds and then queries the Pollo API task status endpoint using the returned taskId.\n4. Repeats the wait-and-check loop until the generation status is reported as succeed.\n5. Outputs a simplified result containing the task ID, status, generated video URL, media type, and credit usage.\n\n## Setup\n1. Create a Pollo API account and provide a valid API key (x-api-key) in the form submission.\n2. Configure the form fields (prompt, image_url, model_path, api_key) and set model_path to the Pollo model route you want to use (for example, google/veo3-1).\n3. If using image_url, ensure the referenced image URL is publicly accessible so Pollo can fetch it during generation.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "When_Prompt_Submitted": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "When Prompt Submitted",
+            "n8nNodeType": "n8n-nodes-base.formTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "formTitle": "Pollo AI video generator",
+              "formFields": {
+                "values": [
+                  {
+                    "fieldLabel": "prompt"
+                  },
+                  {
+                    "fieldLabel": "image_url"
+                  },
+                  {
+                    "fieldLabel": "model_path",
+                    "placeholder": "google/veo3-1"
+                  },
+                  {
+                    "fieldLabel": "api_key",
+                    "placeholder": "pollo_xxxxxxxx"
+                  }
+                ]
+              },
+              "formDescription": "Fill in the following information to generate your video with the Pollo API"
+            }
+          },
+          "runAfter": {}
+        },
+        "Post_to_Pollo_API": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://pollo.ai/api/platform/generation/@{body('When_Prompt_Submitted')?['model_path']}",
+            "headers": {
+              "Content-Type": "application/json",
+              "x-api-key": "@body('When_Prompt_Submitted')?['api_key']"
+            },
+            "body": "@JSON.stringify({ input: body('When_Prompt_Submitted')?['image_url'] ? { prompt: body('When_Prompt_Submitted')?['prompt'], image: body('When_Prompt_Submitted')?['image_url'] } : { prompt: body('When_Prompt_Submitted')?['prompt'] } })"
+          },
+          "runAfter": {
+            "When_Prompt_Submitted": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_10_Seconds": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 10,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Post_to_Pollo_API": [
+              "Succeeded"
+            ],
+            "If_Generation_Complete": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fetch_Generation_Status": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "=https://pollo.ai/api/platform/generation/{{$node[\"Post to Pollo API\"].json[\"data\"][\"taskId\"]}}/status",
+            "headers": {
+              "Content-Type": "application/json",
+              "x-api-key": "={{$node[\"When Prompt Submitted\"].json[\"api_key\"]}}"
+            }
+          },
+          "runAfter": {
+            "Wait_10_Seconds": [
+              "Succeeded"
+            ]
+          }
+        },
+        "If_Generation_Complete": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "If Generation Complete",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "or",
+                "conditions": [
+                  {
+                    "id": "66666666-+123456789001",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.data.generations[0].status }}",
+                    "rightValue": "succeed"
+                  },
+                  {
+                    "id": "41a1d076-e578-466a-b7bf-d4b9941c0e5a",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.data.generations[0].status }}",
+                    "rightValue": "failed"
+                  }
+                ]
+              },
+              "looseTypeValidation": true
+            }
+          },
+          "runAfter": {
+            "Fetch_Generation_Status": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Set_Result_Fields": {
+          "type": "Compose",
+          "inputs": {
+            "taskId": "@body('If_Generation_Complete')?['data']?['taskId']",
+            "status": "@body('If_Generation_Complete')?['data']?['generations'][0].status",
+            "url": "@body('If_Generation_Complete')?['data']?['generations'][0].url",
+            "mediaType": "@body('If_Generation_Complete')?['data']?['generations'][0].mediaType",
+            "credit": "@(body('If_Generation_Complete')?['data']?['generations'][0].failMsg || '').includes('Credits refunded') ? 0 : body('If_Generation_Complete')?['data']?['credit']"
+          },
+          "runAfter": {
+            "If_Generation_Complete": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

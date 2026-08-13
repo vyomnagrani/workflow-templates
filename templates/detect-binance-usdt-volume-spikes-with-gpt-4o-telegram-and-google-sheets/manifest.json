@@ -1,0 +1,357 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "detect-binance-usdt-volume-spikes-with-gpt-4o-telegram-and-google-sheets",
+    "name": "Detect Binance USDT volume spikes with GPT-4o, Telegram, and Google Sheets",
+    "description": "## Quick Overview\nThis workflow runs hourly to scan Binance USDT trading pairs for unusual 1-hour volume spikes, enriches spikes with order book metrics and GPT-4o analysis, then sends a ranked Telegram alert and logs the top results to Google Sheets.\n\n## How it works\n1. Runs every hour and pulls 24-hour ticker statistics from the Binance public API.\n2. Filters for high-liquidity, non-stablecoin USDT pairs and iterates through each symbol.\n3. Fetches the last 25 one-hour candles per symbol from Binance and calculates volume/trade spike ratios, taker buy/sell pressure, and basic price-action context with cooldown-based deduplication.\n4. For symbols that exceed the spike thresholds, fetches Binance order book depth and computes bid/ask wall pressure and spread metrics.\n5. Sends the spike, price-action, market-context (BTC/ETH), and order-book data to OpenAI (GPT-4o) to return a structured JSON classification, severity, and suggested action.\n6. Collects all analyzed spikes, ranks them, sends the top alerts to Telegram as a formatted report, and appends the top entries to Google Sheets for tracking.\n\n## Setup\n1. Add an OpenAI API credential and confirm the model selection (gpt-4o) in the OpenAI analysis step.\n2. Add a Telegram bot credential and replace YOUR_TELEGRAM_CHAT_ID with the target chat or channel ID.\n3. Add a Google Sheets OAuth2 credential, create a sheet with headers matching the logged fields, and replace YOUR_GOOGLE_SHEET_ID and the target sheet tab as needed.\n4. Review and adjust the filtering and spike thresholds (for example MIN_VOL and MIN_CHANGE, plus the volume-ratio cutoffs) to fit the markets you want to monitor.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Crypto Trading",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "/managedApis/telegrambotip",
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Every_1h_Trigger": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Hour",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Fetch_Binance_All_Tickers": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.binance.com/api/v3/ticker/24hr"
+          },
+          "runAfter": {}
+        },
+        "Loop_Over_Coin_Pairs": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Loop Over Coin Pairs",
+            "n8nNodeType": "n8n-nodes-base.splitInBatches",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Filter_USDT_Pairs": [
+              "Succeeded"
+            ],
+            "Check_for_Volume_Spike": [
+              "Succeeded"
+            ],
+            "Aggregate_Spike_Findings": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Compute_Volume_Spike": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Fetch_1h_Kline_Data'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst ticker = __node('Loop_Over_Coin_Pairs').first().json;\n\nconst candles = $input.all().map(item => {\n  const c = item.json;\n  return {\n    openTime:      Number(c[0]),\n    open:          parseFloat(c[1]),\n    high:          parseFloat(c[2]),\n    low:           parseFloat(c[3]),\n    close:         parseFloat(c[4]),\n    volume:        parseFloat(c[5]),    // Base asset volume\n    quoteVol:      parseFloat(c[7]),    // Quote volume (USDT)\n    trades:        parseInt(c[8]),\n    takerBuyBase:  parseFloat(c[9]),    // Taker buy base volume\n    takerBuyQuote: parseFloat(c[10]),   // Taker buy quote volume (USDT)\n  };\n});\n\n// ── Most recent closed candle (index -2) ──\n// Index -1 = currently forming candle (not yet closed) → skip\nconst lastClosed = candles[candles.length - 2];\n\n// 24 candles before the closed candle (index 0 → index -3)\nconst previous = candles.slice(0, -2);\n\n// ── Volume Spike Ratio ──\n// Use trimmed mean (remove top/bottom 10% outliers before averaging)\nconst sortedVols = previous.map(c => c.quoteVol).sort((a, b) => a - b);\nconst trimCount = Math.round(sortedVols.length * 0.1);\nconst trimmedVols = sortedVols.slice(trimCount, sortedVols.length - trimCount);\nconst avgVol1h = trimmedVols.reduce((s, v) => s + v, 0) / trimmedVols.length;\n\nconst sortedTrades = previous.map(c => c.trades).sort((a, b) => a - b);\nconst trimCountT = Math.round(sortedTrades.length * 0.1);\nconst trimmedTrades = sortedTrades.slice(trimCountT, sortedTrades.length - trimCountT);\nconst avgTrades1h = trimmedTrades.reduce((s, v) => s + v, 0) / trimmedTrades.length;\n\nconst volRatio   = avgVol1h > 0\n  ? parseFloat((lastClosed.quoteVol / avgVol1h).toFixed(2)) : 0;\nconst tradeRatio = avgTrades1h > 0\n  ? parseFloat((lastClosed.trades / avgTrades1h).toFixed(2)) : 0;\n\n// ── Taker Buy/Sell Ratio ──\n// takerBuyQuote = aggressive buy volume (market buys)\n// takerSellQuote = total volume - taker buy = aggressive sell volume\nconst takerBuyPct = lastClosed.quoteVol > 0\n  ? parseFloat((lastClosed.takerBuyQuote / lastClosed.quoteVol * 100).toFixed(1)) : 50;\nconst takerSellPct = parseFloat((100 - takerBuyPct).toFixed(1));\n\n// Classify pressure\nlet pressure = 'NEUTRAL';\nif (takerBuyPct >= 65) pressure = 'STRONG_BUY';\nelse if (takerBuyPct >= 55) pressure = 'BUY';\nelse if (takerBuyPct <= 35) pressure = 'STRONG_SELL';\nelse if (takerBuyPct <= 45) pressure = 'SELL';\n\n// ── Price Action ──\nconst priceChange = parseFloat(\n  ((lastClosed.close - lastClosed.open) / lastClosed.open * 100).toFixed(2)\n);\nconst candleRange = parseFloat(\n  ((lastClosed.high - lastClosed.low) / lastClosed.low * 100).toFixed(2)\n);\nconst isBullish = lastClosed.close >= lastClosed.open;\n\n// Candle body vs wick ratio (large body = momentum, long wick = rejection)\nconst bodySize = Math.abs(lastClosed.close - lastClosed.open);\nconst totalRange = lastClosed.high - lastClosed.low;\nconst bodyRatio = totalRange > 0\n  ? parseFloat((bodySize / totalRange * 100).toFixed(0)) : 0;\n// bodyRatio > 60% = strong momentum candle\n// bodyRatio < 30% = doji/indecision\n\n// ── Multi-candle Context ──\n// Check if the 3 candles before the spike have rising volume\nconst last3 = previous.slice(-3).map(c => c.quoteVol);\nconst volTrend =\n  last3.every((v, i) => i === 0 || v >= last3[i-1] * 0.9) ? 'RISING' :\n  last3.every((v, i) => i === 0 || v <= last3[i-1] * 1.1) ? 'FALLING' : 'MIXED';\n\n// Did the previous candle also spike? (sustained volume)\nconst prevCandle = candles[candles.length - 3];\nconst prevVolRatio = avgVol1h > 0\n  ? parseFloat((prevCandle.quoteVol / avgVol1h).toFixed(2)) : 0;\nconst sustainedSpike = prevVolRatio >= 1.5; // Previous candle also abnormally high\n\n// ── Spike Classification ──\n// ── with dedup ──\nlet spikeType = 'NONE';\nif (volRatio >= 5)        spikeType = 'EXTREME';\nelse if (volRatio >= 3.5) spikeType = 'VERY_HIGH';\nelse if (volRatio >= 2.5) spikeType = 'HIGH';\n\n// ── Dedup Check ──\nconst COOLDOWN_HOURS = 4;\nconst staticData = $getWorkflowStaticData('global');\nif (!staticData.lastAlerted) staticData.lastAlerted = {};\n\nconst now = Date.now();\nconst lastTime = staticData.lastAlerted[ticker.symbol] || 0;\nconst hoursSinceLast = (now - lastTime) / (1000 * 60 * 60);\n\nif (spikeType !== 'NONE' && hoursSinceLast < COOLDOWN_HOURS) {\n  spikeType = 'NONE';\n}\n\nif (spikeType !== 'NONE') {\n  staticData.lastAlerted[ticker.symbol] = now;\n}\n\nreturn [{\n  json: {\n    // Ticker data\n    symbol:     ticker.symbol,\n    price:      ticker.price,\n    change24h:  ticker.change24h,\n    volume24h:  ticker.volume24h,\n\n    // Spike metrics\n    volRatio,\n    tradeRatio,\n    spikeType,\n    avgVol1h:      parseFloat(avgVol1h.toFixed(0)),\n    currentVol1h:  parseFloat(lastClosed.quoteVol.toFixed(0)),\n\n    // Taker buy/sell data\n    takerBuyPct,\n    takerSellPct,\n    pressure,\n\n    // Price action\n    priceChange,\n    candleRange,\n    isBullish,\n    bodyRatio,\n\n    // Multi-candle context\n    volTrend,\n    prevVolRatio,\n    sustainedSpike,\n\n    // Timestamp\n    detectedAt: new Date().toISOString(),\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Fetch_1h_Kline_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Check_for_Volume_Spike": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Check for Volume Spike",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "ignoreCase": true
+              },
+              "conditions": {
+                "options": {
+                  "version": 3,
+                  "leftValue": "",
+                  "caseSensitive": false,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "3a587d6f-2077-46db-a301-7953fc12a9e0",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEquals"
+                    },
+                    "leftValue": "={{ $json.spikeType }}",
+                    "rightValue": "NONE"
+                  }
+                ]
+              },
+              "looseTypeValidation": true
+            }
+          },
+          "runAfter": {
+            "Compute_Volume_Spike": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Analyze_Book_Pressure": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Fetch_Order_Book_Depth'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst spike = __node('Compute_Volume_Spike').first().json;\nconst book = $input.first().json;\n\n// Parse order book\nconst bids = book.bids.map(b => ({\n  price: parseFloat(b[0]),\n  qty:   parseFloat(b[1]),\n}));\nconst asks = book.asks.map(a => ({\n  price: parseFloat(a[0]),\n  qty:   parseFloat(a[1]),\n}));\n\n// Top 5 bid/ask volume (USDT)\nconst bidVol5 = bids.slice(0, 5).reduce((s, b) => s + b.price * b.qty, 0);\nconst askVol5 = asks.slice(0, 5).reduce((s, a) => s + a.price * a.qty, 0);\n\n// Top 20 bid/ask volume (USDT)\nconst bidVol20 = bids.reduce((s, b) => s + b.price * b.qty, 0);\nconst askVol20 = asks.reduce((s, a) => s + a.price * a.qty, 0);\n\n// Bid/Ask ratio\nconst bookRatio5  = askVol5 > 0\n  ? parseFloat((bidVol5 / askVol5).toFixed(2)) : 0;\nconst bookRatio20 = askVol20 > 0\n  ? parseFloat((bidVol20 / askVol20).toFixed(2)) : 0;\n\n// Spread\nconst bestBid = bids[0]?.price || 0;\nconst bestAsk = asks[0]?.price || 0;\nconst spreadPct = bestAsk > 0\n  ? parseFloat(((bestAsk - bestBid) / bestAsk * 100).toFixed(4)) : 0;\n\n// Book pressure classification\nlet bookPressure = 'BALANCED';\nif (bookRatio5 >= 2.0) bookPressure = 'STRONG_BID_WALL';\nelse if (bookRatio5 >= 1.3) bookPressure = 'BID_HEAVY';\nelse if (bookRatio5 <= 0.5) bookPressure = 'STRONG_ASK_WALL';\nelse if (bookRatio5 <= 0.77) bookPressure = 'ASK_HEAVY';\n\nreturn [{\n  json: {\n    // All spike data\n    ...spike,\n\n    // Order book data\n    bidVol5:      parseFloat(bidVol5.toFixed(0)),\n    askVol5:      parseFloat(askVol5.toFixed(0)),\n    bookRatio5,\n    bookRatio20,\n    spreadPct,\n    bookPressure,\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Fetch_Order_Book_Depth": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fetch_Order_Book_Depth": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.binance.com/api/v3/depth"
+          },
+          "runAfter": {
+            "Check_for_Volume_Spike": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Prepare_AI_Analysis_Prompt": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Analyze_Book_Pressure'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst d = $input.first().json;\n\nconst staticData = $getWorkflowStaticData('global');\nconst market = staticData.marketContext || { btcChange: 0, ethChange: 0 };\n\nconst systemPrompt = `You are a crypto market analyst specializing in volume analysis.\n\nTask: Analyze the volume spike data and determine what it likely means for the coin's short-term price action.\n\nAnalysis framework:\n1. Assess spike significance (how unusual is this volume?)\n2. Taker buy ratio: >60% = real buying pressure, <40% = selling pressure, 45-55% = inconclusive\n3. If taker buy is low + volume spike + price drop = likely panic selling or whale dumping\n4. If taker buy is high + volume spike + price up = likely breakout or accumulation\n5. Order book: treat as weak signal only — walls can be spoofed. Never let book pressure override taker buy/sell ratio or price action. Only mention book data as supporting context, not as primary evidence\n6. Sustained spike (previous candle also high volume) = stronger signal than single candle spike\n7. Body ratio: >60% = strong momentum, <30% = rejection/indecision despite high volume\n8. Give a short-term outlook (next 4-24 hours)\n\nIMPORTANT RULES:\n- High volume + low taker buy (<40%) + price dropping = BEARISH_DUMP, NOT accumulation\n- High volume + small price change + taker buy near 50% = possible wash trading, classify as UNCERTAIN\n- Sustained spike (prevVolRatio >= 1.5) increases confidence by +0.1\n- Ask wall (bookPressure = ASK_HEAVY or STRONG_ASK_WALL) with bullish spike = reduce confidence, add resistance warning\n- Spread > 0.5% = low liquidity warning\n- If BTC drops more than 3%, most altcoin spikes are market-wide panic, not coin-specific events. Lower confidence for BULLISH classifications.\n- If BTC and ETH both move in the same direction more than 2%, treat altcoin spikes as correlated market movement unless the altcoin's move is 3x stronger than BTC's.\n\nClassification:\n- BULLISH_BREAKOUT: High volume + price rising + taker buy >55% + no major ask wall\n- BEARISH_DUMP: High volume + price dropping + taker buy <45%\n- ACCUMULATION: High volume + small price change (<1%) + taker buy >55% + bid wall present\n- DISTRIBUTION: High volume + price near highs + taker buy <45% + ask wall present\n- UNCERTAIN: Conflicting signals or possible wash trading\n\nOutput ONLY valid JSON:\n{\n  \"classification\": \"BULLISH_BREAKOUT | BEARISH_DUMP | ACCUMULATION | DISTRIBUTION | UNCERTAIN\",\n  \"severity\": \"LOW | MEDIUM | HIGH | CRITICAL\",\n  \"summary\": \"<2-3 sentence explanation referencing taker ratio and book pressure>\",\n  \"action\": \"<what a trader should watch for next>\",\n  \"confidence\": <0.0-1.0>,\n  \"entryZone\": \"<price range to watch for entry, e.g. $0.45-$0.47, based on nearest support for longs or resistance for shorts>\",\n  \"invalidation\": \"<price level that invalidates this signal, e.g. below $0.42>\",\n  \"timeframe\": \"<expected timeframe: 1-4h or 4-24h>\"\n}`;\n\nconst userPrompt = `Analyze this volume spike:\n\nSYMBOL: ${d.symbol}\nCurrent Price: $${d.price}\n24h Change: ${d.change24h}%\n\nVOLUME SPIKE:\n├ Current 1h Volume: $${d.currentVol1h.toLocaleString()}\n├ Avg 1h Volume (24h): $${d.avgVol1h.toLocaleString()}\n├ Volume Ratio: ${d.volRatio}x (${d.spikeType})\n├ Trade Count Ratio: ${d.tradeRatio}x\n├ Volume Trend (last 3h): ${d.volTrend}\n├ Previous Candle Vol Ratio: ${d.prevVolRatio}x\n└ Sustained Spike: ${d.sustainedSpike ? 'YES (prev candle also high)' : 'NO (single candle)'}\n\nTAKER BUY/SELL ANALYSIS:\n├ Taker Buy: ${d.takerBuyPct}%\n├ Taker Sell: ${d.takerSellPct}%\n└ Pressure: ${d.pressure}\n\nPRICE ACTION:\n├ 1h Change (open→close): ${d.priceChange}%\n├ 1h Range (low→high): ${d.candleRange}%\n├ Direction: ${d.isBullish ? 'BULLISH (close > open)' : 'BEARISH (close < open)'}\n└ Body Ratio: ${d.bodyRatio}% ${d.bodyRatio > 60 ? '(strong momentum)' : d.bodyRatio < 30 ? '(rejection/doji)' : '(moderate)'}\n\nORDER BOOK (top 5 levels):\n├ Bid Volume: $${d.bidVol5.toLocaleString()}\n├ Ask Volume: $${d.askVol5.toLocaleString()}\n├ Bid/Ask Ratio: ${d.bookRatio5}x\n├ Pressure: ${d.bookPressure}\n└ Spread: ${d.spreadPct}%\n\nMARKET CONTEXT:\n├ BTC 24h: ${market.btcChange > 0 ? '+' : ''}${market.btcChange}%\n└ ETH 24h: ${market.ethChange > 0 ? '+' : ''}${market.ethChange}%\n\nReturn ONLY valid JSON.`;\n\nreturn [{\n  json: {\n    ...d,\n    systemPrompt,\n    userPrompt,\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Analyze_Book_Pressure": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenAI_Volume_Spike_Analysis": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Volume Spike Analysis",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o",
+                "cachedResultName": "GPT-4O"
+              },
+              "options": {
+                "maxTokens": 300,
+                "temperature": 0.2
+              },
+              "responses": {
+                "values": [
+                  {
+                    "content": "={{ $json.userPrompt }}"
+                  },
+                  {
+                    "role": "system",
+                    "content": "={{ $json.systemPrompt }}"
+                  }
+                ]
+              },
+              "builtInTools": {}
+            }
+          },
+          "runAfter": {
+            "Prepare_AI_Analysis_Prompt": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_AI_Analysis_Results": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['OpenAI_Volume_Spike_Analysis'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst raw = $input.first().json;\n\n// Handle different output formats from the OpenAI node in n8n\nconst text = raw.output?.[0]?.content?.[0]?.text\n          || raw.message?.content\n          || raw.choices?.[0]?.message?.content\n          || JSON.stringify(raw);\n\nlet analysis;\ntry {\n  const cleaned = text.replace(/```json|```/g, '').trim();\n  analysis = JSON.parse(cleaned);\n} catch (e) {\n  analysis = {\n    classification: 'UNCERTAIN',\n    severity: 'MEDIUM',\n    summary: 'AI parse error: ' + e.message,\n    action: 'Manual review needed',\n    confidence: 0,\n  };\n}\n\nconst origin = __node('Prepare_AI_Analysis_Prompt').first().json;\n\nreturn [{\n  json: {\n    // Spike data\n    symbol:        origin.symbol,\n    price:         origin.price,\n    change24h:     origin.change24h,\n    volRatio:      origin.volRatio,\n    tradeRatio:    origin.tradeRatio,\n    spikeType:     origin.spikeType,\n    currentVol1h:  origin.currentVol1h,\n    avgVol1h:      origin.avgVol1h,\n\n    // Taker data\n    takerBuyPct:   origin.takerBuyPct,\n    takerSellPct:  origin.takerSellPct,\n    pressure:      origin.pressure,\n\n    // Price action\n    priceChange:   origin.priceChange,\n    candleRange:   origin.candleRange,\n    isBullish:     origin.isBullish,\n    bodyRatio:     origin.bodyRatio,\n\n    // Context\n    volTrend:      origin.volTrend,\n    sustainedSpike: origin.sustainedSpike,\n\n    // Order book\n    bookRatio5:    origin.bookRatio5,\n    bookPressure:  origin.bookPressure,\n    spreadPct:     origin.spreadPct,\n    bidVol5:       origin.bidVol5,\n    askVol5:       origin.askVol5,\n\n    // AI analysis\n    classification: analysis.classification,\n    severity:       analysis.severity,\n    summary:        analysis.summary,\n    action:         analysis.action,\n    confidence:     analysis.confidence,\n    entryZone:      analysis.entryZone || 'N/A',\n    invalidation:   analysis.invalidation || 'N/A',\n    timeframe:      analysis.timeframe || 'N/A',\n    \n    detectedAt: origin.detectedAt,\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "OpenAI_Volume_Spike_Analysis": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Aggregate_Spike_Findings": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Extract_AI_Analysis_Results'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst item = $input.first().json;\n\n// Store results in workflow static data\nconst staticData = $getWorkflowStaticData('global');\nif (!staticData.spikeResults) {\n  staticData.spikeResults = [];\n}\nstaticData.spikeResults.push(item);\n\nreturn [{ json: { collected: staticData.spikeResults.length } }];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Extract_AI_Analysis_Results": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_Alert_via_Telegram": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "telegrambotip_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/bot@{encodeURIComponent('REPLACE_WITH_TELEGRAM_BOT_TOKEN')}/sendMessage",
+            "body": {
+              "chat_id": "YOUR_TELEGRAM_CHAT_ID",
+              "text": "@body('Create_Alert_Summary')?['message']",
+              "parse_mode": "HTML"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendMessage"
+            }
+          },
+          "runAfter": {
+            "Create_Alert_Summary": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Create_Alert_Summary": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Select_Top_Performers'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst TOP_TELEGRAM = 3;\nconst items = $input.all().map(i => i.json).slice(0, TOP_TELEGRAM);\n\nif (!items.length || !items[0].symbol) {\n  return [{ json: { message: null } }];\n}\n\nconst emoji = {\n  'BULLISH_BREAKOUT': '🟢🚀',\n  'BEARISH_DUMP':     '🔴📉',\n  'ACCUMULATION':     '🟡🐋',\n  'DISTRIBUTION':     '🟠📤',\n  'UNCERTAIN':        '⚪❓',\n};\n\nconst medal = ['🥇', '🥈', '🥉'];\nconst sign = n => n > 0 ? '+' : '';\n\nlet message = `📡 <b>VOLUME SPIKE REPORT</b>\\n`;\nconst hasCritical = items.some(d => d.severity === 'CRITICAL' || d.severity === 'HIGH');\nif (hasCritical) {\n  message += `🚨 <b>HIGH PRIORITY ALERT</b>\\n`;\n}\nmessage += `━━━━━━━━━━━━━━━━━━━━━\\n`;\nmessage += `${items.length} spike(s) detected this hour\\n`;\n\nitems.forEach((d, i) => {\n  const cls = emoji[d.classification] || '⚪';\n\n  message += `${medal[i]} <b>${d.symbol}</b> ${cls}\\n`;\n  message += `├ Volume:  <code>${d.volRatio}x avg</code> (${d.spikeType})`;\n  if (d.sustainedSpike) message += ` 🔄`;\n  message += `\\n`;\n  message += `├ Taker:   <code>Buy ${d.takerBuyPct}%</code> → ${d.pressure}\\n`;\n  message += `├ Price:   <code>${sign(d.priceChange)}${d.priceChange}%</code> | Body: <code>${d.bodyRatio}%</code>\\n`;\n  message += `├ Book:    <code>${d.bookPressure}</code> (${d.bookRatio5}x)\\n`;\n  message += `├ AI:      <code>${d.classification.replace(/_/g, ' ')}</code> (${(d.confidence * 100).toFixed(0)}%)\\n`;\n  message += `├ Score:   <code>${d.rankScore}/100</code>\\n`;\n  message += `├ Entry:   <code>${d.entryZone}</code>\\n`;\n  message += `├ Invalid: <code>${d.invalidation}</code>\\n`;\n  message += `├ Time:    <code>${d.timeframe}</code>\\n`;\n  message += `└ <i>${d.summary}</i>\\n\\n`;\n});\n\nmessage += `🕐 ${new Date().toISOString()}`;\n\nreturn [{ json: { message } }];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Select_Top_Performers": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Select_Top_Performers": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Loop_Over_Coin_Pairs'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// ═══ CONFIG ═══\nconst TOP_TELEGRAM = 3;   // Number of coins to send via Telegram\nconst TOP_SHEETS   = 10;  // Number of coins to log to Google Sheets\n\n// Get all collected spikes\nconst staticData = $getWorkflowStaticData('global');\nlet spikes = staticData.spikeResults || [];\nstaticData.spikeResults = []; // Reset for next run\n\nif (spikes.length === 0) {\n  return [[]];\n}\n\n// ══════════════════════════════════════════\n// SCORING\n// ══════════════════════════════════════════\n\nconst scored = spikes.map(s => {\n  let score = 0;\n\n  // 1. Volume Spike Strength (0-30)\n  if (s.volRatio >= 5)        score += 30;\n  else if (s.volRatio >= 3.5) score += 25;\n  else if (s.volRatio >= 2.5) score += 18;\n\n  if (s.tradeRatio >= 3)      score += 10;\n  else if (s.tradeRatio >= 2) score += 7;\n  else if (s.tradeRatio >= 1.5) score += 4;\n\n  if (s.sustainedSpike) score += 8;\n\n  // 2. Taker Pressure Clarity (0-20)\n  const takerDeviation = Math.abs(s.takerBuyPct - 50);\n  if (takerDeviation >= 20) score += 20;\n  else if (takerDeviation >= 15) score += 15;\n  else if (takerDeviation >= 10) score += 10;\n  else if (takerDeviation >= 5)  score += 4;\n\n  // 3. Price Action Quality (0-20)\n  if (s.bodyRatio >= 70) score += 12;\n  else if (s.bodyRatio >= 50) score += 8;\n  else if (s.bodyRatio >= 30) score += 4;\n\n  const absChange = Math.abs(s.priceChange);\n  if (absChange >= 5) score += 8;\n  else if (absChange >= 3) score += 6;\n  else if (absChange >= 1) score += 3;\n\n  // 4. AI Confidence (0-20)\n  score += Math.round((s.confidence || 0) * 20);\n\n  // 5. Penalties\n  if (s.classification === 'UNCERTAIN') score -= 10;\n  if (s.spreadPct > 0.5) score -= 5;\n  if (s.volRatio >= 3 && s.tradeRatio < 1.2) score -= 8;\n\n  return {\n    ...s,\n    rankScore: Math.max(0, score),\n  };\n});\n\n// Sort by score descending\nconst sorted = scored.sort((a, b) => b.rankScore - a.rankScore);\n\n// Tag: which go to Telegram, which are Sheets-only\nconst results = sorted.slice(0, Math.max(TOP_TELEGRAM, TOP_SHEETS)).map((s, i) => ({\n  ...s,\n  rank: i + 1,\n  forTelegram: i < TOP_TELEGRAM,\n  forSheets: i < TOP_SHEETS,\n}));\n\nreturn results.map(s => ({ json: s }));\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Loop_Over_Coin_Pairs": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Prepare_Data_for_Logging": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Select_Top_Performers'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Flatten & order fields for Google Sheets logging\n// Remove internal flags (forTelegram, forSheets, rank) and redundant fields\n\nconst items = $input.all();\n\nreturn items.map(i => {\n  const d = i.json;\n  return { json: {\n    // ── Timestamp & Identity ──\n    detectedAt:     d.detectedAt,\n    symbol:         d.symbol,\n    price:          d.price,\n\n    // ── AI Verdict ──\n    classification: d.classification,\n    severity:       d.severity,\n    confidence:     d.confidence,\n    rankScore:      d.rankScore,\n\n    // ── Volume Spike ──\n    spikeType:      d.spikeType,\n    volRatio:       d.volRatio,\n    tradeRatio:     d.tradeRatio,\n    currentVol1h:   d.currentVol1h,\n    avgVol1h:       d.avgVol1h,\n    sustainedSpike: d.sustainedSpike,\n    volTrend:       d.volTrend,\n\n    // ── Taker Pressure ──\n    takerBuyPct:    d.takerBuyPct,\n    pressure:       d.pressure,\n\n    // ── Price Action ──\n    change24h:      d.change24h,\n    priceChange:    d.priceChange,\n    candleRange:    d.candleRange,\n    isBullish:      d.isBullish,\n    bodyRatio:      d.bodyRatio,\n\n    // ── Order Book ──\n    bookPressure:   d.bookPressure,\n    bookRatio5:     d.bookRatio5,\n    spreadPct:      d.spreadPct,\n\n    // ── AI Details ──\n    entryZone:      d.entryZone,\n    invalidation:   d.invalidation,\n    timeframe:      d.timeframe,\n    summary:        d.summary,\n    action:         d.action,\n  }};\n});\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Select_Top_Performers": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fetch_1h_Kline_Data": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.binance.com/api/v3/klines"
+          },
+          "runAfter": {
+            "Loop_Over_Coin_Pairs": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Append_Log_to_Sheet": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('1fT4_uxIuplTB9uuo6e5-5p9TE7EgKqh4T3WHMr-FPXg'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Prepare_Data_for_Logging": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Filter_USDT_Pairs": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Fetch_Binance_All_Tickers'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst items = $input.all();\nconst MIN_VOL = 10_000_000; // Min $10M volume 24h\nconst MIN_CHANGE = 1;       // Min 1% price change 24h\n\nconst allTickers = items.map(i => i.json);\nconst btc = allTickers.find(t => t.symbol === 'BTCUSDT');\nconst eth = allTickers.find(t => t.symbol === 'ETHUSDT');\n\nconst staticData = $getWorkflowStaticData('global');\nstaticData.marketContext = {\n  btcChange: parseFloat(btc?.priceChangePercent || 0),\n  ethChange: parseFloat(eth?.priceChangePercent || 0),\n};\n\nconst stablecoins = [\n  'USDCUSDT', 'BUSDUSDT', 'TUSDUSDT', 'DAIUSDT',\n  'FDUSDUSDT', 'USDPUSDT', 'EURUSDT', 'GBPUSDT',\n  'TRYUSDT', 'BRLUSDT', 'ARUSDT', 'USD1USDT',\n  'RLUSDUSDT', 'UUSDT', 'XUSDUSDT', 'PYUSDUSDT',\n  'CUSDUSDT', 'GUSDUSDT', 'SUSDUSDT',\n];\n\nconst excludePatterns = [\n/^(USD|EUR|GBP|AUD|TRY|BRL|JPY|KRW|IDR|NGN|ARS|PLN|RON|COP|ZAR).*USDT$/,\n  /(UP|DOWN|BULL|BEAR)d*USDT$/,\n  /^(LBTC|WBTC|WETH|STETH|RETH|CBETH|WBETH)USDT$/,\n];\n\nconst filtered = items\n  .map(i => i.json)\n  .filter(t =>\n    t.symbol.endsWith('USDT') &&\n    !stablecoins.includes(t.symbol) &&\n    !excludePatterns.some(p => p.test(t.symbol)) &&\n    parseFloat(t.quoteVolume) > MIN_VOL &&\n    Math.abs(parseFloat(t.priceChangePercent)) > MIN_CHANGE\n  )\n  .map(t => ({\n    symbol: t.symbol,\n    price: parseFloat(t.lastPrice),\n    change24h: parseFloat(t.priceChangePercent),\n    volume24h: parseFloat(t.quoteVolume),\n    highPrice: parseFloat(t.highPrice),\n    lowPrice: parseFloat(t.lowPrice),\n    trades: parseInt(t.count),\n  }));\n\nreturn filtered.map(f => ({ json: f }));\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Fetch_Binance_All_Tickers": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Every_1h_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "telegrambotip_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/telegrambotip"
+    },
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

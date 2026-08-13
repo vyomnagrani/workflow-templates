@@ -1,0 +1,50 @@
+{
+  "sourceWorkflowName": "Create food emoji icons with OpenAI GPT & image generation",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 5,
+  "totalNodes": 9,
+  "coverage": 0.5556,
+  "diagnostics": [
+    {
+      "code": "TRIGGER_MISSING",
+      "message": "No supported n8n trigger was found.",
+      "severity": "warning",
+      "node_name": null,
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.formTrigger.",
+      "severity": "warning",
+      "node_name": "Trigger: Food Emoji Form Submission",
+      "node_type": "n8n-nodes-base.formTrigger",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.openAi.",
+      "severity": "warning",
+      "node_name": "LLM: Generate Style‑JSON",
+      "node_type": "@n8n/n8n-nodes-langchain.openAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.openAi.",
+      "severity": "warning",
+      "node_name": "Image‑Gen: Render Food Emoji Icon",
+      "node_type": "@n8n/n8n-nodes-langchain.openAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleDrive.",
+      "severity": "warning",
+      "node_name": "Save to Google Drive",
+      "node_type": "n8n-nodes-base.googleDrive",
+      "json_path": null
+    }
+  ]
+}

@@ -1,0 +1,464 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "automated-content-marketing-intelligence-with-openai-ahrefs-multi-platform-integration",
+    "name": "Automated content marketing intelligence with OpenAI, Ahrefs & multi-platform integration",
+    "description": "# 🤖 AI-Powered Content Marketing Research Tool\n\n&gt; **Transform your content strategy with automated competitor intelligence**\n\n## ⚡ What It Does\n\n**Never miss a competitor move again.** This workflow automatically:\n\n- 🔍 **Monitors competitor content** across multiple domains\n- 📊 **Tracks trending keywords** by region  \n- 💬 **Extracts audience pain points** from Reddit & forums\n- 🤖 **Generates AI strategy recommendations** via OpenAI\n- 📋 **Outputs to Airtable, Notion & Slack** for instant action\n\n### 🎯 Perfect For\n- **Growth marketers** tracking competitor strategies\n- **Content teams** discovering trending topics\n- **SEO specialists** finding keyword opportunities\n- **Marketing agencies** managing multiple clients\n\n---\n\n## 🛠️ Technical Setup\n\n### Required APIs & Credentials\n\n| Service | Credential Type | Monthly Cost | Purpose |\n|---------|----------------|--------------|---------|\n| **Ahrefs** | Header Auth | $99+ | Backlink & traffic analysis |\n| **SEMrush** | Query Auth | $119+ | Keyword research |\n| **BuzzSumo** | Header Auth | $199+ | Content performance |\n| **OpenAI** | Header Auth | ~$50 | AI recommendations |\n| **Reddit** | OAuth2 | Free | Audience insights |\n| **Google Trends** | Public API | Free | Trending topics |\n\n### 📊 Database Schema\n\n**Airtable Base:** `content-research-base`\n\n#### Table 1: `competitor-intelligence`\n\ntimestamp (Date)\n\ndomain (Single line text)\n\ntraffic_estimate (Number)\n\nbacklinks (Number)\n\ncontent_gaps (Long text)\n\npublishing_frequency (Single line text)\n\n\n#### Table 2: `keyword-opportunities`  \n\ntimestamp (Date)\n\ntrending_keywords (Long text)\n\ntop_questions (Long text)\n\ncontent_opportunities (Long text)\n\n---\n\n## 🚀 Quick Start Guide\n\n### Step 1: Import & Configure\n1. **Import** the workflow JSON\n2. **Update** competitor domains in `📋 Configuration Settings`\n3. **Map** all API credentials\n\n### Step 2: Setup Storage\n- **Airtable:** Create base with exact schema above\n- **Notion:** Create database with properties listed\n- **Slack:** Create `#content-research-alerts` channel\n\n### Step 3: Test & Deploy\nFirst run populates:\n✅ Airtable tables with competitor data\n✅ Notion database with AI insights\n✅ Slack channel with formatted alerts\n\n---\n\n## 💡 Example Output\n\n### AI Recommendations Format\n{\n\"action_items\": [\n{\n\"topic\": \"Copy trading explainer\",\n\"format\": \"Video\",\n\"region\": \"UK\",\n\"priority\": \"High\"\n}\n],\n\"publishing_calendar\": [\n{\"week\": \"W34\", \"posts\": 3}\n],\n\"alerts\": [\n\"eToro gained 8 .edu backlinks this week\"\n]\n}\n\n### Slack Alert Preview\n🚨 Content Research Alert\n\n📊 Top Findings:\n\nSustainable packaging solutions\n\nCircular economy trends\n\nEco-friendly manufacturing\n\n📈 Trending Keywords:\n\nforex trading basics (+45%)\n\nsocial trading platforms (+32%)\n\ncopy trading strategies (+28%)\n\n💡 AI Recommendations:\nFocus on educational content in UK market...\n\n---\n\n## 🔧 Advanced Features\n\n### ✅ Data Quality Validation\n- **Automatic retry** for failed API calls\n- **Data validation** before storage\n- **Error notifications** via Slack\n\n### ⚙️ Scalability Options\n- **Multi-region support** (US, UK, DE, FR, JP)\n- **Batch processing** for large competitor lists  \n- **Rate limiting** to respect API quotas\n\n### 🎨 Customization Ready\n- **Modular design** - disable unused APIs\n- **Industry templates** - forex, ecommerce, SaaS\n- **Custom scoring** algorithms\n\n---\n\n## 📈 ROI & Performance\n\n### Cost Analysis\n- **Setup time:** ~2 hours\n- **Monthly API costs:** $400-500\n- **Time saved:** 15+ hours/week\n- **ROI:** 300%+ within first month\n\n### Success Metrics\n- **Competitor insights:** 50+ data points daily\n- **Keyword opportunities:** 100+ suggestions/week  \n- **Content ideas:** 20+ AI-generated topics\n- **Trend alerts:** Real-time notifications\n\n---\n\n## 🛡️ Troubleshooting\n\n### Common Issues & Solutions\n\n| **Symptom** | **Cause** | **Fix** |\n|-------------|-----------|---------|\n| OpenAI timeout | Large data payload | ~~Reduce batch size~~ → **Split processing** |\n| Airtable 422 error | Field mismatch | **Copy schema exactly** |\n| Reddit 401 | OAuth expired | **Re-authorize application** |\n\n### Rate Limiting Best Practices\n- **Ahrefs:** Max 1000 requests/day\n- **SEMrush:** 3000 requests/day  \n- **OpenAI:** Monitor token usage\n\n---\n\n## 🌟 Why Choose This Template?\n\n&gt; **\"From manual research to automated intelligence in 15 minutes\"**\n\n✅ **Production-ready** - No additional coding required  \n✅ **Cost-optimized** - Uses free tiers where possible  \n✅ **Scalable** - Add competitors with one click  \n✅ **Actionable** - AI outputs ready for immediate use  \n✅ **Community-tested** - 500+ successful deployments\n\n**Start your competitive intelligence today** 🚀\n\n---\n\n*Built with ❤️ for the n8n community*\n\n\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Market Research",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Daily_Schedule_Trigger": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Configuration_Settings": {
+          "type": "Compose",
+          "inputs": {
+            "string": [
+              {
+                "name": "competitor_domains",
+                "value": "opofinance.com,etoro.com"
+              },
+              {
+                "name": "target_regions",
+                "value": "US,UK,DE,FR,JP"
+              },
+              {
+                "name": "seed_keywords",
+                "value": "forex trading,social trade,how to trade"
+              },
+              {
+                "name": "timeframe_days",
+                "value": "30"
+              }
+            ]
+          },
+          "runAfter": {}
+        },
+        "SEMrush_Competitor_Keywords": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.semrush.com/"
+          },
+          "runAfter": {
+            "Configuration_Settings": [
+              "Succeeded"
+            ]
+          }
+        },
+        "BuzzSumo_Content_Performance": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.buzzsumo.com/search/articles.json"
+          },
+          "runAfter": {
+            "Configuration_Settings": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Trends_Data": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://trends.google.com/trends/api/explore"
+          },
+          "runAfter": {
+            "Configuration_Settings": [
+              "Succeeded"
+            ]
+          }
+        },
+        "AnswerThePublic_Questions": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.answerthepublic.com/api/v1/questions"
+          },
+          "runAfter": {
+            "Configuration_Settings": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Reddit_Audience_Insights": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://oauth.reddit.com/r/@{body('Configuration_Settings')?['seed_keywords']?['split'](',')[0].replace(' ', '')}/hot.json"
+          },
+          "runAfter": {
+            "Configuration_Settings": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Process_Competitor_Data": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Configuration_Settings'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Combine all competitor data\nconst ahrefsData = $input.first()?.json || {};\nconst semrushData = $input.all().find(item => item.json?.domain) || {};\nconst buzzsumoData = $input.all().find(item => item.json?.results) || {};\n\n// Process competitor intelligence\nconst competitorIntelligence = {\n  timestamp: new Date().toISOString(),\n  domain: ahrefsData.target || 'N/A',\n  traffic_estimate: ahrefsData.traffic?.organic?.value || 0,\n  backlinks: ahrefsData.backlinks?.total || 0,\n  top_keywords: semrushData.json?.keywords?.slice(0, 10) || [],\n  viral_content: buzzsumoData.json?.results?.slice(0, 5) || [],\n  content_gaps: [],\n  publishing_frequency: '5-7 posts/week' // This would be calculated from actual data\n};\n\n// Identify content gaps (simplified logic)\nif (buzzsumoData.json?.results) {\n  const competitorTopics = buzzsumoData.json.results.map(article => article.title);\n  competitorIntelligence.content_gaps = [\n    'Sustainable packaging solutions',\n    'Circular economy in fashion',\n    'Eco-friendly manufacturing processes'\n  ];\n}\n\nreturn [{ json: competitorIntelligence }];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Configuration_Settings": [
+              "Succeeded"
+            ],
+            "Ahrefs_Competitor_Data": [
+              "Succeeded"
+            ],
+            "SEMrush_Competitor_Keywords": [
+              "Succeeded"
+            ],
+            "BuzzSumo_Content_Performance": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Process_Keyword_Trends": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Google_Trends_Data'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Combine trends and keyword data\nconst trendsData = $input.all().find(item => item.json?.default) || {};\nconst questionsData = $input.all().find(item => item.json?.questions) || {};\n\n// Process keyword opportunities\nconst keywordOpportunities = {\n  timestamp: new Date().toISOString(),\n  trending_keywords: [],\n  long_tail_questions: [],\n  search_volume_trends: [],\n  seasonal_patterns: [],\n  content_opportunities: []\n};\n\n// Extract trending keywords from Google Trends\nif (trendsData.json?.default?.timelineData) {\n  keywordOpportunities.trending_keywords = trendsData.json.default.timelineData\n    .slice(0, 10)\n    .map(item => ({\n      keyword: item.formattedValue || 'Unknown',\n      trend_velocity: item.value?.[0] || 0,\n      region: 'US'\n    }));\n}\n\n// Extract questions from AnswerThePublic\nif (questionsData.json?.questions) {\n  keywordOpportunities.long_tail_questions = questionsData.json.questions\n    .slice(0, 15)\n    .map(q => ({\n      question: q.question || q,\n      search_volume: Math.floor(Math.random() * 1000) + 100, // Placeholder\n      difficulty: Math.floor(Math.random() * 100) + 1,\n      suggested_format: ['blog', 'video', 'infographic'][Math.floor(Math.random() * 3)]\n    }));\n}\n\n// Generate content opportunities\nkeywordOpportunities.content_opportunities = [\n  {\n    title: '5 Sustainable Fashion Trends Taking Over 2024',\n    keyword_target: 'sustainable fashion trends',\n    estimated_traffic: 2500,\n    content_type: 'blog',\n    priority: 'high'\n  },\n  {\n    title: 'How to Build a Circular Economy Wardrobe',\n    keyword_target: 'circular economy fashion',\n    estimated_traffic: 1800,\n    content_type: 'guide',\n    priority: 'medium'\n  }\n];\n\nreturn [{ json: keywordOpportunities }];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Google_Trends_Data": [
+              "Succeeded"
+            ],
+            "AnswerThePublic_Questions": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Process_Audience_Insights": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Reddit_Audience_Insights'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Process Reddit audience insights\nconst redditData = $input.first()?.json || {};\n\nconst audienceInsights = {\n  timestamp: new Date().toISOString(),\n  top_pain_points: [],\n  common_questions: [],\n  sentiment_analysis: 'neutral',\n  engagement_topics: [],\n  regional_preferences: {}\n};\n\n// Extract pain points from Reddit posts\nif (redditData.data?.children) {\n  const posts = redditData.data.children;\n  \n  audienceInsights.top_pain_points = posts\n    .filter(post => post.data.title.includes('problem') || post.data.title.includes('issue'))\n    .slice(0, 10)\n    .map(post => ({\n      pain_point: post.data.title,\n      upvotes: post.data.ups || 0,\n      comments: post.data.num_comments || 0,\n      source: 'reddit'\n    }));\n    \n  audienceInsights.common_questions = posts\n    .filter(post => post.data.title.includes('?') || post.data.title.toLowerCase().includes('how'))\n    .slice(0, 10)\n    .map(post => ({\n      question: post.data.title,\n      engagement_score: (post.data.ups || 0) + (post.data.num_comments || 0),\n      category: 'general'\n    }));\n    \n  audienceInsights.engagement_topics = posts\n    .sort((a, b) => (b.data.ups || 0) - (a.data.ups || 0))\n    .slice(0, 5)\n    .map(post => ({\n      topic: post.data.title,\n      engagement_score: post.data.ups || 0,\n      discussion_level: post.data.num_comments || 0\n    }));\n}\n\n// Add some sample regional preferences\naudienceInsights.regional_preferences = {\n  'US': ['affordability', 'brand transparency'],\n  'EU': ['sustainability certifications', 'local production'],\n  'APAC': ['quality', 'innovation']\n};\n\nreturn [{ json: audienceInsights }];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Reddit_Audience_Insights": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Save_to_Airtable_Competitors": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "💾 Save to Airtable - Competitors",
+            "n8nNodeType": "n8n-nodes-base.airtable",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "base": {
+                "__rl": true,
+                "mode": "list",
+                "value": "content-research-base"
+              },
+              "table": {
+                "__rl": true,
+                "mode": "list",
+                "value": "competitor-intelligence"
+              },
+              "columns": {
+                "value": {
+                  "domain": "={{ $('🔄 Process Competitor Data').first().json.domain }}",
+                  "backlinks": "={{ $('🔄 Process Competitor Data').first().json.backlinks }}",
+                  "timestamp": "={{ $('🔄 Process Competitor Data').first().json.timestamp }}",
+                  "content_gaps": "={{ $('🔄 Process Competitor Data').first().json.content_gaps.join(', ') }}",
+                  "traffic_estimate": "={{ $('🔄 Process Competitor Data').first().json.traffic_estimate }}",
+                  "publishing_frequency": "={{ $('🔄 Process Competitor Data').first().json.publishing_frequency }}"
+                },
+                "mappingMode": "defineBelow"
+              },
+              "options": {},
+              "operation": "create"
+            }
+          },
+          "runAfter": {
+            "Data_Quality_Check": [
+              "Succeeded"
+            ],
+            "OpenAI_HTTP_Request_Alternative": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Save_to_Airtable_Keywords": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "💾 Save to Airtable - Keywords",
+            "n8nNodeType": "n8n-nodes-base.airtable",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "base": {
+                "__rl": true,
+                "mode": "list",
+                "value": "content-research-base"
+              },
+              "table": {
+                "__rl": true,
+                "mode": "list",
+                "value": "keyword-opportunities"
+              },
+              "columns": {
+                "value": {
+                  "timestamp": "={{ $('📈 Process Keyword Trends').first().json.timestamp }}",
+                  "top_questions": "={{ $('📈 Process Keyword Trends').first().json.long_tail_questions.map(q => q.question).slice(0, 5).join('; ') }}",
+                  "trending_keywords": "={{ $('📈 Process Keyword Trends').first().json.trending_keywords.map(k => k.keyword).join(', ') }}",
+                  "content_opportunities": "={{ $('📈 Process Keyword Trends').first().json.content_opportunities.map(o => o.title).join('; ') }}"
+                },
+                "mappingMode": "defineBelow"
+              },
+              "options": {},
+              "operation": "create"
+            }
+          },
+          "runAfter": {
+            "OpenAI_HTTP_Request_Alternative": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Save_to_Notion": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "📝 Save to Notion",
+            "n8nNodeType": "n8n-nodes-base.notion",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "pageId": {
+                "__rl": true,
+                "mode": "url",
+                "value": ""
+              },
+              "simple": false,
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "OpenAI_HTTP_Request_Alternative": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_Slack_Alert": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "📢 Send Slack Alert",
+            "n8nNodeType": "n8n-nodes-base.slack",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=🚨 **Content Research Alert**\n\n**New competitor activity detected!**\n\n📊 **Top Findings:**\n• {{ $('🔄 Process Competitor Data').first().json.content_gaps.slice(0, 3).join('\\n• ') }}\n\n📈 **Trending Keywords:**\n• {{ $('📈 Process Keyword Trends').first().json.trending_keywords.slice(0, 3).map(k => k.keyword).join('\\n• ') }}\n\n💡 **AI Recommendations:**\n{{ $('🤖 AI Content Recommendations').first().json.choices?.[0]?.message?.content?.substring(0, 300) || 'Processing recommendations...' }}...\n\n📋 **Full report saved to Airtable & Notion**\n\n*Generated: {{ new Date().toLocaleString() }}*",
+              "select": "channel",
+              "channelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "content-research-alerts"
+              },
+              "otherOptions": {
+                "mrkdwn": true
+              },
+              "authentication": "oAuth2"
+            }
+          },
+          "runAfter": {
+            "OpenAI_HTTP_Request_Alternative": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Merge_All_Data": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "🔗 Merge All Data",
+            "n8nNodeType": "n8n-nodes-base.merge",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "combine",
+              "options": {},
+              "combinationMode": "multiplex"
+            }
+          },
+          "runAfter": {
+            "Save_to_Notion": [
+              "Succeeded"
+            ],
+            "Send_Slack_Alert": [
+              "Succeeded"
+            ],
+            "Save_to_Airtable_Keywords": [
+              "Succeeded"
+            ],
+            "Save_to_Airtable_Competitors": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Data_Quality_Check": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "✅ Data Quality Check",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "competitor-data-exists",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEqual"
+                    },
+                    "leftValue": "={{ $('🔄 Process Competitor Data').first().json.domain }}",
+                    "rightValue": "N/A"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Process_Competitor_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Prepare_AI_Prompt": {
+          "type": "Compose",
+          "inputs": {
+            "string": [
+              {
+                "name": "user_prompt",
+                "value": "Based on this data:\n\nCompetitor Intelligence: {{ $('🔄 Process Competitor Data').first().json }}\n\nKeyword Opportunities: {{ $('📈 Process Keyword Trends').first().json }}\n\nAudience Insights: {{ $('👥 Process Audience Insights').first().json }}\n\nProvide specific recommendations for:\n1. Content topics to prioritize\n2. Content formats by region\n3. Publishing schedule\n4. Competitive advantages to leverage\n5. Audience pain points to address\n\nFormat as JSON with clear action items."
+              }
+            ]
+          },
+          "runAfter": {
+            "Process_Keyword_Trends": [
+              "Succeeded"
+            ],
+            "Process_Competitor_Data": [
+              "Succeeded"
+            ],
+            "Process_Audience_Insights": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenAI_HTTP_Request_Alternative": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.openai.com/v1/chat/completions",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": {}
+          },
+          "runAfter": {
+            "Prepare_AI_Prompt": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Stop_and_Error": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Stop and Error",
+            "n8nNodeType": "n8n-nodes-base.stopAndError",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "Data_Quality_Check": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Ahrefs_Competitor_Data": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.ahrefs.com/v3/site-explorer/overview"
+          },
+          "runAfter": {
+            "Configuration_Settings": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Daily_Schedule_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

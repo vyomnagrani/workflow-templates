@@ -1,0 +1,670 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "build-a-weekly-ai-trend-alerter-with-arxiv-and-weaviate",
+    "name": "Build a weekly AI trend alerter with arXiv and Weaviate",
+    "description": "\n\n\n\n\n# Build a Weekly AI Trend Alerter with arXiv and Weaviate\nDitch the endless scroll for AI trends. Meet Archi, your personal AI research assistant that hits you up once a week with everyone you need to know. 🧑🏽‍🔬\n\nThis workflow scrapes AI and machine learning article abstracts from [arXiv](arxiv.org), enriches them with topic categories using a LLM, and embeds them in a [Weaviate](Weaviate) vector store. The vector store is then used as a tool for agentic RAG to write a concise, easy-to-read summary of the week in AI research.\n\nThe final output is a short, weekly email sent to the address of your choice that summarizes key AI research trends and future research directions, with links directly to the most interesting and impactful arXiv papers of the week.\n\n## Who it's for\nThis workflow is for anyone who can't keep up with all the latest AI advances. Coding skills are not required.\n\n## How it works\nThis is a contiguous workflow that can be summarized in two main parts: a data pipeline that fetches and embeds articles in Weaviate, and an agentic workflow that generates a weekly email summary.\n### Part 1: Automatically fetch newly published articles on a weekly basis\n* Fetch article abstracts (and metadata) from arXiv's free API\n* Pre-process abstract data\n* Enrich each article with a primary topic, secondary topics, and estimated potential impact of the research using a LLM\n* Post-process data\n* Insert data and embeddings into Weaviate\n###  Part 2: Use an AI Agent and Weaviate to generate a weekly summary email\n* Add Weaviate as a Tool to an AI agent node\n* Query Weaviate, agentically, to generate a report on the most important research trends of the week\n* Post-process data\n* Send the summary via email\n\n## Prerequisites\n1.  **An existing Weaviate cluster.** You can view instructions for setting up a **local cluster** with Docker [here](https://weaviate.io/developers/weaviate/installation/docker-compose#starter-docker-compose-file) or a **Weaviate Cloud** cluster [here](https://weaviate.io/developers/wcs/quickstart).\n2.  **API keys** to generate embeddings and power chat models. We use a combination of [OpenRouter](https://openrouter.ai/) and [OpenAI](https://openai.com/) models. Feel free to switch out the models as you like.\n3.  **An email address with STMP privileges**. This is the address the email will come from. In this demo we use a personal Gmail address. You can create a new credential to link a `STMP Account` using these [instructions](https://docs.n8n.io/integrations/builtin/credentials/sendemail/).\n4.  **Self-hosted n8n instance.** See this [video](https://www.youtube.com/watch?v=kq5bmrjPPAY&t=108s) for how to get set up in just three minutes.\n\n## How to run the workflow\n1. Go through the prerequisites, creating a Weaviate cluster (can be local or cloud), downloading self-hosted n8n, creating STMP privileges for your email account, and adding your API keys and other credentials.\n2. Select the embedding and chat models you'd like to use.\n3. Enter the email addresses you want to send the email from and to.\n4. Let it rip.\n\n## Workflow output\nThe output for this workflow is a weekly email that summarizes **key research trends** and **future research directions** based on AI and ML papers published on arXiv. \n\n### Here's an example of a summary email:\n\nHey there,\n\nHere's a quick rundown of the key trends in Machine Learning research from the past week.\n\n**![💫](https://fonts.gstatic.com/s/e/notoemoji/16.0/1f4ab/32.png)  Key Research Trends This Week**\n\nThis week saw significant advancements in retrieval-augmented systems, foundation models for specialized domains, and techniques balancing efficiency with performance.\n\n-   **Advanced RAG Architectures**: Researchers are developing sophisticated RAG frameworks that go beyond simple document retrieval, with  [AdaPCR](http://arxiv.org/abs/2507.04069v1)  introducing passage combination retrieval and  [UrbanMind](http://arxiv.org/abs/2507.04706v1)  proposing a framework for urban intelligence with multilevel optimization.\n    \n-   **Foundation Models for Tabular Data**: The  [Real-TabPFN](http://arxiv.org/abs/2507.03971v1)  shows that targeted continued pre-training on real-world datasets can significantly boost the performance of foundation models for tabular data, outperforming models trained on broader, potentially noisier datasets.\n    \n-   **Efficiency-Focused Techniques**: Researchers are developing resourceful methods that maintain performance without expensive computations, like  [logit reweighting](http://arxiv.org/abs/2507.05235v1)  for topic-focused summarization and  [strategic querying](http://arxiv.org/abs/2507.05175v1)  for privacy-preserving personalization.\n    \n\n**![🔮](https://fonts.gstatic.com/s/e/notoemoji/16.0/1f52e/32.png)  Future Research Directions**\n\nBased on current trends, we expect to see the following developments in the near future:\n\n-   **Explainable RAG Systems**: Following the  [source attribution](http://arxiv.org/abs/2507.04480v1)  work in RAG systems, we can expect more research into making complex retrieval systems transparent and explainable for users.\n    \n-   **Cross-Domain and Cross-Modal Fusion**: The promising performance of vision-language and code-specialized LLMs in  [retrieval tasks](http://arxiv.org/abs/2507.03958v1)  points toward unified retrievers capable of handling text, code, images, and multimodal content.\n    \n-   **Data-Centric Synthetic Generation**: As shown by work on  [synthetic relational tabular data](http://arxiv.org/abs/2507.03528v1), we'll likely see more sophisticated approaches to generating high-quality synthetic data for pre-training foundation models in specialized domains.\n    \n\nThis week highlights how researchers are making AI more efficient, explainable, and applicable to specialized domains. Look out for more developments in RAG systems, tabular foundation models, and privacy-preserving AI techniques in the coming weeks.\n\nUntil next week,\n\nArchi  ![🧑🏽‍🔬](https://fonts.gstatic.com/s/e/notoemoji/16.0/1f9d1_1f3fd_200d_1f52c/32.png)\n\n\n## Want to make it better?\nFeel free to tweak, build on, or completely reconfigure this workflow. If you come up with something cool, [let us know](grow@weaviate.io) and we might just share it with our community! 💚",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "AI RAG",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Schedule_Trigger": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Weaviate_Vector_Store": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Weaviate Vector Store",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.vectorStoreWeaviate",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "insert",
+              "options": {
+                "textKey": "summary"
+              },
+              "weaviateCollection": {
+                "__rl": true,
+                "mode": "id",
+                "value": "ArxivArticles"
+              }
+            }
+          },
+          "runAfter": {
+            "Remove_Fields": [
+              "Succeeded"
+            ],
+            "Embeddings_OpenAI": [
+              "Succeeded"
+            ],
+            "Default_Data_Loader": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Default_Data_Loader": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Default Data Loader",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "metadata": {
+                  "metadataValues": [
+                    {
+                      "name": "arxiv_id",
+                      "value": "={{ $('Remove Fields').item.json.id }}"
+                    },
+                    {
+                      "name": "published",
+                      "value": "={{ $('Remove Fields').item.json.published }}"
+                    },
+                    {
+                      "name": "author",
+                      "value": "={{ $('Remove Fields').item.json.author }}"
+                    },
+                    {
+                      "name": "title",
+                      "value": "={{ $('Remove Fields').item.json.title }}"
+                    },
+                    {
+                      "name": "category",
+                      "value": "={{ $('Remove Fields').item.json.category }}"
+                    },
+                    {
+                      "name": "primary_topic",
+                      "value": "={{ $('Remove Fields').item.json.primary_topic }}"
+                    },
+                    {
+                      "name": "=secondary_topics",
+                      "value": "={{ $('Remove Fields').item.json.secondary_topics }}"
+                    },
+                    {
+                      "name": "potential_impact",
+                      "value": "={{ $('Remove Fields').item.json.potential_impact }}"
+                    }
+                  ]
+                }
+              },
+              "jsonData": "={{ $('Remove Fields').item.json.summary }}",
+              "jsonMode": "expressionData"
+            }
+          },
+          "runAfter": {
+            "Recursive_Character_Text_Splitter1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Query_arXiv": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://export.arxiv.org/api/query?search_query=cat:cs.LG+OR+cat:stat.ML&sortBy=submittedDate&sortOrder=descending&start=0&max_results=10&last_update_date_from=@{body('Date_Time')?['startDate']?['toDateTime']().toFormat(\"yyyyMMdd\")}"
+          },
+          "runAfter": {
+            "Date_Time": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Convert_XML_to_JSON": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Convert XML to JSON",
+            "n8nNodeType": "n8n-nodes-base.xml",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Query_arXiv": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Remove_Duplicates": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Remove Duplicates",
+            "n8nNodeType": "n8n-nodes-base.removeDuplicates",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "compare": "={{ $json.id }}",
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Prep_Data_for_Weaviate": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Simple_Memory": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Simple Memory",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "sessionKey": "sessionId",
+              "sessionIdType": "customKey"
+            }
+          },
+          "runAfter": {}
+        },
+        "Embeddings_OpenAI": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Embeddings OpenAI",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "OpenRouter_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenRouter Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": "anthropic/claude-3.7-sonnet",
+              "options": {
+                "temperature": 2
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Weaviate_Vector_Store1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Weaviate Vector Store1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.vectorStoreWeaviate",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "retrieve-as-tool",
+              "options": {},
+              "toolName": "ArxivPapers",
+              "toolDescription": "This tool allows you to query the Weaviate Vector Store1 to retrieve arXiv article titles, summary and other metadata to be used as the sole data source performing a trend analysis. You must query the database to get information for the trend analysis.",
+              "weaviateCollection": {
+                "__rl": true,
+                "mode": "id",
+                "value": "ArxivArticles"
+              }
+            }
+          },
+          "runAfter": {
+            "Embeddings_OpenAI1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Embeddings_OpenAI1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Embeddings OpenAI1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Date_Time": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Date & Time",
+            "n8nNodeType": "n8n-nodes-base.dateTime",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "duration": 7,
+              "magnitude": "={{ $json.currentDate }}",
+              "operation": "subtractFromDate",
+              "outputFieldName": "startDate"
+            }
+          },
+          "runAfter": {
+            "Get_Current_Date": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Markdown": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Markdown",
+            "n8nNodeType": "n8n-nodes-base.markdown",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "markdownToHtml",
+              "options": {
+                "simplifiedAutoLink": true
+              },
+              "markdown": "={{ $json.output.body }}",
+              "destinationKey": "=data"
+            }
+          },
+          "runAfter": {
+            "Post_Process_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Recursive_Character_Text_Splitter1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Recursive Character Text Splitter1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "chunkSize": 2000
+            }
+          },
+          "runAfter": {}
+        },
+        "Structured_Output_Parser": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Structured Output Parser",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsonSchemaExample": "{\n  \"subject\":\"...\",\n  \"body\":\"...\"\n}"
+            }
+          },
+          "runAfter": {}
+        },
+        "OpenRouter_Chat_Model1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenRouter Chat Model1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": "anthropic/claude-3.7-sonnet",
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Structured_Output_Parser1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Structured Output Parser1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "autoFix": true,
+              "jsonSchemaExample": "{\n\t\"primary_category\": \"LLM Fine-tuning\",\n\t\"secondary_categories\": [\"Parameter-Efficient Fine-tuning (PEFT)\", \"Data-centric AI\"],\n    \"potential_impact\": 1\n}"
+            }
+          },
+          "runAfter": {
+            "OpenRouter_Chat_Model2": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Merge": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Merge",
+            "n8nNodeType": "n8n-nodes-base.merge",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "combine",
+              "options": {},
+              "combineBy": "combineByPosition"
+            }
+          },
+          "runAfter": {
+            "Remove_Duplicates": [
+              "Succeeded"
+            ],
+            "Enrich_Articles_with_Topic_Classification": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenRouter_Chat_Model2": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenRouter Chat Model2",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": "anthropic/claude-3.7-sonnet",
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Get_Current_Date": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get Current Date",
+            "n8nNodeType": "n8n-nodes-base.dateTime",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Split_Results": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Split Results",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldToSplitOut": "feed.entry"
+            }
+          },
+          "runAfter": {
+            "Convert_XML_to_JSON": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Prep_Data_for_Weaviate": {
+          "type": "Compose",
+          "inputs": {
+            "id": "@body('Split_Results')?['id']",
+            "title": "@body('Split_Results')?['title']",
+            "summary": "@body('Split_Results')?['summary']",
+            "author": "@Array.isArray(body('Split_Results')?['author'])\n    ? body('Split_Results')?['author']?['map'](author => author.name)\n    : (body('Split_Results')?['author'] && body('Split_Results')?['author']?['name'] ? [body('Split_Results')?['author']?['name']] : [])",
+            "published": "@new Date(body('Split_Results')?['published']).toISOString()",
+            "category": "@Array.isArray(body('Split_Results')?['category'])     ? body('Split_Results')?['category']?['map'](category => category.term)     : (body('Split_Results')?['category'] && body('Split_Results')?['category']?['term'] ? [body('Split_Results')?['category']?['term']] : [])"
+          },
+          "runAfter": {
+            "Split_Results": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Enrich_Articles_with_Topic_Classification": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Enrich Articles with Topic Classification",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=Classify the following arXiv papers:\n\n```json\nTitle: {{ $json.title }}\nAbstract: {{ $json.summary }}",
+              "options": {
+                "systemMessage": "=You are an expert AI agent designed to classify academic research papers. Your task is to analyze the provided arXiv paper data and categorize it based on its content.\n\nInput Data Schema:\nThe input data will be a JSON object with the following structure:\n\n{\n  \"title\": \"string\",\n  \"summary\": \"string\"\n}\n\nYou MUST respond with a JSON object containing the following fields:\n\n\"primary_category\": (string) The single most relevant primary category for the paper. You MUST choose one category from the following predefined list. Do NOT use any category not on this list.\n\n\"secondary_categories\": (array of strings) Up to two additional relevant secondary categories. These are optional; if no secondary categories apply, provide an empty array []. If chosen, they MUST also be from the predefined list.\n\n\"potential_impact\": (integer) An integer score from 1 to 5, judging the paper's potential impact based on these criteria:\n\n1: Papers with no new existing information or limited results.\n\n2: Papers with minor incremental contributions or limited novelty.\n\n3: Papers with solid contributions, good results, and clear utility, but not groundbreaking.\n\n4: Papers with significant advancements, novel approaches, or strong potential to influence the field.\n\n5: Papers that are potential game-changers, representing paradigm shifts, or opening entirely new research directions.\n\nPredefined Categories and Definitions:\n\nFoundation Models: Models trained on broad data at scale, designed to be adaptable to a wide range of downstream tasks (e.g., large language models, large vision models, multi-modal models).\n\nLLM Fine-tuning: Techniques and methodologies for adapting pre-trained Large Language Models (LLMs) to specific tasks or datasets.\n\nParameter-Efficient Fine-tuning (PEFT): Methods that enable efficient adaptation of large pre-trained models to new tasks with minimal computational cost, by updating only a small subset of parameters (e.g., LoRA, Prompt Tuning).\n\nRetrieval-Augmented Generation (RAG): Architectures or systems that combine generative models (like LLMs) with information retrieval mechanisms to enhance the factual accuracy and relevance of generated outputs by referencing external knowledge bases.\n\nModel Quantization: Techniques for reducing the precision of model parameters (e.g., from float32 to int8) to decrease model size, memory footprint, and computational requirements, often for efficient deployment on edge devices.\n\nAgentic AI / AI Agents: Systems designed for autonomous decision-making, planning, and action in dynamic environments, often involving reasoning, memory, and tool use.\n\nMultimodality: Models capable of processing, understanding, and generating content across multiple data types or modalities (e.g., text and images, audio and video).\n\nReinforcement Learning: A paradigm where an agent learns to make decisions by performing actions in an environment to maximize a cumulative reward, often through trial and error.\n\nComputer Vision (Specific Techniques): Papers focusing on particular computer vision tasks or methodologies that are not primarily about foundation models (e.g., 3D reconstruction, object detection, image segmentation, pose estimation).\n\nNatural Language Processing (Specific Techniques): Papers focusing on particular NLP tasks or methodologies that are not primarily about foundation models or LLM fine-tuning (e.g., text summarization, machine translation, sentiment analysis, named entity recognition).\n\nEthical AI / AI Safety: Research addressing the societal implications of AI, including fairness, bias detection and mitigation, interpretability, transparency, privacy, and alignment with human values.\n\nEfficient AI / AI Optimization: Techniques aimed at improving the computational efficiency, speed, or resource usage of AI models beyond just quantization, including architecture search, inference optimization, and hardware-aware design.\n\nData-centric AI: Approaches that prioritize improving the quality, quantity, and organization of data used to train AI models, rather than solely focusing on model architecture improvements.\n\nOther: A catch-all category for articles that don't fall into one of the classes mentioned above.\n\nFocus solely on the content of the paper's title, summary, and categories to make your classification. Do NOT include any conversational text or explanations in your response, only the JSON object."
+              },
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "Remove_Duplicates": [
+              "Succeeded"
+            ],
+            "OpenRouter_Chat_Model1": [
+              "Succeeded"
+            ],
+            "Structured_Output_Parser1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Remove_Fields": {
+          "type": "Compose",
+          "inputs": {
+            "id": "@body('Merge')?['id']",
+            "title": "@body('Merge')?['title']",
+            "summary": "@body('Merge')?['summary']",
+            "author": "@body('Merge')?['author']",
+            "published": "@body('Merge')?['published']",
+            "category": "@body('Merge')?['category']",
+            "primary_topic": "@body('Merge')?['output']?['primary_category']",
+            "secondary_topics": "@body('Merge')?['output']?['secondary_categories']",
+            "potential_impact": "@parseFloat(body('Merge')?['output']?['potential_impact'])"
+          },
+          "runAfter": {
+            "Merge": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Aggregate_Uploaded_arXiv_IDs": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Aggregate Uploaded arXiv IDs",
+            "n8nNodeType": "n8n-nodes-base.aggregate",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldsToAggregate": {
+                "fieldToAggregate": [
+                  {
+                    "fieldToAggregate": "metadata.arxiv_id"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Weaviate_Vector_Store": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Add_Static_sessionId": {
+          "type": "Compose",
+          "inputs": {
+            "sessionId": "static_id"
+          },
+          "runAfter": {
+            "Aggregate_Uploaded_arXiv_IDs": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Agentic_RAG_for_Trend_Analysis": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Agentic RAG for Trend Analysis",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=Please provide a summarized trend analysis using the articles stored in the Weaviate vector store.",
+              "options": {
+                "systemMessage": "=**CRITICAL: YOUR FINAL RESPONSE MUST CONTAIN ABSOLUTELY NO MARKDOWN CODE FENCES (```JSON) OR ANY OTHER TEXT OUTSIDE THE PURE JSON OBJECT. IMMEDIATELY PROVIDE THE JSON.**\n\nYou are an expert AI and Machine Learning research analyst, specifically tasked with synthesizing weekly trends from arXiv publications. Your goal is to generate a concise, approachable, and easy-to-read email summary for a general audience interested in the latest developments in AI and ML. You must use the Weaviate Vector Store1 and perform a proper vector search to retrieve the data. If you were unable to retrieve data, please repeatedly try again until you can. Do not hallucinate, do not make anything up, do not rely on your memory.\n\n**Input Data:**\nYou will receive an array of JSON objects, where each object represents a single AI/ML article published on arXiv in the last week. You MUST analyze this entire collection of articles to identify key trends and notable research. Each article object has the following fields:\n- `arxiv_id`: The FULL arXiv URL of the article. (e.g. \"http://arxiv.org/abs/2507.02863v1\")\n- `title`: The title of the article.\n- `main_findings`: The main findings of the paper.\n- `primary_topic`: The primary topic assigned to the article (e.g., \"Language Model Evaluation\").\n- `secondary_topics`: A list of secondary topics assigned to the article (e.g., [\"Generative AI\", \"Natural Language Processing\"]).\n- `paper_quality`: A numerical score from 1 (very poor) to 5 (excellent quality), representing the predicted research quality.\n- `potential_impact`: A numerical score from 1 (not important) to 5 (potential paradigm shift, huge game-changer), representing the predicted impact on the field.\n\nYou will also recieve an array of JSONs with article counts by primary topic. Incorporate this into your trend anaylsis by focusing on topics with the most number of publications. Use this to guide the rest of the analysis\n\n**Trend Identification and Selection Rules:**\n- **Get article counts by `primary_topic`:** First, perform an aggregate query in the Weaviate vector store to get the counts of articles published by `primary_topic`. Use these counts to inform the rest of your analysis, focusing on the most-published topics. \n- **Identify Key Trends:** Group papers by `primary_topic` and `secondary_topics`. Prioritize trends with a higher number of associated papers, or papers with higher `potential_impact` or `paper_quality` scores.\n- **Select Representative Papers for Citation:** For each trend you summarize, choose 1-2 representative papers. These should ideally be the highest `potential_impact` or `paper_quality` papers relevant to that trend from the provided input data.\n- **Infer Future Outlook:** Based on the collective summaries and topics of the provided articles, infer and summarize likely future research directions.\n\n**Output Format (Strict JSON):**\nYour entire response MUST be **only** a valid JSON object.\n- **DO NOT include any Markdown code fences (```json) or any other text before or after the JSON object.**\n- The JSON object MUST contain exactly two top-level keys: \"subject\" and \"body\".\n- The value for \"subject\" MUST be a single string. It MUST always start with \"✨ ML Weekly Update:\" and the rest should be a succinct summary of the report's top trends for the week.\n- The value for \"body\" MUST be a single string representing the full email content in Markdown format. Use `\\\\n` for newlines within the body string. All double quotes within string values MUST be escaped as `\\\"`.\n- You must cite all of your conclusions with the matching `arxiv_id` for the paper. Cite the in markdown format so that the user can click on a word related to the paper which is linked to the `arxiv_id`.\n\nHere is an example of a citation:\n...including [MOTIF](http://arxiv.org/abs/2507.02851v1) which enables modular thinking beyond context limitations\n\nUse ONLY data from the `arxiv_id` field for citations. Do NOT create an arXiv_id spontaneously.\n\nExample JSON Output (strictly adhere to this format):\n```json\n{\n  \"subject\": \"✨ ML Weekly Update: BERT gets an upgrade, new PEFT techniques, and ML for radiology\",\n  \"body\": \"Rest of email in markdown format here.\"\n}\n\nFollow this format strictly for the email, giving the body output in markdown format:\n\nHey there,\n\nHere's a quick rundown of the key trends in Machine Learning research from the past week.\n\n## 💫 Key Research Trends This Week\nA one-sentence summary of the main trends covered in the report.\n* Bullet 1: A specific trend explained in 1 sentence or less, with the corresponding `arxiv_id` from the input report.\n* Bullet 2: A specific trend explained in 1 sentence or less, with the corresponding `arxiv_id` from the input report.\n* Bullet 3: A specific trend explained in 1 sentence or less, with the corresponding `arxiv_id` from the input report.\n** Write a maximum of 3 bullet points **\n\n## 🔮 Future Research Directions\nA one-sentence summary of future research directions from the report.\n* Bullet 1: A specific prediction explained in 1 sentence or less.\n* Bullet 2: A specific prediction explained in 1 sentence or less.\n* Bullet 3: A specific prediction explained in 1 sentence or less.\n** Write a maximum of 3 bullet points **\n\nGive a one sentence summary of the email. Then follow it with some short tips on what to look for in terms of new developments over the coming week.\n\nUntil next week,\n\nArchi 🧑🏽‍🔬"
+              },
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "Simple_Memory": [
+              "Succeeded"
+            ],
+            "Add_Static_sessionId": [
+              "Succeeded"
+            ],
+            "OpenRouter_Chat_Model": [
+              "Succeeded"
+            ],
+            "Weaviate_Vector_Store1": [
+              "Succeeded"
+            ],
+            "Structured_Output_Parser": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Post_Process_Data": {
+          "type": "Compose",
+          "inputs": {
+            "subject": "@body('Agentic_RAG_for_Trend_Analysis')?['output']?['subject']",
+            "output.body": "@body('Agentic_RAG_for_Trend_Analysis')?['output']?['body']?['replace'](/\\\\n/g, '\\n')"
+          },
+          "runAfter": {
+            "Agentic_RAG_for_Trend_Analysis": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_email": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Send email",
+            "n8nNodeType": "n8n-nodes-base.emailSend",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "html": "={{ $json.data }}",
+              "options": {},
+              "subject": "={{ $json.subject }}"
+            }
+          },
+          "runAfter": {
+            "Markdown": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Schedule_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

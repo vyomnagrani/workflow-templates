@@ -1,0 +1,50 @@
+{
+  "sourceWorkflowName": "Pharmacy inventory alerts for low stock & expiring medicine with Google Sheets",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 5,
+  "totalNodes": 7,
+  "coverage": 0.7143,
+  "diagnostics": [
+    {
+      "code": "CONNECTOR_RESOURCE_REQUIRED",
+      "message": "Google Sheets requires a spreadsheet and worksheet value before import.",
+      "severity": "warning",
+      "node_name": "Fetch Stock Data",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Google Sheets operation 'update' is not safely equivalent to a single LAA connector action.",
+      "severity": "warning",
+      "node_name": "Update Google Sheet",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.googleSheets is not safely supported.",
+      "severity": "warning",
+      "node_name": "Update Google Sheet",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.emailSend.",
+      "severity": "warning",
+      "node_name": "Send Email Alert",
+      "node_type": "n8n-nodes-base.emailSend",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Check Expiry Date and Low Stock",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    }
+  ]
+}

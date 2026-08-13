@@ -1,0 +1,74 @@
+{
+  "sourceWorkflowName": "Generate Google Veo 3.1 AI videos from form prompts using Pollo API",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 8,
+  "totalNodes": 10,
+  "coverage": 0.8,
+  "diagnostics": [
+    {
+      "code": "IF_REGION_UNSUPPORTED",
+      "message": "IF branches overlap or have external inputs, so nesting them would change behavior.",
+      "severity": "warning",
+      "node_name": "If Generation Complete",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "TRIGGER_MISSING",
+      "message": "No supported n8n trigger was found.",
+      "severity": "warning",
+      "node_name": null,
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.formTrigger.",
+      "severity": "warning",
+      "node_name": "When Prompt Submitted",
+      "node_type": "n8n-nodes-base.formTrigger",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Wait 10 Seconds",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$node[\"Post to Pollo API\"].json[\"data\"][\"taskId\"]",
+      "severity": "warning",
+      "node_name": "Fetch Generation Status",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =https://pollo.ai/api/platform/generation/{{$node[\"Post to Pollo API\"].json[\"data\"][\"taskId\"]}}/status",
+      "severity": "warning",
+      "node_name": "Fetch Generation Status",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{$node[\"When Prompt Submitted\"].json[\"api_key\"]}}",
+      "severity": "warning",
+      "node_name": "Fetch Generation Status",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.if is not safely supported.",
+      "severity": "warning",
+      "node_name": "If Generation Complete",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    }
+  ]
+}

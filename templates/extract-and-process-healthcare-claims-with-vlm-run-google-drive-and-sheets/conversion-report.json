@@ -1,0 +1,42 @@
+{
+  "sourceWorkflowName": "Extract and process healthcare claims with VLM Run, Google Drive and Sheets",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 5,
+  "totalNodes": 8,
+  "coverage": 0.625,
+  "diagnostics": [
+    {
+      "code": "TRIGGER_MISSING",
+      "message": "No supported n8n trigger was found.",
+      "severity": "warning",
+      "node_name": null,
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @vlm-run/n8n-nodes-vlmrun.vlmRun.",
+      "severity": "warning",
+      "node_name": "VLM Run",
+      "node_type": "@vlm-run/n8n-nodes-vlmrun.vlmRun",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleDrive.",
+      "severity": "warning",
+      "node_name": "Download file",
+      "node_type": "n8n-nodes-base.googleDrive",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleDriveTrigger.",
+      "severity": "warning",
+      "node_name": "Google Drive Trigger",
+      "node_type": "n8n-nodes-base.googleDriveTrigger",
+      "json_path": null
+    }
+  ]
+}

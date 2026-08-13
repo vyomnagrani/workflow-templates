@@ -1,0 +1,281 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "ai-powered-product-research-seo-content-automation",
+    "name": "AI-powered product research & SEO content automation",
+    "description": "## AI-Powered Product Research & SEO Content Automation\n\nSkip the guesswork and manual effort — this n8n flow automates the entire process of researching your product's online competition and generating high-quality SEO content. Whether you're launching a new product or optimizing existing listings, this workflow leverages **real-time web data** and **AI-driven copywriting** to deliver:\n\n- 📈 Search-optimized metadata (Title, Description, Keywords)  \n- 🛍️ Engaging product descriptions tailored for marketing  \n- 📊 Auto-organized output ready for use in your content or e-commerce platform\n\nAll of this happens with just one product title input!\n\n---\n\n### 🧠 How It Works\n• User submits a product title via a form.  \n• The workflow uses Google Custom Search to gather real-time competitor content based on that title.  \n• Titles, snippets, and keywords are extracted from the search results.  \n• This information is sent to a language model (Google Gemini via LangChain) to generate:  \n   - SEO-optimized metadata (Title, Description, Keywords)  \n   - A compelling product description tailored for marketing  \n• The AI-generated content is then parsed and organized into two categories: SEO data and product content.  \n• The structured output is saved automatically into a connected Google Sheet for easy access or further automation.\n\n---\n\n### 🛠️ What Problems Does This Solve?\nManual competitor research and writing SEO content from scratch can be:\n- **Time-consuming**\n- **Inconsistent in quality**\n- **Not optimized for search engines**\n- **Hard to scale for multiple products**\n\nThis workflow **automates** the entire research + writing + structuring process.\n\n---\n\n### ✅ Key Benefits\n- **Instant Content Creation**: Generate polished SEO content in seconds.  \n- **Competitor-Aware**: Pulls in real-time data from the web for relevant, market-aligned content.  \n- **Scalable**: Easily repeat the process for multiple product titles with minimal effort.  \n- **Data Centralization**: Stores everything in Google Sheets—great for collaboration or syncing with other tools.  \n- **Customizable**: Easily extend or modify the workflow to include translations, publishing, or social media automation.\n\n---\n\n### ⚙️ Set-Up Steps\n• Connect Google Custom Search API with a valid API key and search engine ID (CX).  \n• Connect and configure Google Gemini or LangChain with access credentials.  \n• Provide access to a Google Sheet with columns for storing SEO and product data.  \n• Estimated setup time: ~15–25 minutes depending on API access and sheet setup.  \n\n---\n\n## 🚀 Let’s Get You Started with Automating Your LinkedIn Posts!\n\nCreate your **free n8n account** and set up the workflow in just a few minutes using the link below:\n\n👉 [Start Automating with n8n](https://n8n.partnerlinks.io/7fuarh1e6dz5)\n\nSave time, stay consistent, and grow your LinkedIn presence effortlessly!\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Google_Search": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://www.googleapis.com/customsearch/v1"
+          },
+          "runAfter": {
+            "Edit_Fields": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_Competitor_Data": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Extract Competitor Data",
+            "n8nNodeType": "n8n-nodes-base.function",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "functionCode": "let allTitles = [];\nlet allDescriptions = [];\nlet allKeywords = [];\n\nfor (const item of $json.items) {\n  allTitles.push(item.title);\n  allDescriptions.push(item.snippet);\n\n  const keywords = item.title\n    .toLowerCase()\n    .replace(/[^a-zA-Z0-9 ]/g, '')\n    .split(' ')\n    .filter(w => w.length > 3);\n\n  allKeywords.push(...keywords);\n}\n\n// Create unique keywords\nconst uniqueKeywords = [...new Set(allKeywords)];\n\nreturn [\n  {\n    json: {\n      chatInput: `\nTitle List:\n${allTitles.join('\\n')}\n\nDescription List:\n${allDescriptions.join('\\n')}\n\nKeywords:\n${uniqueKeywords.join(', ')}\n      `.trim()\n    }\n  }\n];\n"
+            }
+          },
+          "runAfter": {
+            "Google_Search": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Basic_LLM_Chain": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Basic LLM Chain",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chainLlm",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "messages": {
+                "messageValues": [
+                  {
+                    "message": "You are an expert SEO content writer and product copywriter.  generate the following in one output:  1. SEO Meta Data: - Title: (exact product title, must be the same as product title below) - Description: A concise, persuasive meta description optimized for Google SEO best practices. Make sure it is between 120-160 characters, includes main keywords naturally, and encourages clicks. - Keywords: A list of relevant, highly ranked keywords related to the product.  2. Product Content: - Product Title: (exact same title as SEO Meta Data Title) - Product Description: A detailed, engaging product description of minimum 150 words that highlights the product’s key features, benefits, and usage. Use natural language with relevant keywords but avoid keyword stuffing.  Format the output exactly like this:  --- SEO Meta Data: Title: ... Description: ... Keywords: ...  Product Content: Product Title: ... Product Description: ...  ---  Ensure that the SEO Meta Data Title and Product Title are exactly the same string. Follow SEO best practices for titles, descriptions, and keyword usage to maximize Google ranking potential."
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Extract_Competitor_Data": [
+              "Succeeded"
+            ],
+            "Google_Gemini_Chat_Model": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Gemini_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Gemini Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "modelName": "models/gemini-2.0-flash"
+            }
+          },
+          "runAfter": {}
+        },
+        "Google_Sheets": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Sheets",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {},
+                "schema": [
+                  {
+                    "id": "type",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "type",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "title",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "title",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "description",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "description",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "keywords",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "keywords",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "product_title",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "product_title",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "product_description",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "product_description",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "autoMapInputData",
+                "matchingColumns": [
+                  "text"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "appendOrUpdate",
+              "sheetName": {
+                "__rl": true,
+                "mode": "url",
+                "value": ""
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "url",
+                "value": ""
+              },
+              "authentication": "serviceAccount"
+            }
+          },
+          "runAfter": {
+            "Code_Formatting": [
+              "Succeeded"
+            ]
+          }
+        },
+        "On_form_submission": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "On form submission",
+            "n8nNodeType": "n8n-nodes-base.formTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "formTitle": "Product Research ",
+              "formFields": {
+                "values": [
+                  {
+                    "fieldLabel": "title",
+                    "placeholder": "Enter product title",
+                    "requiredField": true
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Edit_Fields": {
+          "type": "Compose",
+          "inputs": {
+            "title": "@body('On_form_submission')?['title']"
+          },
+          "runAfter": {
+            "On_form_submission": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Code_Formatting": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Basic_LLM_Chain'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst inputText = $json.text; // Your combined text input\n\nfunction getFieldValue(text, field) {\n  const regex = new RegExp(field + ':\\\\s*([\\\\s\\\\S]*?)(?=\\\\n\\\\S|$)', 'i');\n  const match = text.match(regex);\n  return match ? match[1].trim() : '';\n}\n\nfunction splitSections(text) {\n  // Extract sections by titles\n  const seoMetaMatch = text.match(/SEO Meta Data:\\n([\\s\\S]*?)\\n\\nProduct Content:/i);\n  const productContentMatch = text.match(/Product Content:\\n([\\s\\S]*)/i);\n\n  const seoMeta = seoMetaMatch ? seoMetaMatch[1].trim() : '';\n  const productContent = productContentMatch ? productContentMatch[1].trim() : '';\n\n  return [\n    {\n      json: {\n        type: 'seo_meta_data',\n        title: getFieldValue(seoMeta, 'Title'),\n        description: getFieldValue(seoMeta, 'Description'),\n        keywords: getFieldValue(seoMeta, 'Keywords'),\n        product_title: '',          // empty for SEO row\n        product_description: ''     // empty for SEO row\n      }\n    },\n    {\n      json: {\n        type: 'product_content',\n        title: '',                  // empty for Product row\n        description: '',\n        keywords: '',\n        product_title: getFieldValue(productContent, 'Product Title'),\n        product_description: getFieldValue(productContent, 'Product Description')\n      }\n    }\n  ];\n}\n\nreturn splitSections($input.first().json.text);\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Basic_LLM_Chain": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

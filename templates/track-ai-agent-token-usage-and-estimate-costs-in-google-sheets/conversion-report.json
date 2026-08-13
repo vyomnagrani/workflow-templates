@@ -1,0 +1,122 @@
+{
+  "sourceWorkflowName": "Track AI agent token usage and estimate costs in Google Sheets",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 14,
+  "totalNodes": 24,
+  "coverage": 0.5833,
+  "diagnostics": [
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.agent.",
+      "severity": "warning",
+      "node_name": "AI Agent",
+      "node_type": "@n8n/n8n-nodes-langchain.agent",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "AI Agent",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "AI Agent",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.executeWorkflow.",
+      "severity": "warning",
+      "node_name": "Call sub-workflow",
+      "node_type": "n8n-nodes-base.executeWorkflow",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.toolThink.",
+      "severity": "warning",
+      "node_name": "Think",
+      "node_type": "@n8n/n8n-nodes-langchain.toolThink",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{$jmespath(\n  $json,\n  \"data.resultData.runData.*[] | [?data.ai_languageModel] | [].{model: data.ai_languageModel[0][0].json.response.generations[0][0].generationInfo.model_name || inputOverride.ai_languageModel[0][0].json.options.model_name || inputOverride.ai_languageModel[0][0].json.options.model, tokenUsage: data.ai_languageModel[0][0].json.tokenUsage || data.ai_languageModel[0][0].json.tokenUsageEstimate}\"\n)}}",
+      "severity": "warning",
+      "node_name": "Extract token usage data",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.n8n.",
+      "severity": "warning",
+      "node_name": "Get execution data",
+      "node_type": "n8n-nodes-base.n8n",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.executeWorkflowTrigger.",
+      "severity": "warning",
+      "node_name": "When Executed by Another Workflow",
+      "node_type": "n8n-nodes-base.executeWorkflowTrigger",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.splitOut.",
+      "severity": "warning",
+      "node_name": "Split Out",
+      "node_type": "n8n-nodes-base.splitOut",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.summarize.",
+      "severity": "warning",
+      "node_name": "Sum Token Totals - aggregate by model",
+      "node_type": "n8n-nodes-base.summarize",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $now.format('yyyy-MM-dd HH:mm:ss')}}",
+      "severity": "warning",
+      "node_name": "Record token usage",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatGoogleGemini.",
+      "severity": "warning",
+      "node_name": "Gemini",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOpenAi.",
+      "severity": "warning",
+      "node_name": "OpenAI",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatAnthropic.",
+      "severity": "warning",
+      "node_name": "Anthropic",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "json_path": null
+    }
+  ]
+}

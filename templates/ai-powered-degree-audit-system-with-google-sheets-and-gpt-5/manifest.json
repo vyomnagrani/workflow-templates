@@ -1,0 +1,395 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "ai-powered-degree-audit-system-with-google-sheets-and-gpt-5",
+    "name": "Ai-powered degree audit system with Google Sheets and GPT-5",
+    "description": "Run an **AI-powered degree audit** for each senior student. This template reads student rows from Google Sheets, evaluates completed courses against **hard-coded program requirements**, and writes back an **AI Degree Summary** of what's still missing (major core, Gen Eds, major electives, and upper-division credits). It's designed for quick advisor/registrar review and SIS prototypes.\n\n**Trigger:** Manual — *When clicking \"Execute workflow\"*  \n**Core nodes:** Google Sheets, OpenAI Chat Model, (optional) Structured Output Parser  \n**Programs included:** Computer Science BS, Business Administration BBA, Psychology BA, Mechanical Engineering BS, Biology BS (Pre-Med), English Literature BA, Data Science BS, Nursing BSN, Economics BA, Graphic Design BFA\n\n## Who's it for\n- **Registrars & advisors** who need fast, consistent degree checks  \n- **Student success teams** building prototype dashboards  \n- **SIS/EdTech builders** exploring AI-assisted auditing\n\n## How it works\n1. **Read seniors** from Google Sheets (`Senior_data`) with: `StudentID`, `Name`, `Program`, `Year`, `CompletedCourses`.  \n2. **AI Agent** compares `CompletedCourses` to built-in requirements (per program) and computes **Missing** items + a short **Summary**.  \n3. **Write back** to the same sheet using \"Append or update\" by `StudentID` (updates **AI Degree Summary**; you can also map the raw **Missing** array to a column if desired).\n\n**Example JSON (for one student):**\n{\n \"StudentID\": \"S001\",\n \"Program\": \"Computer Science BS\",\n \"Missing\": [\n   \"GEN-REMAIN | General Education credits remaining | 6\",\n   \"CS-EL-REM | CS Major Electives (200+ level) | 6\",\n   \"UPPER-DIV | Additional Upper-Division (200+ level) credits needed | 18\",\n   \"FREE-EL | Free Electives to reach 120 total credits | 54\"\n ],\n \"Summary\": \"All core CS courses are complete. Still need 6 Gen Ed credits, 6 CS electives, and 66 total credits overall, including 18 upper-division credits — prioritize 200/300-level CS electives.\"\n}\n\n## Setup (2 steps)\n\n### 1) Connect Google Sheets (OAuth2)\nIn n8n → Credentials → New → Google Sheets (OAuth2) and sign in.\n\nIn the Google Sheets nodes, select your spreadsheet and the Senior_data tab.\n\nEnsure your input sheet has at least: StudentID, Name, Program, Year, CompletedCourses.\n\n### 2) Connect OpenAI (API Key)\nIn n8n → Credentials → New → OpenAI API, paste your key.\n\nIn the OpenAI Chat Model node, select that credential and a model (e.g., gpt-4o or gpt-5).\n\n## Requirements\n- **Sheet columns:** StudentID, Name, Program, Year, CompletedCourses\n- **CompletedCourses format:** pipe-separated IDs (e.g., GEN-101|GEN-103|CS-101).\n- **Program labels:** should match the built-in list (e.g., Computer Science BS).\n- **Credits/levels:** Template assumes upper-division ≥ 200-level (adjust the prompt if your policy differs).\n\n## Customization\n- **Change requirements:** Edit the Agent's system message to update totals, core lists, elective credit rules, or level thresholds.\n- **Store more output:** Map Missing to a new column (e.g., AI Missing List) or write rows to a separate sheet for dashboards.\n- **Distribute results:** Email summaries to advisors/students (Gmail/Outlook), or generate PDFs for advising folders.\n- **Add guardrails:** Extend the prompt to enforce residency, capstone, minor/cognate constraints, or per-college Gen Ed variations.\n\n## Best practices (per n8n guidelines)\n- **Sticky notes are mandatory:** Include a yellow sticky note that contains this description and quick setup steps; add neutral sticky notes for per-step tips.\n- **Rename nodes clearly:** e.g., \"Get Seniors,\" \"Degree Audit Agent,\" \"Update Summary.\"\n- **No hardcoded secrets:** Use credentials—not inline keys in HTTP or Code nodes.\n- **Sanitize identifiers:** Don't ship personal spreadsheet IDs or private links in the published version.\n- **Use a Set node for config:** Centralize user-tunable values (e.g., column names, tab names).\n\n## Troubleshooting\n- **OpenAI 401/429:** Verify API key/billing; slow concurrency if rate-limited.\n- **Empty summaries:** Check column names and that CompletedCourses uses |.\n- **Program mismatch:** Align Program labels to those in the prompt (exact naming recommended).\n- **Sheets auth errors:** Reconnect Google Sheets OAuth2 and re-select spreadsheet/tab.\n\n## Limitations\n- **Not an official audit:** It infers gaps from the listed completions; registrar rules can be more nuanced.\n- **Catalog drift:** Requirements are hard-coded in the prompt—update them each term/year.\n- **Upper-division heuristic:** Adjust the level threshold if your institution defines it differently.\n\n## Tags & category\n**Category:** Education / Student Information Systems  \n**Tags:** degree-audit, registrar, google-sheets, openai, electives, upper-division, graduation-readiness\n\n## Changelog\n**v1.0.0** — Initial release: Senior_data in/out, 10 programs, AI Degree Summary output, append/update by StudentID.\n\n## Contact\nNeed help tailoring this to your catalog (e.g., per-college Gen Eds, capstones, minors, PDFs/email)?\n\n📧 rbreen@ynteractive.com  \n📧 robert@ynteractive.com  \n🔗 Robert Breen — https://www.linkedin.com/in/robert-breen-29429625/  \n🌐 ynteractive.com — https://ynteractive.com",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Internal Wiki",
+      "AI Chatbot",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "When_clicking_Execute_workflow": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "OpenAI_Chat_Model1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-5",
+                "cachedResultName": "gpt-5"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Structured_Output_Parser1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Structured Output Parser1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsonSchemaExample": "{\n  \"StudentID\": \"S001\",\n  \"Program\": \"Example Program\",\n  \"Missing\": [\n    \"CS-201 | Computer Systems | 3\",\n    \"CS-220 | Databases | 3\",\n    \"GEN-107 | Introduction to Sociology | 3\"\n  ],\n  \"Summary\": \"Student still needs two core Computer Science courses and one general education requirement. Should prioritize 200-level major courses next term.\"\n}\n"
+            }
+          },
+          "runAfter": {}
+        },
+        "Degree_Audit_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Degree Audit Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=student:  {{ $json.StudentID }}, Name: {{ $json.Name }}, Program: {{ $json.Program }} Year: {{ $json.Year }} Completed Courses: {{ $json.CompletedCourses }}",
+              "options": {
+                "systemMessage": "You are a university degree-audit assistant. Your job is to analyze each student’s completed courses against the hard-coded program requirements and catalog below, then output only what they are still missing.\n\nPROGRAM REQUIREMENTS (HARD-CODED)\n\nComputer Science BS\n\nTotal Credits Required: 120\n\nGen Ed Credits Required: 36\n\nMajor Core Courses: CS-101, CS-102, CS-103, CS-201, CS-220\n\nMajor Elective Credits Required: 12 (any CS course with “Major Elective”)\n\nUpper-Division Credits Required: 30 (courses level ≥ 200)\n\nBusiness Administration BBA\n\nTotal Credits Required: 120\n\nGen Ed Credits Required: 36\n\nMajor Core Courses: BUS-101, BUS-102, BUS-103, BUS-201, BUS-202\n\nMajor Elective Credits Required: 12 (BUS electives level ≥ 200)\n\nUpper-Division Credits Required: 30\n\nPsychology BA\n\nTotal Credits Required: 120\n\nGen Ed Credits Required: 42\n\nMajor Core Courses: PSY-101, PSY-201\n\nMajor Elective Credits Required: 18 (PSY electives level ≥ 200)\n\nUpper-Division Credits Required: 27\n\nMechanical Engineering BS\n\nTotal Credits Required: 128\n\nGen Ed Credits Required: 30\n\nMajor Core Courses: ENGR-101, ENGR-102, MTH-121, MTH-122, PHY-151, ME-201\n\nMajor Elective Credits Required: 12 (ME electives level ≥ 200)\n\nUpper-Division Credits Required: 36\n\nBiology BS (Pre-Med)\n\nTotal Credits Required: 124\n\nGen Ed Credits Required: 36\n\nMajor Core Courses: BIO-101, BIO-102, CHM-101, CHM-102, BIO-201\n\nMajor Elective Credits Required: 9 (BIO electives level ≥ 200)\n\nUpper-Division Credits Required: 30\n\nEnglish Literature BA\n\nTotal Credits Required: 120\n\nGen Ed Credits Required: 42\n\nMajor Core Courses: ENG-101, ENG-201\n\nMajor Elective Credits Required: 18 (ENG electives level ≥ 200)\n\nUpper-Division Credits Required: 27\n\nData Science BS\n\nTotal Credits Required: 120\n\nGen Ed Credits Required: 36\n\nMajor Core Courses: CS-101, CS-102, DS-101, DS-201\n\nMajor Elective Credits Required: 12 (DS electives level ≥ 200)\n\nUpper-Division Credits Required: 30\n\nNursing BSN\n\nTotal Credits Required: 124\n\nGen Ed Credits Required: 36\n\nMajor Core Courses: BIO-101, CHM-101, NUR-101, NUR-201\n\nMajor Elective Credits Required: 9 (NUR electives level ≥ 200)\n\nUpper-Division Credits Required: 30\n\nEconomics BA\n\nTotal Credits Required: 120\n\nGen Ed Credits Required: 36\n\nMajor Core Courses: ECON-101, ECON-102, ECON-201\n\nMajor Elective Credits Required: 12 (ECON electives level ≥ 200)\n\nUpper-Division Credits Required: 27\n\nGraphic Design BFA\n\nTotal Credits Required: 120\n\nGen Ed Credits Required: 30\n\nMajor Core Courses: ART-101, ART-102, ART-201\n\nMajor Elective Credits Required: 18 (ART electives level ≥ 200)\n\nUpper-Division Credits Required: 30\n\nOUTPUT RULES\n\nFor each student, output valid JSON only.\n\nOutput must be a JSON array of objects.\n\nEach object must include:\n\n\"StudentID\"\n\n\"Program\"\n\n\"Missing\" → array of strings, each formatted \"COURSEID | Title | Credits\" (list the missing Major Core, plus indicate Gen Ed/Elective requirements if still needed)\n\n\"Summary\" → 1–2 sentences explaining what they’re missing and what to prioritize next (mention 200/300-level if upper-division is short).\n\nWould you like me to now fill in a JSON example for one program (e.g., Computer Science BS with Ava Thompson’s courses) so you see exactly how the Missing list and Summary would look?\n\nOutput like this. \n\n{\n  \"StudentID\": \"S001\",\n  \"Program\": \"Example Program\",\n  \"Missing\": [\n    \"CS-201 | Computer Systems | 3\",\n    \"CS-220 | Databases | 3\",\n    \"GEN-107 | Introduction to Sociology | 3\"\n  ],\n  \"Summary\": \"Student still needs two core Computer Science courses and one general education requirement. Should prioritize 200-level major courses next term.\"\n}\n"
+              },
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "Get_Student_Data1": [
+              "Succeeded"
+            ],
+            "OpenAI_Chat_Model1": [
+              "Succeeded"
+            ],
+            "Structured_Output_Parser1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Add_Student_Degree_Summary": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Add Student Degree Summary",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "StudentID": "={{ $json.output.StudentID }}",
+                  "AI Degree Summary": "={{ $json.output.Summary }}"
+                },
+                "schema": [
+                  {
+                    "id": "StudentID",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "StudentID",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Name",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Name",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Program",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Program",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Year",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Year",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "CompletedCourses",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "CompletedCourses",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Degree Summary",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Degree Summary",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "AI Degree Summary",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "AI Degree Summary",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "StudentID"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "appendOrUpdate",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": 1466231493,
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10IMnD8JhiR4lTlNFQTG_Auopg8haAiEt3_G9EKWTqLw/edit#gid=1466231493",
+                "cachedResultName": "Senior_data"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "10IMnD8JhiR4lTlNFQTG_Auopg8haAiEt3_G9EKWTqLw",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10IMnD8JhiR4lTlNFQTG_Auopg8haAiEt3_G9EKWTqLw/edit?usp=drivesdk",
+                "cachedResultName": "Student Details"
+              }
+            }
+          },
+          "runAfter": {
+            "Degree_Audit_Agent": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_Student_Data1": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('10IMnD8JhiR4lTlNFQTG_Auopg8haAiEt3_G9EKWTqLw'))}/tables/@{encodeURIComponent(encodeURIComponent('1466231493'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "When_clicking_Execute_workflow",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {
+    "Degree_Audit_Agent": {
+      "status": "Succeeded",
+      "outputs": {
+        "statusCode": "200",
+        "body": [
+          {
+            "output": {
+              "Missing": [
+                "GEN-REMAIN | General Education credits remaining | 6",
+                "CS-EL-REM | CS Major Electives (200+ level) | 6",
+                "UPPER-DIV | Additional Upper-Division (200+ level) credits needed | 18",
+                "FREE-EL | Free Electives to reach 120 total credits | 54"
+              ],
+              "Program": "Computer Science BS",
+              "Summary": "All core CS courses are complete. You still need 6 Gen Ed credits, 6 CS major elective credits, and additional electives to reach 120 credits (66 total remaining), including at least 18 more upper-division credits—prioritize 200/300-level CS electives and other upper-division courses.",
+              "StudentID": "S001"
+            }
+          },
+          {
+            "output": {
+              "Missing": [
+                "BUS-ELECTIVE-200+ | Major Elective Credits Remaining | 9",
+                "GEN-ED | General Education Credits Remaining | 6",
+                "UPPER-DIV | Upper-Division Credits Remaining | 21",
+                "TOTAL | Total Credits Remaining | 72"
+              ],
+              "Program": "Business Administration BBA",
+              "Summary": "All core BUS courses are complete. Student still needs 9 credits of 200+ BUS electives, 6 Gen Ed credits, and 21 more upper-division credits (72 total credits remaining overall); prioritize 200/300-level BUS electives next term to satisfy both major elective and upper-division requirements.",
+              "StudentID": "S002"
+            }
+          },
+          {
+            "output": {
+              "Missing": [
+                "PSY-EL-200+ | Psychology Major Electives (≥200-level) | 15",
+                "GEN-ED | General Education Credits | 12",
+                "UPPER-200+ | Upper-Division Credits (≥200-level, any subject) | 21",
+                "TOTAL | Overall Credits to reach 120 | 81"
+              ],
+              "Program": "Psychology BA",
+              "Summary": "Core is complete; you still need 15 credits of 200+ PSY electives, 12 gen ed credits, and 21 upper-division credits, with 81 total credits remaining to reach 120. Prioritize 200/300-level PSY electives to satisfy both the major elective and upper-division requirements while finishing remaining gen eds.",
+              "StudentID": "S003"
+            }
+          },
+          {
+            "output": {
+              "Missing": [
+                "ME-ELECTIVE | Mechanical Engineering Electives (200+) | 9",
+                "UPPER-DIV | Upper-Division Credits (200+) | 30",
+                "TOTAL | Additional Credits to reach 128 | 77"
+              ],
+              "Program": "Mechanical Engineering BS",
+              "Summary": "All major core and Gen Ed are complete. Student still needs 9 credits of ME electives and 30 upper-division credits; 77 total credits remain to reach 128, so prioritize 300/400-level ME and technical electives.",
+              "StudentID": "S004"
+            }
+          },
+          {
+            "output": {
+              "Missing": [
+                "BIO-EL | Biology Major Electives (200+ level) | 9",
+                "GEN-ED | General Education Credits Remaining | 6",
+                "UPPER-DIV | Upper-Division Credits Remaining | 27"
+              ],
+              "Program": "Biology BS (Pre-Med)",
+              "Summary": "Isabella has completed all Biology (Pre-Med) core courses but still needs 9 credits of 200+ BIO major electives, 6 more General Education credits, and 27 additional upper-division credits overall. Prioritize 200/300-level BIO electives and other upper-division courses to close the upper-division gap.",
+              "StudentID": "S005"
+            }
+          },
+          {
+            "output": {
+              "Missing": [
+                "ENG-ELECTIVE-200+ | English Electives (≥200-level) | 18",
+                "GEN-ED | General Education Credits | 12",
+                "UPPER-DIV | Upper-Division Credits (≥200) | 24",
+                "TOTAL | Overall Credits to Reach 120 | 84"
+              ],
+              "Program": "English Literature BA",
+              "Summary": "Major core (ENG-101, ENG-201) is complete. You still need 18 credits of 200/300-level ENG electives, 12 additional Gen Ed credits, and 24 more upper-division credits; prioritize 200/300-level ENG electives to satisfy both major elective and upper-division requirements while finishing the remaining Gen Eds.",
+              "StudentID": "S006"
+            }
+          },
+          {
+            "output": {
+              "Missing": [
+                "GEN-ED | General Education Credits | 6",
+                "DS-ELECT-200+ | Data Science Major Electives (200-level or above) | 12",
+                "UPPER-DIV | Upper-Division Credits (≥200) | 27"
+              ],
+              "Program": "Data Science BS",
+              "Summary": "Sophia has completed all Data Science core courses. She still needs 12 credits of 200+ DS electives, 6 Gen Ed credits, and 27 more upper-division credits to reach 30 total; prioritize 200/300-level DS electives next term.",
+              "StudentID": "S007"
+            }
+          },
+          {
+            "output": {
+              "Missing": [
+                "GEN-ED-REQ | General Education credits remaining | 6",
+                "NUR-ELECTIVES-REQ | Nursing Major Electives (≥200-level) remaining | 9",
+                "UPPER-DIV-REQ | Upper-Division credits remaining (≥200-level) | 27",
+                "TOTAL-REQ | Overall credits remaining to reach 124 | 82"
+              ],
+              "Program": "Nursing BSN",
+              "Summary": "All Nursing core courses are complete. You still need 6 Gen Ed credits, 9 credits of 200-level NUR electives, and 27 more upper-division credits (82 credits overall to reach 124); prioritize 200+ nursing electives and other upper-division courses while finishing your remaining Gen Eds.",
+              "StudentID": "S008"
+            }
+          },
+          {
+            "output": {
+              "Missing": [
+                "ECON-EL-200+ | Economics Major Electives (200+ level) | 12",
+                "GEN-ED | General Education Credits Remaining | 6",
+                "UPPER-DIV | Upper-Division Credits Remaining | 24"
+              ],
+              "Program": "Economics BA",
+              "Summary": "All Economics core courses are complete. Still needs 12 credits of 200+ ECON electives, 6 Gen Ed credits, and 24 additional upper-division credits—prioritize 200/300-level ECON electives and other 200+ courses to build upper-division hours.",
+              "StudentID": "S009"
+            }
+          },
+          {
+            "output": {
+              "Missing": [
+                "ART-EL-200+ | ART Major Electives (200+ level) | 12",
+                "UPPER-DIV | Upper-Division Credits (200+ level) | 21"
+              ],
+              "Program": "Graphic Design BFA",
+              "Summary": "Mason has completed all core ART courses and general education, but still needs 12 credits of ART electives at the 200+ level and 21 additional upper-division credits overall. Prioritize 300-level ART electives to satisfy both the major elective and upper-division requirements.",
+              "StudentID": "S010"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

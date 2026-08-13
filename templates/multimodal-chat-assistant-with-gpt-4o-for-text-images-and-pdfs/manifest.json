@@ -1,0 +1,304 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "multimodal-chat-assistant-with-gpt-4o-for-text-images-and-pdfs",
+    "name": "Multimodal chat assistant with GPT-4o for text, images, and PDFs",
+    "description": "### Chat with thing\n\nThis n8n template lets you build a smart AI chat assistant that can handle text, images, and PDFs — using OpenAI's GPT-4o multimodal model. It supports dynamic conversations and file analysis, making it great for AI-driven support bots, personal assistants, or embedded chat widgets.\n\n---\n\n### 🔍 How it Works\n\n- The chat trigger node kicks off a session using n8n's hosted chat UI.\n- Users can send text or upload images or PDFs — the workflow checks if a file was included.\n- If an image is uploaded, the file is converted to base64 and analyzed using GPT-4o's vision capabilities.\n- GPT-4o generates a natural language description of the image and responds to the user's question in context.\n- A memory buffer keeps track of the conversation thread, so follow-up questions are handled intelligently.\n- OpenAI’s chat model handles both text-only and mixed media input seamlessly.\n\n---\n\n### 🧪 How to Use\n\n- You can embed this in a website or use it with your own webhook/chat interface.\n- The logic is modular — just swap out the `chatTrigger` node for another input (e.g. form or API).\n- To use with documents, you can modify the logic to pass PDF content to GPT-4 directly.\n- You can extend it with action nodes, e.g. saving results to Notion, Airtable, or sending replies via email or Slack.\n\n---\n\n### 🔐 Requirements\n\n- Your OpenAI GPT-4o API key\n- Set File Upload on the chat\n\n\n### 🚀 Use Cases\n\n- PDF explainer bot\n- Internal knowledge chat with media support\n- Personal assistant for mixed content",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Support Chatbot",
+      "AI Chatbot",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "OpenAI_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o",
+                "cachedResultName": "gpt-4o"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "If": {
+          "type": "If",
+          "expression": {
+            "not": {
+              "empty": [
+                "@body('chat')?['files'][0].fileName"
+              ]
+            }
+          },
+          "actions": {
+            "OpenAI": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "OpenAI",
+                "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "text": "=Describe the content of the image or pdf in detail then wait for questions about it. Based on what is in the content, suggest 3 questions the user may ask",
+                  "modelId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "gpt-4o",
+                    "cachedResultName": "GPT-4O"
+                  },
+                  "options": {
+                    "detail": "high"
+                  },
+                  "resource": "image",
+                  "inputType": "base64",
+                  "operation": "analyze",
+                  "binaryPropertyName": "data0"
+                }
+              },
+              "runAfter": {}
+            },
+            "Basic_LLM_Chain": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Basic LLM Chain",
+                "n8nNodeType": "@n8n/n8n-nodes-langchain.chainLlm",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "text": "=Describe `{{ $json.content }}`\n\nUse the text from the chat to focus the response:\n`{{ $('chat').item.json.chatInput }}`",
+                  "batching": {},
+                  "promptType": "define"
+                }
+              },
+              "runAfter": {
+                "OpenAI": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "chatmem": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "chatmem",
+                "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryManager",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "mode": "insert",
+                  "messages": {
+                    "messageValues": [
+                      {
+                        "type": "ai",
+                        "message": "={{ $json.content }}"
+                      }
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "OpenAI": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "AI_Agent": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "AI Agent",
+                  "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "text": "=You are an expert and will help the user with their query `{{ $(\"chat\").item.json.chatInput }}` about\n{{ $json.messages[$json.messages.length - 1].kwargs.content }}\n",
+                    "options": {},
+                    "promptType": "define"
+                  }
+                },
+                "runAfter": {
+                  "chatmem1": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "chatmem1": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "chatmem1",
+                  "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryManager",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "options": {},
+                    "simplifyOutput": false
+                  }
+                },
+                "runAfter": {}
+              }
+            }
+          },
+          "runAfter": {
+            "chat": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Simple_Memory": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Simple Memory",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "sessionKey": "={{ $('chat').item.json.sessionId }}",
+              "sessionIdType": "customKey"
+            }
+          },
+          "runAfter": {}
+        },
+        "OpenAI_Chat_Model1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o",
+                "cachedResultName": "gpt-4o"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Simple_Memory1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Simple Memory1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "sessionKey": "={{ $(\"chat\").item.json.sessionId }}",
+              "sessionIdType": "customKey"
+            }
+          },
+          "runAfter": {}
+        },
+        "chat": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "chat",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chatTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "public": true,
+              "options": {
+                "allowFileUploads": true
+              },
+              "initialMessages": ""
+            }
+          },
+          "runAfter": {}
+        },
+        "Simple_Memory2": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Simple Memory2",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "sessionKey": "={{ $(\"chat\").item.json.sessionId }}",
+              "sessionIdType": "customKey"
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

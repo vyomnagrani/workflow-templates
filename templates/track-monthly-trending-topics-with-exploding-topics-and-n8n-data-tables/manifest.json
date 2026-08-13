@@ -1,0 +1,211 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "track-monthly-trending-topics-with-exploding-topics-and-n8n-data-tables",
+    "name": "Track monthly trending topics with Exploding Topics and n8n Data Tables",
+    "description": "## Quick overview\nThis workflow runs monthly to fetch trending topics from the Exploding Topics API, formats key fields like keyword, categories, growth, and URL, and upserts the results into an n8n Data Table so repeated runs update existing topics instead of creating duplicates.\n\n## How it works\n1. Runs once per month on a schedule trigger.\n2. Sets the Exploding Topics API request parameters such as API key, category, timeframe, sort order, and result limit.\n3. Calls the Exploding Topics `/topics` endpoint via HTTP to retrieve the latest trending topics.\n4. Parses the API response and formats each trend into a normalized row with keyword, description, categories, search volume, 12-month growth, date added, and a topic URL.\n5. Upserts each formatted trend into an n8n Data Table, matching existing rows by the `path` field to avoid duplicates.\n\n## Setup\n1. Get an Exploding Topics Pro API key and replace `YOUR_EXPLODING_TOPICS_API_KEY` in the API parameters.\n2. Review and adjust the API parameters (type, categories, sort, timeframe, limit) to match the trends you want to track.\n3. Select or create the target n8n Data Table and ensure its columns align with the stored fields (keyword, path, description, categories, search_volume, growth_12m, trend_url, date_added).\n\n## Requirements\n- Exploding Topics Pro API key\n- n8n Data Table with columns: keyword, path, description, categories, search_volume, growth_12m, trend_url, date_added\n\n## Customization\n- Change the category, trend type, timeframe, sort order, and result limit in the Configure API Parameters node.\n- Adjust the monthly schedule trigger to run weekly, daily, or at a custom interval.\n\n## Additional info\nThis workflow uses YOUR_EXPLODING_TOPICS_API_KEY as a placeholder. Replace it with your own Exploding Topics Pro API key before running the workflow. The workflow uses the topic path as the unique match key when upserting rows, so repeated runs update existing topics instead of creating duplicates.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Market Research",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Monthly_Schedule_Trigger": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Month",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Format_Trend_Rows": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Get_Trending_Topics_from_ET_API'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst input = $input.first().json;\n\nlet response = input;\n\n// n8n returned the API response as a JSON string inside `data`\nif (typeof input.data === \"string\") {\n  response = JSON.parse(input.data);\n}\n\nconst trends = response.result || [];\n\nreturn trends.map((trend) => {\n  return {\n    json: {\n      keyword: trend.keyword,\n      path: trend.path,\n      description: trend.description,\n      categories: Array.isArray(trend.categories) ? trend.categories.join(\", \") : \"\",\n      date_added: trend.date_added ? new Date(trend.date_added * 1000).toISOString() : null,\n      search_volume: trend.absolute_volume,\n      growth_12m: trend.search_history && trend.search_history.growth\n        ? trend.search_history.growth[\"12\"]\n        : null,\n      trend_url: `https://explodingtopics.com/topic/${trend.path}`,\n    },\n  };\n});\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Get_Trending_Topics_from_ET_API": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Save_or_Update_Trends_in_Data_Table": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Save or Update Trends in Data Table",
+            "n8nNodeType": "n8n-nodes-base.dataTable",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {},
+                "schema": [
+                  {
+                    "id": "keyword",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "keyword",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "path",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "path",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "description",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "description",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "categories",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "categories",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "search_volume",
+                    "type": "number",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "search_volume",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "growth_12m",
+                    "type": "number",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "growth_12m",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "trend_url",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "trend_url",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "date_added",
+                    "type": "dateTime",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "date_added",
+                    "defaultMatch": false
+                  }
+                ],
+                "mappingMode": "autoMapInputData",
+                "matchingColumns": [],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "filters": {
+                "conditions": [
+                  {
+                    "keyName": "path",
+                    "keyValue": "={{ $json.path }}"
+                  }
+                ]
+              },
+              "options": {},
+              "operation": "upsert",
+              "dataTableId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "fxw418QJDQTyTGE6",
+                "cachedResultUrl": "/projects/veYLrOrn10awfjZx/datatables/fxw418QJDQTyTGE6",
+                "cachedResultName": "Monthly Trending Topics"
+              }
+            }
+          },
+          "runAfter": {
+            "Format_Trend_Rows": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_Trending_Topics_from_ET_API": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.explodingtopics.com/api/v1/topics"
+          },
+          "runAfter": {
+            "Configure_API_Parameters": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Configure_API_Parameters": {
+          "type": "Compose",
+          "inputs": {
+            "mode": "raw",
+            "options": {},
+            "jsonOutput": "{\n  \"api_key\":\"YOUR_EXPLODING_TOPICS_API_KEY\",\n  \"type\": \"exploding\",\n  \"categories\": \"technology\",\n  \"sort\": \"growth\",\n  \"timeframe\": 12,\n  \"limit\": 50\n}"
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Monthly_Schedule_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

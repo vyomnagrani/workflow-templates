@@ -1,0 +1,26 @@
+{
+  "sourceWorkflowName": "Track monthly trending topics with Exploding Topics and n8n Data Tables",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 10,
+  "totalNodes": 11,
+  "coverage": 0.9091,
+  "diagnostics": [
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Format Trend Rows",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.dataTable.",
+      "severity": "warning",
+      "node_name": "Save or Update Trends in Data Table",
+      "node_type": "n8n-nodes-base.dataTable",
+      "json_path": null
+    }
+  ]
+}

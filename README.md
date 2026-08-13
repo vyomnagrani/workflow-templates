@@ -10,7 +10,7 @@ research corpus without pipeline failures and converts:
 
 - 58.29% of all nodes.
 - 43.32% of executable nodes.
-- Two workflows at publishable Grade A/B quality.
+- 196 generated templates: 1 Grade A, 1 Grade B, and 194 Grade C.
 
 Unsupported behavior is never silently discarded. Best-effort conversion inserts
 visible placeholders and diagnostics; strict conversion fails instead.
@@ -19,7 +19,7 @@ visible placeholders and diagnostics; strict conversion fails instead.
 
 ```text
 .
-|-- templates/       Reviewed Grade A/B generated templates
+|-- templates/       Full generated catalog with per-template diagnostics
 |-- tool/            Python CLI, converter library, fixtures, and tests
 |-- n8n-compete.html Competitive product analysis
 `-- n8n-json.html    n8n and LAA template JSON comparison
@@ -38,10 +38,11 @@ conversion, quality grades, and repository generation.
 
 ## Publishing policy
 
-Only Grade A and Grade B conversions are added to `templates/`. Grade C outputs
-remain review artifacts until unsupported placeholders are resolved. Original
-n8n source JSON, attribution, and conversion diagnostics are retained beside each
-published template.
+The complete generated corpus is included under `templates/`. Grade C outputs
+contain explicit placeholders and are not production-ready; review each
+`conversion-report.json` before importing its `manifest.json`. Original n8n
+source JSON is secret-sanitized, and attribution plus conversion diagnostics are
+retained beside every template.
 
 ## License
 

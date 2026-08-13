@@ -1,0 +1,42 @@
+{
+  "sourceWorkflowName": "🎓 Learn n8n expressions with an interactive step-by-step tutorial for beginners",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 26,
+  "totalNodes": 27,
+  "coverage": 0.963,
+  "diagnostics": [
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $('Split Out Skills').all().map(item => item.json.skills).join(', ') }}",
+      "severity": "warning",
+      "node_name": "9. The \"All Items\" View",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$('9. The \"All Items\" View').last().json.all_skills_string",
+      "severity": "warning",
+      "node_name": "Final Exam",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =User {{ $('2. The n8n Selectors').last().json.user_name_from_first }} is {{ $('Source Data').last().json.age }}.\n\nTheir best skill is {{ $('3. Working with Arrays').last().json.second_skill }}.\n\nTheir first project was {{ $('Source Data').last().json.projects[0].name }}, which is now {{ $('5. The Combo Move').last().json.first_project_status }}.\n\nAll skills: {{ $('9. The \"All Items\" View').last().json.all_skills_string }}.",
+      "severity": "warning",
+      "node_name": "Final Exam",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.splitOut.",
+      "severity": "warning",
+      "node_name": "Split Out Skills",
+      "node_type": "n8n-nodes-base.splitOut",
+      "json_path": null
+    }
+  ]
+}

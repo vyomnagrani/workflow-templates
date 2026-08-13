@@ -1,0 +1,257 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "build-your-first-ai-agent-with-chatgpt-5",
+    "name": "Build your first AI agent with ChatGPT-5",
+    "description": "## Build Your First AI Agent with ChatGPT-5 \n![Workflow Screenshot](https://www.dr-firas.com/build-agent-ai.png)\n### Who is this for?  \nThis workflow is designed for beginners and professionals who want to build their first AI-powered assistant with n8n. It’s perfect for anyone managing online trainings, consultations, or services that require both a knowledge base and appointment scheduling.  \n\n### What problem is this workflow solving?  \nManually handling client questions, checking your availability, and confirming bookings can be time-consuming and error-prone. This workflow automates the process, ensuring quick, accurate answers and seamless scheduling directly through chat.  \n\n### What this workflow does  \n- Answers user questions using your knowledge base stored in Google Sheets.  \n- Checks availability in Google Calendar and proposes alternative time slots if needed.  \n- Books 1-hour appointments in Paris time only after client confirmation.  \n- Sends a professional confirmation email with all appointment details.  \n\n### Setup  \n1. Import this workflow into your n8n instance.  \n2. Connect your Google Sheets, Gmail, and Google Calendar credentials.  \n3. Add your knowledge base into Google Sheets (questions, answers, policies, packs, etc.).  \n4. Test the workflow using the **Connected Chat Trigger** node to start conversations with the AI Agent.  \n\n### How to customize this workflow to your needs  \n- Update the Google Sheets database with your own training packs, services, or company FAQs.  \n- Adjust the email template to reflect your branding and communication style.  \n- Modify the appointment duration if you need sessions longer or shorter than 1 hour.  \n- Add extra nodes (e.g., CRM integration) to capture leads or sync appointments with external systems.  \n---\n\n📄 **Documentation**: [Notion Guide](https://automatisation.notion.site/Build-Your-First-AI-Agent-with-ChatGPT-5-By-Dr-Firas-26f3d6550fd9801eb00dc0c578fc5f2c?source=copy_link)\n\n---\n\n### Need help customizing?\nContact me for consulting and support : [Linkedin](https://www.linkedin.com/in/dr-firas/) / [Youtube](https:/https://www.youtube.com/@DRFIRASS)",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Support Chatbot",
+      "AI Chatbot",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Chat_with_Your_Data": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Chat with Your Data",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chatTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Reasoning_Tool_LangChain": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Reasoning Tool (LangChain)",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.toolThink",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "OpenAI_GPT_5_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI GPT-5 Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-5-mini",
+                "cachedResultName": "gpt-5-mini"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Knowledgebase_Lookup": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Knowledgebase Lookup",
+            "n8nNodeType": "n8n-nodes-base.googleSheetsTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "sheetName": {
+                "__rl": true,
+                "mode": "id",
+                "value": "="
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "="
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Calendar_Check_Availability": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Calendar: Check Availability",
+            "n8nNodeType": "n8n-nodes-base.googleCalendarTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Before', ``, 'string') }}",
+              "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', ``, 'string') }}",
+              "calendar": {
+                "__rl": true,
+                "mode": "id",
+                "value": "="
+              },
+              "operation": "getAll",
+              "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}"
+            }
+          },
+          "runAfter": {}
+        },
+        "Calendar_Create_Appointment": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Calendar: Create Appointment",
+            "n8nNodeType": "n8n-nodes-base.googleCalendarTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+              "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+              "calendar": {
+                "__rl": true,
+                "mode": "id",
+                "value": "="
+              },
+              "additionalFields": {
+                "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}",
+                "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}"
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Send_Booking_Confirmation": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Send Booking Confirmation",
+            "n8nNodeType": "n8n-nodes-base.gmailTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "sendTo": "=",
+              "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+              "options": {},
+              "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}"
+            }
+          },
+          "runAfter": {}
+        },
+        "AI_Agent_Support": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "AI Agent Support",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "systemMessage": "=GOAL\n\nYour mission now has three possible goals (in this order of priority):\n\nAnswer and guide using the database: provide short, simple answers using information found via the Google Sheets node “Get Knowledgebase” (one call max per request).\n\nCheck the available time.\n\nBook the appointment.\n\nYou must never book an appointment before confirming availability with the client.\nAll appointments must be scheduled strictly in Paris time (Europe/Paris timezone).\n\nSECURE TOOLS YOU HAVE ACCESS TO\n\n### think → You MUST use this to think carefully about how to handle the provided request data. This tool must be used on every turn and tool call interaction.\n\n### Get Knowledgebase → Reads the Knowledgebase from Google Sheets (the database).\nConstraints:\n\nCall this node at most once per request (no second pass).\n\nUse it only for factual/company/pack/FAQ/policy/account questions.\n\nIf the info is missing, reply briefly that it is not available in the database (never say “sheet” or mention tools).\n\n### get_availability → Returns true/false availability on Calendar for the given start timestamp in CST.\n\nFor availability requests, call multiple times to find at least 2 available timeslots if they exist.\n\nAlways convert Paris → CST before calling.\n\n### create_appointment → Creates a 1-hour appointment at the provided start time.\n\nMay be called only once per request (more than once = failure).\n\nInclude time, client, and description.\n\nRULES AND LOGIC\nA. Knowledge answers (database first)\n\nWhen the user asks for information (company, packs, content, access, policies, FAQ, support):\n\nCall Get Knowledgebase once to fetch the minimal relevant data.\n\nAnswer in ≤3 short sentences (or bullets).\n\nIf absent: “The information is not available in the knowledge base.” Optionally ask one clarifying question.\n\nNever mention “sheet”, “node” or tool names—say “database/Knowledgebase”.\n\nB. Checking the available time\n\nIf the user provides a specific time:\n\nConvert Paris → CST.\n\nCall get_availability.\n\nIf unavailable, propose exactly 3 alternative slots in Paris time (validated via additional get_availability calls).\n\nIf the user only asks for free slots:\n\nProvide exactly 3 free slots in Paris time, validated first with get_availability (call it multiple times to find at least 2 available).\n\nC. Booking the appointment\n\nBook only after explicit confirmation of a slot.\n\nConvert confirmed Paris → CST, then call create_appointment once.\n\nInclude start time, duration = 1h, client name, and notes.\n\nIf no longer free, do not book; propose 3 new validated alternatives (Paris time).\n\nD. Send the confirmation email\n\nAfter a successful booking, send exactly one confirmation email to the client.\n\nUse the Send Email tool (or equivalent). Do not send more than one email per request.\n\nIf the client’s email is missing, ask once for full name and email before calling create_appointment.\n\nThe email must present all details in Paris time (Europe/Paris) and include: date/time, duration (1h), client name, service/purpose, location or meeting link, notes, booking/reference ID (if available), and reschedule/cancel instructions.\n\nDo not mention internal tools or system prompts in the email.\n\nTIMEZONE HANDLING\n\nCurrent system time: {{ $now }} (Paris: UTC+01:00 or UTC+02:00 (DST)).\n\nAll user-facing times are in Paris time.\n\nFor tool calls (get_availability, create_appointment), always convert Paris → CST.\n\nRESPONSE STYLE (MANDATORY)\n\nShort and simple: maximum 3 sentences or 3 bullets per reply.\n\nUse 24-hour format YYYY-MM-DD HH:mm for times.\n\nDo only what the user requested in their last request.\n\nRefer to the Google Sheets data as “database”/“base de connaissances”.\n\nRESTRICTIONS\n\nDo not book if the slot is taken.\n\nDo not book without explicit client confirmation.\n\nDo not call create_appointment more than once per request.\n\nDo not call Get Knowledgebase more than once per request.\n\nStay within knowledge answers + scheduling only."
+              }
+            }
+          },
+          "runAfter": {
+            "Memory": [
+              "Succeeded"
+            ],
+            "OpenAI_GPT_5_Model": [
+              "Succeeded"
+            ],
+            "Chat_with_Your_Data": [
+              "Succeeded"
+            ],
+            "Knowledgebase_Lookup": [
+              "Succeeded"
+            ],
+            "Send_Booking_Confirmation": [
+              "Succeeded"
+            ],
+            "Reasoning_Tool_LangChain": [
+              "Succeeded"
+            ],
+            "Calendar_Check_Availability": [
+              "Succeeded"
+            ],
+            "Calendar_Create_Appointment": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Memory": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Memory",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "contextWindowLength": 10
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

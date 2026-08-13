@@ -1,0 +1,313 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "automated-linkedin-content-creation-with-gpt-4-and-dall-e-for-scheduled-posts",
+    "name": "Automated LinkedIn content creation with GPT-4 and DALL-E for scheduled posts",
+    "description": "**How it works**\n- Automatically generates trending LinkedIn content topics using AI\n- Researches current industry angles and hooks  \n- Writes posts in your authentic voice using OpenAI\n- Creates professional images with DALL-E\n- Posts everything on schedule without manual intervention\n\n**Set up steps**\n- Connect OpenAI API for content generation and image creation\n- Link LinkedIn API for automated posting\n- Configure scheduling triggers (daily/weekly posting)\n- Customize prompts to match your writing style and industry\n- Set up content approval workflows (optional)\n\n**Results you can expect**\n- 400% increase in profile views within 3 weeks\n- Generate 120+ posts per month vs manual 12 posts\n- Free up 15+ hours weekly for revenue-generating activities\n- Consistent posting schedule that builds audience engagement\n- Professional content that converts followers to clients\n\n**Time to set up:** 30-45 minutes\n**Technical level:** Beginner to intermediate\n**APIs required:** OpenAI, LinkedIn API\n**Cost:** OpenAI usage fees only (approximately $5-15/month)\n\nThis workflow transforms LinkedIn content creation from a time-consuming daily task into a fully automated system that works while you sleep. Perfect for entrepreneurs, marketers, and content creators who want consistent LinkedIn presence without the manual effort.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Social Media",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Schedule_Trigger": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Hour",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Content_topic_generator2": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Content topic generator2",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "You are a Content Researcher Assistant at Agentic Vibe, an AI-first automation agency helping solopreneurs, creators, and digital-first founders grow their online presence — especially on LinkedIn — through scalable, hands-free content systems.\n\nYour task is to generate high-value content topics that align with our brand pillars and resonate deeply with our audience. These topics will later be expanded into posts by another agent.\n\n🔍 What to Focus On:\nGenerate content topics (not full content) based on these strategic themes:\n\nAI for Content Creation & Workflow Automation\n\nLinkedIn Automation Tools, Tactics & Growth Strategies\n\nSolopreneur Productivity Hacks Using AI & Automation\n\nSystems Thinking for Scaling Personal Brands\n\nThe Future of Work, Creators, and Automated Influence\n\nNo-Code Tools for Content & Lead Gen Automation\n\n✅ Your Output Per Topic:\nFor each idea, generate the following:\n\nTopic Title or Core Idea (1 line)\n\nShort Rationale (1–2 sentences on why this topic matters)\n\nSuggested Angle or Hook (1 LinkedIn-style framing or contrarian take)\n\n💡 Style Guide:\nKeep ideas insightful, actionable, and future-minded\n\nFavor founder-style energy: confident, sharp, and slightly contrarian when it adds value\n\nAvoid hype or jargon — focus on clarity, systemized insight, and utility",
+              "options": {},
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ],
+            "Structured_Output_Parser": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenAI_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Structured_Output_Parser": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Structured Output Parser",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsonSchemaExample": "[{\n \"title\": \"AI as Your First Content Hire: Why Founders Shouldn't Wait to Outsource Creation\",\n            \"rationale\": \"Most solopreneurs delay content scaling because they think hiring a ghostwriter is the next step — but AI can handle 80% with proper systems. This shifts content from a creative bottleneck to a scalable growth lever.\",\n            \"hook\": \"Ghostwriters are outdated. Train GPT once, and it ships LinkedIn gold in your voice daily. Welcome to hands-free thought leadership.\"\n          }]"
+            }
+          },
+          "runAfter": {}
+        },
+        "Content_creator": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Content creator",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chainLlm",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=You are a linkedin content creator and copywriter. Given the title {{ $json.output[0].title }}, the rationale {{ $json.output[0].rationale }}, suggested hook. Generate text content for a linkedin post. Also describe a suitable image for the post.",
+              "batching": {},
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "OpenAI_Chat_Model1": [
+              "Succeeded"
+            ],
+            "Content_topic_generator2": [
+              "Succeeded"
+            ],
+            "Structured_Output_Parser1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenAI_Chat_Model1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Structured_Output_Parser1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Structured Output Parser1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsonSchemaExample": "{\n  \"post title\": \"Exciting New Feature Launch 🚀\",\n  \"post content\": \"After months of collaboration, testing, and fine-tuning, we're thrilled to introduce our latest product feature: Smart Insights. It helps users uncover meaningful patterns in their data with just a few clicks. This wouldn't have been possible without our incredible team and supportive community. We're excited for what's next — and we'd love your feedback!\",\n  \"image description\": \"A laptop screen showcasing the new Smart Insights dashboard with colorful charts and graphs, surrounded by a team clapping in the background.\"\n}"
+            }
+          },
+          "runAfter": {}
+        },
+        "OpenAI": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "prompt": "=Generate an image for a linkedin post this is the description: {{ $json.output['image description'] }} .The images should be realistic for linkedin.",
+              "options": {},
+              "resource": "image"
+            }
+          },
+          "runAfter": {
+            "Content_creator": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Hashtag_generator_SEO": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Hashtag generator /SEO",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=You are an SEO specialist for LinkedIn. Your task is to generate highly relevant and effective hashtags for the following post. Consider the post's content, target audience, and current LinkedIn trends to maximize visibility and engagement.\n\n<post_title>{{ $json.output['post title'] }}</post_title>\n<post_content>{{ $json.output['post content'] }}</post_content>\n\nPlease generate:\n1. **3-5 broad, high-volume hashtags** (e.g., #AI, #Marketing, #Business)\n2. **3-5 niche-specific hashtags** that are directly relevant to the post's core topic (e.g., #SocialMediaAutomation, #ContentCreationAI, #LinkedInMarketingTips)\n3. **1-2 trending/topical hashtags** if applicable (e.g., #FutureOfWork, #DigitalTransformation)\n\nPresent them as a comma-separated list.",
+              "options": {},
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "Content_creator": [
+              "Succeeded"
+            ],
+            "OpenAI_Chat_Model2": [
+              "Succeeded"
+            ],
+            "Structured_Output_Parser2": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenAI_Chat_Model2": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model2",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Structured_Output_Parser2": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Structured Output Parser2",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsonSchemaExample": "{\n  \"post title\": \"Exciting New Feature Launch 🚀\",\n  \"post content\": \"After months of collaboration, testing, and fine-tuning, we're thrilled to introduce our latest product feature: Smart Insights. It helps users uncover meaningful patterns in their data with just a few clicks. This wouldn't have been possible without our incredible team and supportive community. We're excited for what's next — and we'd love your feedback!\",\n  \"image description\": \"A laptop screen showcasing the new Smart Insights dashboard with colorful charts and graphs, surrounded by a team clapping in the background.\",\n\"Hashtags\":[\"#AI\",\"#Automation\"]\n}"
+            }
+          },
+          "runAfter": {}
+        },
+        "Merge": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Merge",
+            "n8nNodeType": "n8n-nodes-base.merge",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "OpenAI": [
+              "Succeeded"
+            ],
+            "Hashtag_generator_SEO": [
+              "Succeeded"
+            ]
+          }
+        },
+        "LinkedIn": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "LinkedIn",
+            "n8nNodeType": "n8n-nodes-base.linkedIn",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "postAs": "organization",
+              "additionalFields": {},
+              "shareMediaCategory": "IMAGE"
+            }
+          },
+          "runAfter": {
+            "Merge": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Schedule_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

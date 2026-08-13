@@ -1,0 +1,50 @@
+{
+  "sourceWorkflowName": "Scrape physician profiles from BrowserAct into Google Sheets and notify Slack",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 8,
+  "totalNodes": 11,
+  "coverage": 0.7273,
+  "diagnostics": [
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Splitting Items",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTOR_OPERATION_UNSUPPORTED",
+      "message": "Google Sheets operation 'appendOrUpdate' is not safely equivalent to a single LAA connector action.",
+      "severity": "warning",
+      "node_name": "Update Leads",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.googleSheets is not safely supported.",
+      "severity": "warning",
+      "node_name": "Update Leads",
+      "node_type": "n8n-nodes-base.googleSheets",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.slack.",
+      "severity": "warning",
+      "node_name": "Alert Team",
+      "node_type": "n8n-nodes-base.slack",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-browseract.browserAct.",
+      "severity": "warning",
+      "node_name": "Run BrowserAct Workflow",
+      "node_type": "n8n-nodes-browseract.browserAct",
+      "json_path": null
+    }
+  ]
+}

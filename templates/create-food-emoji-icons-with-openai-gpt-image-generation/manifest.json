@@ -1,0 +1,178 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "create-food-emoji-icons-with-openai-gpt-image-generation",
+    "name": "Create food emoji icons with OpenAI GPT & image generation",
+    "description": "![Screenshot 20250712 at 5.52.43 PM.png](fileId:1745)\n\nThis workflow allows users to generate beautifully stylized 3D-rendered food emoji icons based on a simple text prompt. It combines user input, structured visual design generation, and image rendering using OpenAI’s GPT models.\n\n## ✨ What It Does\n1. Collects user input via a form: e.g. \"green apple\"\n2. Generates a structured JSON specification describing the emoji’s form, lighting, texture, and color scheme\n3. Uses AI to render an image based on that spec—styled like a high-quality emoji icon with a transparent background\n\n## 🧠 Use Case\nThis template is ideal for:\n- Designers or creators needing icon ideas or drafts for food items\n- Developers building emoji packs or digital stickers\n- Inspiration for AI-assisted product illustration or branding\n\n## 💡 Why It's Useful\nInstead of prompting a model directly with vague terms, this flow creates a structured visual spec tailored to food items. The final emoji-style icon is polished, modern, and downloadable.\n\n## ✅ Requirements\nTo get started with this workflow, follow these steps:\n1. **🔑 Configure Credentials**: Set up your API credentials for OpenAI and Google Drive\n2. **💳 Add OpoenAI Credit**: Make sure to add credit to your OpenAI account, verify your organization (required for generating images)\n3. **📊 Connect Google Drive**: Authenticate your Google Drive account\n4. **⚙️ (Optional) Customize Prompts**: Adjust the prompts within the workflow to better suit your specific needs\n\n**Note: Each image generation will cost you about $0.17**\n\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Trigger_Food_Emoji_Form_Submission": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Trigger: Food Emoji Form Submission",
+            "n8nNodeType": "n8n-nodes-base.formTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "formTitle": "Submit a food item",
+              "formFields": {
+                "values": [
+                  {
+                    "fieldLabel": "What food emoji would you like to generate?",
+                    "placeholder": "a green apple",
+                    "requiredField": true
+                  }
+                ]
+              },
+              "formDescription": "Enter a food name (e.g. avocado, donut) to generate a 400×400-pixel 3D emoji 🥑"
+            }
+          },
+          "runAfter": {}
+        },
+        "Prepare_Style_JSON_Prompt": {
+          "type": "Compose",
+          "inputs": {
+            "=json_generator": "Given the food item: \"@{body('Trigger_Food_Emoji_Form_Submission')?['What food emoji would you like to generate?']}\", generate a JSON object describing how it should be styled as a 3D-rendered emoji-style icon suitable for use in a digital food icon set. The style should be modern, playful, and semi-realistic, with a transparent background and a 400x400 pixel size.\n\nThe JSON should include these sections:\n\n- form (shape, outline, detail)\n\n- lighting (gloss, shadow, detail)\n\n- texture (surface, detail)\n\n- background (type, detail)\n\n- color_handling (strategy, look, detail)\n\n- color_palette (detail)\n\nAdapt each parameter thoughtfully based on the physical properties and personality of the given food item."
+          },
+          "runAfter": {
+            "Trigger_Food_Emoji_Form_Submission": [
+              "Succeeded"
+            ]
+          }
+        },
+        "LLM_Generate_Style_JSON": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "LLM: Generate Style‑JSON",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4.1-mini",
+                "cachedResultName": "GPT-4.1-MINI"
+              },
+              "options": {},
+              "messages": {
+                "values": [
+                  {
+                    "content": "={{ $json.json_generator }}"
+                  }
+                ]
+              },
+              "jsonOutput": true
+            }
+          },
+          "runAfter": {
+            "Prepare_Style_JSON_Prompt": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Image_Gen_Render_Food_Emoji_Icon": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Image‑Gen: Render Food Emoji Icon",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": "gpt-image-1",
+              "prompt": "=Generate a 3D-rendered emoji-style digital icon of a {{ $('Trigger: Food Emoji Form Submission').item.json['What food emoji would you like to generate?'] }}, designed with the following visual specifications:\n{{ $json.message.content.toJsonString() }}\n\nRender the icon centered in a 400x400 pixel square, isolated on a transparent background, with no props or text. The result should look like a high-quality digital food emoji: slightly exaggerated, clean, friendly, and polished — consistent with a modern mobile icon set.\n",
+              "options": {},
+              "resource": "image"
+            }
+          },
+          "runAfter": {
+            "LLM_Generate_Style_JSON": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Save_to_Google_Drive": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Save to Google Drive",
+            "n8nNodeType": "n8n-nodes-base.googleDrive",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "name": "={{ $('Trigger: Food Emoji Form Submission').item.json['What food emoji would you like to generate?'] }}",
+              "driveId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "My Drive"
+              },
+              "options": {},
+              "folderId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "root",
+                "cachedResultName": "/ (Root folder)"
+              },
+              "inputDataFieldName": "=data"
+            }
+          },
+          "runAfter": {
+            "Image_Gen_Render_Food_Emoji_Icon": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

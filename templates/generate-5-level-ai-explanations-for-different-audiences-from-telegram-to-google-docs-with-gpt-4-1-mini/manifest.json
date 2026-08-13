@@ -1,0 +1,633 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "generate-5-level-ai-explanations-for-different-audiences-from-telegram-to-google-docs-with-gpt-4-1-mini",
+    "name": "Generate 5-level AI explanations for different audiences from Telegram to Google Docs with GPT-4.1-mini",
+    "description": "\n### Description\n\nAsk any question and get five different answers instantly. Each answer is written for a different audience—from kids to business executives. Your Telegram bot delivers all five explanations in under 10 seconds and saves them to Google Docs automatically. Perfect for teachers, writers, and anyone who needs to explain things to different people.\n\n### Who's It For\n\n• **Educators** creating multi-grade  \ncurriculum content\n•\t**Content creators** generating material for diverse audiences\n•\t**Technical writers** producing documentation at different expertise levels\n•\t**Parents** explaining complex topics to children\n•\t**Anyone** who needs to explain things to different people.\n\n\n### How It Works\n\n•\tTransforms any question into five distinct explanations: kid-friendly stories (5-year-olds), relatable content (teenagers), professional explanations (graduates), academic analysis (PhD researchers), and strategic insights (business executives)\n•\tFive AI agents process simultaneously for 3-8 second response times\n•\tDelivers six formatted Telegram messages (header + five explanations)\n•\tAutomatically archives complete conversations to Google Docs\n•\tUses binary tree merge architecture for reliable data handling\n\n### How to Set Up\n\n•\tCreate Telegram bot via @BotFather and add token to n8n credentials\n•\tObtain OpenAI API key and add to n8n credentials\n•\tConnect Google account to grant Docs access\n•\tCreate blank Google Doc and paste URL in workflow's Google Docs node\n•\tActivate workflow and test with any question\n\n### Requirements\n\n•\tTelegram Bot API token (free)\n•\tOpenAI API key (pay-per-use\n•\tGoogle account with Docs access (free)\n•\tn8n instance (cloud or self-hosted)\n\n\n### How to Customize\n•\tModify AI prompts in 'Create 5 Items' node for different tones and styles\n•\tAdjust character limits in formatting nodes to control message length\n•\tChange output destinations from Telegram to Slack, email, or other platforms\n•\tSwitch AI providers from OpenAI to alternatives\n•\tAdd additional comprehension levels by duplicating AI agent nodes\n\n\n### Need Help?\n\nFor detailed notes and implementation, please leverage the README document at:\nhttps://drive.google.com/file/d/19Fx-FoihL70qpOi4CnEwQ6Sud2dbUnE_/view?usp=sharing\n\nJoin the Discord (https://discord.com/invite/XPKeKXeB7d) or\nJoin the n8n community forum (https://community.n8n.io/) for support\n\n\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/telegrambotip",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Switch": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Switch",
+            "n8nNodeType": "n8n-nodes-base.switch",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "rules": {
+                "values": [
+                  {
+                    "outputKey": "0",
+                    "conditions": {
+                      "options": {
+                        "version": 3,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "b53dfd46-4b76-43f5-8958-f5e83639f5eb",
+                          "operator": {
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.level }}",
+                          "rightValue": "5-year-old"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "1",
+                    "conditions": {
+                      "options": {
+                        "version": 3,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "676acc92-0fb6-43fb-86d0-d9f114a966a3",
+                          "operator": {
+                            "name": "filter.operator.equals",
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.level }}",
+                          "rightValue": "teenager"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "2",
+                    "conditions": {
+                      "options": {
+                        "version": 3,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "87121421-66e1-4792-84eb-779da0ac01d6",
+                          "operator": {
+                            "name": "filter.operator.equals",
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.level }}",
+                          "rightValue": "graduate"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "3",
+                    "conditions": {
+                      "options": {
+                        "version": 3,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "6ca49aab-a4d0-49f6-a9e4-8eec1b031713",
+                          "operator": {
+                            "name": "filter.operator.equals",
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.level }}",
+                          "rightValue": "phd"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "4",
+                    "conditions": {
+                      "options": {
+                        "version": 3,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "9874f1a3-459a-4fe2-9ff5-c9fb4058ef27",
+                          "operator": {
+                            "name": "filter.operator.equals",
+                            "type": "string",
+                            "operation": "equals"
+                          },
+                          "leftValue": "={{ $json.level }}",
+                          "rightValue": "business"
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  }
+                ]
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Route_to_Appropriate_Level": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenAI_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4.1-mini"
+              },
+              "options": {},
+              "builtInTools": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Receive_User_Question": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Receive User Question",
+            "n8nNodeType": "n8n-nodes-base.telegramTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "updates": [
+                "message"
+              ],
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Extract_Query_Data": {
+          "type": "Compose",
+          "inputs": {
+            "userQuery": "@body('Receive_User_Question')?['message']?['text']",
+            "chatId": "@body('Receive_User_Question')?['message']?['chat']?['id']",
+            "timestamp": "={{ $now.toISO() }}"
+          },
+          "runAfter": {
+            "Receive_User_Question": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Route_to_Appropriate_Level": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Extract_Query_Data'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Create 5 items for parallel processing\nconst input = $input.first().json;\nconst query = input.userQuery;\nconst chatId = input.chatId;\nconst timestamp = input.timestamp;\n\nconst levels = [\n  {\n    level: \"5-year-old\",\n    emoji: \"🧒\",\n    title: \"Level 1: For a 5-Year-Old\",\n    systemPrompt: \"You are a creative educator explaining complex topics to 5-year-old children in fun, engaging ways.\\n\\nYOUR MISSION: Take ANY concept and make it magical for young minds!\\n\\nSTYLE GUIDELINES:\\n• Write a SHORT STORY (5-8 sentences)\\n• Use comparisons to toys, animals, games, or things kids love\\n• Add emojis throughout (🎈🐶🚀🎨🌟)\\n• Include sound effects (whoosh!, zoom!, beep boop!)\\n• Use VERY simple words (no big vocabulary)\\n• Make it exciting and fun - like storytime!\\n• Stay on topic - explain what they actually asked about\\n\\nIMPORTANT: Don't default to robots/AI unless specifically asked. If they ask about:\\n- Medicine → Use body/health analogies\\n- Nature → Use animals/plants analogies\\n- Technology → Use toys/games analogies\\n- Science → Use magic/wonder analogies\"\n  },\n  {\n    level: \"teenager\",\n    emoji: \"🎮\",\n    title: \"Level 2: For a Teenager\",\n    systemPrompt: \"You are explaining concepts to teenagers (ages 13-17) in a relatable, engaging way.\\n\\nYOUR MISSION: Make ANY topic relevant to teen life and interests!\\n\\nSTYLE GUIDELINES:\\n• Use modern, casual language (but not cringe)\\n• Compare to: video games, social media, streaming, sports, YouTube\\n• Reference current tech and trends teens know\\n• Use relevant emojis sparingly 🎮📱⚡\\n• Keep it real - teens can handle complexity\\n• Make connections to their daily experiences\\n• Show why this topic matters to THEM\\n\\nIMPORTANT: Stay on the actual topic. If they ask about:\\n- Science → Connect to phones, games, or daily tech\\n- History → Connect to movies, shows, or current events\\n- Health → Connect to sports, fitness, or mental health\\n- Business → Connect to social media, creators, or money\"\n  },\n  {\n    level: \"graduate\",\n    emoji: \"🎓\",\n    title: \"Level 3: For a Graduate Student\",\n    systemPrompt: \"You are explaining concepts to college graduates with solid educational backgrounds.\\n\\nYOUR MISSION: Provide clear, professional explanations with technical depth.\\n\\nSTYLE GUIDELINES:\\n• Use proper terminology and academic language\\n• Include real-world applications and examples\\n• Reference relevant frameworks, theories, or principles\\n• Provide concrete data or evidence where applicable\\n• Balance technical accuracy with accessibility\\n• Assume strong general knowledge but not deep expertise\\n• Connect to practical implications\\n\\nCOVERAGE:\\n• Define key terms precisely\\n• Explain mechanisms or processes\\n• Discuss current applications\\n• Mention related concepts or fields\\n• Provide enough depth for understanding\"\n  },\n  {\n    level: \"phd\",\n    emoji: \"🔬\",\n    title: \"Level 4: For a PhD Researcher\",\n    systemPrompt: \"You are explaining concepts to PhD-level researchers and domain experts.\\n\\nYOUR MISSION: Provide rigorous, technically precise analysis at an expert level.\\n\\nSTYLE GUIDELINES:\\n• Use precise technical terminology without simplification\\n• Reference current research, methodologies, and literature\\n• Discuss theoretical frameworks and foundations\\n• Explore edge cases, limitations, and open questions\\n• Include mathematical formulations where relevant\\n• Assume deep domain expertise\\n• Address controversies or competing theories\\n\\nCOVERAGE:\\n• Formal definitions and mathematical representations\\n• Current state of research and recent developments\\n• Methodological considerations\\n• Theoretical implications\\n• Research gaps and future directions\\n• Critical analysis of approaches\"\n  },\n  {\n    level: \"business\",\n    emoji: \"💼\",\n    title: \"Level 5: Real-World Business Use Case\",\n    systemPrompt: \"You are explaining concepts to business executives and senior leaders.\\n\\nYOUR MISSION: Translate ANY concept into strategic business value and impact.\\n\\nSTYLE GUIDELINES:\\n• Focus on practical business applications and ROI\\n• Use business terminology (metrics, KPIs, strategy)\\n• Include real-world case studies or examples\\n• Discuss implementation challenges and solutions\\n• Address risks, opportunities, and competitive advantage\\n• Be concise - executives value efficiency\\n• Connect to bottom-line impact\\n\\nCOVERAGE:\\n• Business applications and use cases\\n• Market implications and trends\\n• Implementation considerations (cost, timeline, resources)\\n• ROI and value proposition\\n• Strategic advantages or risks\\n• Competitive landscape\\n• Decision-making framework\"\n  }\n];\n\n// Create 5 items with the query\nreturn levels.map(level => ({\n  json: {\n    level: level.level,\n    emoji: level.emoji,\n    title: level.title,\n    systemPrompt: level.systemPrompt,\n    query: query,\n    chatId: chatId,\n    timestamp: timestamp\n  }\n}));\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Extract_Query_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Action_5_Year_Old_Story_Mode": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "5-Year-Old Story Mode",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=You are explaining ANY topic to a 5-year-old child using simple stories and fun examples.\n\nRULES:\n- Use a SHORT STORY (5-8 sentences)\n- Compare to: toys, animals, food, or things kids see every day\n- Use simple words a 5-year-old knows\n- Add emojis (🎈🐶🚀🎨)\n- Make it fun and exciting!\n- NO robots, AI, or technology unless they ask about it\n- Explain the ACTUAL topic they asked about\n\nThe topic to explain is: {{ $json.query }}\n\nTell a fun story that explains this topic!",
+              "options": {
+                "systemMessage": "=You are a creative educator explaining complex topics to 5-year-old children in fun, engaging ways.\n\nYOUR MISSION: Take ANY concept and make it magical for young minds!\n\nSTYLE GUIDELINES:\n• Write a SHORT STORY (5-8 sentences)\n• Use comparisons to toys, animals, games, or things kids love\n• Add emojis throughout (🎈🐶🚀🎨🌟)\n• Include sound effects (whoosh!, zoom!, beep boop!)\n• Use VERY simple words (no big vocabulary)\n• Make it exciting and fun - like storytime!\n• Stay on topic - explain what they actually asked about\n\nIMPORTANT: Don't default to robots/AI unless specifically asked. If they ask about:\n- Medicine → Use body/health analogies\n- Nature → Use animals/plants analogies  \n- Technology → Use toys/games analogies\n- Science → Use magic/wonder analogies\n\nFORMATTING:\n- Use plain text (no ** or ### or markdown)\n- Use line breaks for paragraphs\n- Use emojis for visual interest\n\nQuestion to explain: {{ $json.query }}\n\nCreate a memorable, kid-friendly explanation! ✨\n"
+              },
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "Switch": [
+              "Succeeded"
+            ],
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Teenager_Level": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Teenager Level",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "={{ $json.query }}",
+              "options": {
+                "systemMessage": "=You are explaining concepts to teenagers (ages 13-17) in a relatable, engaging way.\n\nYOUR MISSION: Make ANY topic relevant to teen life and interests!\n\nSTYLE GUIDELINES:\n• Use modern, casual language (but not cringe)\n• Compare to: video games, social media, streaming, sports, YouTube\n• Reference current tech and trends teens know\n• Use relevant emojis sparingly 🎮📱⚡\n• Keep it real - teens can handle complexity\n• Make connections to their daily experiences\n• Show why this topic matters to THEM\n\nIMPORTANT: Stay on the actual topic. If they ask about:\n- Science → Connect to phones, games, or daily tech\n- History → Connect to movies, shows, or current events\n- Health → Connect to sports, fitness, or mental health\n- Business → Connect to social media, creators, or money\n\nFORMATTING:\n- Use plain text (no markdown)\n- Use line breaks for clarity\n- Use emojis sparingly 🎮📱\n\nQuestion to explain: {{ $json.query }}\n\nBe authentic and relatable - avoid being \"teachy\"!\n"
+              },
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "Switch": [
+              "Succeeded"
+            ],
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Graduate_Level": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Graduate Level",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "={{ $json.query }}",
+              "options": {
+                "systemMessage": "=You are explaining concepts to college graduates with solid educational backgrounds.\n\nYOUR MISSION: Provide clear, professional explanations with technical depth.\n\nSTYLE GUIDELINES:\n• Use proper terminology and academic language\n• Include real-world applications and examples\n• Reference relevant frameworks, theories, or principles\n• Provide concrete data or evidence where applicable\n• Balance technical accuracy with accessibility\n• Assume strong general knowledge but not deep expertise\n• Connect to practical implications\n\nCOVERAGE:\n• Define key terms precisely\n• Explain mechanisms or processes\n• Discuss current applications\n• Mention related concepts or fields\n• Provide enough depth for understanding\n\nFORMATTING:\n- Use plain text (no markdown)\n- Use line breaks for sections\n- Be professional and clear\n\nQuestion to explain: {{ $json.query }}\n\nBe informative, accurate, and professionally thorough.\n"
+              },
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "Switch": [
+              "Succeeded"
+            ],
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ]
+          }
+        },
+        "PhD_Research_Level": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "PhD Research Level",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "={{ $json.query }}",
+              "options": {
+                "systemMessage": "=You are explaining concepts to PhD-level researchers and domain experts.\n\nYOUR MISSION: Provide rigorous, technically precise analysis at an expert level.\n\nSTYLE GUIDELINES:\n• Use precise technical terminology without simplification\n• Reference current research, methodologies, and literature\n• Discuss theoretical frameworks and foundations\n• Explore edge cases, limitations, and open questions\n• Include mathematical formulations where relevant\n• Assume deep domain expertise\n• Address controversies or competing theories\n\nCOVERAGE:\n• Formal definitions and mathematical representations\n• Current state of research and recent developments\n• Methodological considerations\n• Theoretical implications\n• Research gaps and future directions\n• Critical analysis of approaches\n\nFORMATTING:\n- Use plain text (no markdown)\n- Use line breaks for structure\n- Be rigorous and detailed\n\nQuestion to explain: {{ $json.query }}\n\nProvide expert-level academic rigor and depth.\n"
+              },
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "Switch": [
+              "Succeeded"
+            ],
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Business_Executive_Level": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Business Executive Level",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "={{ $('Extract Query Data').item.json.userQuery }}",
+              "options": {
+                "systemMessage": "=You are explaining concepts to business executives and senior leaders.\n\nYOUR MISSION: Translate ANY concept into strategic business value and impact.\n\nSTYLE GUIDELINES:\n• Focus on practical business applications and ROI\n• Use business terminology (metrics, KPIs, strategy)\n• Include real-world case studies or examples\n• Discuss implementation challenges and solutions\n• Address risks, opportunities, and competitive advantage\n• Be concise - executives value efficiency\n• Connect to bottom-line impact\n\nCOVERAGE:\n• Business applications and use cases\n• Market implications and trends\n• Implementation considerations (cost, timeline, resources)\n• ROI and value proposition\n• Strategic advantages or risks\n• Competitive landscape\n• Decision-making framework\n\nFORMATTING:\n- Use plain text (no markdown)\n- Use line breaks for key points\n- Be concise and actionable\n\nQuestion to explain: {{ $json.query }}\n\nBe strategic, actionable, and focused on business outcomes."
+              },
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "Switch": [
+              "Succeeded"
+            ],
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Action_5_Year_Old": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Action_5_Year_Old_Story_Mode'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Error Handler - Simple Content Extraction\nconst responseItem = $input.first().json;\n\n// Get original data\nconst originalItem = __node('Route_to_Appropriate_Level').all().find(item => \n  item.json.level === \"5-year-old\"\n);\n\nconst chatId = originalItem?.json.chatId || \"unknown\";\nconst query = originalItem?.json.query || \"unknown\";\nconst timestamp = originalItem?.json.timestamp || new Date().toISOString();\n\n// Extract content\nconst content = responseItem.output || \n                responseItem.text || \n                responseItem.message?.content || \n                \"No response generated\";\n\nconsole.log('5-year-old - Content extracted, length:', content.length);\n\nreturn [{\n  json: {\n    level: \"5-year-old\",\n    emoji: \"🧒\",\n    title: \"For a 5 Year Old\",\n    content: content,\n    chatId: chatId,\n    query: query,\n    timestamp: timestamp\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Action_5_Year_Old_Story_Mode": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Teenager": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Teenager_Level'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Error Handler - Simple Content Extraction\nconst responseItem = $input.first().json;\n\n// Get original data\nconst originalItem = __node('Route_to_Appropriate_Level').all().find(item => \n  item.json.level === \"teenager\"\n);\n\nconst chatId = originalItem?.json.chatId || \"unknown\";\nconst query = originalItem?.json.query || \"unknown\";\nconst timestamp = originalItem?.json.timestamp || new Date().toISOString();\n\n// Extract content\nconst content = responseItem.output || \n                responseItem.text || \n                responseItem.message?.content || \n                \"No response generated\";\n\nconsole.log('teenager - Content extracted, length:', content.length);\n\nreturn [{\n  json: {\n    level: \"teenager\",\n    emoji: \"🎮\",\n    title: \"For a Teenager\",\n    content: content,\n    chatId: chatId,\n    query: query,\n    timestamp: timestamp\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Teenager_Level": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Graduate": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Graduate_Level'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Error Handler - Simple Content Extraction\nconst responseItem = $input.first().json;\n\n// Get original data\nconst originalItem = __node('Route_to_Appropriate_Level').all().find(item => \n  item.json.level === \"graduate\"\n);\n\nconst chatId = originalItem?.json.chatId || \"unknown\";\nconst query = originalItem?.json.query || \"unknown\";\nconst timestamp = originalItem?.json.timestamp || new Date().toISOString();\n\n// Extract content\nconst content = responseItem.output || \n                responseItem.text || \n                responseItem.message?.content || \n                \"No response generated\";\n\nconsole.log('graduate - Content extracted, length:', content.length);\n\nreturn [{\n  json: {\n    level: \"graduate\",\n    emoji: \"🎓\",\n    title: \"For a Graduate\",\n    content: content,\n    chatId: chatId,\n    query: query,\n    timestamp: timestamp\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Graduate_Level": [
+              "Succeeded"
+            ]
+          }
+        },
+        "PhD": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['PhD_Research_Level'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Error Handler - Simple Content Extraction\nconst responseItem = $input.first().json;\n\n// Get original data\nconst originalItem = __node('Route_to_Appropriate_Level').all().find(item => \n  item.json.level === \"phd\"\n);\n\nconst chatId = originalItem?.json.chatId || \"unknown\";\nconst query = originalItem?.json.query || \"unknown\";\nconst timestamp = originalItem?.json.timestamp || new Date().toISOString();\n\n// Extract content\nconst content = responseItem.output || \n                responseItem.text || \n                responseItem.message?.content || \n                \"No response generated\";\n\nconsole.log('phd - Content extracted, length:', content.length);\n\nreturn [{\n  json: {\n    level: \"phd\",\n    emoji: \"🔬\",\n    title: \"For a Ph.D Holder\",\n    content: content,\n    chatId: chatId,\n    query: query,\n    timestamp: timestamp\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "PhD_Research_Level": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Business": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Business_Executive_Level'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Error Handler - Simple Content Extraction\nconst responseItem = $input.first().json;\n\n// Get original data\nconst originalItem = __node('Route_to_Appropriate_Level').all().find(item => \n  item.json.level === \"business\"\n);\n\nconst chatId = originalItem?.json.chatId || \"unknown\";\nconst query = originalItem?.json.query || \"unknown\";\nconst timestamp = originalItem?.json.timestamp || new Date().toISOString();\n\n// Extract content\nconst content = responseItem.output || \n                responseItem.text || \n                responseItem.message?.content || \n                \"No response generated\";\n\nconsole.log('business - Content extracted, length:', content.length);\n\nreturn [{\n  json: {\n    level: \"business\",\n    emoji: \"💼\",\n    title: \"Real-time Business Case\",\n    content: content,\n    chatId: chatId,\n    query: query,\n    timestamp: timestamp\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Business_Executive_Level": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Child_Teen": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Child + Teen",
+            "n8nNodeType": "n8n-nodes-base.merge",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "Teenager": [
+              "Succeeded"
+            ],
+            "Action_5_Year_Old": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Grad_PhD": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Grad + PhD",
+            "n8nNodeType": "n8n-nodes-base.merge",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "PhD": [
+              "Succeeded"
+            ],
+            "Graduate": [
+              "Succeeded"
+            ]
+          }
+        },
+        "First_4_Levels": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "First 4 Levels",
+            "n8nNodeType": "n8n-nodes-base.merge",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "Grad_PhD": [
+              "Succeeded"
+            ],
+            "Child_Teen": [
+              "Succeeded"
+            ]
+          }
+        },
+        "All_5_Levels": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "All 5 Levels",
+            "n8nNodeType": "n8n-nodes-base.merge",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "Business": [
+              "Succeeded"
+            ],
+            "First_4_Levels": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Aggregate_Structure_All_Responses": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['All_5_Levels'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Aggregate - Simple Version (No Token Tracking)\nconst items = $input.all();\n\nconsole.log('=== AGGREGATE ===');\nconsole.log('Total items received:', items.length);\n\nconst allItems = items.filter(item => item.json).map(item => item.json);\n\nif (allItems.length !== 5) {\n  throw new Error(`Expected 5 items, got ${allItems.length}`);\n}\n\n// Sort in correct order\nconst order = [\"5-year-old\", \"teenager\", \"graduate\", \"phd\", \"business\"];\nconst sortedItems = allItems.sort((a, b) => \n  order.indexOf(a.level) - order.indexOf(b.level)\n);\n\nconsole.log('Sorted items:', sortedItems.map(i => i.level));\n\nreturn [{\n  json: {\n    responses: sortedItems,\n    chatId: sortedItems[0].chatId,\n    query: sortedItems[0].query,\n    timestamp: sortedItems[0].timestamp\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "All_5_Levels": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Format_6_Messages_for_Telegram": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Aggregate_Structure_All_Responses'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Format for Telegram - NO TRUNCATION (Let Telegram handle it)\nconst input = $input.first().json;\n\nconst responses = input.responses;\nconst query = input.query;\nconst chatId = input.chatId;\nconst timestamp = input.timestamp;\n\n// Telegram's ACTUAL limit is 4096, but we'll be safer\nconst MAX_MESSAGE_LENGTH = 4000;\n\n// Clean markdown for Telegram HTML\nfunction cleanMarkdown(text) {\n  if (!text) return '';\n  \n  // Remove markdown formatting that Telegram HTML doesn't support\n  text = text.replace(/\\*\\*\\*(.+?)\\*\\*\\*/g, '<b>$1</b>'); // ***bold italic*** → bold\n  text = text.replace(/\\*\\*(.+?)\\*\\*/g, '<b>$1</b>');     // **bold** → <b>bold</b>\n  text = text.replace(/\\*(.+?)\\*/g, '<i>$1</i>');         // *italic* → <i>italic</i>\n  text = text.replace(/###\\s+(.+?)$/gm, '<b>$1</b>');     // ### Header → <b>Header</b>\n  text = text.replace(/##\\s+(.+?)$/gm, '<b>$1</b>');      // ## Header → <b>Header</b>\n  text = text.replace(/#\\s+(.+?)$/gm, '<b>$1</b>');       // # Header → <b>Header</b>\n  text = text.replace(/\\n-\\s+/g, '\\n• ');                 // - item → • item\n  \n  return text;\n}\n\n// Escape HTML special characters\nfunction escapeHtml(text) {\n  if (!text) return '';\n  return text.toString()\n    .replace(/&/g, '&amp;')\n    .replace(/</g, '&lt;')\n    .replace(/>/g, '&gt;');\n}\n\n// Smart truncate - cut at last complete sentence\nfunction smartTruncate(text, maxLength) {\n  if (!text || text.length <= maxLength) return text;\n  \n  // Try to cut at last period before limit\n  const cutPoint = text.lastIndexOf('.', maxLength);\n  if (cutPoint > maxLength - 200) { // Only if reasonably close\n    return text.substring(0, cutPoint + 1) + '\\n\\n(Message truncated due to length)';\n  }\n  \n  // Otherwise cut at last space\n  const spacePoint = text.lastIndexOf(' ', maxLength);\n  return text.substring(0, spacePoint) + '...\\n\\n(Truncated)';\n}\n\nconst escapedQuery = escapeHtml(query);\n\n// Create header message\nconst headerText = `📊 <b>Knowledge Ladder Results</b>\\n\\n` +\n  `❓ <b>Question:</b> ${escapedQuery}\\n` +\n  `📅 <b>Date:</b> ${new Date(timestamp).toLocaleString()}\\n\\n` +\n  `━━━━━━━━━━━━━━━━━━━━━━━━━\\n` +\n  `Sending 5 responses...`;\n\nconst outputs = [];\n\n// Header\noutputs.push({\n  json: {\n    chatId: chatId,\n    text: headerText,\n    messageNumber: 1\n  }\n});\n\n// 5 Responses with markdown cleaning\nresponses.forEach((r, index) => {\n  const title = r.title || 'Unknown';\n  const emoji = r.emoji || '❓';\n  let content = r.content || 'No content';\n  \n  // Clean markdown FIRST\n  content = cleanMarkdown(content);\n  \n  // Then smart truncate if needed\n  const availableLength = MAX_MESSAGE_LENGTH - (title.length + emoji.length + 20);\n  content = smartTruncate(content, availableLength);\n  \n  // Escape HTML (AFTER markdown cleaning)\n  const escapedContent = escapeHtml(content);\n  const escapedTitle = escapeHtml(title);\n  \n  const messageText = `${emoji} <b>${escapedTitle}</b>\\n\\n${escapedContent}`;\n  \n  console.log(`Message ${index + 2}: ${messageText.length} chars`);\n  \n  outputs.push({\n    json: {\n      chatId: chatId,\n      text: messageText,\n      messageNumber: index + 2\n    }\n  });\n});\n\nconsole.log(`✅ Created ${outputs.length} messages`);\n\nreturn outputs;\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Aggregate_Structure_All_Responses": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_to_User_via_Telegram": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "telegrambotip_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/bot@{encodeURIComponent('REPLACE_WITH_TELEGRAM_BOT_TOKEN')}/sendMessage",
+            "body": {
+              "chat_id": "@body('Format_6_Messages_for_Telegram')?['chatId']",
+              "text": "@body('Format_6_Messages_for_Telegram')?['text']",
+              "parse_mode": "HTML"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendMessage"
+            }
+          },
+          "runAfter": {
+            "Format_6_Messages_for_Telegram": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Format_Plain_Text_for_Docs": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Aggregate_Structure_All_Responses'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Format for Google Docs - Clean Text Format\nconst input = $input.first().json;\n\nconst responses = input.responses;\nconst query = input.query;\nconst timestamp = input.timestamp;\n\n// Create clean formatted text for Google Docs\nconst dateStr = new Date(timestamp).toLocaleString();\n\nlet docsContent = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n`;\ndocsContent += `📊 AI KNOWLEDGE LADDER RESULTS\\n`;\ndocsContent += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n\\n`;\ndocsContent += `❓ Question: ${query}\\n`;\ndocsContent += `📅 Date: ${dateStr}\\n\\n`;\ndocsContent += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n\\n`;\n\n// Add each response with clean formatting\nresponses.forEach((r, index) => {\n  const emoji = r.emoji || '❓';\n  const title = r.title || 'Unknown';\n  const content = r.content || 'No content';\n  \n  docsContent += `${emoji} ${title.toUpperCase()}\\n`;\n  docsContent += `${'─'.repeat(50)}\\n\\n`;\n  docsContent += `${content}\\n\\n`;\n  \n  if (index < responses.length - 1) {\n    docsContent += `\\n`;\n  }\n});\n\ndocsContent += `\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n`;\ndocsContent += `End of Response\\n`;\ndocsContent += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n\\n\\n`;\n\nreturn [{\n  json: {\n    docsContent: docsContent\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Aggregate_Structure_All_Responses": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Archive_to_Google_Docs": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Archive to Google Docs",
+            "n8nNodeType": "n8n-nodes-base.googleDocs",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "actionsUi": {
+                "actionFields": [
+                  {
+                    "text": "={{ $json.docsContent }}",
+                    "action": "insert"
+                  }
+                ]
+              },
+              "operation": "update",
+              "documentURL": "REPLACE_WITH_YOUR_GOOGLE_DOC_URL"
+            }
+          },
+          "runAfter": {
+            "Format_Plain_Text_for_Docs": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "telegrambotip_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/telegrambotip"
+    }
+  }
+}

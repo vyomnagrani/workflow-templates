@@ -1,0 +1,66 @@
+{
+  "sourceWorkflowName": "Generate faceless video scripts from a topic with Gemini or Claude Haiku",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 11,
+  "totalNodes": 13,
+  "coverage": 0.8462,
+  "diagnostics": [
+    {
+      "code": "TRIGGER_MISSING",
+      "message": "No supported n8n trigger was found.",
+      "severity": "warning",
+      "node_name": null,
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.formTrigger.",
+      "severity": "warning",
+      "node_name": "Video idea form",
+      "node_type": "n8n-nodes-base.formTrigger",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Set language and word budget",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ JSON.stringify({ contents: [ { parts: [ { text: `You are a short-form video scriptwriter. Write a video script in ${$json.languageName} about the topic: \\\"${$json['Topic']}\\\". Split it into exactly ${$json['Number of Scenes'] || 5} scenes. Each voice_over MUST be at most ${$json.wordsPerScene} words - this is a hard limit, the finished video has to stay under 60 seconds. Return ONLY valid JSON, no explanation, matching this schema: {\\\"scenes\\\": [{\\\"voice_over\\\": \\\"at most ${$json.wordsPerScene} words in ${$json.languageName}\\\", \\\"image_prompt\\\": \\\"describe the illustration in ENGLISH\\\"}]}` } ] } ], generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 4096, thinkingConfig: { thinkingBudget: 0 } } }) }}",
+      "severity": "warning",
+      "node_name": "Generate script (Gemini, free tier)",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ JSON.stringify({ model: 'claude-haiku-4-5', max_tokens: 4096, system: `You are a short-form video scriptwriter writing in ${$json.languageName}.`, messages: [ { role: 'user', content: `Write a short video script in ${$json.languageName} about the topic: \\\"${$json['Topic']}\\\". Split it into exactly ${$json['Number of Scenes'] || 5} scenes. Each voice_over MUST be at most ${$json.wordsPerScene} words - this is a hard limit, the finished video has to stay under 60 seconds. Each scene also needs an image_prompt describing the illustration in ENGLISH for an AI image generator.` } ], output_config: { format: { type: 'json_schema', schema: { type: 'object', properties: { scenes: { type: 'array', items: { type: 'object', properties: { voice_over: { type: 'string' }, image_prompt: { type: 'string' } }, required: ['voice_over','image_prompt'], additionalProperties: false } } }, required: ['scenes'], additionalProperties: false } } } }) }}",
+      "severity": "warning",
+      "node_name": "Generate script (Claude Haiku)",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Parse the script JSON",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.splitOut.",
+      "severity": "warning",
+      "node_name": "Split into individual scenes",
+      "node_type": "n8n-nodes-base.splitOut",
+      "json_path": null
+    }
+  ]
+}

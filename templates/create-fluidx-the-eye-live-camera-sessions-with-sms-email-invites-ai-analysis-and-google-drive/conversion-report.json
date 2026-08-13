@@ -1,0 +1,482 @@
+{
+  "sourceWorkflowName": "Create fluidX THE EYE live camera sessions with SMS/email invites, AI analysis, and Google Drive",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 33,
+  "totalNodes": 50,
+  "coverage": 0.66,
+  "diagnostics": [
+    {
+      "code": "IF_REGION_UNSUPPORTED",
+      "message": "IF branches overlap or have external inputs, so nesting them would change behavior.",
+      "severity": "warning",
+      "node_name": "If Media Id",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "IF_REGION_UNSUPPORTED",
+      "message": "IF branches overlap or have external inputs, so nesting them would change behavior.",
+      "severity": "warning",
+      "node_name": "If Session Active",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "IF_REGION_UNSUPPORTED",
+      "message": "IF branches overlap or have external inputs, so nesting them would change behavior.",
+      "severity": "warning",
+      "node_name": "If photos",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "TRIGGER_MISSING",
+      "message": "No supported n8n trigger was found.",
+      "severity": "warning",
+      "node_name": null,
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.formTrigger.",
+      "severity": "warning",
+      "node_name": "On form submission",
+      "node_type": "n8n-nodes-base.formTrigger",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ 'THEEYE_' + $now.toFormat('yyyyLLdd_HHmmss') + '_' + $json.revXRSession.id }}",
+      "severity": "warning",
+      "node_name": "Set Session Vars",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleDrive.",
+      "severity": "warning",
+      "node_name": "Create Session Folder",
+      "node_type": "n8n-nodes-base.googleDrive",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.emailSend.",
+      "severity": "warning",
+      "node_name": "Send email to Agent",
+      "node_type": "n8n-nodes-base.emailSend",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Send email to Agent",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$node[\"Set Config\"].json.BASE_URL",
+      "severity": "warning",
+      "node_name": "fluidX API - Send SMS User",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $node[\"Set Config\"].json.BASE_URL }}/api/fx/ext/sms/send",
+      "severity": "warning",
+      "node_name": "fluidX API - Send SMS User",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$node[\"Set Config\"].json.phoneNumberUser",
+      "severity": "warning",
+      "node_name": "fluidX API - Send SMS User",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =($node[\"Set Config\"].json.message + $node[\"Set Session Vars\"].json.theEyeUserUrl).toJsonString()",
+      "severity": "warning",
+      "node_name": "fluidX API - Send SMS User",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$node[\"Set Session Vars\"].json.sessionId.toJsonString()",
+      "severity": "warning",
+      "node_name": "fluidX API - Send SMS User",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={\n  \"phoneNumber\": \"{{ $node[\"Set Config\"].json.phoneNumberUser }}\",\n  \"message\": {{ ($node[\"Set Config\"].json.message + $node[\"Set Session Vars\"].json.theEyeUserUrl).toJsonString() }},\n  \"sessionId\": {{ $node[\"Set Session Vars\"].json.sessionId.toJsonString() }}\n}\n",
+      "severity": "warning",
+      "node_name": "fluidX API - Send SMS User",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "HTTP_TIMEOUT_REVIEW",
+      "message": "n8n HTTP timeout has no direct generic WDL input mapping and requires review.",
+      "severity": "warning",
+      "node_name": "fluidX API - Send SMS User",
+      "node_type": "n8n-nodes-base.httpRequest",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ ($node['Set Config'].json.phoneNumberUser || '').trim() }}",
+      "severity": "warning",
+      "node_name": "If Phone Set?",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.emailSend.",
+      "severity": "warning",
+      "node_name": "Send email to User",
+      "node_type": "n8n-nodes-base.emailSend",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ ($node['Set Config'].json.emailUser || '').trim() }}",
+      "severity": "warning",
+      "node_name": "If User Email Set?",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "If User Email Set?",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.itemLists.",
+      "severity": "warning",
+      "node_name": "Split photoRefs (Item Lists)",
+      "node_type": "n8n-nodes-base.itemLists",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Split photoRefs (Item Lists)",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$item(0).$node[\"Set Config\"].json.BASE_URL",
+      "severity": "warning",
+      "node_name": "fluidX API - Media Info HTTP Request GET",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $item(0).$node[\"Set Config\"].json.BASE_URL }}/api/fx/ext/media/info",
+      "severity": "warning",
+      "node_name": "fluidX API - Media Info HTTP Request GET",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Wait",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Wait",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$node[\"Set Config\"].json.BASE_URL",
+      "severity": "warning",
+      "node_name": "fluidX API - Create Session",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $node[\"Set Config\"].json.BASE_URL }}/api/fx/ext/session/create",
+      "severity": "warning",
+      "node_name": "fluidX API - Create Session",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "HTTP_TIMEOUT_REVIEW",
+      "message": "n8n HTTP timeout has no direct generic WDL input mapping and requires review.",
+      "severity": "warning",
+      "node_name": "fluidX API - Create Session",
+      "node_type": "n8n-nodes-base.httpRequest",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$item(0).$node[\"Set Config\"].json.BASE_URL",
+      "severity": "warning",
+      "node_name": "fluidX API - Get Session Info",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $item(0).$node[\"Set Config\"].json.BASE_URL }}/api/fx/ext/session",
+      "severity": "warning",
+      "node_name": "fluidX API - Get Session Info",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "HTTP_TIMEOUT_REVIEW",
+      "message": "n8n HTTP timeout has no direct generic WDL input mapping and requires review.",
+      "severity": "warning",
+      "node_name": "fluidX API - Get Session Info",
+      "node_type": "n8n-nodes-base.httpRequest",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleDrive.",
+      "severity": "warning",
+      "node_name": "Upload file",
+      "node_type": "n8n-nodes-base.googleDrive",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.openAi.",
+      "severity": "warning",
+      "node_name": "Analyze image",
+      "node_type": "@n8n/n8n-nodes-langchain.openAi",
+      "json_path": null
+    },
+    {
+      "code": "MERGE_SEMANTICS_UNSUPPORTED",
+      "message": "This Merge node requires mode-specific data and synchronization semantics that cannot be represented by runAfter alone.",
+      "severity": "warning",
+      "node_name": "Merge Analyze + URL",
+      "node_type": "n8n-nodes-base.merge",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{\n  (() => {\n    // Kandidaten vom Analyze-Node – nimm was befüllt ist\n    const raw =($json['0'].content[0].text).trim();\n\n    // Fallback: sinnvoller Titel, falls nichts da\n    const fallback = `Image ${$json.id || ''}`.trim();\n\n    if (!raw) return fallback;\n\n    // erste Satzhälfte nehmen\n    let first = (raw.split(/[.!?\\n]/).find(s => s && s.trim().length) || raw).trim();\n\n    // leading Phrasen weg\n    first = first\n      .replace(/^\\s*(the|this)\\s+image\\s+(shows|depicts|displays)\\s*/i, '')\n      .replace(/^\\s*(an?\\s+|the\\s+)?(photo|image)\\s+of\\s+/i, '')\n      .trim();\n\n first = first\n      .replace(/^\\s*(Auf dem|Das)\\s+Bild\\s+(sieht man|zeigt)\\s*/i, '')\n      .replace(/^\\s*(einen?\\s+|ein\\s+)?(Bild)\\s+of\\s+/i, '')\n      .trim();\n\n    // auf 10 Wörter kürzen\n    const words = first.split(/\\s+/);\n    let title = words.slice(0, 10).join(' ');\n\n    // Erstes Zeichen groß\n    title = title.charAt(0).toUpperCase() + title.slice(1);\n\n    return title || fallback;\n  })()\n}}",
+      "severity": "warning",
+      "node_name": "Build MediaInfo",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "HTTP_TIMEOUT_REVIEW",
+      "message": "n8n HTTP timeout has no direct generic WDL input mapping and requires review.",
+      "severity": "warning",
+      "node_name": "fluidX API - Download Photo THEEYE Session",
+      "node_type": "n8n-nodes-base.httpRequest",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$item(0).$node[\"Set Config\"].json.BASE_URL",
+      "severity": "warning",
+      "node_name": "fluidX API - Media Info HTTP Request POST",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $item(0).$node[\"Set Config\"].json.BASE_URL }}/api/fx/ext/media/info",
+      "severity": "warning",
+      "node_name": "fluidX API - Media Info HTTP Request POST",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Generate Photo Summary",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleDrive.",
+      "severity": "warning",
+      "node_name": "Upload Photo Summary",
+      "node_type": "n8n-nodes-base.googleDrive",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_UNSUPPORTED",
+      "message": "Inline JavaScript uses unsupported n8n runtime features: binary data",
+      "severity": "warning",
+      "node_name": "Convert Text to Binary",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.code is not safely supported.",
+      "severity": "warning",
+      "node_name": "Convert Text to Binary",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Check Already Uploaded",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "MERGE_SEMANTICS_UNSUPPORTED",
+      "message": "This Merge node requires mode-specific data and synchronization semantics that cannot be represented by runAfter alone.",
+      "severity": "warning",
+      "node_name": "Merge",
+      "node_type": "n8n-nodes-base.merge",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.if is not safely supported.",
+      "severity": "warning",
+      "node_name": "If Media Id",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.if is not safely supported.",
+      "severity": "warning",
+      "node_name": "If Session Active",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$item(0).$node[\"Set Config\"].json.BASE_URL",
+      "severity": "warning",
+      "node_name": "fluidX API - Media Summary",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ $item(0).$node[\"Set Config\"].json.BASE_URL }}/api/fx/ext/media/summary",
+      "severity": "warning",
+      "node_name": "fluidX API - Media Summary",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "HTTP_TIMEOUT_REVIEW",
+      "message": "n8n HTTP timeout has no direct generic WDL input mapping and requires review.",
+      "severity": "warning",
+      "node_name": "fluidX API - Media Summary",
+      "node_type": "n8n-nodes-base.httpRequest",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "fluidX API - Media Summary",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.if is not safely supported.",
+      "severity": "warning",
+      "node_name": "If photos",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "MERGE_SEMANTICS_UNSUPPORTED",
+      "message": "This Merge node requires mode-specific data and synchronization semantics that cannot be represented by runAfter alone.",
+      "severity": "warning",
+      "node_name": "Merge photoRefs",
+      "node_type": "n8n-nodes-base.merge",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Merge photoRefs",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Clear Uploaded Photo Store",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_UNSUPPORTED",
+      "message": "Inline JavaScript uses unsupported n8n runtime features: binary data",
+      "severity": "warning",
+      "node_name": "Convert Summary Text to Binary",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.code is not safely supported.",
+      "severity": "warning",
+      "node_name": "Convert Summary Text to Binary",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleDrive.",
+      "severity": "warning",
+      "node_name": "Upload Session Summary",
+      "node_type": "n8n-nodes-base.googleDrive",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Remember Session Summary File",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    }
+  ]
+}

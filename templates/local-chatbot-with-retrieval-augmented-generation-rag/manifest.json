@@ -1,0 +1,285 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "local-chatbot-with-retrieval-augmented-generation-rag",
+    "name": "Local chatbot with retrieval augmented generation (RAG)",
+    "description": "## Build a 100% local RAG with n8n, Ollama and Qdrant. This agent uses a semantic database (Qdrant) to answer questions about PDF files.\n\n## Tutorial\n![thumbnail.png](fileId:1589)\n[Click here to view the YouTube Tutorial](https://youtu.be/maZ_fF57yhE)\n\n## How it works\nBuild a chatbot that answers based on documents you provide it (Retrieval Augmented Generation). You can upload as many PDF files as you want to the Qdrant database. The chatbot will use its retrieval tool to fetch the chunks and use them to answer questions.\n\n## Installation\n1. Install n8n + Ollama + Qdrant using the [Self-hosted AI starter kit](https://github.com/n8n-io/self-hosted-ai-starter-kit)\n2. Make sure to install Llama 3.2 and mxbai-embed-large as embeddings model.\n\n## How to use it\n1. First run the \"Data Ingestion\" part and upload as many PDF files as you want\n2. Run the Chatbot and start asking questions about the documents you uploaded\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Internal Wiki",
+      "AI RAG",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "On_form_submission": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "On form submission",
+            "n8nNodeType": "n8n-nodes-base.formTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "formTitle": "Add your file here",
+              "formFields": {
+                "values": [
+                  {
+                    "fieldType": "file",
+                    "fieldLabel": "File",
+                    "requiredField": true,
+                    "acceptFileTypes": ".pdf"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Qdrant_Vector_Store": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Qdrant Vector Store",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "insert",
+              "options": {},
+              "qdrantCollection": {
+                "__rl": true,
+                "mode": "id",
+                "value": "rag_collection"
+              }
+            }
+          },
+          "runAfter": {
+            "Embeddings_Ollama": [
+              "Succeeded"
+            ],
+            "On_form_submission": [
+              "Succeeded"
+            ],
+            "Default_Data_Loader": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Embeddings_Ollama": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Embeddings Ollama",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": "mxbai-embed-large:latest"
+            }
+          },
+          "runAfter": {}
+        },
+        "Default_Data_Loader": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Default Data Loader",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "dataType": "binary"
+            }
+          },
+          "runAfter": {
+            "Recursive_Character_Text_Splitter": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Recursive_Character_Text_Splitter": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Recursive Character Text Splitter",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "chunkSize": 200,
+              "chunkOverlap": 50
+            }
+          },
+          "runAfter": {}
+        },
+        "When_chat_message_received": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "When chat message received",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chatTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "AI_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "AI Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "systemMessage": "You are a helpful assistant. You have access to a tool to retrieve data from a semantic database to answer questions. Always provide arguments when you execute the tool"
+              }
+            }
+          },
+          "runAfter": {
+            "Simple_Memory": [
+              "Succeeded"
+            ],
+            "Ollama_Chat_Model": [
+              "Succeeded"
+            ],
+            "Qdrant_Vector_Store1": [
+              "Succeeded"
+            ],
+            "When_chat_message_received": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Ollama_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Ollama Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOllama",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Simple_Memory": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Simple Memory",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "Qdrant_Vector_Store1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Qdrant Vector Store1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "retrieve-as-tool",
+              "options": {},
+              "toolName": "retriever",
+              "toolDescription": "Retrieve data from a semantic database to answer questions",
+              "qdrantCollection": {
+                "__rl": true,
+                "mode": "id",
+                "value": "rag_collection"
+              }
+            }
+          },
+          "runAfter": {
+            "Embeddings_Ollama1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Embeddings_Ollama1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Embeddings Ollama1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": "mxbai-embed-large:latest"
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

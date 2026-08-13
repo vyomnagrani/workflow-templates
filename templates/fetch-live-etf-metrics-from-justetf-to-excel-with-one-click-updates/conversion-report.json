@@ -1,0 +1,66 @@
+{
+  "sourceWorkflowName": "Fetch live ETF metrics from JustETF to Excel with one-click updates",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 9,
+  "totalNodes": 14,
+  "coverage": 0.6429,
+  "diagnostics": [
+    {
+      "code": "LOOP_SEMANTICS_UNSUPPORTED",
+      "message": "This n8n loop requires a bounded LAA Foreach/Until region; batch size, reset, and loop-back behavior must be preserved explicitly.",
+      "severity": "warning",
+      "node_name": "Loop Over Items",
+      "node_type": "n8n-nodes-base.splitInBatches",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.microsoftExcel.",
+      "severity": "warning",
+      "node_name": "Logs the date & time",
+      "node_type": "n8n-nodes-base.microsoftExcel",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.microsoftExcel.",
+      "severity": "warning",
+      "node_name": "Gets rows from table",
+      "node_type": "n8n-nodes-base.microsoftExcel",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.html.",
+      "severity": "warning",
+      "node_name": "Extracts defined values with css selector",
+      "node_type": "n8n-nodes-base.html",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Extracts defined values in better format",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Extracts defined values in better format",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.microsoftExcel.",
+      "severity": "warning",
+      "node_name": "Updates my table",
+      "node_type": "n8n-nodes-base.microsoftExcel",
+      "json_path": null
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "sourceWorkflowName": "Score content virality with OpenAI, Google Sheets and Slack",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 20,
+  "totalNodes": 25,
+  "coverage": 0.8,
+  "diagnostics": [
+    {
+      "code": "CODE_LANGUAGE_UNSUPPORTED",
+      "message": "Only non-empty JavaScript Code nodes can use the LAA inline-code action.",
+      "severity": "warning",
+      "node_name": "Python - Validate Content Input",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.code is not safely supported.",
+      "severity": "warning",
+      "node_name": "Python - Validate Content Input",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.filter.",
+      "severity": "warning",
+      "node_name": "Filter - Valid Content Only",
+      "node_type": "n8n-nodes-base.filter",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: ={{ { 'trend_alignment': 0.30, 'engagement_prediction': 0.25, 'timing_score': 0.20, 'historical_similarity': 0.15, 'media_bonus': 0.10 } }}",
+      "severity": "warning",
+      "node_name": "Load Platform Config",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =https://sheets.googleapis.com/v4/spreadsheets/YOUR_SHEET_ID/values/HistoricalData!A1:J200?key=YOUR_API_KEY",
+      "severity": "warning",
+      "node_name": "Fetch Historical Performance Data",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CODE_LANGUAGE_UNSUPPORTED",
+      "message": "Only non-empty JavaScript Code nodes can use the LAA inline-code action.",
+      "severity": "warning",
+      "node_name": "Python - Merge & Normalize Signals",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.code is not safely supported.",
+      "severity": "warning",
+      "node_name": "Python - Merge & Normalize Signals",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.agent.",
+      "severity": "warning",
+      "node_name": "AI - Virality Score & Analysis",
+      "node_type": "@n8n/n8n-nodes-langchain.agent",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "AI - Virality Score & Analysis",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOpenAi.",
+      "severity": "warning",
+      "node_name": "OpenAI Chat Model",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "JS - Parse & Enrich Score",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    }
+  ]
+}

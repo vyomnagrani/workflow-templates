@@ -1,0 +1,605 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "financial-document-extraction-from-gmail-to-google-sheets",
+    "name": "Financial document extraction from Gmail to Google Sheets",
+    "description": "## Overview\nManual financial reconciliation is tedious and prone to error. This workflow functions as an AI Financial Controller, automatically monitoring your inbox for invoices, receipts, and bills, extracting the data using OCR, and syncing it to Google Sheets for approval.\n\nUnlike simple scrapers, this workflow uses a \"Guardrail\" AI agent to filter out non-financial emails (like newsletters) before they are processed, ensuring only actual transactions are recorded.\n\n## Who is it for?\n* **Finance Teams:** To automate the collection of vendor invoices.\n* **Freelancers:** To track expenses and receipts for tax season.\n* **Operations Managers:** To monitor budget spend and categorize costs automatically.\n\n## How it works\n1.  **Ingest:** The workflow watches a specific Gmail label (e.g., \"INBOX\") for new emails.\n2.  **Guardrail:** A Gemini-powered AI agent analyzes the email text to determine if it is a valid financial transaction. If not, the workflow stops.\n3.  **Extraction (OCR):**\n    * **If an attachment exists:** An AI Agent (GPT-4o) extracts data from the PDF.\n    * **If no attachment:** An AI Agent extracts data directly from the email body.\n4.  **Validation:** Code nodes check for missing fields or invalid amounts.\n5.  **Business Logic:** The system automatically assigns General Ledger (GL) categories (e.g., \"Uber\" -&gt; \"Travel\") and sets approval statuses based on amount thresholds.\n6.  **Sync:** Validated data is logged to Google Sheets, and a confirmation email is sent. Errors are logged to a separate error sheet.\n\n## How to set up\n1.  **Google Sheets:** Copy [this Google Sheet template](https://docs.google.com/spreadsheets/d/1IaovDHswLKbcQdEyfw-2JSYHOVX1pLNcTIYlJQzxYGU/copy) to your drive. It contains the necessary tabs (Invoices, Error Logs, Success Metrics).\n2.  **Configure Workflow:**\n    * Open the node named **\"Configuration: User Settings\"**.\n    * Paste your Google Sheet ID (found in the URL of your new sheet).\n    * Enter the Admin Email address where you want to receive error notifications.\n3.  **Credentials:**\n    * Connect your **Gmail** account.\n    * Connect your **Google Sheets** account.\n    * Connect your **OpenAI** (for OCR) and **Google Gemini/PaLM** (for Guardrails) accounts.\n\n## Requirements\n* n8n version 1.0 or higher.\n* Gmail account.\n* OpenAI API Key.\n* Google Gemini (PaLM) API Key.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Invoice Processing",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/gmail",
+      "/managedApis/googlesheet",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Look_for_Invoices": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Look for Invoices",
+            "n8nNodeType": "n8n-nodes-base.gmailTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "filters": {
+                "labelIds": [
+                  "INBOX"
+                ]
+              },
+              "pollTimes": {
+                "item": [
+                  {
+                    "mode": "everyHour"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Get_Email_Content": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get Email Content",
+            "n8nNodeType": "n8n-nodes-base.gmail",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "limit": 1,
+              "simple": false,
+              "filters": {},
+              "options": {
+                "downloadAttachments": true
+              },
+              "operation": "getAll"
+            }
+          },
+          "runAfter": {
+            "Look_for_Invoices": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Guardrail_Is_Finance": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Guardrail: Is Finance?",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.guardrails",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "={{ $('Get Email Content').item.json.text }}",
+              "guardrails": {
+                "topicalAlignment": {
+                  "value": {
+                    "prompt": "=You are a financial controller AI. \n\nSCOPE:\n- The text MUST contain evidence of a financial transaction, invoice, receipt, or bill.\n- It is ON-TOPIC if it mentions payments, amounts owed, subscription renewals with prices, or attached invoices.\n- It is OFF-TOPIC if it is a newsletter, a marketing email without a specific transaction, or a personal conversation.",
+                    "threshold": 0.8
+                  }
+                }
+              }
+            }
+          },
+          "runAfter": {
+            "Gemini_2_5_flash": [
+              "Succeeded"
+            ],
+            "Get_Email_Content": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Configuration_User_Settings": {
+          "type": "Compose",
+          "inputs": {
+            "string": [
+              {
+                "name": "gSheetID",
+                "value": "ENTER_YOUR_GOOGLE_SHEET_ID"
+              },
+              {
+                "name": "adminEmailForErrors",
+                "value": "user@example.com"
+              }
+            ]
+          },
+          "runAfter": {
+            "Guardrail_Is_Finance": [
+              "Succeeded"
+            ]
+          }
+        },
+        "IF_Guardrail_Passed": {
+          "type": "If",
+          "expression": {
+            "equals": [
+              "@body('Configuration_User_Settings')?['checks']?['triggered']",
+              false
+            ]
+          },
+          "actions": {
+            "Filter_Finance_Keywords": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Filter Finance Keywords",
+                "n8nNodeType": "n8n-nodes-base.filter",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "strict"
+                    },
+                    "combinator": "or",
+                    "conditions": [
+                      {
+                        "id": "filter-invoice",
+                        "operator": {
+                          "type": "string",
+                          "operation": "contains"
+                        },
+                        "leftValue": "={{ $('Get Email Content').item.json.subject }}",
+                        "rightValue": "Invoice"
+                      },
+                      {
+                        "id": "filter-receipt",
+                        "operator": {
+                          "type": "string",
+                          "operation": "contains"
+                        },
+                        "leftValue": "={{ $('Get Email Content').item.json.subject }}",
+                        "rightValue": "Receipt"
+                      },
+                      {
+                        "id": "filter-bill",
+                        "operator": {
+                          "type": "string",
+                          "operation": "contains"
+                        },
+                        "leftValue": "={{ $('Get Email Content').item.json.subject }}",
+                        "rightValue": "Bill"
+                      },
+                      {
+                        "id": "filter-payment",
+                        "operator": {
+                          "type": "string",
+                          "operation": "contains"
+                        },
+                        "leftValue": "={{ $('Get Email Content').item.json.subject }}",
+                        "rightValue": "Payment Confirmation"
+                      }
+                    ]
+                  }
+                }
+              },
+              "runAfter": {}
+            },
+            "Check_for_Attachment": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Check for Attachment",
+                "n8nNodeType": "n8n-nodes-base.if",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "loose"
+                    },
+                    "combinator": "and",
+                    "conditions": [
+                      {
+                        "id": "check-attachment",
+                        "operator": {
+                          "type": "number",
+                          "operation": "gt"
+                        },
+                        "leftValue": "={{ Object.keys($binary || {}).length }}",
+                        "rightValue": 0
+                      }
+                    ]
+                  },
+                  "looseTypeValidation": true
+                }
+              },
+              "runAfter": {
+                "Filter_Finance_Keywords": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Extract_PDF_Data": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Extract PDF Data",
+                "n8nNodeType": "n8n-nodes-base.extractFromFile",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "operation": "pdf",
+                  "binaryPropertyName": "={{ Object.keys($json.binary || {})[0] || 'attachment_0' }}"
+                }
+              },
+              "runAfter": {
+                "Check_for_Attachment": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "AI_Agent_PDF_OCR": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "AI Agent (PDF OCR)",
+                "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "text": "={{ $json.text }}",
+                  "options": {
+                    "systemMessage": "=You are a Financial OCR Expert. Extract invoice data from the PDF text.\n\nCRITICAL INSTRUCTIONS:\n1. Return ONLY a JSON object.\n2. Normalize dates to YYYY-MM-DD.\n3. Clean currency symbols from amounts (return numbers).\n\nREQUIRED JSON STRUCTURE:\n{\n  \"vendor_name\": \"string\",\n  \"invoice_date\": \"YYYY-MM-DD\",\n  \"invoice_id\": \"string\",\n  \"total_amount\": number,\n  \"tax_amount\": number,\n  \"currency\": \"USD/EUR/GBP\",\n  \"items_summary\": \"string (brief description)\",\n  \"vendor_tax_id\": \"string or null\"\n}"
+                  },
+                  "promptType": "define",
+                  "hasOutputParser": true
+                }
+              },
+              "runAfter": {
+                "Extract_PDF_Data": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "AI_Agent_Email_OCR": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "AI Agent (Email OCR)",
+                "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "text": "={{ $('Get Email Content').item.json.text }}",
+                  "options": {
+                    "systemMessage": "=You are a Financial OCR Expert. Extract receipt data from the email body text.\n\nCRITICAL INSTRUCTIONS:\n1. Return ONLY a JSON object.\n2. Normalize dates to YYYY-MM-DD.\n3. Clean currency symbols from amounts (return numbers).\n\nREQUIRED JSON STRUCTURE:\n{\n  \"vendor_name\": \"string\",\n  \"invoice_date\": \"YYYY-MM-DD\",\n  \"invoice_id\": \"string (or 'EMAIL-RECEIPT' if missing)\",\n  \"total_amount\": number,\n  \"tax_amount\": number,\n  \"currency\": \"USD/EUR/GBP\",\n  \"items_summary\": \"string (brief description)\",\n  \"vendor_tax_id\": \"string or null\"\n}"
+                  },
+                  "promptType": "define",
+                  "hasOutputParser": true
+                }
+              },
+              "runAfter": {
+                "Check_for_Attachment": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Validate_Extraction": {
+              "type": "JavaScriptCode",
+              "inputs": {
+                "code": "const __inputRaw = workflowContext.actions['AI_Agent_PDF_OCR'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst __results = items.map(item => {\n  const $json = item.json;\n  const $input = {\n    item,\n    first: () => item,\n    last: () => item,\n    all: () => items\n  };\n  return (() => {\n// Check if AI extraction succeeded\nif ($json.error) {\n\treturn {\n\t\tjson: {\n\t\t\terror_occurred: true,\n\t\t\terror_type: \"AI_EXTRACTION_FAILED\",\n\t\t\terror_message: $json.error.message || \"AI extraction failed\",\n\t\t\ttimestamp: new Date().toISOString()\n\t\t}\n\t};\n}\n\nlet data;\ntry {\n\tdata = typeof $json.output === 'string' ? JSON.parse($json.output) : $json.output;\n} catch (e) {\n\treturn {\n\t\tjson: {\n\t\t\terror_occurred: true,\n\t\t\terror_type: \"JSON_PARSE_ERROR\",\n\t\t\terror_message: e.message,\n\t\t\ttimestamp: new Date().toISOString()\n\t\t}\n\t};\n}\n\n// Validation Logic\nconst required = ['vendor_name', 'total_amount', 'invoice_date'];\nconst missing = required.filter(field => !data[field]);\n\nif (missing.length > 0) {\n\treturn {\n\t\tjson: {\n\t\t\terror_occurred: true,\n\t\t\terror_type: \"MISSING_FIELDS\",\n\t\t\terror_message: `Missing: ${missing.join(', ')}`,\n\t\t\textracted_data: data,\n\t\t\ttimestamp: new Date().toISOString()\n\t\t}\n\t};\n}\n\n// Amount Validation\nif (isNaN(parseFloat(data.total_amount))) {\n\treturn {\n\t\tjson: {\n\t\t\terror_occurred: true,\n\t\t\terror_type: \"INVALID_AMOUNT\",\n\t\t\terror_message: \"Total Amount is not a number\",\n\t\t\textracted_data: data,\n\t\t\ttimestamp: new Date().toISOString()\n\t\t}\n\t};\n}\n\nreturn {\n\tjson: {\n\t\terror_occurred: false,\n\t\tvalidated_data: data\n\t}\n};\n  })();\n});\nreturn { body: __unwrap(__results) };"
+              },
+              "runAfter": {
+                "AI_Agent_PDF_OCR": [
+                  "Succeeded"
+                ],
+                "AI_Agent_Email_OCR": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Check_for_Errors": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Check for Errors",
+                "n8nNodeType": "n8n-nodes-base.if",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "loose"
+                    },
+                    "combinator": "and",
+                    "conditions": [
+                      {
+                        "id": "check-error",
+                        "operator": {
+                          "type": "boolean",
+                          "operation": "false"
+                        },
+                        "leftValue": "={{ $json.error_occurred }}",
+                        "rightValue": ""
+                      }
+                    ]
+                  },
+                  "looseTypeValidation": true
+                }
+              },
+              "runAfter": {
+                "Validate_Extraction": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Apply_Finance_Rules": {
+              "type": "JavaScriptCode",
+              "inputs": {
+                "code": "const __inputRaw = workflowContext.actions['Check_for_Errors'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst __results = items.map(item => {\n  const $json = item.json;\n  const $input = {\n    item,\n    first: () => item,\n    last: () => item,\n    all: () => items\n  };\n  return (() => {\nconst data = $json.validated_data;\n\n// Business Logic for GL Coding\nlet glCategory = \"Uncategorized\";\n// Convert vendor to lowercase for easier matching\nconst vendor = (data.vendor_name || \"\").toLowerCase();\n\n// FIX 1: Added \"amazon\" to the check so it catches \"Amazon Web Services\"\nif (vendor.includes(\"aws\") || vendor.includes(\"amazon\") || vendor.includes(\"google cloud\") || vendor.includes(\"digitalocean\")) {\n\tglCategory = \"6000 - Software & Hosting\";\n} else if (vendor.includes(\"uber\") || vendor.includes(\"lyft\") || vendor.includes(\"airline\") || vendor.includes(\"flight\")) {\n\tglCategory = \"5000 - Travel & Meals\";\n} else if (vendor.includes(\"wework\") || vendor.includes(\"office\")) {\n\tglCategory = \"4000 - Rent & Utilities\";\n}\n\n// Approval Thresholds\nlet approvalStatus = \"Auto-Approved\";\n// Ensure amount is a number\nconst amount = parseFloat(data.total_amount);\n\n// FIX 2: Check the HIGHEST value first.\n// If we checked > 1000 first, 5200 would trigger that and stop.\nif (amount > 5000) {\n\tapprovalStatus = \"VP Approval Needed\";\n} else if (amount > 1000) {\n\tapprovalStatus = \"Manager Approval Needed\";\n}\n\nreturn {\n\tjson: {\n\t\t...data,\n\t\tgl_category: glCategory,\n\t\tapproval_status: approvalStatus,\n\t\tcase_id: `INV-${Date.now()}`,\n\t\tprocessed_at: new Date().toISOString()\n\t}\n};\n  })();\n});\nreturn { body: __unwrap(__results) };"
+              },
+              "runAfter": {
+                "Check_for_Errors": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Log_to_Invoices_Sheet": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "referenceName": "googlesheet_#workflowname#"
+                  }
+                },
+                "method": "post",
+                "path": "/datasets/@{encodeURIComponent(encodeURIComponent(body('Configuration_User_Settings')?['gSheetID']))}/tables/@{encodeURIComponent(encodeURIComponent('1260157166'))}/items",
+                "body": {}
+              },
+              "metadata": {
+                "flowSystemMetadata": {
+                  "swaggerOperationId": "PostItem"
+                }
+              },
+              "runAfter": {
+                "Apply_Finance_Rules": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Send_Confirmation_Email": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "referenceName": "gmail_#workflowname#"
+                  }
+                },
+                "method": "post",
+                "path": "/v2/Mail",
+                "body": {
+                  "To": "@body('Configuration_User_Settings')?['adminEmailForErrors']",
+                  "Subject": "💰 Invoice Processed: @{body('Log_to_Invoices_Sheet')?['vendor_name']} - @{body('Log_to_Invoices_Sheet')?['approval_status']}",
+                  "Body": "<html>\n<body>\n<h3>Invoice Processed Successfully</h3>\n<p><strong>Vendor:</strong> @{body('Log_to_Invoices_Sheet')?['vendor_name']}</p>\n<p><strong>Amount:</strong> @{body('Log_to_Invoices_Sheet')?['currency']} @{body('Log_to_Invoices_Sheet')?['total_amount']}</p>\n<p><strong>GL Category:</strong> @{body('Log_to_Invoices_Sheet')?['gl_category']}</p>\n<p><strong>Status:</strong> @{body('Log_to_Invoices_Sheet')?['approval_status']}</p>\n<br>\n<p>Check the Google Sheet for details.</p>\n</body>\n</html>"
+                }
+              },
+              "metadata": {
+                "flowSystemMetadata": {
+                  "swaggerOperationId": "SendEmailV2"
+                }
+              },
+              "runAfter": {
+                "Log_to_Invoices_Sheet": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Log_Error_to_Sheet": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "referenceName": "googlesheet_#workflowname#"
+                  }
+                },
+                "method": "post",
+                "path": "/datasets/@{encodeURIComponent(encodeURIComponent(body('Configuration_User_Settings')?['gSheetID']))}/tables/@{encodeURIComponent(encodeURIComponent('Error Logs'))}/items",
+                "body": {
+                  "timestamp": "@body('Check_for_Errors')?['timestamp']",
+                  "error_type": "@body('Check_for_Errors')?['error_type']",
+                  "error_message": "@body('Check_for_Errors')?['error_message']",
+                  "original_subject": "@body('Look_for_Invoices')?['subject']",
+                  "workflow_execution_id": "={{ $workflow.id }}"
+                }
+              },
+              "metadata": {
+                "flowSystemMetadata": {
+                  "swaggerOperationId": "PostItem"
+                }
+              },
+              "runAfter": {
+                "Check_for_Errors": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Send_Error_Notification": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "referenceName": "gmail_#workflowname#"
+                  }
+                },
+                "method": "post",
+                "path": "/v2/Mail",
+                "body": {
+                  "To": "@body('Configuration_User_Settings')?['adminEmailForErrors']",
+                  "Subject": "⚠️ Finance Workflow Error: @{body('Log_Error_to_Sheet')?['error_type']}",
+                  "Body": "<html>\n<body>\n<h3>Workflow Failed</h3>\n<p><strong>Error:</strong> @{body('Log_Error_to_Sheet')?['error_message']}</p>\n<p><strong>Original Email:</strong> @{body('Log_Error_to_Sheet')?['original_subject']}</p>\n</body>\n</html>"
+                }
+              },
+              "metadata": {
+                "flowSystemMetadata": {
+                  "swaggerOperationId": "SendEmailV2"
+                }
+              },
+              "runAfter": {
+                "Log_Error_to_Sheet": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Log_Success_Metrics": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "referenceName": "googlesheet_#workflowname#"
+                  }
+                },
+                "method": "post",
+                "path": "/datasets/@{encodeURIComponent(encodeURIComponent(body('Configuration_User_Settings')?['gSheetID']))}/tables/@{encodeURIComponent(encodeURIComponent('2011163382'))}/items",
+                "body": {
+                  "amount": "@body('Apply_Finance_Rules')?['total_amount']",
+                  "vendor": "@body('Apply_Finance_Rules')?['vendor_name']",
+                  "case_id": "@body('Apply_Finance_Rules')?['case_id']",
+                  "timestamp": "={{ $today }}",
+                  "email_sent": "Yes",
+                  "gl_category": "@body('Apply_Finance_Rules')?['gl_category']",
+                  "approval_status": "@body('Apply_Finance_Rules')?['approval_status']",
+                  "processing_time_seconds": "={{ Math.round(($execution.startedAt ? (Date.now() - new Date($execution.startedAt).getTime()) / 1000 : 0)) }}"
+                }
+              },
+              "metadata": {
+                "flowSystemMetadata": {
+                  "swaggerOperationId": "PostItem"
+                }
+              },
+              "runAfter": {
+                "Send_Confirmation_Email": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "Configuration_User_Settings": [
+              "Succeeded"
+            ]
+          }
+        },
+        "gpt_4o_mini": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "gpt 4o mini",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini"
+              },
+              "options": {
+                "temperature": 0.2,
+                "responseFormat": "json_object"
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Gemini_2_5_flash": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Gemini 2.5 flash",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    },
+    "gmail_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/gmail"
+    }
+  }
+}

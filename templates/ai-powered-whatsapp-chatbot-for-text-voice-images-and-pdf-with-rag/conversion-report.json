@@ -1,0 +1,258 @@
+{
+  "sourceWorkflowName": "AI-powered WhatsApp chatbot for text, voice, images, and PDF with RAG",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 13,
+  "totalNodes": 35,
+  "coverage": 0.3714,
+  "diagnostics": [
+    {
+      "code": "SWITCH_REGION_UNSUPPORTED",
+      "message": "Switch branches overlap or have external inputs, so nesting them would change behavior.",
+      "severity": "warning",
+      "node_name": "Route Document Types",
+      "node_type": "n8n-nodes-base.switch",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.agent.",
+      "severity": "warning",
+      "node_name": "Knowledge Base Agent",
+      "node_type": "@n8n/n8n-nodes-langchain.agent",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Knowledge Base Agent",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Knowledge Base Agent",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Knowledge Base Agent",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOpenAi.",
+      "severity": "warning",
+      "node_name": "OpenAI Chat Model",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.embeddingsOpenAi.",
+      "severity": "warning",
+      "node_name": "Embeddings OpenAI",
+      "node_type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.memoryBufferWindow.",
+      "severity": "warning",
+      "node_name": "Simple Memory",
+      "node_type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.vectorStoreMongoDBAtlas.",
+      "severity": "warning",
+      "node_name": "MongoDB Vector Search",
+      "node_type": "@n8n/n8n-nodes-langchain.vectorStoreMongoDBAtlas",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "MongoDB Vector Search",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.documentDefaultDataLoader.",
+      "severity": "warning",
+      "node_name": "Document Section Loader",
+      "node_type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Document Section Loader",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter.",
+      "severity": "warning",
+      "node_name": "Document Chunker",
+      "node_type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.vectorStoreMongoDBAtlas.",
+      "severity": "warning",
+      "node_name": "MongoDB Vector Store Inserter",
+      "node_type": "@n8n/n8n-nodes-langchain.vectorStoreMongoDBAtlas",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "MongoDB Vector Store Inserter",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "MongoDB Vector Store Inserter",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.embeddingsOpenAi.",
+      "severity": "warning",
+      "node_name": "OpenAI Embeddings Generator",
+      "node_type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleDocs.",
+      "severity": "warning",
+      "node_name": "Google Docs Importer",
+      "node_type": "n8n-nodes-base.googleDocs",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.whatsAppTrigger.",
+      "severity": "warning",
+      "node_name": "WhatsApp Trigger",
+      "node_type": "n8n-nodes-base.whatsAppTrigger",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.openAi.",
+      "severity": "warning",
+      "node_name": "OpenAI",
+      "node_type": "@n8n/n8n-nodes-langchain.openAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.whatsApp.",
+      "severity": "warning",
+      "node_name": "Gets WhatsApp Voicemail Source URL",
+      "node_type": "n8n-nodes-base.whatsApp",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.openAi.",
+      "severity": "warning",
+      "node_name": "OpenAI1",
+      "node_type": "@n8n/n8n-nodes-langchain.openAi",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.whatsApp.",
+      "severity": "warning",
+      "node_name": "Gets WhatsApp Image Source URL",
+      "node_type": "n8n-nodes-base.whatsApp",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.extractFromFile.",
+      "severity": "warning",
+      "node_name": "Extract from PDF",
+      "node_type": "n8n-nodes-base.extractFromFile",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.extractFromFile.",
+      "severity": "warning",
+      "node_name": "Extract from XLS",
+      "node_type": "n8n-nodes-base.extractFromFile",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.extractFromFile.",
+      "severity": "warning",
+      "node_name": "Extract from XLSX",
+      "node_type": "n8n-nodes-base.extractFromFile",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Map file extensions",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.whatsApp.",
+      "severity": "warning",
+      "node_name": "Gets WhatsApp Document Source URL",
+      "node_type": "n8n-nodes-base.whatsApp",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.switch is not safely supported.",
+      "severity": "warning",
+      "node_name": "Route Document Types",
+      "node_type": "n8n-nodes-base.switch",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.whatsApp.",
+      "severity": "warning",
+      "node_name": "Send Unsupported Response",
+      "node_type": "n8n-nodes-base.whatsApp",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.whatsApp.",
+      "severity": "warning",
+      "node_name": "Send Response",
+      "node_type": "n8n-nodes-base.whatsApp",
+      "json_path": null
+    }
+  ]
+}

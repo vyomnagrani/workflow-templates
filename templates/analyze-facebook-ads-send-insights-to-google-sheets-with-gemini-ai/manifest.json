@@ -1,0 +1,856 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "analyze-facebook-ads-send-insights-to-google-sheets-with-gemini-ai",
+    "name": "Analyze Facebook Ads & send insights to Google Sheets with Gemini AI",
+    "description": "Stop manually digging through Meta Ads data and spending hours trying to connect the dots.\n\nThis workflow turns n8n into an AI-powered media buyer that automatically analyzes your ad performance, categorizes your creatives, and delivers insights directly into a Google Sheet.\n\n➡️ Watch the full 4-part setup and tutorial on YouTube:\nhttps://youtu.be/hxQshcD3e1Y\n\nAbout This 4-Part Automation Series\n\nAs a media buyer, I built this system to automate the heavy lifting of analyzing ad data and brainstorming new creative ideas.\nThis template is the first foundational part of that larger system.\n\n✅ Part 1 (This Template): Pulling Ad Data & Getting Quick Insights\nAutomatically pulls data into a Google Sheet and uses an LLM to categorize ad performance.\n\n✅ Part 2: Finding the Source Files for the Best Ads\nFetches the image or video files for top-performing ads.\n\n✅ Part 3: Using AI to Understand Why an Ad Works\nSends your best ads to Google Gemini for structured notes on hooks, transcripts, and visuals.\n\n✅ Part 4: Getting the AI to Suggest New Creative Ideas\nUses all the insights to generate fresh ad concepts, scripts, and creative briefs.\n\nWhat This Template (Part 1) Does\n\nSecure Token Management\nAutomatically retrieves and refreshes your Facebook long-term access token.\n\nFetch Ad Data\nPulls the last 28 days of ad-level performance data from your Facebook Ads account.\n\nProcess & Clean\nParses raw data, standardizes key e-commerce metrics (like ROAS), and filters for sales-focused campaigns.\n\nBenchmark Calculation\nAggregates all data to create an overall performance benchmark (e.g., average Cost Per Purchase).\n\nAI Analysis\nA “Senior Media Buyer” AI persona evaluates each ad against the benchmark and categorizes it as “HELL YES,” “YES,” or “MAYBE,” with justifications.\n\nOutput to Google Sheets\nUpdates your Google Sheet with both raw performance data and AI-generated insights.\n\nWho Is It For?\n\nE-commerce store owners\n\nDigital marketing agencies\n\nFacebook Ads media buyers\n\nHow to Set It Up\n\nCredentials\n\nConnect your Google Gemini and Google Sheets accounts in the respective nodes.\n\nThe template uses NocoDB for token management. Configure the “Getting Long-Term Token” and “Updating Token” nodes — or replace them with your preferred credential storage method.\n\nUpdate Your IDs\n\nIn the “Getting Data For the Past 28 Days…” HTTP Request node, replace act_XXXXXX in the URL with your Facebook Ad Account ID.\n\nIn both Google Sheets nodes (“Sending Raw Data…” and “Updating Ad Insights…”), update the Document ID with your target Google Sheet’s ID.\n\nRun the Workflow\n\nClick “Test workflow” to run your first AI-powered analysis!\n\nTools Used\n\nn8n\n\nFacebook for Developers\n\nGoogle AI Studio (Gemini)\n\nNocoDB (or any credential database of your choice)",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Market Research",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "When_clicking_Test_workflow": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Stringify_Everything": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Sorting_Based_on_Spends'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// --- START OF CODE NODE 4 SCRIPT (Stringify Output) ---\n// Mode: Run Once for All Items\n// Input: The array of aggregated ad creative performance objects\n\nconst allAggregatedItems = $input.all(); // This is an array of n8n items\n\n// Extract the .json part from each n8n item to get the actual data objects\nconst dataToConvert = allAggregatedItems.map(item => item.json);\n\n// Stringify the array of data objects\n// The 'null, 2' arguments pretty-print the JSON string with an indent of 2 spaces,\n// which can be helpful for readability if you're inspecting it, but not strictly necessary for an LLM.\n// If the LLM prefers a more compact JSON, you can omit 'null, 2'.\nconst jsonString = JSON.stringify(dataToConvert, null, 2);\n\n// Output a single item containing this string\nreturn [{ json: { all_ads_data_string: jsonString } }];\n// --- END OF CODE NODE 4 SCRIPT ---\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Sorting_Based_on_Spends": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Gemini_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Gemini Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "modelName": "models/gemini-2.5-pro-preview-06-05"
+            }
+          },
+          "runAfter": {}
+        },
+        "Structured_Output_Parser": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Structured Output Parser",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsonSchemaExample": "[\n  {\n    \"ad_id\": \"XXX\",\n    \"ad_name\": \"Insert Ad Name\",\n    \"total_spend_creative\": 490.01,\n    \"performance_category\": \"HELL YES\",\n    \"justification\": \"This ad is a 'HELL YES' performer. With a significant spend of $490.01 driving 93 purchases, its ROAS of 19.82 massively outperforms the benchmark ROAS of 8.5. Furthermore, its Cost Per Purchase of $5.27 is well below the benchmark $7.50, and its 5.26% conversion rate is substantially higher than the benchmark 3.1%. The combination of high volume, exceptional ROAS, and efficiency makes it a clear top driver.\",\n    \"key_performance_indicators\": {\n      \"ad_spend\": 490.01,\n      \"ad_total_purchases\": 93,\n      \"ad_total_purchase_value\": 9709.6,\n      \"ad_roas\": 19.82,\n      \"benchmark_roas\": 8.5,\n      \"ad_conversion_rate\": \"5.26%\",\n      \"benchmark_conversion_rate\": \"3.1%\",\n      \"ad_cost_per_purchase\": 5.27,\n      \"benchmark_cost_per_purchase\": 7.50\n    },\n    \"recommendation\": \"Aggressively Scale Budget & Explore New Audiences\"\n  }\n]"
+            }
+          },
+          "runAfter": {}
+        },
+        "Split_Out": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Split Out",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldToSplitOut": "output"
+            }
+          },
+          "runAfter": {
+            "Senior_Facebook_Ads_Media_Buyer": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Sending_Raw_Data_To_A_Google_Sheet": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Sending Raw Data To A Google Sheet",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "operation": "appendOrUpdate",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "",
+                "cachedResultUrl": "",
+                "cachedResultName": ""
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "url",
+                "value": "XXXX"
+              }
+            }
+          },
+          "runAfter": {
+            "Sorting_Based_on_Spends": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Getting_Long_Term_Token": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Getting Long-Term Token",
+            "n8nNodeType": "n8n-nodes-base.nocoDb",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "table": "mlkymmbtoa2iz72",
+              "options": {},
+              "operation": "getAll",
+              "projectId": "pfhk9mz7b66t5s2",
+              "authentication": "nocoDbApiToken"
+            }
+          },
+          "runAfter": {}
+        },
+        "Does_it_Need_A_Token_Refresh": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Getting_Long_Term_Token'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Get the first input item (assumes NocoDB returns an array)\nconst tokenData = $input.first()?.json || {};\n\n// Get current time in milliseconds\nconst now = new Date().getTime();\n\n// Parse the token's end date from NocoDB\nconst endDate = new Date(tokenData.end_date).getTime();\n\n// Define 3 days in milliseconds\nconst threeDaysInMs = 3 * 24 * 60 * 60 * 1000;\n\n// Calculate the difference between end date and now\nconst timeToExpiry = endDate - now;\n\n// Determine if the token is within 3 days of expiry and not already expired\nconst needsRefresh = timeToExpiry > 0 && timeToExpiry <= threeDaysInMs;\n\n// Return both the result and debug info\nreturn [{\n  json: {\n    needs_refresh: needsRefresh,\n    time_to_expiry_ms: timeToExpiry,\n    expires_at: tokenData.end_date,\n    checked_at: new Date().toISOString(),\n  }\n}];\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Getting_Long_Term_Token": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Splitting_Out_In_Table_Format": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Getting_Data_For_the_Past_28_Days_Segemented_Per_Campaign_Adset_and_Ad'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// --- START OF CODE NODE 1 SCRIPT (Process Raw Data) ---\n// Mode: Run Once for All Items\n\nconst allN8NInputItems = $input.all(); // Gets all n8n items (usually just one from HTTP Request if pagination combines, or one per page)\nconst finalOutputItems = [];\n\n// Iterate over each n8n item received (typically one, or one per page if HTTP node outputs that way)\nfor (const n8nItem of allN8NInputItems) {\n    const facebookResponse = n8nItem.json; // This is an object like: { \"data\": [...], \"paging\": ... }\n\n    // Check if the 'data' array exists in the Facebook response\n    if (facebookResponse && facebookResponse.data && Array.isArray(facebookResponse.data)) {\n        const adsInsightsArray = facebookResponse.data; // This is the array of actual ad insight objects\n\n        // Loop through each ad insight object within the 'data' array\n        for (const fbData of adsInsightsArray) {\n            const output = {};\n\n            // Basic Info\n            output.ad_id = fbData.ad_id; // <<< --- ADDING AD_ID HERE ---\n            output.date_start = fbData.date_start;\n            output.date_stop = fbData.date_stop;\n            output.campaign_name = fbData.campaign_name;\n            output.adset_name = fbData.adset_name;\n            output.ad_name = fbData.ad_name;\n            output.objective = fbData.objective;\n            output.spend = parseFloat(fbData.spend || 0);\n            output.impressions = parseInt(fbData.impressions || 0);\n            output.clicks = parseInt(fbData.clicks || 0);\n\n            // Initialize specific e-commerce metrics\n            output.add_to_carts_count = 0;\n            output.checkouts_initiated_count = 0;\n            output.purchases_count = 0;\n            output.purchase_value_total = 0.0;\n\n            // --- Define your PREFERRED canonical action_types in order of preference ---\n            const PREFERRED_ACTION_ORDER = {\n                atc: ['omni_add_to_cart', 'offsite_conversion.fb_pixel_add_to_cart', 'add_to_cart', 'onsite_web_app_add_to_cart', 'onsite_web_add_to_cart'],\n                checkout: ['omni_initiated_checkout', 'offsite_conversion.fb_pixel_initiate_checkout', 'initiate_checkout', 'onsite_web_initiate_checkout'],\n                purchase_count: ['omni_purchase', 'offsite_conversion.fb_pixel_purchase', 'purchase', 'web_in_store_purchase', 'onsite_web_purchase', 'onsite_web_app_purchase'],\n                purchase_value: ['omni_purchase', 'offsite_conversion.fb_pixel_purchase', 'purchase', 'web_in_store_purchase', 'onsite_web_purchase', 'onsite_web_app_purchase']\n            };\n\n            // --- Helper function to get COUNT for a specific metric from 'actions' ---\n            function getActionCount(actionsData, preferredTypes) {\n                if (!actionsData) return 0;\n                let actionsArray = [];\n                if (Array.isArray(actionsData)) {\n                    actionsArray = actionsData;\n                } else if (typeof actionsData === 'object' && actionsData !== null && typeof actionsData.action_type !== 'undefined') {\n                    actionsArray = [actionsData]; // Handle if 'actions' is a single object\n                } else {\n                    return 0; // Invalid actionsData structure or empty\n                }\n\n                for (const type of preferredTypes) {\n                    const action = actionsArray.find(a => a.action_type === type);\n                    if (action) {\n                        return parseInt(action.value || 0);\n                    }\n                }\n                return 0;\n            }\n\n            // --- Helper function to get MONETARY VALUE for purchases from 'action_values' ---\n            function getPurchaseMonetaryValue(actionValuesData, preferredTypes) {\n                if (!actionValuesData || !Array.isArray(actionValuesData)) return 0.0;\n                for (const type of preferredTypes) {\n                    const action = actionValuesData.find(a => a.action_type === type);\n                    if (action) {\n                        if (type === 'web_app_in_store_purchase' && parseFloat(action.value || 0) < 1.00) {\n                            const hasOtherMoreValuablePurchaseType = preferredTypes.some(pt =>\n                                pt !== 'web_app_in_store_purchase' &&\n                                actionValuesData.find(av => av.action_type === pt && parseFloat(av.value || 0) >= 1.00)\n                            );\n                            if (hasOtherMoreValuablePurchaseType) {\n                                continue;\n                            }\n                        }\n                        return parseFloat(action.value || 0);\n                    }\n                }\n                return 0.0;\n            }\n\n            // Populate the e-commerce metrics\n            output.add_to_carts_count = getActionCount(fbData.actions, PREFERRED_ACTION_ORDER.atc);\n            output.checkouts_initiated_count = getActionCount(fbData.actions, PREFERRED_ACTION_ORDER.checkout);\n            output.purchases_count = getActionCount(fbData.actions, PREFERRED_ACTION_ORDER.purchase_count);\n            output.purchase_value_total = getPurchaseMonetaryValue(fbData.action_values, PREFERRED_ACTION_ORDER.purchase_value);\n            \n            finalOutputItems.push({ json: output });\n        }\n    } else {\n        console.error(\"Input data structure is not as expected from HTTP Request. 'data' array not found or not an array.\", facebookResponse);\n        finalOutputItems.push({ json: { error: \"Facebook response parsing error\", details: \"Input 'data' array not found.\" } });\n    }\n}\n\nreturn finalOutputItems;\n// --- END OF CODE NODE 1 SCRIPT (Process Raw Data) ---\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Getting_Data_For_the_Past_28_Days_Segemented_Per_Campaign_Adset_and_Ad": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Sorting_Based_on_Spends": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Sorting Based on Spends",
+            "n8nNodeType": "n8n-nodes-base.sort",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "sortFieldsUi": {
+                "sortField": [
+                  {
+                    "order": "descending",
+                    "fieldName": "total_spend"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Aggregate_Metrics_by_Ad_Creative": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Filtering_Only_For_Sales_Campaigns": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Filtering Only For Sales Campaigns",
+            "n8nNodeType": "n8n-nodes-base.filter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "7e4103af-52c4-4035-97e5-4f4356312ed6",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.objective }}",
+                    "rightValue": "OUTCOME_SALES"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Splitting_Out_In_Table_Format": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Getting_Data_For_the_Past_28_Days_Segemented_Per_Campaign_Adset_and_Ad": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "=https://graph.facebook.com/v22.0/act_XXXXXX/insights",
+            "headers": {
+              "Authorization": "REPLACE_WITH_SECRET"
+            }
+          },
+          "runAfter": {
+            "Extracting_Access_Token": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Senior_Facebook_Ads_Media_Buyer": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Senior Facebook Ads Media Buyer",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chainLlm",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=**Role:** You are a Senior Facebook Ads Media Buyer with extensive experience in e-commerce campaign optimization. Your primary goal is to maximize Return on Ad Spend (ROAS) and overall profitability by identifying high-impact ad creatives and categorizing their performance.\n\n**Context:**\nYou are analyzing ad creative performance for an e-commerce client. You have been provided with two sets of data for the past 14 days:\n1.  **\"Ad Creative Performance Data\"**: A JSON string representing an array of objects. Each object details a unique ad creative and its performance metrics (including `total_spend`, `total_purchases`, `total_purchase_value`).\n2.  **\"Overall Account Benchmark Data\"**: A JSON string representing a single object. This object contains the aggregated performance and KPIs for all ads in the account over the same period, serving as crucial benchmark values.\n\n**Task:**\nYour task is to rigorously evaluate each ad creative from the \"Ad Creative Performance Data\" against the \"Overall Account Benchmark Data.\" **For every ad creative you evaluate, you MUST compare its key calculated metrics (CTR, CPC, CPM, Cost Per Add To Cart, Cost Per Checkout, Cost Per Purchase, Conversion Rate, ROAS, Average Order Value) directly against the corresponding values in the benchmark data.**\n\nBased on this comparison and the spend rules below, categorize the performance of **each ad creative**.\n\n**Performance Categorization Rules & Spend Thresholds:**\n\n1.  **Spend Significance:**\n    *   Any ad creative with a `total_spend` of **less than $50** CANNOT be categorized as \"HELL YES\", \"YES\", or even \"MAYBE\", regardless of its other metrics. At best, it can be \"NOT REALLY\" if ratios are poor, or \"INSUFFICIENT DATA/SPEND\" if ratios look promising but spend is too low for a definitive positive categorization.\n    *   To be considered for \"HELL YES\" or \"YES\" categories, an ad creative **MUST have a `total_spend` of $100 or more.**\n\n2.  **Performance Categories (evaluate against benchmarks AFTER spend rules):**\n    *   **\"HELL YES\":** Significant spend (>= $100) AND dramatically outperforms benchmarks across ROAS, CVR, and Cost Per Purchase. Clear 80/20 driver.\n    *   **\"YES\":** Significant spend (>= $100) AND clearly outperforms benchmarks on ROAS, CVR, and Cost Per Purchase. Reliably contributing.\n    *   **\"MAYBE\":** Shows promise or mixed results. Spend >= $50. Marginally outperforms benchmarks, or strong on some key metrics but not others. Or, spend < $100 but > $50 with very strong ratios. Requires observation/optimization.\n    *   **\"NOT REALLY\":** Underperforming. Metrics generally at/below benchmarks. Or, spend < $50 with unpromising ratios. Not a clear winner.\n    *   **\"WE WASTED MONEY\":** Performing very poorly. Likely spent > $30-$50 (use judgment) with significantly worse metrics than benchmarks (very low ROAS, very high CPP). Pause candidate.\n    *   **\"INSUFFICIENT DATA/SPEND\":** Spend < $50. Ratios might look okay/good, but not enough data for confident positive categorization (\"MAYBE\", \"YES\", \"HELL YES\").\n\n**Input Data:**\n\n**1. Ad Creative Performance Data (JSON String - LLM needs to parse this):**\n\n{{ $json.data[0].all_ads_data_string }}\n\n2. Overall Account Benchmark Data (JSON String - LLM needs to parse this):\n{{ $json.data[1].benchmarkData }}\n",
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "Google_Gemini_Chat_Model": [
+              "Succeeded"
+            ],
+            "Structured_Output_Parser": [
+              "Succeeded"
+            ],
+            "Combine_Ad_Benchmark_Data_for_LLM": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Combining_Ad_Data_and_Benchmarking_Data": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Combining Ad Data and Benchmarking Data",
+            "n8nNodeType": "n8n-nodes-base.merge",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "Stringify_Everything": [
+              "Succeeded"
+            ],
+            "Stringify_Benchmark_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Updating_Ad_Insights_Into_Google_Sheets": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Updating Ad Insights Into Google Sheets",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "ad_id": "={{ $json.ad_id }}",
+                  "Justification": "={{ $json.justification }}",
+                  "Recommendation": "={{ $json.recommendation }}",
+                  "Best Performing Ad": "={{ $json.performance_category }}"
+                },
+                "schema": [
+                  {
+                    "id": "ad_name",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "ad_name",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "ad_id",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "ad_id",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "objective",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "objective",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "total_spend",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "total_spend",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "total_impressions",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "total_impressions",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "total_clicks",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "total_clicks",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "total_add_to_carts",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "total_add_to_carts",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "total_checkouts_initiated",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "total_checkouts_initiated",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "total_purchases",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "total_purchases",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "total_purchase_value",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "total_purchase_value",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "ctr",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "ctr",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "cpc",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "cpc",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "cpm",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "cpm",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "cost_per_add_to_cart",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "cost_per_add_to_cart",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "cost_per_checkout",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "cost_per_checkout",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "cost_per_purchase",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "cost_per_purchase",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "roas",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "roas",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "average_order_value",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "average_order_value",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "conversion_rate",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "conversion_rate",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Best Performing Ad",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Best Performing Ad",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Justification",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Justification",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Recommendation",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Recommendation",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Source_URL",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Source_URL",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Asset Type",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Asset Type",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Transcription",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Transcription",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "hook",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "hook",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "purpose",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "purpose",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "text_captions",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "text_captions",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "disclaimer",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "disclaimer",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Status",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Status",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "focal_point",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "focal_point",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "colours",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "colours",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "layout",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "layout",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "text_elements",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "text_elements",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "row_number",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "row_number",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "ad_id"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "update",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gid=0",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_9fnWQm3ipnWg3DvP6XD-EnT2e5vZRvVlQyVA0rbNMQ/edit#gid=0",
+                "cachedResultName": "Sheet1"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "url",
+                "value": "XXXXXX"
+              }
+            }
+          },
+          "runAfter": {
+            "Split_Out": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Does_Token_Needs_Refreshing": {
+          "type": "If",
+          "expression": {
+            "equals": [
+              "@body('Does_it_Need_A_Token_Refresh')?['needs_refresh']",
+              true
+            ]
+          },
+          "actions": {
+            "Getting_Long_Lived_Access_Token1": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "https://graph.facebook.com/v22.0/oauth/access_token"
+              },
+              "runAfter": {}
+            },
+            "Calculating_End_Date_of_Token1": {
+              "type": "JavaScriptCode",
+              "inputs": {
+                "code": "const __inputRaw = workflowContext.actions['Getting_Long_Lived_Access_Token1'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Input from the previous node\nconst input = $input.first();\nconst tokenData = input.json || {};\n\n// Current time in milliseconds\nconst now = new Date().getTime();\n\n// Token details from input\nconst accessToken = tokenData.access_token || '';\nconst expiresIn = tokenData.expires_in || 5184000; // Default to 60 days (5184000 seconds) if not provided\nconst issuedAt = tokenData.issued_at ? new Date(tokenData.issued_at).getTime() : now; // Use now if issued_at is missing\nconst expiryTime = issuedAt + (expiresIn * 1000); // Convert expires_in to milliseconds\nconst endDate = new Date(expiryTime).toISOString(); // Calculated end date\n\n// Output the end date and access token\nreturn [{\n  json: {\n    access_token: accessToken,\n    end_date: endDate,\n    current_time: new Date().toISOString()\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+              },
+              "runAfter": {
+                "Getting_Long_Lived_Access_Token1": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Updating_Token": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Updating Token",
+                "n8nNodeType": "n8n-nodes-base.nocoDb",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "table": "mlkymmbtoa2iz72",
+                  "fieldsUi": {
+                    "fieldValues": [
+                      {
+                        "fieldName": "=Id",
+                        "fieldValue": "={{ $('Getting Long-Term Token').item.json.Id }}"
+                      },
+                      {
+                        "fieldName": "longTermAccessToken",
+                        "fieldValue": "={{ $json.access_token }}"
+                      },
+                      {
+                        "fieldName": "end_date",
+                        "fieldValue": "={{ $json.end_date }}"
+                      },
+                      {
+                        "fieldName": "current_time",
+                        "fieldValue": "={{ $json.current_time }}"
+                      }
+                    ]
+                  },
+                  "operation": "update",
+                  "projectId": "pfhk9mz7b66t5s2",
+                  "authentication": "nocoDbApiToken"
+                }
+              },
+              "runAfter": {
+                "Calculating_End_Date_of_Token1": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Extracting_Long_Term_Token": {
+              "type": "Compose",
+              "inputs": {
+                "longAccessToken": "@body('Updating_Token')?['longTermAccessToken']"
+              },
+              "runAfter": {
+                "Updating_Token": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "Getting_Long_Term_Token1": {
+                "type": "Compose",
+                "inputs": {
+                  "longAccessToken": "@body('Getting_Long_Term_Token')?['longTermAccessToken']"
+                },
+                "runAfter": {}
+              }
+            }
+          },
+          "runAfter": {
+            "Does_it_Need_A_Token_Refresh": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Calculate_Account_Benchmarks": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Filtering_Only_For_Sales_Campaigns'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// --- START OF CODE NODE 3 SCRIPT ---\n// Input: Output from Code Node 1 (array of processed ad records)\n// Mode: Run Once for All Items\n\nconst allProcessedAdRecords = $input.all(); // Array of n8n items from Code Node 1\n\n// Initialize overall totals\nconst overallTotals = {\n    total_spend: 0,\n    total_impressions: 0,\n    total_clicks: 0,\n    total_add_to_carts: 0,\n    total_checkouts_initiated: 0,\n    total_purchases: 0,\n    total_purchase_value: 0,\n    // We can't really sum 'objective' or 'ad_name' in a meaningful way for an overall summary,\n    // so we'll omit them or set them to a generic value.\n    // We also won't sum date_start/date_stop, but we can determine the overall period.\n};\n\nlet minDateStart = null;\nlet maxDateStop = null;\n\n// Step 1: Sum up fundamental metrics from all processed ad records\nfor (const n8nItem of allProcessedAdRecords) {\n    const adRecord = n8nItem.json; // Each adRecord is an output from Code Node 1\n\n    overallTotals.total_spend += parseFloat(adRecord.spend || 0);\n    overallTotals.total_impressions += parseInt(adRecord.impressions || 0);\n    overallTotals.total_clicks += parseInt(adRecord.clicks || 0);\n    overallTotals.total_add_to_carts += parseInt(adRecord.add_to_carts_count || 0);\n    overallTotals.total_checkouts_initiated += parseInt(adRecord.checkouts_initiated_count || 0);\n    overallTotals.total_purchases += parseInt(adRecord.purchases_count || 0);\n    overallTotals.total_purchase_value += parseFloat(adRecord.purchase_value_total || 0);\n\n    // Determine overall date range\n    if (adRecord.date_start) {\n        const currentStartDate = new Date(adRecord.date_start);\n        if (!minDateStart || currentStartDate < minDateStart) {\n            minDateStart = currentStartDate;\n        }\n    }\n    if (adRecord.date_stop) {\n        const currentStopDate = new Date(adRecord.date_stop);\n        if (!maxDateStop || currentStopDate > maxDateStop) {\n            maxDateStop = currentStopDate;\n        }\n    }\n}\n\n// Add overall date range to the output\nif (minDateStart) {\n    overallTotals.overall_date_start = minDateStart.toISOString().split('T')[0]; // YYYY-MM-DD\n}\nif (maxDateStop) {\n    overallTotals.overall_date_stop = maxDateStop.toISOString().split('T')[0]; // YYYY-MM-DD\n}\n\n\n// Step 2: Calculate overall derived KPIs based on the grand totals\nconst overallKPIs = { ...overallTotals }; // Start with the summed totals\n\noverallKPIs.ctr = overallTotals.total_impressions > 0 ? (overallTotals.total_clicks / overallTotals.total_impressions) : 0;\noverallKPIs.cpc = overallTotals.total_clicks > 0 ? (overallTotals.total_spend / overallTotals.total_clicks) : 0;\noverallKPIs.cpm = overallTotals.total_impressions > 0 ? (overallTotals.total_spend / overallTotals.total_impressions * 1000) : 0;\n\noverallKPIs.cost_per_add_to_cart = overallTotals.total_add_to_carts > 0 ? (overallTotals.total_spend / overallTotals.total_add_to_carts) : 0;\noverallKPIs.cost_per_checkout = overallTotals.total_checkouts_initiated > 0 ? (overallTotals.total_spend / overallTotals.total_checkouts_initiated) : 0;\noverallKPIs.cost_per_purchase = overallTotals.total_purchases > 0 ? (overallTotals.total_spend / overallTotals.total_purchases) : 0;\n\noverallKPIs.roas = overallTotals.total_spend > 0 ? (overallTotals.total_purchase_value / overallTotals.total_spend) : 0;\n\nlet conversionRateDecimal = overallTotals.total_clicks > 0 ? (overallTotals.total_purchases / overallTotals.total_clicks) : 0;\noverallKPIs.average_order_value = overallTotals.total_purchases > 0 ? (overallTotals.total_purchase_value / overallTotals.total_purchases) : 0;\n\n// --- Format numbers for the overall summary ---\noverallKPIs.total_spend = parseFloat(overallKPIs.total_spend.toFixed(2));\noverallKPIs.total_purchase_value = parseFloat(overallKPIs.total_purchase_value.toFixed(2));\n\noverallKPIs.ctr = parseFloat(overallKPIs.ctr.toFixed(4));\noverallKPIs.cpc = parseFloat(overallKPIs.cpc.toFixed(2));\noverallKPIs.cpm = parseFloat(overallKPIs.cpm.toFixed(2));\n\noverallKPIs.cost_per_add_to_cart = parseFloat(overallKPIs.cost_per_add_to_cart.toFixed(2));\noverallKPIs.cost_per_checkout = parseFloat(overallKPIs.cost_per_checkout.toFixed(2));\noverallKPIs.cost_per_purchase = parseFloat(overallKPIs.cost_per_purchase.toFixed(2));\n\noverallKPIs.roas = parseFloat(overallKPIs.roas.toFixed(2));\n\noverallKPIs.conversion_rate = (conversionRateDecimal * 100).toFixed(2) + '%'; // As percentage string\noverallKPIs.average_order_value = parseFloat(overallKPIs.average_order_value.toFixed(2));\n\n// This node will output a single item containing the overall summary\nreturn [{ json: overallKPIs }];\n// --- END OF CODE NODE 3 SCRIPT ---\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Filtering_Only_For_Sales_Campaigns": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Stringify_Benchmark_Data": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Calculate_Account_Benchmarks'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// --- START OF CODE NODE 4 SCRIPT (Stringify Output) ---\n// Mode: Run Once for All Items\n// Input: The array of aggregated ad creative performance objects\n\nconst allAggregatedItems = $input.all(); // This is an array of n8n items\n\n// Extract the .json part from each n8n item to get the actual data objects\nconst dataToConvert = allAggregatedItems.map(item => item.json);\n\n// Stringify the array of data objects\n// The 'null, 2' arguments pretty-print the JSON string with an indent of 2 spaces,\n// which can be helpful for readability if you're inspecting it, but not strictly necessary for an LLM.\n// If the LLM prefers a more compact JSON, you can omit 'null, 2'.\nconst jsonString = JSON.stringify(dataToConvert, null, 2);\n\n// Output a single item containing this string\nreturn [{ json: { benchmarkData: jsonString } }];\n// --- END OF CODE NODE 4 SCRIPT ---\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Calculate_Account_Benchmarks": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Aggregate_Metrics_by_Ad_Creative": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Filtering_Only_For_Sales_Campaigns'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// --- START OF CODE NODE 2 SCRIPT (Aggregate by Ad Creative & KPIs) ---\n// Mode: Run Once for All Items\n// Input: Output from Code Node 1 (which now includes ad_id)\n\nconst allInputItems = $input.all();\nconst aggregatedByAdName = {};\n\n// Step 1: Aggregate metrics by ad_name\nfor (const n8nItem of allInputItems) {\n    const itemData = n8nItem.json; // Data from Code Node 1, includes ad_id\n    const key = itemData.ad_name;\n\n    if (!aggregatedByAdName[key]) {\n        aggregatedByAdName[key] = {\n            ad_name: itemData.ad_name,\n            ad_id: itemData.ad_id, // <<< STORE THE AD_ID OF THE FIRST ENCOUNTERED ITEM\n            objective: itemData.objective,\n            // Initialize all sums\n            total_spend: 0,\n            total_impressions: 0,\n            total_clicks: 0,\n            total_add_to_carts: 0,\n            total_checkouts_initiated: 0,\n            total_purchases: 0,\n            total_purchase_value: 0,\n        };\n    }\n\n    // If the first itemData for an ad_name somehow missed an ad_id (unlikely if Code Node 1 is correct),\n    // but a subsequent one has it, this ensures it gets populated.\n    if (itemData.ad_id && !aggregatedByAdName[key].ad_id) {\n        aggregatedByAdName[key].ad_id = itemData.ad_id;\n    }\n    // Same for objective, if needed\n    if (itemData.objective && !aggregatedByAdName[key].objective) {\n         aggregatedByAdName[key].objective = itemData.objective;\n    }\n\n    // Sum up the metrics\n    aggregatedByAdName[key].total_spend += parseFloat(itemData.spend || 0);\n    aggregatedByAdName[key].total_impressions += parseInt(itemData.impressions || 0);\n    aggregatedByAdName[key].total_clicks += parseInt(itemData.clicks || 0);\n    aggregatedByAdName[key].total_add_to_carts += parseInt(itemData.add_to_carts_count || 0);\n    aggregatedByAdName[key].total_checkouts_initiated += parseInt(itemData.checkouts_initiated_count || 0);\n    aggregatedByAdName[key].total_purchases += parseInt(itemData.purchases_count || 0);\n    aggregatedByAdName[key].total_purchase_value += parseFloat(itemData.purchase_value_total || 0);\n}\n\n// Step 2: Calculate derived metrics and prepare final output\nconst finalOutputArray = [];\nfor (const key in aggregatedByAdName) {\n    const adCreativeData = aggregatedByAdName[key];\n    const outputItem = { ...adCreativeData }; // Includes ad_name, ad_id, objective, and all total_... fields\n\n    // Calculate derived metrics, handling division by zero\n    outputItem.ctr = adCreativeData.total_impressions > 0 ? (adCreativeData.total_clicks / adCreativeData.total_impressions) : 0;\n    outputItem.cpc = adCreativeData.total_clicks > 0 ? (adCreativeData.total_spend / adCreativeData.total_clicks) : 0;\n    outputItem.cpm = adCreativeData.total_impressions > 0 ? (adCreativeData.total_spend / adCreativeData.total_impressions * 1000) : 0;\n    \n    outputItem.cost_per_add_to_cart = adCreativeData.total_add_to_carts > 0 ? (adCreativeData.total_spend / adCreativeData.total_add_to_carts) : 0;\n    outputItem.cost_per_checkout = adCreativeData.total_checkouts_initiated > 0 ? (adCreativeData.total_spend / adCreativeData.total_checkouts_initiated) : 0;\n    outputItem.cost_per_purchase = adCreativeData.total_purchases > 0 ? (adCreativeData.total_spend / adCreativeData.total_purchases) : 0;\n    \n    outputItem.roas = adCreativeData.total_spend > 0 ? (adCreativeData.total_purchase_value / adCreativeData.total_spend) : 0;\n\n    let conversionRateDecimal = adCreativeData.total_clicks > 0 ? (adCreativeData.total_purchases / adCreativeData.total_clicks) : 0;\n    outputItem.average_order_value = adCreativeData.total_purchases > 0 ? (adCreativeData.total_purchase_value / adCreativeData.total_purchases) : 0;\n\n    // Format numbers\n    outputItem.total_spend = parseFloat(outputItem.total_spend.toFixed(2));\n    outputItem.total_purchase_value = parseFloat(outputItem.total_purchase_value.toFixed(2));\n    \n    outputItem.ctr = parseFloat(outputItem.ctr.toFixed(4));\n    outputItem.cpc = parseFloat(outputItem.cpc.toFixed(2));\n    outputItem.cpm = parseFloat(outputItem.cpm.toFixed(2));\n    \n    outputItem.cost_per_add_to_cart = parseFloat(outputItem.cost_per_add_to_cart.toFixed(2));\n    outputItem.cost_per_checkout = parseFloat(outputItem.cost_per_checkout.toFixed(2));\n    outputItem.cost_per_purchase = parseFloat(outputItem.cost_per_purchase.toFixed(2));\n    \n    outputItem.roas = parseFloat(outputItem.roas.toFixed(2));\n\n    outputItem.conversion_rate = (conversionRateDecimal * 100).toFixed(2) + '%';\n    outputItem.average_order_value = parseFloat(outputItem.average_order_value.toFixed(2));\n\n    finalOutputArray.push({ json: outputItem });\n}\n\nreturn finalOutputArray;\n// --- END OF CODE NODE 2 SCRIPT ---\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Filtering_Only_For_Sales_Campaigns": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Combine_Ad_Benchmark_Data_for_LLM": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Combine Ad & Benchmark Data for LLM",
+            "n8nNodeType": "n8n-nodes-base.aggregate",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "aggregate": "aggregateAllItemData"
+            }
+          },
+          "runAfter": {
+            "Combining_Ad_Data_and_Benchmarking_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extracting_Access_Token": {
+          "type": "Compose",
+          "inputs": {
+            "accessToken": "@body('Does_Token_Needs_Refreshing')?['longAccessToken']"
+          },
+          "runAfter": {
+            "Does_Token_Needs_Refreshing": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "When_clicking_Test_workflow",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

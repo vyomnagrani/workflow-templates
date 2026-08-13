@@ -1,0 +1,114 @@
+{
+  "sourceWorkflowName": "Automated content marketing intelligence with OpenAI, Ahrefs & multi-platform integration",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 14,
+  "totalNodes": 21,
+  "coverage": 0.6667,
+  "diagnostics": [
+    {
+      "code": "IF_REGION_UNSUPPORTED",
+      "message": "IF branches overlap or have external inputs, so nesting them would change behavior.",
+      "severity": "warning",
+      "node_name": "✅ Data Quality Check",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "🔄 Process Competitor Data",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "📈 Process Keyword Trends",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "👥 Process Audience Insights",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.airtable.",
+      "severity": "warning",
+      "node_name": "💾 Save to Airtable - Competitors",
+      "node_type": "n8n-nodes-base.airtable",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.airtable.",
+      "severity": "warning",
+      "node_name": "💾 Save to Airtable - Keywords",
+      "node_type": "n8n-nodes-base.airtable",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.notion.",
+      "severity": "warning",
+      "node_name": "📝 Save to Notion",
+      "node_type": "n8n-nodes-base.notion",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.slack.",
+      "severity": "warning",
+      "node_name": "📢 Send Slack Alert",
+      "node_type": "n8n-nodes-base.slack",
+      "json_path": null
+    },
+    {
+      "code": "MERGE_SEMANTICS_UNSUPPORTED",
+      "message": "This Merge node requires mode-specific data and synchronization semantics that cannot be represented by runAfter alone.",
+      "severity": "warning",
+      "node_name": "🔗 Merge All Data",
+      "node_type": "n8n-nodes-base.merge",
+      "json_path": null
+    },
+    {
+      "code": "NODE_CONFIGURATION_UNSUPPORTED",
+      "message": "The configuration of n8n-nodes-base.if is not safely supported.",
+      "severity": "warning",
+      "node_name": "✅ Data Quality Check",
+      "node_type": "n8n-nodes-base.if",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.stopAndError.",
+      "severity": "warning",
+      "node_name": "Stop and Error",
+      "node_type": "n8n-nodes-base.stopAndError",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Stop and Error",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "HTTP_TIMEOUT_REVIEW",
+      "message": "n8n HTTP timeout has no direct generic WDL input mapping and requires review.",
+      "severity": "warning",
+      "node_name": "🔍 Ahrefs Competitor Data",
+      "node_type": "n8n-nodes-base.httpRequest",
+      "json_path": null
+    }
+  ]
+}

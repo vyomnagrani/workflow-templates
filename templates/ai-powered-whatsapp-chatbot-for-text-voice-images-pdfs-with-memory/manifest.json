@@ -1,0 +1,689 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "ai-powered-whatsapp-chatbot-for-text-voice-images-pdfs-with-memory",
+    "name": "AI-powered WhatsApp chatbot 🤖📲 for text, voice, images & PDFs with memory 🧠",
+    "description": "This workflow is a highly advanced **multimodal AI assistant** designed to operate through **WhatsApp**. It can **understand and respond** to text, images, voice messages, and PDF documents by combining **OpenAI models** with smart logic to adapt to the content received.\n\n---\n\n### 🎯 **Core Features**\n\n#### 📥 1. **Automatic Message Type Detection**\nUsing the `Input type` node, the bot detects whether the user has sent:\n- Text\n- Voice messages\n- Images\n- Files (PDF)\n- Other unsupported content\n\n#### 💬 2. **Smart Text Message Handling**\n- Text messages are processed by an **OpenAI GPT-4o-mini agent** with a customized system prompt.\n- Replies are concise, accurate, and formatted for mobile readability.\n\n#### 🖼️ 3. **Image Analysis & Description**\n- Images are downloaded, converted to base64, and analyzed by an **image-aware AI model**.\n- The output is a rich, structured description, designed for visually impaired users or visual content interpretation.\n\n#### 🎙️ 4. **Voice Message Transcription & Reply**\n- Audio messages are downloaded and transcribed using OpenAI Whisper.\n- The transcribed text is analyzed and answered by the AI.\n- Optionally, the AI reply can be **converted back to voice** using **OpenAI's text-to-speech**, and sent as an audio message.\n\n#### 📄 5. **PDF Document Extraction & Summary**\n- Only PDFs are allowed (filtered via MIME type).\n- The document’s content is extracted and combined with the user's message.\n- The AI then provides a relevant summary or answer.\n\n#### 🧠 6. **Contextual Memory**\n- Each user has a personalized session ID with a memory window of 10 interactions.\n- This ensures a more natural and contextual conversation flow.\n\n\n---\n\n### **How It Works**  \n\nThisworkflow is designed to handle incoming WhatsApp messages and process different types of inputs (**text, audio, images, and PDF documents**) using **AI-powered analysis**. Here’s how it functions:  \n\n- **Trigger**: The workflow starts with the **WhatsApp Trigger** node, which listens for incoming messages (text, audio, images, or documents).  \n- **Input Routing**: The **Input type** (Switch node) checks the message type and routes it to the appropriate processing branch:  \n  - **Text**: Directly forwards the message to the AI agent for response generation.  \n  - **Audio**: Downloads the audio file, transcribes it using OpenAI, and sends the transcription to the AI agent.  \n  - **Image**: Downloads the image, analyzes it with OpenAI’s GPT-4 model, and generates a detailed description.  \n  - **PDF Document**: Downloads the file, extracts text, and processes it with the AI agent.  \n  - **Unsupported Formats**: Sends an error message if the input is not supported.  \n- **AI Processing**: The **AI Agent1** node, powered by OpenAI, processes the input (text, transcribed audio, image description, or PDF content) and generates a response.  \n- **Response Handling**:  \n  - For **audio inputs**, the AI’s response is converted back into speech (using OpenAI’s TTS) and sent as a voice message.  \n  - For **other inputs**, the response is sent as a text message via WhatsApp.  \n- **Memory**: The **Simple Memory** node maintains conversation context for follow-up interactions.  \n\n###  **Setup Steps**  \nTo deploy this workflow in n8n, follow these steps:  \n\n1. **Configure WhatsApp API Credentials**:  \n   - Set up **WhatsApp Business API** credentials (Meta Developer Account).  \n   - Add the credentials in the **WhatsApp Trigger**, **Get Image/Audio/File URL**, and **Send Message** nodes.  \n\n**Set Up OpenAI Integration**:  \n   - Provide an **OpenAI API key** in the **Analyze Image**, **Transcribe Audio**, **Generate Audio Response**, and **AI Agent1** nodes.  \n\n **Adjust Input Handling (Optional)**:  \n   - Modify the **Switch node (\"Input type\")** to handle additional message types if needed.  \n   - Update the **\"Only PDF File\" IF node** to support other document formats.  \n\n**Test & Deploy**:  \n   - Activate the workflow and test with different message types (text, audio, image, PDF).  \n   - Ensure responses are correctly generated and sent back via WhatsApp.  \n\n---\n\n### **Need help customizing?**  \n[Contact me](mailto:info@n3w.it) for consulting and support or add me on [Linkedin](https://www.linkedin.com/in/davideboizza/). ",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Support Chatbot",
+      "AI Chatbot",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "WhatsApp_Trigger": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "WhatsApp Trigger",
+            "n8nNodeType": "n8n-nodes-base.whatsAppTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "updates": [
+                "messages"
+              ]
+            }
+          },
+          "runAfter": {}
+        },
+        "Download_Image": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@body('Get_Image_Url')?['url']"
+          },
+          "runAfter": {
+            "Get_Image_Url": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Analyze_Image": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Analyze Image",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=You are an advanced image description AI assistant . Your primary function is to provide detailed, accurate descriptions of images submitted through WhatsApp.\n\nCORE FUNCTIONALITY:\n- When presented with an image, you will analyze it thoroughly and provide a comprehensive description in English.\n- Your descriptions should capture both the obvious and subtle elements within the image.\n\nIMAGE DESCRIPTION GUIDELINES:\n- Begin with a broad overview of what the image contains\n- Describe key subjects, people, objects, and their relationships\n- Note significant visual elements such as colors, lighting, composition, and perspective\n- Identify any text visible in the image\n- Describe the setting or environment\n- Mention any notable actions or events taking place\n- Comment on mood, tone, or atmosphere when relevant\n- If applicable, identify landmarks, famous people, or cultural references\n\nRESPONSE FORMAT:\n- Start with \"Image Description:\" followed by your analysis\n- Structure your description in a logical manner (general to specific)\n- Use clear, precise language appropriate for visual description\n- Format longer descriptions with paragraphs to enhance readability\n- End with any notable observations that might require special attention\n\nLIMITATIONS:\n- If the image is blurry, low resolution, or difficult to interpret, acknowledge these limitations\n- If an image contains potentially sensitive content, provide a factual description without judgment\n- Do not make assumptions about elements that cannot be clearly determined\n\nYour descriptions should be informative, objective, and thorough, enabling someone who cannot see the image to form an accurate mental picture of its contents.",
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini",
+                "cachedResultName": "GPT-4O-MINI"
+              },
+              "options": {
+                "detail": "auto"
+              },
+              "resource": "image",
+              "inputType": "base64",
+              "operation": "analyze"
+            }
+          },
+          "runAfter": {
+            "Download_Image": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_Audio": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@body('Get_Audio_Url')?['url']"
+          },
+          "runAfter": {
+            "Get_Audio_Url": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Transcribe_Audio": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Transcribe Audio",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "resource": "audio",
+              "operation": "transcribe"
+            }
+          },
+          "runAfter": {
+            "Download_Audio": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenAI_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "AI_Agent1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "AI Agent1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "={{ $json.text }}",
+              "options": {
+                "systemMessage": "You are an intelligent assistant. Your purpose is to analyze various types of input and provide helpful, accurate responses.\n\nCAPABILITIES:\n- Process and respond to text messages\n- Analyze uploaded files\n- Interpret and describe images\n- Transcribe and understand voice messages\n\nINPUT HANDLING:\n1. For text messages: Analyze the content, understand the intent, and provide a relevant response.\n2. For file analysis: Examine the file content, extract key information, and summarize important points also based on the questions asked.\n3. For image analysis: Describe what you see in the image, identify key elements, and respond to any questions about the image.\n4. For voice messages: Transcribe the audio, understand the message, and respond appropriately.\n\nRESPONSE GUIDELINES:\n- Be concise but thorough\n- Prioritize accuracy over speculation\n- Maintain a professional and helpful tone\n- When uncertain, acknowledge limitations\n- Format responses for easy reading on mobile devices\n- Include actionable information when appropriate\n\nLIMITATIONS:\n- Mention if you're unable to process certain file formats\n- Indicate if an image is unclear or if details are difficult to discern\n- Note if audio quality impacts transcription accuracy\n\nSECURITY & PRIVACY:\n- Do not store or remember sensitive information shared in files, images, or voice notes\n- Do not share personal information across different user interactions\n- Inform users about data privacy limitations when relevant\n\nAnalyze all inputs carefully before responding. Your goal is to provide value through accurate information and helpful assistance."
+              },
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "File": [
+              "Succeeded"
+            ],
+            "Text": [
+              "Succeeded"
+            ],
+            "Audio": [
+              "Succeeded"
+            ],
+            "Image": [
+              "Succeeded"
+            ],
+            "Simple_Memory": [
+              "Succeeded"
+            ],
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_File": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@body('Get_File_Url')?['url']"
+          },
+          "runAfter": {
+            "Get_File_Url": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_from_File": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Extract from File",
+            "n8nNodeType": "n8n-nodes-base.extractFromFile",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "operation": "pdf"
+            }
+          },
+          "runAfter": {
+            "Download_File": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Simple_Memory": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Simple Memory",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "sessionKey": "=memory_{{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+              "sessionIdType": "customKey",
+              "contextWindowLength": 10
+            }
+          },
+          "runAfter": {}
+        },
+        "Get_File_Url": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get File Url",
+            "n8nNodeType": "n8n-nodes-base.whatsApp",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "resource": "media",
+              "operation": "mediaUrlGet",
+              "mediaGetId": "={{ $('WhatsApp Trigger').item.json.messages[0].document.id }}"
+            }
+          },
+          "runAfter": {
+            "Only_PDF_File": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Only_PDF_File": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Only PDF File",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "f52d2aaa-e0b2-45e5-8c4b-ceef42182a0d",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.messages[0].document.mime_type }}",
+                    "rightValue": "application/pdf"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Input_type": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Incorrect_format": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Incorrect format",
+            "n8nNodeType": "n8n-nodes-base.whatsApp",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "textBody": "=Sorry but you can only send PDF files",
+              "operation": "send",
+              "phoneNumberId": "470271332838881",
+              "additionalFields": {},
+              "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}"
+            }
+          },
+          "runAfter": {
+            "Only_PDF_File": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Text": {
+          "type": "Compose",
+          "inputs": {
+            "text": "@body('WhatsApp_Trigger')?['messages'][0].text.body"
+          },
+          "runAfter": {
+            "Input_type": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Audio": {
+          "type": "Compose",
+          "inputs": {
+            "text": "@body('Transcribe_Audio')?['text']"
+          },
+          "runAfter": {
+            "Transcribe_Audio": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Image": {
+          "type": "Compose",
+          "inputs": {
+            "text": "User request on the image:\n@{\"Describe the following image\" || body('WhatsApp_Trigger')?['messages'][0].image.caption}\n\nImage description:\n@{body('Analyze_Image')?['content']}"
+          },
+          "runAfter": {
+            "Analyze_Image": [
+              "Succeeded"
+            ]
+          }
+        },
+        "File": {
+          "type": "Compose",
+          "inputs": {
+            "text": "User request on the file:\n@{\"Describe this file\" || body('Only_PDF_File')?['messages'][0].document.caption}\n\nFile content:\n@{body('Extract_from_File')?['text']}"
+          },
+          "runAfter": {
+            "Extract_from_File": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Not_supported": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Not supported",
+            "n8nNodeType": "n8n-nodes-base.whatsApp",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "textBody": "=You can only send text messages, images, audio files and PDF documents.",
+              "operation": "send",
+              "phoneNumberId": "470271332838881",
+              "additionalFields": {},
+              "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}"
+            }
+          },
+          "runAfter": {
+            "Input_type": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_Image_Url": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get Image Url",
+            "n8nNodeType": "n8n-nodes-base.whatsApp",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "resource": "media",
+              "operation": "mediaUrlGet",
+              "mediaGetId": "={{ $('WhatsApp Trigger').item.json.messages[0].image.id }}"
+            }
+          },
+          "runAfter": {
+            "Input_type": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_Audio_Url": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get Audio Url",
+            "n8nNodeType": "n8n-nodes-base.whatsApp",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "resource": "media",
+              "operation": "mediaUrlGet",
+              "mediaGetId": "={{ $('WhatsApp Trigger').item.json.messages[0].audio.id }}"
+            }
+          },
+          "runAfter": {
+            "Input_type": [
+              "Succeeded"
+            ]
+          }
+        },
+        "From_audio_to_audio": {
+          "type": "If",
+          "expression": {
+            "not": {
+              "empty": [
+                "@body('WhatsApp_Trigger')?['messages'][0].audio"
+              ]
+            }
+          },
+          "actions": {
+            "Fix_mimeType_for_Audio": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Fix mimeType for Audio",
+                "n8nNodeType": "n8n-nodes-base.code",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "jsCode": "for (const item of $input.all()) {\n  if (item.binary) {\n    const binaryPropertyNames = Object.keys(item.binary);\n    for (const propName of binaryPropertyNames) {\n      if (item.binary[propName].mimeType === 'audio/mp3') {\n        item.binary[propName].mimeType = 'audio/mpeg';\n      }\n    }\n  }\n}\n\nreturn $input.all();"
+                }
+              },
+              "runAfter": {
+                "Generate_Audio_Response": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Send_audio": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Send audio",
+                "n8nNodeType": "n8n-nodes-base.whatsApp",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "mediaPath": "useMedian8n",
+                  "operation": "send",
+                  "messageType": "audio",
+                  "phoneNumberId": "470271332838881",
+                  "additionalFields": {},
+                  "recipientPhoneNumber": "={{ $('Input type').item.json.contacts[0].wa_id }}"
+                }
+              },
+              "runAfter": {
+                "Fix_mimeType_for_Audio": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Generate_Audio_Response": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Generate Audio Response",
+                "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "input": "={{ $('AI Agent1').item.json.output }}",
+                  "voice": "onyx",
+                  "options": {},
+                  "resource": "audio"
+                }
+              },
+              "runAfter": {}
+            }
+          },
+          "else": {
+            "actions": {
+              "Send_message": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "Send message",
+                  "n8nNodeType": "n8n-nodes-base.whatsApp",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "textBody": "={{ $json.output }}",
+                    "operation": "send",
+                    "phoneNumberId": "470271332838881",
+                    "additionalFields": {},
+                    "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}"
+                  }
+                },
+                "runAfter": {}
+              }
+            }
+          },
+          "runAfter": {
+            "AI_Agent1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Input_type": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Input type",
+            "n8nNodeType": "n8n-nodes-base.switch",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "rules": {
+                "values": [
+                  {
+                    "outputKey": "Text",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "08fd0c80-307e-4f45-b1de-35192ee4ec5e",
+                          "operator": {
+                            "type": "string",
+                            "operation": "exists",
+                            "singleValue": true
+                          },
+                          "leftValue": "={{ $json.messages[0].text.body }}",
+                          "rightValue": ""
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "Voice",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "b7b64446-f1ea-4622-990c-22f3999a8269",
+                          "operator": {
+                            "type": "object",
+                            "operation": "exists",
+                            "singleValue": true
+                          },
+                          "leftValue": "={{ $json.messages[0].audio }}",
+                          "rightValue": ""
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "Image",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "202af928-a324-411a-bf15-68a349e7bf9e",
+                          "operator": {
+                            "type": "object",
+                            "operation": "exists",
+                            "singleValue": true
+                          },
+                          "leftValue": "={{ $json.messages[0].image }}",
+                          "rightValue": ""
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  },
+                  {
+                    "outputKey": "Document",
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "c63299e9-6069-4bc6-afb9-7beebf6e3d69",
+                          "operator": {
+                            "type": "object",
+                            "operation": "exists",
+                            "singleValue": true
+                          },
+                          "leftValue": "={{ $json.messages[0].document }}",
+                          "rightValue": ""
+                        }
+                      ]
+                    },
+                    "renameOutput": true
+                  }
+                ]
+              },
+              "options": {
+                "fallbackOutput": "extra"
+              }
+            }
+          },
+          "runAfter": {
+            "WhatsApp_Trigger": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

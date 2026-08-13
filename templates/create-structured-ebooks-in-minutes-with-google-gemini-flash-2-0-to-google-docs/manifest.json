@@ -1,0 +1,259 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "create-structured-ebooks-in-minutes-with-google-gemini-flash-2-0-to-google-docs",
+    "name": "Create structured eBooks in minutes with Google Gemini Flash 2.0 to Google Docs",
+    "description": "*This workflow contains community nodes that are only compatible with the self-hosted version of n8n.*\n\n## Description\n\nThis workflow automates the creation of structured eBooks by generating chapters, table of contents, and content using Google Gemini Flash 2.0. \n\n### Overview\n\nThis n8n workflow allows users to input a topic or outline, which is then processed by Google Gemini Flash 2.0 to generate chapter titles, structured table of contents, and detailed section-wise content. The final output is formatted and exported into a Google Document, ready for review and further publishing.\n\n### Who This Workflow Is For\n- **Authors & Writers**\nSave time by auto-generating chapter ideas, summaries, and full-length content based on a topic or outline—great for fiction and nonfiction alike.\n\n- **Content Marketers**\nRapidly create downloadable eBooks, whitepapers, or lead magnets for campaigns without relying on long production cycles.\n\n- **Educators & Course Creators**\nConvert your syllabus, course modules, or learning outcomes into structured, well-formatted educational eBooks.\n\n- **Agencies & Freelancers**\nOffer AI-powered eBook creation as a value-added service to clients in need of fast, professional content.\n\n- **Entrepreneurs & Coaches**\nTurn your knowledge, frameworks, or training material into publish-ready books to promote your brand or monetize content.\n\n- **Technical Writers & Documentarians**\nGenerate structured documentation or guides from outlines, simplifying the technical writing process with the help of AI.\n\n### Tools Used\n\n- **n8n**: Orchestrates input handling, AI processing, formatting, and export.\n\n- **Google Gemini Flash 2.0**: Generates high-quality, structured content, including chapters, summaries, and body text.\n\n- **Google Docs**: Used to compile and format the full eBook in a collaborative document.\n\n- **Google Drive / Email**: Optional nodes for storing or delivering the final output.\n\n### How to Install\n\n- **Import the Workflow**: Download and import the .json file into your n8n instance.\n\n- **Configure Gemini Flash 2.0**: Add your API key and set the desired creativity, length, and tone options.\n\n- **Provide Input**: Use a webhook or manual trigger to define the eBook topic or structure.\n\n- **Customize Format**: Modify prompts or Gemini instructions to match your eBook format, voice, or domain (e.g., fiction, business, technical).\n\n- **Export to Google Docs**: Authenticate and configure the Google Docs node to write the output chapter-wise into a new or existing document.\n\n- **Optional Distribution**: Connect to Google Drive or Gmail to store or send the final eBook.\n\n### Use Cases\n- **Writers & Authors**: Quickly draft entire eBooks based on minimal input.\n\n- **Marketers**: Generate lead magnets, guides, and product documentation at scale.\n\n- **Educators**: Produce structured learning materials or course eBooks.\n\n- **Agencies**: Offer eBook creation services powered by AI.\n\n- **Entrepreneurs**: Turn knowledge into content assets without hiring ghostwriters.\n\n### Connect with Me\n\n**Email**: ranjancse@gmail.com\n\n**LinkedIn**: https://www.linkedin.com/in/ranjan-dailata/\n\n**Get Bright Data**: [Bright Data](https://get.brightdata.com/5blibaeyszij ) (Supports free workflows with a small commission)\n\n#n8n #automation #ebookcreation #googleai #geminiflash #aiwriting #gdocs #contentautomation #ebookworkflow #nocode #contentmarketing #gemini #aiwriter #automatedpublishing #aicontent #bookcreation #geminiworkflow #ebookgenerator #gptalternative #flash20 #geminiflash2 #authorautomation #educationalcontent #aiinmarketing #n8nworkflow\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/inlineCode",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "When_clicking_Execute_workflow": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Loop_Over_Items": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Loop Over Items",
+            "n8nNodeType": "n8n-nodes-base.splitInBatches",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Code": [
+              "Succeeded"
+            ],
+            "Update_Google_Docs": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Gemini_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Gemini Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "modelName": "models/gemini-2.0-flash-exp"
+            }
+          },
+          "runAfter": {}
+        },
+        "Create_a_Google_Doc": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Create a Google Doc",
+            "n8nNodeType": "n8n-nodes-base.googleDocs",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "title": "={{ $('Set the title, objective').item.json.title }}",
+              "folderId": "default"
+            }
+          },
+          "runAfter": {
+            "Generate_Detailed_Chapter_Content": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Update_Google_Docs": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update Google Docs",
+            "n8nNodeType": "n8n-nodes-base.googleDocs",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "actionsUi": {
+                "actionFields": [
+                  {
+                    "text": "={{ $('Generate Detailed Chapter Content').item.json.text }}",
+                    "action": "insert"
+                  }
+                ]
+              },
+              "operation": "update",
+              "documentURL": "={{ $json.id }}"
+            }
+          },
+          "runAfter": {
+            "Create_a_Google_Doc": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Set_the_Input_Fields": {
+          "type": "Compose",
+          "inputs": {
+            "Title": "Provide me n8n beginners guide with chapters and high-level steps"
+          },
+          "runAfter": {}
+        },
+        "Ebook_Thought_Creation": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Ebook Thought Creation",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chainLlm",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "={{ $json.Title }}\n\nMake sure to output as JSON",
+              "batching": {},
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "Set_the_Input_Fields": [
+              "Succeeded"
+            ],
+            "Structured_Output_Parser": [
+              "Succeeded"
+            ],
+            "Google_Gemini_Chat_Model_for_Ebook_thought_creation": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Gemini_Chat_Model_for_Ebook_thought_creation": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Gemini Chat Model for Ebook thought creation",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "modelName": "models/gemini-2.0-flash-exp"
+            }
+          },
+          "runAfter": {}
+        },
+        "Structured_Output_Parser": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Structured Output Parser",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "schemaType": "manual",
+              "inputSchema": "{\n  \"$schema\": \"http://json-schema.org/schema#\",\n  \"title\": \"Guide Schema\",\n  \"type\": \"object\",\n  \"properties\": {\n    \"type\": {\n      \"type\": \"string\"\n    },\n    \"version\": {\n      \"type\": \"string\"\n    },\n    \"metadata\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"title\": { \"type\": \"string\" },\n        \"description\": { \"type\": \"string\" },\n        \"audience\": { \"type\": \"string\" },\n        \"author\": { \"type\": \"string\" },\n        \"category\": { \"type\": \"string\" }\n      },\n      \"required\": [\"title\", \"description\", \"audience\", \"author\", \"category\"]\n    },\n    \"structure\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"chapters\": {\n          \"type\": \"array\",\n          \"items\": {\n            \"type\": \"object\",\n            \"properties\": {\n              \"chapterNumber\": { \"type\": \"integer\" },\n              \"title\": { \"type\": \"string\" },\n              \"objectives\": {\n                \"type\": \"array\",\n                \"items\": { \"type\": \"string\" }\n              }\n            },\n            \"required\": [\"chapterNumber\", \"title\", \"objectives\"]\n          }\n        }\n      },\n      \"required\": [\"chapters\"]\n    }\n  },\n  \"required\": [\"type\", \"version\", \"metadata\", \"structure\"]\n}\n"
+            }
+          },
+          "runAfter": {}
+        },
+        "Code": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Ebook_Thought_Creation'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nreturn $input.first().json.output.structure.chapters\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Ebook_Thought_Creation": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Generate_Detailed_Chapter_Content": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Generate Detailed Chapter Content",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chainLlm",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=Provide a detailed chapter explanation for the following\n\nTitle : {{ $json.title }}\nObjective : \n{{ $json.objectives }}\n",
+              "batching": {},
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "Google_Gemini_Chat_Model": [
+              "Succeeded"
+            ],
+            "Set_the_title_objective": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Set_the_title_objective": {
+          "type": "Compose",
+          "inputs": {
+            "title": "@body('Loop_Over_Items')?['title']",
+            "objectives": "@body('Loop_Over_Items')?['objectives']?['toJsonString']()"
+          },
+          "runAfter": {
+            "Loop_Over_Items": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "When_clicking_Execute_workflow",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

@@ -1,0 +1,389 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "automate-weekly-hollywood-film-briefing-via-tavily-and-gemini",
+    "name": "Automate weekly Hollywood film briefing via Tavily and Gemini",
+    "description": "## This n8n template demonstrates how to build a **weekly Hollywood film industry briefing** using Tavily for real-time search and Google Gemini for summarization. It sends a concise, emoji‑styled email with **movie releases, box office results, industry news, and must‑watch recommendations** every week automatically.\n\nUse cases: Great for **film journalists, entertainment bloggers, or movie enthusiasts** who want automated weekly updates without manually checking multiple sources.\n\n---\n\n### Good to know\n\n* **Free to use**: Tavily provides **1,000 API credits per month** on their free plan (no credit card required), so this workflow can run at zero cost.\n* **Real-time data**: Tavily’s search API is optimized for up-to-date information — perfect for weekly movie releases and box office stats.\n* Google Gemini is used for summarization, and you only need basic API access (no paid tier required).\n\n---\n\n### How it works\n\n* **Trigger**: Scheduled every Thursday morning (configurable).\n* **Search**: Four Tavily API calls gather:\n\n  * Movies releasing this week\n  * Last week’s box office results\n  * Hollywood industry news\n  * Must‑watch movies currently in theatres\n* **Summarization**: Google Gemini turns this into Gmail‑friendly HTML with emojis and bullet points.\n* **Email**: The formatted newsletter is sent via Gmail node.\n\n---\n\n### How to use\n\n* Configure **Tavily API** and **Gmail OAuth2 credentials** in n8n’s credential manager.\n* (Optional) Edit Tavily queries to focus on specific genres or add filters.\n* Adjust the **schedule trigger** to any day/time you prefer.\n\n---\n\n### Requirements\n\n* Tavily API account (free plan – 1,000 monthly requests)\n* Google Gemini API key for summarization\n* Gmail account (OAuth2 credentials for sending emails)\n\n---\n\n### Want insane output quality?\n\nYou can swap Gemini for **OpenAI’s ChatGPT models**:\n\n* **GPT‑3.5 Turbo** – \\~\\$0.002/run (crazy cheap)\n* **GPT‑4o** – \\~\\$0.009/run (latte price)\n* **GPT‑4.5** – \\~\\$0.15/run (god‑mode quality)\n\nThis upgrade gives you **cleaner, richer, “did‑a‑human‑write‑this?” vibes** — perfect for journalist‑grade Hollywood briefings. Just note: OpenAI API requires a **\\$5 minimum credit** to activate usage.\n\n---\n\n### Example Output (ChatGPT version)\n\n**Subject:** Daily Hollywood Film Industry Briefing – August 3, 2025\n\n---\n\nGood morning,\nHere's your daily Hollywood film briefing for August 3, 2025:\n\n---\n\n🎬 **Releases**\n\n* The Bad Guys 2 – Released Friday, August 1, 2025\n* The Naked Gun – Released Friday, August 1, 2025\n\nThese are the confirmed new wide theatrical Hollywood releases this week (Monday through Sunday of current week). No additional new Hollywood theatrical releases found for this week.\n\n---\n\n📊 **Box Office**\n\n**Highest‑grossing Hollywood films of 2025 (worldwide):**\n\n* Ne Zha 2 – approx. \\$1.90 billion (non‑Hollywood Chinese animated film leads)\n* Lilo & Stitch – approx. \\$1.02 billion\n* A Minecraft Movie – approx. \\$955 million\n* Jurassic World Rebirth – approx. \\$731 million\n* How to Train Your Dragon – approx. \\$610 million\n\n**Last week’s box office performance (Monday–Sunday):**\n\n* The Fantastic Four: First Steps – domestic debut \\~\\$118 M; global \\~\\$218 M, Marvel’s biggest opening of 2025\n* Superman – added \\~\\$94 M worldwide last week, passing \\$500 M global total\n* Jurassic World Rebirth – up \\~\\$70 M worldwide last week, despite \\~40 % drop week‑on‑week\n* F1: The Movie – up \\~\\$48 M last week internationally/domestically growth visible\n* Lilo & Stitch – added \\~\\$10 M worldwide last week, slower tail but still billion‑plus gross\n\n**Highlights & trends:**\nFantastic Four’s strong debut reboots Marvel success, signaling resumed audience interest; Superman continues to hold strong; Jurassic World Rebirth remains durable after holiday surge; surge in box office recovery noted across key titles. Overall box office up \\~12–15 % year‑on‑year.\n\n---\n\n📰 **Industry Buzz**\n\n1. Christopher Nolan has signed to direct a massive \\$250 million adaptation of Homer’s *The Odyssey*, starring Matt Damon and Tom Holland, with Imax pre‑sales at 95 % capacity across major locations.\n2. Marvel has relaunched the *Fantastic Four* franchise successfully with *First Steps*; positive CinemaScore and strong visuals marking a fresh start.\n3. DC’s *Superman* continues strong with over \\$500 M global, solidifying DC’s summer comeback.\n4. Universal’s *Jurassic World Rebirth* continues strong overseas, especially in China, contributing to \\$318 M global in opening holiday weekend.\n5. Warner Bros.–Discovery stock surges (\\~30 %) amid box office rebound, with Disney, IMAX and Cinemark also seeing robust growth in 2025.\n6. *Ne Zha 2* becomes highest‑grossing animated and non‑Hollywood film ever, crossing \\$2 billion globally—though not Hollywood, its impact on global trends is notable.\n7. *Mission: Impossible – The Final Reckoning* quietly solidifies strong global numbers (\\~\\$562 M) and continues reliable franchise performance.\n\n---\n\n🎥 **Must‑Watch in Theatres (Surat, India)**\n\n* **The Fantastic Four: First Steps** – Currently showing in English/Hindi/Tamil/Telugu in Surat cinemas; hyped globally, strong visuals, action‑heavy, best experienced in IMAX or premium formats if available in Surat multiplexes. Runs this week.\n* **F1: The Movie** – Available in Surat in multiple languages, strong reviews praising adrenaline‑fuelled direction and visuals and growing fan hype; ideal in standard or Dolby formats for immersive sound and speed feel.\n* **Jurassic World Rebirth** – Still playing in Surat, popular with family audiences; grand visuals and dinosaur action well‑suited to IMAX or large format screens.\n\n---\n\nThat’s all for today’s briefing. Have a great theatrical weekend ahead!\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Social Media",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/gmail",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Weekly_Thursday_Trigger": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Week",
+            "interval": 1
+          }
+        },
+        "Schedule_Trigger": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Week",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Send_a_message": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "gmail_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/v2/Mail",
+            "body": {
+              "To": "user@example.com",
+              "Subject": "@body('Hollywood_News_Research_Agent')?['output']?['subject']",
+              "Body": "@body('Hollywood_News_Research_Agent')?['output']?['body']"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendEmailV2"
+            }
+          },
+          "runAfter": {
+            "Hollywood_News_Research_Agent": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Hollywood_News_Research_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Hollywood News Research Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=You are an AI summarizer creating a daily Hollywood film industry briefing.\n\nYou will receive four Tavily search results:\n- Hollywood movies releasing this week\n- Hollywood box office results last week\n- Hollywood news\n- Must‑watch Hollywood movies currently in theatres\n\nEach result contains `title` and `content`.\n\n---\n\n### TASK\nSummarize each result into Gmail‑friendly HTML with emojis and bullet points:\n\n🎬 Releases  \n📊 Box Office  \n📰 News  \n🎥 Must-Watch Movies  \n\nFor **Must-Watch Movies**:\n- If details (reviews/hype) exist, summarize them briefly.\n- If only movie names appear, **assume reasons** (e.g., “great for IMAX/4DX,” “big visual effects,” “audience buzz,” or “fan‑favorite franchise”).\n\nIf no data at all, write “No data available”.\n\n---\n\n### OUTPUT FORMAT\nReturn JSON:\n{\n  \"subject\": \"Daily Hollywood Film Industry Briefing – {{ $json['Readable date'] }}\",\n  \"body\": \"<html>\n    🎬 Releases\n    <ul><li>Movie 1</li></ul>\n    📊 Box Office\n    <ul><li>Result 1</li></ul>\n    📰 News\n    <ul><li>Update 1</li></ul>\n    🎥 Must-Watch Movies\n    <ul><li>Recommendation 1 with assumed reason (if needed)</li></ul>\n  </html>\"\n}\n",
+              "options": {},
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "Format_Output_for_Email": [
+              "Succeeded"
+            ],
+            "Google_Gemini_2_5_Flash": [
+              "Succeeded"
+            ],
+            "Fetch_Hollywood_News_Tavily": [
+              "Succeeded"
+            ],
+            "Fetch_Weekly_Releases_Tavily": [
+              "Succeeded"
+            ],
+            "Fetch_Must_Watch_Movies_Tavily": [
+              "Succeeded"
+            ],
+            "Fetch_Weekly_Box_Office_Tavily": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fetch_Weekly_Releases_Tavily": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Fetch Weekly Releases (Tavily)",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "https://api.tavily.com/search",
+              "method": "POST",
+              "options": {},
+              "jsonBody": "={\n  \"query\": \"hollywood movies releasing this week\",\n  \"search_depth\": \"basic\",\n  \"time_range\": \"week\",\n  \"max_results\": 5\n}\n",
+              "sendBody": true,
+              "sendHeaders": true,
+              "specifyBody": "json",
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "name": "Authorization",
+                    "value": "{{$credentials.TavilyApiKey}}"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Fetch_Weekly_Box_Office_Tavily": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Fetch Weekly Box Office (Tavily)",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "https://api.tavily.com/search",
+              "method": "POST",
+              "options": {},
+              "jsonBody": "={\n  \"query\": \"hollywood box office results last week\",\n  \"search_depth\": \"basic\",\n  \"time_range\": \"week\",\n  \"max_results\": 5\n}\n",
+              "sendBody": true,
+              "sendHeaders": true,
+              "specifyBody": "json",
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "name": "Authorization",
+                    "value": "{{$credentials.TavilyApiKey}}"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Fetch_Hollywood_News_Tavily": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Fetch Hollywood News (Tavily)",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "https://api.tavily.com/search",
+              "method": "POST",
+              "options": {},
+              "jsonBody": "={\n  \"query\": \"hollywood news latest casting director production\",\n  \"search_depth\": \"basic\",\n  \"time_range\": \"week\",\n  \"max_results\": 5\n}\n",
+              "sendBody": true,
+              "sendHeaders": true,
+              "specifyBody": "json",
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "name": "Authorization",
+                    "value": "{{$credentials.TavilyApiKey}}"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Fetch_Must_Watch_Movies_Tavily": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Fetch Must-Watch Movies (Tavily)",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "https://api.tavily.com/search",
+              "method": "POST",
+              "options": {},
+              "jsonBody": "={\n  \"query\": \"best hollywood movies playing in theatres\",\n  \"search_depth\": \"basic\",\n  \"time_range\": \"week\",\n  \"max_results\": 5\n}\n",
+              "sendBody": true,
+              "sendHeaders": true,
+              "specifyBody": "json",
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "name": "Authorization",
+                    "value": "{{$credentials.TavilyApiKey}}"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Format_Output_for_Email": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Format Output for Email",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsonSchemaExample": "{\n  \"subject\": \"Daily Hollywood Film Industry Briefing – July 25, 2025\",\n  \"body\": \"<html> ... formatted content ... </html>\"\n}\n"
+            }
+          },
+          "runAfter": {}
+        },
+        "Google_Gemini_2_5_Flash": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Gemini 2.5 Flash",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "AI_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "AI Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=You are an AI summarizer creating a daily Hollywood film industry briefing.\nYou have access to web search and must perform FOUR structured searches and summarize results into a clean, factual briefing.\n\nSearch Tasks\n1) Weekly Movie Releases (Hollywood)\nFind up to 10 movies releasing in theatres THIS WEEK ONLY.\n\nStrictly exclude:\n\nOTT releases or web series\n\nOld or previously released movies (even if trending or re-released)\n\nMonthly/yearly recap lists\n\nProvide for each movie:\n\nName\n\nExact release date\n\nDay of the week (e.g., Friday)\n\nVerify releases are between Monday–Sunday of the current week based on {{ $json['Readable date'] }}.\nIf fewer than 10, include as many accurate releases as possible.\n\n2) Box Office Results (Hollywood)\nFind:\n\nTop highest-grossing Hollywood films of THIS YEAR (worldwide gross)\n\nLast week’s box office performance (Hollywood) with gross numbers\n\nHighlight notable new releases and trends (e.g., record-breaking debut, strong overseas performance).\n\nCurrent week is {{ $json['Readable date'] }}, current day is {{ $json['Day of week'] }}.\nIgnore any box office data older than last week.\n\n3) Industry Buzz (Casting / Directors / Strikes)\nProvide exactly 7 major updates from Hollywood:\n\nCasting announcements\n\nDirector signings/new projects\n\nProduction updates & filming progress\n\nStrikes, controversies, industry events\n\nMust be from this week only (ignore outdated news).\nProvide detailed summaries (context + relevance).\nDo not include links — summaries only.\nMust always give 7 updates, even if some are long.\n\n4) Best Movies Currently in Theatres\nRecommend best currently running Hollywood movies in theatres in Surat, India.\n\nExclude old films (e.g., pre-2025 releases like Fast X or Oppenheimer).\n\nProvide:\n\nWhy recommended (reviews, visuals, fan hype)\n\nBest format (e.g., IMAX, 3D, standard)\n\nOnly include movies running this week or recently released (before {{ $json['Readable date'] }}).\n\nFormatting Rules\nMovie names must be plain text (no bold, no markdown).\n\nUse emojis for section headers:\n\n🎬 Releases\n\n📊 Box Office\n\n📰 Industry Buzz\n\n🎥 Must-Watch in Theatres\n\nInclude release dates, box office numbers where available.\n\nIf no data for a section, output “No data available” (do not guess).\n\nOutput Requirements\nReturn as a JSON object with two keys:\n\nsubject: Daily Hollywood Film Industry Briefing – {{ $json['Readable date'] }}\n\nbody: Full HTML email (Gmail-friendly) with sections, bullet lists, emojis, and clean formatting. No markdown.\n\nCritical Instructions\nUse only fresh search results (ignore outdated or evergreen data).\n\nExclude re-released films unless explicitly stated as new this week.\n\nEnsure weekly relevance: include only events/releases around this week’s date.\n\nAvoid duplicates; merge similar data cleanly.\n\nPrioritize accuracy — if unsure, clearly state “No data available.”",
+              "options": {},
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "HTTP_Request": [
+              "Succeeded"
+            ],
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenAI_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4.1-mini"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "HTTP_Request": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "HTTP Request",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "method": "POST",
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Send_a_message1": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "gmail_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/v2/Mail",
+            "body": {
+              "To": "user@example.com",
+              "Subject": "@body('AI_Agent')?['output']?['subject']",
+              "Body": "@body('AI_Agent')?['output']?['body']"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendEmailV2"
+            }
+          },
+          "runAfter": {
+            "AI_Agent": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Weekly_Thursday_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "gmail_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/gmail"
+    }
+  }
+}

@@ -1,0 +1,511 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "create-low-cost-ai-videos-with-veo3-fast-and-upload-to-youtube-tiktok",
+    "name": "Create low-cost AI videos with Veo3 fast and upload to YouTube & TikTok",
+    "description": "This workflow allows users to **generate AI videos** using the cheaper model **Google Veo3 Fast**, save them to **Google Drive**, generate optimized titles with GPT-4o, and **automatically upload them to YouTube and TikTok** with [Upload-Post](https://www.upload-post.com/?linkId=lp_144414&sourceId=n3witalia&tenantId=upload-post-app). The entire process is triggered from a Google Sheet that acts as the central interface for input and output.\n\nIT automates video creation, uploading, and tracking, ensuring seamless integration between Google Sheets, Google Drive, Google Veo3 Fast, TikTok and YouTube.\n\n---\n\n### Benefits of this Workflow\n\n* **💡 No Code Interface**: Trigger and control the video production pipeline from a simple Google Sheet.\n* **⚙️ Full Automation**: Once set up, the entire video generation and publishing process runs hands-free.\n* **🧠 AI-Powered Creativity**:\n\n  * Generates engaging YouTube and TikTok titles using GPT-4o.\n  * Leverages advanced generative video AI from Google Veo3.\n* **📁 Cloud Storage & Backup**: Stores all generated videos on Google Drive for safekeeping.\n* **📈 YouTube Ready**: Automatically uploads to YouTube with correct metadata, saving time and boosting visibility.\n* **📈 TikTok Ready**: Automatically uploads to TikTok with correct metadata, saving time and boosting visibility.\n* **🧪 Scalable**: Designed to process multiple video prompts by looping through new entries in Google Sheets.\n* **🔒 API-First**: Utilizes secure API-based communication for all services.\n\n---\n\n### **How It Works**  \n1. **Trigger**: The workflow can be started manually (\"When clicking ‘Test workflow’\") or scheduled (\"Schedule Trigger\") to run at regular intervals (e.g., every 5 minutes).  \n2. **Fetch Data**: The \"Get new video\" node retrieves unfilled video requests from a Google Sheet (rows where the \"VIDEO\" column is empty).  \n3. **Video Creation**:  \n   - The \"Set data\" node formats the prompt and duration from the Google Sheet.  \n   - The \"Create Video\" node sends a request to the Fal.run API (Google Veo3 Fast) to generate a video based on the prompt.  \n4. **Status Check**:  \n   - The \"Wait 60 sec.\" node pauses execution for 60 seconds.  \n   - The \"Get status\" node checks the video generation status. If the status is \"COMPLETED,\" the workflow proceeds; otherwise, it waits again.  \n5. **Video Processing**:  \n   - The \"Get Url Video\" node fetches the video URL.  \n   - The \"Generate title\" node uses OpenAI (GPT-4.1) to create an SEO-optimized YouTube and TikTok title.  \n   - The \"Get File Video\" node downloads the video file.  \n6. **Upload & Update**:  \n   - The \"Upload Video\" node saves the video to Google Drive.  \n   - The \"HTTP Request\" node uploads the video to YouTube via the Upload-Post API.  \n   - The \"HTTP Request\" node uploads the video to TikTok via the Upload-Post API.  \n   - The \"Update Youtube URL\" and \"Update result\" nodes update the Google Sheet with the video URL and YouTube link.  \n\n---\n\n### **Set Up Steps**  \n1. **Google Sheet Setup**:  \n   - Create a Google Sheet with columns: **PROMPT**, **DURATION**, **VIDEO**, and **YOUTUBE_URL**.  \n   - Share the Sheet link in the \"Get new video\" node.  \n\n2. **API Keys**:  \n   - Obtain a Fal.run API key (for Veo3) and set it in the \"Create Video\" node (Header: `Authorization: Key YOURAPIKEY`).  \n   - Get an [Upload-Post API key](https://www.upload-post.com/?linkId=lp_144414&sourceId=n3witalia&tenantId=upload-post-app) (for YouTube uploads) and configure the \"HTTP Request\" node (Header: `Authorization: Apikey YOUR_API_KEY`).  \n   - Get an Upload-Post API key (for TikTok uploads) and configure the \"HTTP Request\" node (Header: `Authorization: Apikey YOUR_API_KEY`).  \n\n3. **YouTube Upload Configuration**:  \n   - Replace `YOUR_USERNAME` in the \"HTTP Request\" node with your Upload-Post profile name.  \n\n4. **Schedule Trigger**:  \n   - Configure the \"Schedule Trigger\" node to run periodically (e.g., every 5 minutes).  \n\n---\n\n### **Need help customizing?**  \n[Contact me](mailto:info@n3w.it) for consulting and support or add me on [Linkedin](https://www.linkedin.com/in/davideboizza/). ",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "connectionProviders/Http",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "When_clicking_Test_workflow": {
+          "type": "Request",
+          "kind": "Http"
+        },
+        "Schedule_Trigger": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Get_status": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://queue.fal.run/fal-ai/veo3/requests/@{body('Create_Video')?['request_id']}/status"
+          },
+          "runAfter": {
+            "Wait_60_sec": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_60_sec": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 60,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Completed": [
+              "Succeeded"
+            ],
+            "Create_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Completed": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Completed?",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "383d112e-2cc6-4dd4-8985-f09ce0bd1781",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "COMPLETED"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Get_status": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Update_result": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update result",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "VIDEO": "={{ $('Get Url Video').item.json.video.url }}",
+                  "row_number": "={{ $('Get new video').item.json.row_number }}"
+                },
+                "schema": [
+                  {
+                    "id": "PROMPT",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "PROMPT",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "DURATION",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "DURATION",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "VIDEO",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "VIDEO",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "YOUTUBE_URL",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "YOUTUBE_URL",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "row_number",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "row_number",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "row_number"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "update",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gid=0",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11ebWJvwwXHgvQld9kxywKQUvIoBw6xMa0g0BuIqHDxE/edit#gid=0",
+                "cachedResultName": "Foglio1"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1pcoY9N_vQp44NtSRR5eskkL5Qd0N0BGq7Jh_4m-7VEQ",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1pcoY9N_vQp44NtSRR5eskkL5Qd0N0BGq7Jh_4m-7VEQ/edit?usp=drivesdk",
+                "cachedResultName": "Video Google Veo3"
+              }
+            }
+          },
+          "runAfter": {
+            "Upload_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Set_data": {
+          "type": "Compose",
+          "inputs": {
+            "prompt": "$json.PROMPT }}\n\nDuration of the video: {{ $json.DURATION"
+          },
+          "runAfter": {
+            "Get_new_video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_new_video": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('1pcoY9N_vQp44NtSRR5eskkL5Qd0N0BGq7Jh_4m-7VEQ'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {}
+        },
+        "Create_Video": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://queue.fal.run/fal-ai/veo3/fast",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": "{\n     \"prompt\": \"@{body('Set_data')?['prompt']}\"\n}"
+          },
+          "runAfter": {
+            "Set_data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_Url_Video": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://queue.fal.run/fal-ai/veo3/requests/@{body('Completed')?['request_id']}"
+          },
+          "runAfter": {
+            "Completed": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_File_Video": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@body('Get_Url_Video')?['video']?['url']"
+          },
+          "runAfter": {
+            "Generate_title": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_Video": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Upload Video",
+            "n8nNodeType": "n8n-nodes-base.googleDrive",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "name": "={{ $now.format('yyyyLLddHHmmss') }}-{{ $('Get Url Video').item.json.video.file_name }}",
+              "driveId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "My Drive"
+              },
+              "options": {},
+              "folderId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1aHRwLWyrqfzoVC8HoB-YMrBvQ4tLC-NZ",
+                "cachedResultUrl": "https://drive.google.com/drive/folders/1aHRwLWyrqfzoVC8HoB-YMrBvQ4tLC-NZ",
+                "cachedResultName": "Fal.run"
+              }
+            }
+          },
+          "runAfter": {
+            "Get_File_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "HTTP_Request": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.upload-post.com/api/upload",
+            "body": {
+              "title": "@body('Generate_title')?['message']?['content']",
+              "user": "YOUR_USERNAME",
+              "platform[]": "youtube",
+              "video": null
+            }
+          },
+          "runAfter": {
+            "Get_File_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Generate_title": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Generate title",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini",
+                "cachedResultName": "GPT-4O-MINI"
+              },
+              "options": {},
+              "messages": {
+                "values": [
+                  {
+                    "content": "=Input: {{ $('Get new video').item.json.PROMPT }}"
+                  },
+                  {
+                    "role": "system",
+                    "content": "You are a YouTube SEO expert specialized in creating engaging and optimized titles.\n\nYour task is to generate an effective title for a YouTube video based on the user's video description.\n\nGUIDELINES:\n- Maximum 60 characters to avoid truncation\n- Use relevant keywords for SEO\n- Make the title catchy and clickable\n- Avoid excessive or misleading clickbait\n- Consider the target audience of the content\n- Use numbers, questions, or power words when appropriate\n- IMPORTANT: Generate the title in the same language as the input description\n\nOUTPUT FORMAT:\nProvide only the title, without additional explanations.\n\nEXAMPLE:\nInput: \"Tutorial video on how to cook perfect pasta carbonara\"\nOutput: \"PERFECT Carbonara in 10 Minutes - Chef's Secrets\""
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Get_Url_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Update_Youtube_URL": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update Youtube URL",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "row_number": "={{ $('Get new video').item.json.row_number }}",
+                  "YOUTUBE_URL": "=https://youtu.be/{{ $json.results.youtube.video_id }}"
+                },
+                "schema": [
+                  {
+                    "id": "PROMPT",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "PROMPT",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "DURATION",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "DURATION",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "VIDEO",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "VIDEO",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "YOUTUBE_URL",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "YOUTUBE_URL",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "row_number",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "row_number",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "row_number"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "update",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gid=0",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11ebWJvwwXHgvQld9kxywKQUvIoBw6xMa0g0BuIqHDxE/edit#gid=0",
+                "cachedResultName": "Foglio1"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1pcoY9N_vQp44NtSRR5eskkL5Qd0N0BGq7Jh_4m-7VEQ",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1pcoY9N_vQp44NtSRR5eskkL5Qd0N0BGq7Jh_4m-7VEQ/edit?usp=drivesdk",
+                "cachedResultName": "Video Google Veo3"
+              }
+            }
+          },
+          "runAfter": {
+            "HTTP_Request": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_on_TikTok": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.upload-post.com/api/upload",
+            "body": {
+              "title": "@body('Generate_title')?['message']?['content']",
+              "user": "YOUR_USERNAME",
+              "platform[]": "tiktok",
+              "video": null
+            }
+          },
+          "runAfter": {
+            "Get_File_Video": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "When_clicking_Test_workflow",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

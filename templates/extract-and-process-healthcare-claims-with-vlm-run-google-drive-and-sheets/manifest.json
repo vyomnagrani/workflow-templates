@@ -1,0 +1,201 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "extract-and-process-healthcare-claims-with-vlm-run-google-drive-and-sheets",
+    "name": "Extract and process healthcare claims with VLM Run, Google Drive and Sheets",
+    "description": "**Automatically process healthcare claims into structured Google Sheets entries with VLM Run extraction**\n\n## What this workflow does\n\n* Monitors Google Drive for new files in a target folder\n* Downloads the file inside n8n for processing\n* Sends the file to VLM Run for AI transcription or analysis\n* Fetches extra details from the healthcare.claims-processing domain as JSON\n* Appends normalized fields to a Google Sheet as a new row\n\n## Setup\n\n**Prerequisites:** Google account, VLM Run API credentials, Google Sheets access, n8n. Install the verified VLM Run node by searching for VLM Run in the node list, then click Install. Once installed, you can start using it in your workflows.\n\n**Quick Setup:**\n\n1. Create the Drive folder you want to watch and copy its Folder ID\n2. Create a Google Sheet with headers like: timestamp, file\\_name, file\\_id, mime\\_type, size\\_bytes, uploader\\_email, form\\_type, carrier\\_name, patient\\_name, patient\\_birth\\_date, patient\\_sex, patient\\_address, insurance\\_type, insurance\\_id, insured\\_name, total\\_charge, amount\\_due, amount\\_paid, hospitalization\\_from, hospitalization\\_to, referring\\_physician\\_name, processing\\_notes, …other claim fields as needed\n3. Configure Google Drive OAuth2 for the trigger and download nodes\n4. Add VLM Run API credentials from [https://app.vlm.run/dashboard](https://app.vlm.run/dashboard) to the VLM Run node\n5. Configure Google Sheets OAuth2 and set Spreadsheet ID and target sheet tab\n6. Test by uploading a sample file to the watched Drive folder and activate\n\n## Perfect for\n\n* Centralized intake of healthcare claim documents with instant AI summaries\n* Claims and operations teams collecting structured claim insights\n* Customer support attachments that need quick triage to a Sheet\n* Compliance and audit logs for claim documents\n\n## Key Benefits\n\n* End to end automation from Drive to Sheets\n* Accurate AI output via VLM Run with optional timestamps\n* Domain enrichment from healthcare.claims-processing JSON\n* Clean, searchable logs in Google Sheets\n* No manual steps after activation\n\n## How to customize\n\n**Extend by adding:**\n\n* OCR tuning and field validation for claim forms\n* Per type routing for PDFs, images, or scanned forms\n* Slack notifications on each new Sheet append\n* Keyword extraction and auto tagging for claim categories\n* Error branch that records failures to a second Sheet\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "AI Summarization",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "VLM_Run": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "VLM Run",
+            "n8nNodeType": "@vlm-run/n8n-nodes-vlmrun.vlmRun",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "domain": "healthcare.claims-processing"
+            }
+          },
+          "runAfter": {
+            "Download_file": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Append_row_in_sheet": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('1wZQDu7Hd0iV8dqiLbfUzAwUqKnn8J0ZQFO1weZ_ShxQ'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+            "body": {
+              "FORM TYPE": "@body('VLM_Run')?['response']?['form_type']",
+              "AMOUNT DUE": "@body('VLM_Run')?['response']?['balance_due']",
+              "AMOUNT PAID": "@body('VLM_Run')?['response']?['amount_paid']",
+              "INSURED DOB": "@body('VLM_Run')?['response']?['insured_dob']",
+              "INSURED SEX": "@body('VLM_Run')?['response']?['insured_sex']",
+              "PATIENT SEX": "@body('VLM_Run')?['response']?['patient_sex']",
+              "CARRIER NAME": "@body('VLM_Run')?['response']?['carrier_name']",
+              "FORM VERSION": "@body('VLM_Run')?['response']?['form_version']",
+              "INSURANCE ID": "@body('VLM_Run')?['response']?['insured_id_number']",
+              "INSURED NAME": "@body('VLM_Run')?['response']?['insured_name']",
+              "PATIENT NAME": "@body('VLM_Run')?['response']?['patient_name']",
+              "TOTAL CHARGE": "@body('VLM_Run')?['response']?['total_charge']",
+              "AUTO ACCIDENT": "@body('VLM_Run')?['response']?['auto_accident']",
+              "INSURANCE TYPE": "@body('VLM_Run')?['response']?['insurance_type']",
+              "MARTIAL STATUS": "@body('VLM_Run')?['response']?['marital_status']",
+              "OTHER ACCIDENT": "@body('VLM_Run')?['response']?['other_accident']",
+              "INSURED ADDRESS": "$json.response.insured_address.street }}, @{body('VLM_Run')?['response']?['insured_address']?['city']}, @{body('VLM_Run')?['response']?['insured_address']?['state']}, {{ $json.response.insured_address.zip_code",
+              "PATIENT ADDRESS": "$json.response.patient_address.street }}, @{body('VLM_Run')?['response']?['patient_address']?['city']}, @{body('VLM_Run')?['response']?['patient_address']?['state']}, {{ $json.response.patient_address.zip_code",
+              "INSURED EMPLOYER": "@body('VLM_Run')?['response']?['insured_employer']",
+              "INSURED PHONE NO": "@body('VLM_Run')?['response']?['insured_address']?['phone']",
+              "PATIENT PHONE NO": "@body('VLM_Run')?['response']?['patient_address']?['phone']",
+              "PROCESSING NOTES": "@body('VLM_Run')?['response']?['processing_notes']",
+              "EMPLOYMENT STATUS": "@body('VLM_Run')?['response']?['employment_status']",
+              "OTHER INSURED DOB": "@body('VLM_Run')?['response']?['other_insured_dob']",
+              "OTHER INSURED SEX": "@body('VLM_Run')?['response']?['other_insured_sex']",
+              "UNABLE TO WORK TO": "@body('VLM_Run')?['response']?['unable_to_work_to']",
+              "EMPLOYMENT RELATED": "@body('VLM_Run')?['response']?['employment_related']",
+              "FORM APPROVAL DATE": "@body('VLM_Run')?['response']?['form_approval_date']",
+              "HOSPITALIZATION TO": "@body('VLM_Run')?['response']?['hospitalization_to']",
+              "OTHER INSURED NAME": "@body('VLM_Run')?['response']?['other_insured_name']",
+              "PATIENT ACCOUNT NO": "@body('VLM_Run')?['response']?['patient_account_number']",
+              "PATIENT BIRTH DATE": "@body('VLM_Run')?['response']?['patient_birth_date']",
+              "UNABLE TO WORK FROM": "@body('VLM_Run')?['response']?['unable_to_work_from']",
+              "CURRENT ILLNESS DATE": "@body('VLM_Run')?['response']?['current_illness_date']",
+              "HOSPITALIZATION FROM": "@body('VLM_Run')?['response']?['hospitalization_from']",
+              "INSURED POLICY GROUP": "@body('VLM_Run')?['response']?['insured_policy_group']",
+              "PATIENT RELATIONSHIP": "@body('VLM_Run')?['response']?['patient_relationship']",
+              "SIMILLAR ILLNESS DATE": "@body('VLM_Run')?['response']?['similar_illness_date']",
+              "INSURED INSURANCE PLAN": "@body('VLM_Run')?['response']?['insured_insurance_plan']",
+              "OTHER INSURED EMPLOYER": "@body('VLM_Run')?['response']?['other_insured_employer']",
+              "REFERRING PHYSICIAN NAME": "@body('VLM_Run')?['response']?['referring_physician_name']",
+              "OTHER INSURED POLICY GROUP": "@body('VLM_Run')?['response']?['other_insured_policy_group']",
+              "OTHER INSURED INSURANCE PLAN": "@body('VLM_Run')?['response']?['other_insured_insurance_plan']"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "VLM_Run": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_file": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Download file",
+            "n8nNodeType": "n8n-nodes-base.googleDrive",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $json.id }}"
+              },
+              "options": {},
+              "operation": "download"
+            }
+          },
+          "runAfter": {
+            "Google_Drive_Trigger": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Drive_Trigger": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Drive Trigger",
+            "n8nNodeType": "n8n-nodes-base.googleDriveTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "event": "fileCreated",
+              "options": {},
+              "pollTimes": {
+                "item": [
+                  {
+                    "mode": "everyMinute"
+                  }
+                ]
+              },
+              "triggerOn": "specificFolder",
+              "folderToWatch": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1E8rvLEWKguorMT36yCD1jY78G0u8g6g7",
+                "cachedResultUrl": "https://drive.google.com/drive/folders/1E8rvLEWKguorMT36yCD1jY78G0u8g6g7",
+                "cachedResultName": "test_data"
+              }
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

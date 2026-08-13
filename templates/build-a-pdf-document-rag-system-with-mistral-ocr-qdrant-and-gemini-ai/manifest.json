@@ -1,0 +1,587 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "build-a-pdf-document-rag-system-with-mistral-ocr-qdrant-and-gemini-ai",
+    "name": "Build a PDF Document RAG System with Mistral OCR, Qdrant and Gemini AI",
+    "description": "This workflow is designed to **process PDF documents** using **Mistral's OCR** capabilities, store the extracted text in a Qdrant vector database, and enable Retrieval-Augmented Generation (**RAG**) for answering questions. Here’s how it functions:  \n\nOnce configured, the workflow automates document ingestion, vectorization, and intelligent querying, enabling powerful RAG applications.\n\n---\n\n### **Benefits**\n\n* **End-to-End Automation**\n  No manual interaction is needed: documents are read, processed, and made queryable with minimal setup.\n\n* **Scalable and Modular**\n  The workflow uses subflows and batching, making it easy to scale and customize.\n\n* **Multi-Model Support**\n  Combines Mistral for OCR, OpenAI for embeddings, and Gemini for intelligent answering—taking advantage of the strengths of each.\n\n* **Real-Time Q\\&A**\n  With RAG integration, users can query document content through natural language and receive accurate responses grounded in the PDF data.\n\n* **Light or Full Mode**\n  Users can choose to index full page content or only summarized text, optimizing for either performance or richness.\n\n---\n\n### **How It Works** \n\n1. **PDF Processing with Mistral OCR**:  \n   - The workflow starts by uploading a PDF file to Mistral's API, which performs OCR to extract text and metadata.  \n   - The extracted content is split into manageable chunks (e.g., pages or sections) for further processing.  \n\n2. **Vector Storage in Qdrant**:  \n   - The extracted text is converted into embeddings using OpenAI's embedding model.  \n   - These embeddings are stored in a Qdrant vector database, enabling efficient similarity searches for RAG.  \n\n3. **Question-Answering with RAG**:  \n   - When a user submits a question via a chat interface, the workflow retrieves relevant text chunks from Qdrant using vector similarity.  \n   - A language model (Google Gemini) generates answers based on the retrieved context, providing accurate and context-aware responses.  \n\n4. **Optional Summarization**:  \n   - The workflow includes an optional summarization step using Google Gemini to condense the extracted text for faster processing or lighter RAG usage.  \n\n---\n\n### **Set Up Steps**  \nTo deploy this workflow in n8n, follow these steps:  \n\n1. **Configure Qdrant Database**:  \n   - Replace `QDRANTURL` and `COLLECTION` in the \"Create collection\" and \"Refresh collection\" nodes with your Qdrant instance details.  \n   - Ensure the Qdrant collection is configured with the correct vector size (e.g., 1536 for OpenAI embeddings) and distance metric (e.g., Cosine).  \n\n2. **Set Up Credentials**:  \n   - Add credentials for:  \n     - **Mistral Cloud API** (for OCR processing).  \n     - **OpenAI API** (for embeddings).  \n     - **Google Gemini API** (for chat and summarization).  \n     - **Google Drive** (if sourcing PDFs from Drive).  \n     - **Qdrant API** (for vector storage).  \n\n3. **PDF Source Configuration**:  \n   - If using Google Drive, specify the folder ID in the \"Search PDFs\" node.  \n   - Alternatively, modify the workflow to accept PDFs from other sources (e.g., direct uploads or external APIs).  \n\n4. **Customize Text Processing**:  \n   - Adjust chunk size and overlap in the \"Token Splitter\" node to optimize for your document type.  \n   - Choose between raw text or summarized content for RAG by toggling between the \"Set page\" and \"Summarization Chain\" nodes.  \n\n5. **Test the RAG**:  \n   - Trigger the workflow manually or via a chat message to verify OCR, embedding, and Qdrant storage.  \n   - Use the \"Question and Answer Chain\" node to test query responses.  \n\n6. **Optional Sub-Workflows**:  \n   - The workflow supports execution as a sub-workflow for batch processing (e.g., handling multiple PDFs).  \n\n----\n### **Need help customizing?**  \n[Contact me](mailto:info@n3w.it) for consulting and support or add me on [Linkedin](https://www.linkedin.com/in/davideboizza/). ",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Document Extraction",
+      "AI RAG",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "When_clicking_Test_workflow": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Mistral_Upload": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.mistral.ai/v1/files",
+            "body": {
+              "purpose": "ocr",
+              "file": null
+            }
+          },
+          "runAfter": {
+            "Get_PDF": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Mistral_Signed_URL": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.mistral.ai/v1/files/@{body('Mistral_Upload')?['id']}/url",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "runAfter": {
+            "Mistral_Upload": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Mistral_DOC_OCR": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.mistral.ai/v1/ocr",
+            "body": "{\n  \"model\": \"mistral-ocr-latest\",\n  \"document\": {\n    \"type\": \"document_url\",\n    \"document_url\": \"@{body('Mistral_Signed_URL')?['url']}\"\n  },\n  \"include_image_base64\": true\n}"
+          },
+          "runAfter": {
+            "Mistral_Signed_URL": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Loop_Over_Items": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Loop Over Items",
+            "n8nNodeType": "n8n-nodes-base.splitInBatches",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Code": [
+              "Succeeded"
+            ],
+            "Wait": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Refresh_collection": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "http:/YOUR_AWS_SECRET_KEY_HERE/delete",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": "{\n  \"filter\": {}\n}"
+          },
+          "runAfter": {}
+        },
+        "Embeddings_OpenAI": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Embeddings OpenAI",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "stripNewLines": false
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Default_Data_Loader": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Default Data Loader",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Token_Splitter": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Token_Splitter": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Token Splitter",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.textSplitterTokenSplitter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "chunkSize": 400,
+              "chunkOverlap": 40
+            }
+          },
+          "runAfter": {}
+        },
+        "When_chat_message_received": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "When chat message received",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chatTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Question_and_Answer_Chain": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Question and Answer Chain",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chainRetrievalQa",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Vector_Store_Retriever": [
+              "Succeeded"
+            ],
+            "Google_Gemini_Chat_Model": [
+              "Succeeded"
+            ],
+            "When_chat_message_received": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Gemini_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Gemini Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "modelName": "models/gemini-1.5-flash"
+            }
+          },
+          "runAfter": {}
+        },
+        "Vector_Store_Retriever": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Vector Store Retriever",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.retrieverVectorStore",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "Qdrant_Vector_Store1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Qdrant_Vector_Store1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Qdrant Vector Store1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "qdrantCollection": {
+                "__rl": true,
+                "mode": "list",
+                "value": "ocr_mistral_test",
+                "cachedResultName": "ocr_mistral_test"
+              }
+            }
+          },
+          "runAfter": {
+            "Embeddings_OpenAI1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Embeddings_OpenAI1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Embeddings OpenAI1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Code": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Mistral_DOC_OCR'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst data = $json.pages;\n\nreturn data.map(entry => ({\n  json: {\n    markdown: entry.markdown\n  }\n}));\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Mistral_DOC_OCR": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 1,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Qdrant_Vector_Store": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Qdrant_Vector_Store": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Qdrant Vector Store",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "insert",
+              "options": {
+                "collectionConfig": ""
+              },
+              "qdrantCollection": {
+                "__rl": true,
+                "mode": "list",
+                "value": "ocr_mistral_test",
+                "cachedResultName": "ocr_mistral_test"
+              }
+            }
+          },
+          "runAfter": {
+            "Set_page": [
+              "Succeeded"
+            ],
+            "Embeddings_OpenAI": [
+              "Succeeded"
+            ],
+            "Default_Data_Loader": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Loop_Over_Items1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Loop Over Items1",
+            "n8nNodeType": "n8n-nodes-base.splitInBatches",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Search_PDFs": [
+              "Succeeded"
+            ],
+            "Execute_Workflow": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Execute_Workflow": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Execute Workflow",
+            "n8nNodeType": "n8n-nodes-base.executeWorkflow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "each",
+              "options": {
+                "waitForSubWorkflow": true
+              },
+              "workflowId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "AdVUaHTE9Jk1KO72",
+                "cachedResultName": "Mistral OCR_subworkflow"
+              },
+              "workflowInputs": {
+                "value": {},
+                "schema": [],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": true
+              }
+            }
+          },
+          "runAfter": {
+            "Edit_Fields1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "When_Executed_by_Another_Workflow": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "When Executed by Another Workflow",
+            "n8nNodeType": "n8n-nodes-base.executeWorkflowTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "inputSource": "passthrough"
+            }
+          },
+          "runAfter": {}
+        },
+        "Edit_Fields1": {
+          "type": "Compose",
+          "inputs": {
+            "file_id": "@body('Loop_Over_Items1')?['id']"
+          },
+          "runAfter": {
+            "Loop_Over_Items1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Create_collection": {
+          "type": "Http",
+          "inputs": {
+            "method": "PUT",
+            "uri": "http://QDRANTURL/collections/COLLECTION",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": "{\n  \"vectors\": {\n    \"size\": 1536,\n    \"distance\": \"Cosine\"  \n  },\n  \"shard_number\": 1,  \n  \"replication_factor\": 1,  \n  \"write_consistency_factor\": 1 \n}"
+          },
+          "runAfter": {}
+        },
+        "Summarization_Chain": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Summarization Chain",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chainSummarization",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "summarizationMethodAndPrompts": {
+                  "values": {
+                    "prompt": "Write a concise summary of the following (in italiano):\n\n\n\"{text}\"\n\n\nCONCISE SUMMARY:",
+                    "combineMapPrompt": "Write a concise summary of the following (in italiano):\n\n\n\"{text}\"\n\n\nCONCISE SUMMARY:"
+                  }
+                }
+              }
+            }
+          },
+          "runAfter": {
+            "Google_Gemini_Chat_Model1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Gemini_Chat_Model1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Gemini Chat Model1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "modelName": "models/gemini-2.0-flash-exp"
+            }
+          },
+          "runAfter": {}
+        },
+        "Set_page": {
+          "type": "Compose",
+          "inputs": {
+            "text": "@body('Loop_Over_Items')?['markdown']"
+          },
+          "runAfter": {
+            "Loop_Over_Items": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Set_summary": {
+          "type": "Compose",
+          "inputs": {
+            "text": "@body('Summarization_Chain')?['response']?['text']"
+          },
+          "runAfter": {
+            "Summarization_Chain": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Search_PDFs": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Search PDFs",
+            "n8nNodeType": "n8n-nodes-base.googleDrive",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "filter": {
+                "folderId": {
+                  "__rl": true,
+                  "mode": "list",
+                  "value": "1LWVo3yn_1bWQJsLskBIbWTGwlfObvtUK",
+                  "cachedResultUrl": "https://drive.google.com/drive/folders/1LWVo3yn_1bWQJsLskBIbWTGwlfObvtUK",
+                  "cachedResultName": "PDFs"
+                }
+              },
+              "options": {},
+              "resource": "fileFolder"
+            }
+          },
+          "runAfter": {
+            "Refresh_collection": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_PDF": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get PDF",
+            "n8nNodeType": "n8n-nodes-base.googleDrive",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $json.file_id }}"
+              },
+              "options": {},
+              "operation": "download"
+            }
+          },
+          "runAfter": {
+            "When_Executed_by_Another_Workflow": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "When_clicking_Test_workflow",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

@@ -1,0 +1,446 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "build-your-first-ai-data-analyst-chatbot",
+    "name": "Build your first AI data analyst chatbot",
+    "description": "Enhance your data analysis by connecting an AI Agent to your dataset, using n8n tools.\n\nThis template teaches you how to build an AI Data Analyst Chatbot that is capable of pulling data from your sources, using tools like Google Sheets or databases. It's designed to be easy and efficient, making it a good starting point for AI-driven data analysis.\n\nYou can easily replace the current Google Sheets tools for databases like Postgres or MySQL.\n\n![image_template_data.png](fileId:969)\n\n### How It Works\nThe core of the workflow is the AI Agent. It's connected to different data retrieval tools, to get data from Google Sheets (or your preferred database) in many different ways.\n\nOnce the data is retrieved, the Calculator tool allows the AI to perform mathematical operations, making your data analysis precise.\n\n### Who is this template for\n- **Data Analysts & Researchers:** Pull data from different sources and perform quick calculations.\n- **Developers & AI Enthusiasts:** Learn to build your first AI Agent with easy dataset access.\n- **Business Owners:** Streamline your data analysis with AI insights and automate repetitive tasks.\n- **Automation Experts:** Enhance your automation skills by integrating AI with your existing databases.\n\n### How to Set Up\nYou can find detailed instructions in the workflow itself.\n\n### Check out my other templates\n👉 [**https://n8n.io/creators/solomon/**](https://n8n.io/creators/solomon/)",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Internal Wiki",
+      "AI Chatbot",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "When_chat_message_received": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "When chat message received",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chatTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "AI_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "AI Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "maxIterations": 15,
+                "systemMessage": "=You are a helpful assistant.\nCurrent timestamp is {{ $now }}"
+              }
+            }
+          },
+          "runAfter": {
+            "Calculator": [
+              "Succeeded"
+            ],
+            "Buffer_Memory": [
+              "Succeeded"
+            ],
+            "Records_by_date": [
+              "Succeeded"
+            ],
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ],
+            "Get_all_transactions": [
+              "Succeeded"
+            ],
+            "Get_transactions_by_status": [
+              "Succeeded"
+            ],
+            "When_chat_message_received": [
+              "Succeeded"
+            ],
+            "Get_transactions_by_product_name": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenAI_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o",
+                "cachedResultName": "gpt-4o"
+              },
+              "options": {
+                "temperature": 0.2
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Calculator": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Calculator",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.toolCalculator",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "Code": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Google_Sheets_request'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Ensure there's at least one input item.\nif (!items || items.length === 0) {\n  throw new Error(\"No input items found.\");\n}\n\n// Our input is expected to have a 'data' property containing the JSONP string.\nconst input = items[0].json;\n\nif (!input.data) {\n  throw new Error(\"Input JSON does not have a 'data' property.\");\n}\n\nconst rawData = input.data;\n\n// Use a regex to extract the JSON content from the Google Visualization JSONP response.\nconst regex = /google\\.visualization\\.Query\\.setResponse\\((.*)\\);?$/s;\nconst match = rawData.match(regex);\n\nif (!match) {\n  throw new Error(\"Input data does not match the expected Google Visualization JSONP format.\");\n}\n\nconst jsonString = match[1];\n\n// Parse the extracted JSON string.\nlet parsed;\ntry {\n  parsed = JSON.parse(jsonString);\n} catch (error) {\n  throw new Error(\"Failed to parse JSON: \" + error.message);\n}\n\n// Verify that the parsed JSON has the expected 'table' structure with 'cols' and 'rows'.\nif (!parsed.table || !Array.isArray(parsed.table.cols) || !Array.isArray(parsed.table.rows)) {\n  throw new Error(\"Parsed JSON does not have the expected 'table' structure with 'cols' and 'rows'.\");\n}\n\nconst cols = parsed.table.cols;\nconst rows = parsed.table.rows;\n\n// Helper function to convert date string from \"Date(YYYY,M,D)\" to \"YYYY-MM-DD\"\nfunction formatDate(dateStr) {\n  const match = dateStr.match(/^Date\\((\\d+),(\\d+),(\\d+)\\)$/);\n  if (!match) return dateStr;\n  const year = parseInt(match[1], 10);\n  const month = parseInt(match[2], 10) + 1; // JavaScript months are 0-indexed\n  const day = parseInt(match[3], 10);\n  // Format with leading zeros\n  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;\n}\n\n// Map each row into an object using the column labels as keys.\nconst newItems = rows.map(row => {\n  const obj = {};\n  cols.forEach((col, index) => {\n    let value = row.c && row.c[index] ? row.c[index].v : null;\n    // If the column type is \"date\" and the value is a string that looks like \"Date(YYYY,M,D)\"\n    if (col.type === \"date\" && typeof value === \"string\") {\n      value = formatDate(value);\n    }\n    obj[col.label] = value;\n  });\n  return { json: obj };\n});\n\n// Return the new array of items.\nreturn newItems;\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Google_Sheets_request": [
+              "Succeeded"
+            ]
+          }
+        },
+        "When_Executed_by_Another_Workflow": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "When Executed by Another Workflow",
+            "n8nNodeType": "n8n-nodes-base.executeWorkflowTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "workflowInputs": {
+                "values": [
+                  {
+                    "name": "start_date"
+                  },
+                  {
+                    "name": "end_date"
+                  },
+                  {
+                    "name": "status"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Records_by_date": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Records by date",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.toolWorkflow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "name": "records_by_date_and_or_status",
+              "workflowId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "a2BIIjr2gLBay06M",
+                "cachedResultName": "Template | Your first AI Data Analyst"
+              },
+              "description": "Use this tool to get records filtered by date. You can also filter by status at the same time, if you want.",
+              "workflowInputs": {
+                "value": {
+                  "status": "={{ $fromAI(\"status\", \"Status of the transaction. Can be Completed, Refund or Error. Leave empty if you don't need this now.\", \"string\") }}",
+                  "end_date": "={{ $fromAI(\"end_date\", \"End date in format YYYY-MM-DD\", \"string\") }}",
+                  "start_date": "={{ $fromAI(\"start_date\", \"Start date in format YYYY-MM-DD\", \"string\") }}"
+                },
+                "schema": [
+                  {
+                    "id": "start_date",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "start_date",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "end_date",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "end_date",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "status",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "status",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Aggregate": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Aggregate",
+            "n8nNodeType": "n8n-nodes-base.aggregate",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "aggregate": "aggregateAllItemData"
+            }
+          },
+          "runAfter": {
+            "Filter_by_status": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Sheets_request": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://docs.google.com/spreadsheets/d/18A4d7KYrk8-uEMbu7shoQe_UIzmbTLV1FMN43bjA7qc/gviz/tq"
+          },
+          "runAfter": {
+            "When_Executed_by_Another_Workflow": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_transactions_by_product_name": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get transactions by product name",
+            "n8nNodeType": "n8n-nodes-base.googleSheetsTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "filtersUI": {
+                "values": [
+                  {
+                    "lookupValue": "={{ $fromAI(\"product_name\", \"The product name\", \"string\") }}",
+                    "lookupColumn": "Product"
+                  }
+                ]
+              },
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gid=0",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18A4d7KYrk8-uEMbu7shoQe_UIzmbTLV1FMN43bjA7qc/edit#gid=0",
+                "cachedResultName": "Sheet1"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "url",
+                "value": "https://docs.google.com/spreadsheets/d/18A4d7KYrk8-uEMbu7shoQe_UIzmbTLV1FMN43bjA7qc/edit?usp=sharing"
+              },
+              "descriptionType": "manual",
+              "toolDescription": "Find transactions by product.\nOur products are:\n- Widget A\n- Widget B\n- Widget C\n- Widget D"
+            }
+          },
+          "runAfter": {}
+        },
+        "Get_all_transactions": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get all transactions",
+            "n8nNodeType": "n8n-nodes-base.googleSheetsTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gid=0",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18A4d7KYrk8-uEMbu7shoQe_UIzmbTLV1FMN43bjA7qc/edit#gid=0",
+                "cachedResultName": "Sheet1"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "url",
+                "value": "https://docs.google.com/spreadsheets/d/18A4d7KYrk8-uEMbu7shoQe_UIzmbTLV1FMN43bjA7qc/edit?usp=sharing"
+              },
+              "descriptionType": "manual",
+              "toolDescription": "Only use this as last resort, because it will pull all data at once."
+            }
+          },
+          "runAfter": {}
+        },
+        "Buffer_Memory": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Buffer Memory",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "Filter_by_status": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Filter by status",
+            "n8nNodeType": "n8n-nodes-base.filter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "e50da873-bbbd-41d3-a418-83193907977c",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "leftValue": "={{ $json.Status }}",
+                    "rightValue": "={{ $('When Executed by Another Workflow').item.json.status }}"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Code": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_transactions_by_status": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get transactions by status",
+            "n8nNodeType": "n8n-nodes-base.googleSheetsTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "filtersUI": {
+                "values": [
+                  {
+                    "lookupValue": "={{ $fromAI(\"transaction_status\", \"Transaction status can be Refund, Completed or Error\", \"string\") }}",
+                    "lookupColumn": "Status"
+                  }
+                ]
+              },
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gid=0",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18A4d7KYrk8-uEMbu7shoQe_UIzmbTLV1FMN43bjA7qc/edit#gid=0",
+                "cachedResultName": "Sheet1"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "url",
+                "value": "https://docs.google.com/spreadsheets/d/18A4d7KYrk8-uEMbu7shoQe_UIzmbTLV1FMN43bjA7qc/edit?usp=sharing"
+              },
+              "descriptionType": "manual",
+              "toolDescription": "Find transactions by status"
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

@@ -1,0 +1,42 @@
+{
+  "sourceWorkflowName": "Learn secure webhook APIs with authentication and Supabase integration",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 23,
+  "totalNodes": 27,
+  "coverage": 0.8519,
+  "diagnostics": [
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.supabase.",
+      "severity": "warning",
+      "node_name": "Get a row",
+      "node_type": "n8n-nodes-base.supabase",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.supabase.",
+      "severity": "warning",
+      "node_name": "Create a row",
+      "node_type": "n8n-nodes-base.supabase",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.supabase.",
+      "severity": "warning",
+      "node_name": "Update a row",
+      "node_type": "n8n-nodes-base.supabase",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.supabase.",
+      "severity": "warning",
+      "node_name": "Delete a row",
+      "node_type": "n8n-nodes-base.supabase",
+      "json_path": null
+    }
+  ]
+}

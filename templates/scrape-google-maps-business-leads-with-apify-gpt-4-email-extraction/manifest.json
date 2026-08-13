@@ -1,0 +1,604 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "scrape-google-maps-business-leads-with-apify-gpt-4-email-extraction",
+    "name": "Scrape Google Maps business leads with Apify & GPT-4 email extraction",
+    "description": "# 💥 Automate Scrape Google Maps Business Leads (Email, Phone, Website) using Apify\n\n![Workflow Overview](https://www.dr-firas.com/googlemaps.png)\n\n# 🧠 AI-Powered Business Prospecting Workflow (Google Maps + Email Enrichment)\n\n### Who is this for?\nThis workflow is designed for **entrepreneurs, sales teams, marketers, and agencies** who want to **automate lead discovery** and **build qualified business contact lists** — without manual searching or copying data.  \nIt’s perfect for anyone seeking an **AI-driven prospecting assistant** that saves time, centralizes business data, and stays fully **compliant with GDPR**.\n\n---\n\n### What problem is this workflow solving?\nManually searching for potential clients, copying their details, and qualifying them takes hours — and often leads to messy spreadsheets.  \nThis workflow **automates the process** by:\n- Gathering **publicly available business information** from Google Maps  \n- Enriching that data with **AI-powered summaries and contact insights**  \n- Compiling it into a clean, ready-to-use **Google Sheet database**\n\nThis means you can focus on **closing deals**, not collecting data.\n\n---\n\n### What this workflow does\nThis automation identifies, analyzes, and organizes business opportunities in just a few steps:\n1. **Telegram Trigger** → Send a message specifying your business type, number of leads, and Google Maps URL.  \n2. **Apify Integration** → Fetches business information from Google Maps (public data).  \n3. **Duplicate Removal** → Ensures clean, non-redundant results.  \n4. **AI Summarization (GPT-4)** → Generates concise business summaries for better understanding.  \n5. **Email Extraction (GPT-4)** → Finds and extracts professional contact emails from company websites.  \n6. **Google Sheets Integration** → Automatically stores results (name, category, location, phone, email, etc.) in a structured sheet.  \n7. **Telegram Notification** → Confirms when all businesses are processed.  \n\nAll data is handled ethically and transparently — only from **public sources** and without any unsolicited contact.\n\n---\n\n### Setup\n1. **Telegram Setup**  \n   - Create a Telegram bot via [BotFather](https://t.me/BotFather)  \n   - Copy the API token and paste it into the Telegram Trigger node credentials.  \n\n2. **Apify Setup**  \n   - Create an account on [Apify](https://www.apify.com?fpr=udemy)  \n   - Get your API token and connect it to the “Run Google Maps Scraper” node.  \n\n3. **Google Sheets Setup**  \n   - Connect your Google account under the “Google Maps Database” node.  \n   - Specify the target spreadsheet and worksheet name.  \n\n4. **OpenAI Setup**  \n   - Add your OpenAI API key to the AI nodes (“Company Summary Info” and “Extract Business Email”).  \n\n5. **Test**  \n   - Send a Telegram message like:  \n     `restaurants, 5, https://www.google.com/maps/search/restaurants+in+Paris`  \n\n---\n\n### How to customize this workflow to your needs\n- **Change search region or business type** by modifying the Telegram input message format.  \n- **Adjust the number of leads** via the `maxCrawledPlacesPerSearch` parameter in Apify.  \n- **Add filters or enrichments** (e.g., websites with social links, review counts, or opening hours).  \n- **Customize AI summaries** by tweaking the prompt inside the “Company Summary Info” node.  \n- **Integrate CRM tools** like HubSpot or Pipedrive by adding a connector after the Google Sheets node.  \n\n---\n\n### ⚙️ Expected Outcome\n✅ A clean, enriched, and ready-to-use **Google Sheet** of businesses with:  \n- Name, category, address, and city  \n- Phone number and website  \n- AI-generated business summary  \n- Extracted professional email (if available)  \n\n✅ Telegram confirmation once all businesses are processed  \n\n✅ Fully automated, scalable, and GDPR-compliant prospecting workflow  \n\n---\n\n💡 *This workflow provides a transparent, ethical way to streamline your B2B lead research while staying compliant with privacy and anti-spam regulations.*\n\n\n### 🎥 [Watch This Tutorial](https://youtu.be/cijBIHI6iLk)\n\n![Apify logo](https://www.dr-firas.com/apify.png)\n\n---\n### 👋 Need help or want to customize this?\n📩 Contact: [LinkedIn](https://www.linkedin.com/in/dr-firas/)  \n📺 YouTube: [@DRFIRASS](https://www.youtube.com/@DRFIRASS)  \n🚀 Workshops: [Mes Ateliers n8n](https://hotm.art/formation-n8n)\n\n---\n📄 **Documentation**: [Notion Guide](https://automatisation.notion.site/Automate-Scrape-Google-Maps-Business-Leads-Email-Phone-Website-using-Apify-2a53d6550fd98118ba22e441171944dd?source=copy_link)\n### Need help customizing?\nContact me for consulting and support : [Linkedin](https://www.linkedin.com/in/dr-firas/) / [Youtube](https://www.youtube.com/channel/UCriIQI8uaoEro5FEnOpeidQ) / [🚀 Mes Ateliers n8n  ](https://hotm.art/formation-n8n)",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Lead Generation",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "/managedApis/telegrambotip",
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Get_dataset_items": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get dataset items",
+            "n8nNodeType": "@apify/n8n-nodes-apify.apify",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "limit": {},
+              "offset": {},
+              "resource": "Datasets",
+              "datasetId": "={{ $json.defaultDatasetId }}"
+            }
+          },
+          "runAfter": {
+            "Run_Google_Maps_Scraper": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Remove_Duplicates": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Remove Duplicates",
+            "n8nNodeType": "n8n-nodes-base.removeDuplicates",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "compare": "selectedFields",
+              "options": {},
+              "fieldsToCompare": "title"
+            }
+          },
+          "runAfter": {
+            "Get_dataset_items": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Run_Google_Maps_Scraper": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Run Google Maps Scraper",
+            "n8nNodeType": "@apify/n8n-nodes-apify.apify",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "actorId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "nwua9Gu5YrADL7ZDj",
+                "cachedResultUrl": "https://console.apify.com/actors/nwua9Gu5YrADL7ZDj/input",
+                "cachedResultName": "Google Maps Scraper (compass/crawler-google-places)"
+              },
+              "timeout": {},
+              "customBody": "={\n    \"includeWebResults\": false,\n    \"language\": \"fr\",\n    \"locationQuery\": \"\",\n    \"maxCrawledPlacesPerSearch\": {{ $('Extract Input Data').item.json.limit }},\n    \"maxImages\": 0,\n    \"maximumLeadsEnrichmentRecords\": 0,\n    \"scrapeContacts\": false,\n    \"scrapeDirectories\": false,\n    \"scrapeImageAuthors\": false,\n    \"scrapePlaceDetailPage\": false,\n    \"scrapeReviewsPersonalData\": true,\n    \"scrapeTableReservationProvider\": false,\n    \"searchStringsArray\": [\n        \"{{ $('Extract Input Data').item.json.sector }}\"\n    ],\n    \"skipClosedPlaces\": false,\n    \"startUrls\": [\n        {\n            \"url\": \"{{ $('Extract Input Data').item.json.mapsUrl }}\"\n        }\n    ]\n}"
+            }
+          },
+          "runAfter": {
+            "Extract_Input_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Loop_Over_Items": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Loop Over Items",
+            "n8nNodeType": "n8n-nodes-base.splitInBatches",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Remove_Duplicates": [
+              "Succeeded"
+            ],
+            "Pause_for_rate_limit": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_maps_database": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_SPREADSHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_WORKSHEET'))}/items",
+            "body": {
+              "url": "@body('Loop_Over_Items')?['url']",
+              "city": "@body('Loop_Over_Items')?['city']",
+              "rank": "@body('Loop_Over_Items')?['rank']",
+              "phone": "@{\"'\" + (body('Loop_Over_Items')?['phonesUncertain'] || body('Loop_Over_Items')?['phoneUnformatted'] || '')}",
+              "title": "@body('Loop_Over_Items')?['title']",
+              "street": "@body('Loop_Over_Items')?['street']",
+              "address": "@body('Loop_Over_Items')?['address']",
+              "website": "@body('Loop_Over_Items')?['website']",
+              "imageUrl": "@body('Loop_Over_Items')?['imageUrl']",
+              "scrapedAt": "@body('Loop_Over_Items')?['scrapedAt']",
+              "categories": "@body('Loop_Over_Items')?['categories']",
+              "postalcode": "@body('Loop_Over_Items')?['postalCode']",
+              "totalScore": "@body('Loop_Over_Items')?['totalScore']",
+              "countryCode": "@body('Loop_Over_Items')?['countryCode']",
+              "categoryName": "@body('Loop_Over_Items')?['categoryName']",
+              "isAdvertisement": "@body('Loop_Over_Items')?['isAdvertisement']",
+              "companySummaryIn": "@body('AI_Company_Description_Generator')?['message']?['content']?['companySummary']",
+              "phoneUnformatted": "@{body('Loop_Over_Items')?['phonesUncertain'] || body('Loop_Over_Items')?['phoneUnformatted'] || 'No phone found'}"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "AI_Company_Description_Generator": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Pause_for_rate_limit": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 2,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Email_Update": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Telegram_Trigger": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Telegram Trigger",
+            "n8nNodeType": "n8n-nodes-base.telegramTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "updates": [
+                "message"
+              ],
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Extract_Input_Data": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Telegram_Trigger'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Parse the Telegram message and extract three comma-separated values\nconst messageText = $input.first().json.message.text;\n\n// Split by commas and trim whitespace\nconst parts = messageText.split(';').map(part => part.trim());\n\n// Extract the three values\nconst sector = parts[0] || '';\nconst limit = parseInt(parts[1]) || 0;\nconst mapsUrl = parts[2] || '';\n\n// Return the parsed data as a JSON object\nreturn [\n  {\n    json: {\n      sector: sector,\n      limit: limit,\n      mapsUrl: mapsUrl\n    }\n  }\n];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Telegram_Trigger": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Notification_message": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "telegrambotip_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/bot@{encodeURIComponent('REPLACE_WITH_TELEGRAM_BOT_TOKEN')}/sendMessage",
+            "body": {
+              "chat_id": "@first(body('Telegram_Trigger'))?['message']?['chat']?['id']",
+              "text": "DONE"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendMessage"
+            }
+          },
+          "runAfter": {
+            "Loop_Over_Items": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_Only_Website_URLs": {
+          "type": "Compose",
+          "inputs": {
+            "Site internet": "@first(body('Loop_Over_Items'))?['website']"
+          },
+          "runAfter": {
+            "Google_maps_database": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fetch_Raw_HTML_Content_from_Business_Website": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@body('Extract_Only_Website_URLs')?['Site internet']"
+          },
+          "runAfter": {
+            "Extract_Only_Website_URLs": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_Business_Email_from_Website_HTML_GPT_4": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Extract Business Email from Website HTML (GPT-4)",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini",
+                "cachedResultName": "GPT-4O-MINI"
+              },
+              "options": {},
+              "messages": {
+                "values": [
+                  {
+                    "content": "=You are analyzing the HTML content of a business website to extract the most relevant contact email address.\n\nYour task:\n\nExtract only one email address, ideally belonging to the business owner, manager, or main contact person.\n\nIf multiple emails appear, choose the most authoritative or professional one (e.g., not “info@” or “support@” unless it’s the only option).\n\nIf no valid email is found, return exactly:\nNull\n\nOutput rules:\n\nOutput only the email address (no explanation, no JSON, no punctuation, no quotes).\n\nThe result must be a clean, valid email format (e.g., contact@company.com).\n\nWebsite HTML content:\n{{ $json.data }}"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Fetch_Raw_HTML_Content_from_Business_Website": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Email_Update": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Email Update",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "Email": "={{ $json.message.content }}",
+                  "title": "={{ $('Loop Over Items').item.json.title }}"
+                },
+                "schema": [
+                  {
+                    "id": "title",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "title",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "categoryName",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "categoryName",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "address",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "address",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "street",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "street",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "city",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "city",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "postalcode",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "postalcode",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "countryCode",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "countryCode",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "phone",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "phone",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "phoneUnformatted",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "phoneUnformatted",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "website",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "website",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Email",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "Email",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "totalScore",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "totalScore",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "categories",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "categories",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "scrapedAt",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "scrapedAt",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "url",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "url",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "rank",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "rank",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "isAdvertisement",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "isAdvertisement",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "imageUrl",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "imageUrl",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "companySummaryIn",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "companySummaryIn",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "title"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "appendOrUpdate",
+              "sheetName": {
+                "__rl": true,
+                "mode": "id",
+                "value": "="
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "="
+              }
+            }
+          },
+          "runAfter": {
+            "Extract_Business_Email_from_Website_HTML_GPT_4": [
+              "Succeeded"
+            ]
+          }
+        },
+        "AI_Company_Description_Generator": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "AI Company Description Generator",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4.1-mini",
+                "cachedResultName": "GPT-4.1-MINI"
+              },
+              "options": {},
+              "messages": {
+                "values": [
+                  {
+                    "role": "system",
+                    "content": "=You are an AI assistant specialized in generating professional, concise, and natural company summaries from structured data scraped from Google Maps.\n\nYour goal is to transform the provided company information into a fluent, human-like paragraph suitable for business directories or lead databases.\n\nFollow these principles:\n\nMaintain a professional and informative tone.\n\nWrite in one coherent paragraph (no lists or bullet points).\n\nSmoothly omit any fields that are missing without mentioning it.\n\nThe final text must sound natural and ready for direct publication.\n\nOutput only the final summary paragraph — no explanations, notes, or JSON."
+                  },
+                  {
+                    "content": "=Generate a clear and concise summary of the following company based on its Google Maps data:\n\nCompany Name: {{ $json.title }}\nCategory: {{ $json.categoryName }}\nAddress: {{ $json.address }}\nCity: {{ $json.city }}\nCountry: {{ $json.countryCode }}\nPhone: {{ $json.phones }}\nGoogle Maps URL: {{ $json.url }}\n\nWrite a natural paragraph like this example (without quotes):\n\nThe company name is [Name]. It is a [category] located at [address] in [city, country]. You can contact them at [phone]. For more details, visit their Google Maps page: [URL].\n\nEnsure the output flows naturally and excludes any missing information.\n\n"
+                  },
+                  {
+                    "content": "Output the result in the JSON format companySummary"
+                  }
+                ]
+              },
+              "jsonOutput": true
+            }
+          },
+          "runAfter": {
+            "Loop_Over_Items": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    },
+    "telegrambotip_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/telegrambotip"
+    }
+  }
+}

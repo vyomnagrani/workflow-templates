@@ -1,0 +1,309 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "monitor-instagram-hashtag-trends-and-email-html-reports-with-apify-and-gmail",
+    "name": "Monitor Instagram hashtag trends and email HTML reports with Apify and Gmail",
+    "description": "**📺 Full walkthrough video: https://www.youtube.com/watch?v=Me4d4BILvHk**\n\n## What it does\nThis workflow automatically monitors trending content on Instagram using keywords you define. It scrapes the most engaging posts, calculates an engagement score based on likes and comments, ranks content in a leaderboard, and delivers a professional HTML email dashboard — while storing historical data in a structured table for long-term trend tracking.\n\nNo manual research. No tab switching. Just the top-performing Instagram content in your inbox, automatically.\n\n## Who's it for\nSocial media managers, content creators, brand managers, marketing teams, and agencies who need to track hashtag performance and trending Instagram content for competitive analysis, content inspiration, and influencer discovery.\n\n## How it works\nThe workflow runs a full scraping cycle for each keyword in your list:\n\n- **Instagram Monitoring**: Scrapes hashtag-based posts with likes and comments\n- **Engagement Scoring**: Ranks content based on likes and comments\n- **Email Report**: Delivers a formatted HTML dashboard with clickable links to original posts\n- **Data Storage**: Pushes all results into a DataTable for historical tracking and trend analysis\n\n## Requirements\n\n- Apify account (free tier works — no recurring cost)\n- Gmail account for report delivery\n- n8n instance (cloud or self-hosted)\n- Instagram Scraper: `apify~instagram-scraper`\n\n## How to set up\n\n### Step 1: Configure Apify credentials\n- Set up Apify API authentication in n8n\n- Ensure access to the Instagram scraper: `apify~instagram-scraper`\n- Install the Apify community node: https://docs.apify.com/platform/integrations/n8n\n\n### Step 2: Add your keywords\nOpen the **\"Query social media\"** DataTable and add one keyword per row. The Loop Over Query node automatically runs a full Instagram scraping cycle for every keyword — no limit on the number of keywords.\n\n### Step 3: Configure search parameters\n\nInstagram:\n- Target hashtags via `directUrls`\n- Results type: `posts`\n- Time filter: `onlyPostsNewerThan: 7 days`\n- Result limit: 15\n\n### Step 4: Set up email reporting\n- Configure Gmail OAuth2 credentials in n8n\n- Update the recipient email address in the **Send a message** node\n- Customize subject and styling as needed\n\n### Step 5: Schedule the workflow\nAdd a Schedule Trigger to run the workflow automatically — daily, weekly, or at any interval that suits your monitoring needs.\n\n## Engagement scoring methodology\n\n**Instagram**\n`Score = (likes × 1) + (comments × 2)`\nFocused on recent content to capture trending moments. Carousel sub-items excluded to avoid duplicates.\n\n### Performance levels\n- **High**: Score ≥ 10,000 — viral or highly engaging content\n- **Medium**: Score ≥ 1,000 — solid engagement, worth monitoring\n- **Low**: Score &lt; 1,000 — baseline engagement\n\n## Results & dashboard\n\nThe automated email report includes:\n- **Instagram leaderboard**: Top 10 posts ranked by engagement score\n- **Per-post detail**: Account, content preview, score, level, and direct link to original post\n- **Historical DataTable**: One row per post with keyword, score, date — queryable over time\n\n## How to customize\n\n### Keyword targeting\n- Add as many keywords as needed — one row per keyword in the DataTable\n- Use brand names, product names, competitor terms, or campaign hashtags\n- Adjust for seasonal trends or campaign periods\n\n### Scoring adjustments\nModify the Code node to:\n- Change metric multipliers based on your priorities\n- Add recency bonuses for fresher content\n- Filter out low-quality or spam content\n\n### Reporting enhancements\n- Add multiple email recipients\n- Export results to Google Sheets or Airtable\n- Set alert thresholds for high-performing content\n- Connect to Slack or Teams for real-time notifications\n\n## Use cases\n\n**Brand & competitive monitoring**\nTrack brand mentions and competitor content performance on Instagram simultaneously.\n\n**Content strategy**\nIdentify top-performing posts, discover effective hashtags, and spot emerging trends before they peak.\n\n**Influencer discovery**\nFind creators driving the most engagement in your niche and evaluate potential collaborators based on real performance data.\n\n**Campaign tracking**\nMonitor hashtag campaigns, track sponsored content performance, and measure share of voice over time.\n\n## Limitations\n\n- Subject to Apify scraper quotas (free tier: ~$5 credit/month included)\n- Some private or restricted content may not be accessible\n- Dependent on third-party scraper availability and maintenance",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Market Research",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/gmail",
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Scheduled_Run_Trigger": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Sort_Instagram_Results": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Fetch_Instagram_Posts_via_Apify1'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Code pour nœud Code n8n - Classement Instagram avec output simplifié\n// Récupérer les données d'entrée\nconst items = $input.all();\n\n// Filtrer uniquement les posts principaux (exclure les carousel_item)\nconst posts = items.filter(item => {\n  const post = item.json;\n  return post.productType !== 'carousel_item' && post.url && post.url.includes('/p/');\n});\n\n// Calculer le score pour chaque post\nconst postsWithScore = posts.map(item => {\n  const post = item.json;\n  \n  // likesCount peut être -1 si masqué par Instagram → on traite comme 0\n  const likes = (post.likesCount && post.likesCount > 0) ? post.likesCount : 0;\n  const comments = post.commentsCount || 0;\n  \n  // Calcul du score : (likes × 1) + (comments × 2)\n  const totalScore = (likes * 1) + (comments * 2);\n  \n  return {\n    json: {\n      url: post.url,\n      caption: post.caption || \"Pas de caption\",\n      score: totalScore,\n      details: {\n        likes: likes,\n        comments: comments,\n        type: post.type,\n        author: post.ownerUsername || 'inconnu',\n        timestamp: post.timestamp\n      }\n    }\n  };\n});\n\n// Trier par score décroissant\nconst sortedPosts = postsWithScore.sort((a, b) => b.json.score - a.json.score);\n\n// Prendre les 10 meilleurs\nconst top10Posts = sortedPosts.slice(0, 10);\n\n// Ajouter un rang à chaque post\nconst rankedPosts = top10Posts.map((post, index) => ({\n  json: {\n    rank: index + 1,\n    url: post.json.url,\n    caption: post.json.caption,\n    score: post.json.score\n  }\n}));\n\n// Log pour debug\nconsole.log(`🏆 TOP 10 POSTS INSTAGRAM - Score = (likes×1) + (comments×2)`);\nconsole.log(`────────────────────────────────────────────────────────────`);\nrankedPosts.forEach((post) => {\n  const p = post.json;\n  const shortCaption = p.caption.length > 60 ? p.caption.substring(0, 60) + '...' : p.caption;\n  console.log(`${p.rank}. Score: ${p.score}`);\n  console.log(`   URL: ${p.url}`);\n  console.log(`   Caption: \"${shortCaption}\"`);\n  console.log(`   ────────────────────────────────────────────────────────`);\n});\nconsole.log(`\\n📊 Analysé ${posts.length} posts au total`);\n\nreturn rankedPosts;\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Fetch_Instagram_Posts_via_Apify1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Read_Queries_from_Table": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Read Queries from Table",
+            "n8nNodeType": "n8n-nodes-base.dataTable",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "operation": "get",
+              "returnAll": true,
+              "dataTableId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "BYMzHVIbNU0mmvAZ",
+                "cachedResultUrl": "/projects/oTpNUA7ZOCuhiQA0/datatables/BYMzHVIbNU0mmvAZ",
+                "cachedResultName": "Query social media"
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Send_Instagram_Report_Email": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "gmail_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/v2/Mail",
+            "body": {
+              "To": "user@example.com",
+              "Subject": "Social media monitoring",
+              "Body": "=<!DOCTYPE html>\n<html lang=\"fr\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Trends Social Media - {{ $('Loop Over Queries1').first().json.Query }}</title>\n    <style>\n        * {\n            margin: 0;\n            padding: 0;\n            box-sizing: border-box;\n        }\n\n        body {\n            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\n            line-height: 1.6;\n            color: #333;\n            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n            min-height: 100vh;\n            padding: 20px;\n        }\n\n        .newsletter-container {\n            max-width: 1200px;\n            margin: 0 auto;\n            background: white;\n            border-radius: 20px;\n            overflow: hidden;\n            box-shadow: 0 20px 40px rgba(0,0,0,0.1);\n        }\n\n        .header {\n            background: linear-gradient(135deg, #ff6b6b, #ee5a24);\n            color: white;\n            padding: 40px 30px;\n            text-align: center;\n        }\n\n        .header h1 {\n            font-size: 2.8em;\n            margin-bottom: 10px;\n            font-weight: 700;\n        }\n\n        .header p {\n            font-size: 1.2em;\n            opacity: 0.9;\n            margin-bottom: 15px;\n        }\n\n        .keyword-badge {\n            display: inline-block;\n            background: rgba(255,255,255,0.2);\n            color: white;\n            padding: 8px 20px;\n            border-radius: 20px;\n            font-size: 1em;\n            font-weight: 600;\n            backdrop-filter: blur(10px);\n        }\n\n        .stats-overview {\n            display: grid;\n            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));\n            gap: 20px;\n            padding: 30px;\n            background: #f8f9fa;\n        }\n\n        .stat-card {\n            background: white;\n            padding: 20px;\n            border-radius: 15px;\n            text-align: center;\n            box-shadow: 0 5px 15px rgba(0,0,0,0.08);\n            border-left: 4px solid;\n        }\n\n        .stat-card.high { border-left-color: #ff4757; }\n        .stat-card.medium { border-left-color: #ffa502; }\n        .stat-card.low { border-left-color: #70a1ff; }\n\n        .stat-number {\n            font-size: 2.5em;\n            font-weight: bold;\n            margin-bottom: 5px;\n        }\n\n        .stat-label {\n            color: #666;\n            font-size: 0.9em;\n            text-transform: uppercase;\n            letter-spacing: 1px;\n        }\n\n        .table-container {\n            margin: 30px;\n            background: white;\n            border-radius: 15px;\n            overflow: hidden;\n            box-shadow: 0 10px 25px rgba(0,0,0,0.1);\n        }\n\n        .table-header {\n            background: linear-gradient(135deg, #2c3e50, #34495e);\n            color: white;\n            padding: 25px 30px;\n            text-align: center;\n        }\n\n        .table-title {\n            font-size: 1.8em;\n            font-weight: 600;\n            margin-bottom: 5px;\n        }\n\n        .table-subtitle {\n            opacity: 0.8;\n            font-size: 1em;\n        }\n\n        .trends-table {\n            width: 100%;\n            border-collapse: collapse;\n            font-size: 0.95em;\n        }\n\n        .trends-table th {\n            background: #f8f9fa;\n            padding: 15px 12px;\n            text-align: left;\n            font-weight: 600;\n            color: #555;\n            border-bottom: 2px solid #dee2e6;\n            text-transform: uppercase;\n            font-size: 0.8em;\n            letter-spacing: 0.5px;\n        }\n\n        .trends-table td {\n            padding: 15px 12px;\n            border-bottom: 1px solid #eee;\n            vertical-align: middle;\n            text-align: center;\n        }\n\n        .trends-table td:nth-child(3),\n        .trends-table td:nth-child(4) {\n            text-align: left;\n        }\n\n        .trends-table tr:nth-child(even) {\n            background-color: #f8f9fa;\n        }\n\n        .trends-table tr:hover {\n            background-color: #e3f2fd;\n            transform: scale(1.01);\n            transition: all 0.2s ease;\n        }\n\n        .rank-number {\n            font-weight: bold;\n            font-size: 1.2em;\n            color: #2c3e50;\n        }\n\n        .rank-number.top3 {\n            color: #ff6b6b;\n            font-size: 1.4em;\n        }\n\n        .source-badge {\n            padding: 6px 12px;\n            border-radius: 20px;\n            font-size: 0.8em;\n            font-weight: 600;\n            text-transform: uppercase;\n            letter-spacing: 0.5px;\n        }\n\n        .source-badge.tiktok {\n            background: #ff0050;\n            color: white;\n        }\n\n        .source-badge.reddit {\n            background: #ff4500;\n            color: white;\n        }\n\n        .source-badge.instagram {\n            background: #e4405f;\n            color: white;\n        }\n\n        .level-badge {\n            padding: 4px 10px;\n            border-radius: 15px;\n            font-size: 0.75em;\n            font-weight: 600;\n            text-transform: uppercase;\n        }\n\n        .level-badge.high {\n            background: #ff4757;\n            color: white;\n        }\n\n        .level-badge.medium {\n            background: #ffa502;\n            color: white;\n        }\n\n        .level-badge.low {\n            background: #70a1ff;\n            color: white;\n        }\n\n        .content-text {\n            max-width: 250px;\n            overflow: hidden;\n            text-overflow: ellipsis;\n            white-space: nowrap;\n            color: #555;\n            line-height: 1.4;\n        }\n\n        .author-link {\n            color: #667eea;\n            text-decoration: none;\n            font-weight: 600;\n        }\n\n        .author-link:hover {\n            text-decoration: underline;\n        }\n\n        .score-number {\n            font-weight: bold;\n            color: #2c3e50;\n            font-size: 1.1em;\n        }\n\n        .footer {\n            text-align: center;\n            padding: 30px;\n            background: #f8f9fa;\n            color: #666;\n            border-top: 1px solid #eee;\n        }\n\n        .footer p {\n            margin-bottom: 10px;\n        }\n\n        .date-info {\n            font-size: 0.9em;\n            color: #888;\n        }\n\n        @media (max-width: 768px) {\n            .newsletter-container {\n                margin: 10px;\n                border-radius: 15px;\n            }\n            \n            .header {\n                padding: 30px 20px;\n            }\n            \n            .header h1 {\n                font-size: 2.2em;\n            }\n            \n            .table-container {\n                margin: 20px;\n                overflow-x: auto;\n            }\n            \n            .trends-table {\n                min-width: 800px;\n            }\n            \n            .stats-overview {\n                padding: 20px;\n                grid-template-columns: 1fr;\n            }\n        }\n    </style>\n</head>\n<body>\n    <div class=\"newsletter-container\">\n        <!-- Header -->\n        <header class=\"header\">\n            <h1>📊 Récapitulatif par Hashtag</h1>\n            <p>Scores totaux par réseau social</p>\n        </header>\n\n        <!-- Hashtag Summary Table -->\n        <section class=\"table-container\" style=\"margin: 30px 30px 0 30px;\">\n            <table class=\"trends-table\">\n                <thead>\n                    <tr>\n                        <th>Hashtag</th>\n                        <th>TikTok</th>\n                        <th>Reddit</th>\n                        <th>Instagram</th>\n                        <th>Score Total</th>\n                    </tr>\n                </thead>\n                <tbody>\n                    <tr>\n                        <td>\n                            <span style=\"font-weight: bold; color: #ff6b6b; font-size: 1.1em;\">#{{ $('Loop Over Queries1').first().json.Query }}</span>\n                        </td>\n                        <td>\n                            <span class=\"score-number\">{{ $('Rank Instagram Posts1').all().filter(item => item.json.source === 'TikTok').reduce((sum, item) => sum + item.json.score, 0).toLocaleString('fr-FR') }}</span>\n                        </td>\n                        <td>\n                            <span class=\"score-number\">{{ $('Rank Instagram Posts1').all().filter(item => item.json.source === 'Reddit').reduce((sum, item) => sum + item.json.score, 0).toLocaleString('fr-FR') }}</span>\n                        </td>\n                        <td>\n                            <span class=\"score-number\">{{ $('Rank Instagram Posts1').all().filter(item => item.json.source === 'Instagram').reduce((sum, item) => sum + item.json.score, 0).toLocaleString('fr-FR') }}</span>\n                        </td>\n                        <td>\n                            <span class=\"score-number\" style=\"color: #ff6b6b; font-size: 1.2em;\">{{ $('Rank Instagram Posts1').all().reduce((sum, item) => sum + item.json.score, 0).toLocaleString('fr-FR') }}</span>\n                        </td>\n                    </tr>\n                </tbody>\n            </table>\n        </section>\n\n        <!-- Main Table -->\n        <section class=\"table-container\">\n            <div class=\"table-header\">\n                <div class=\"table-title\">#{{ $('Loop Over Queries1').first().json.Query }}</div>\n                <div class=\"table-subtitle\"></div>\n            </div>\n            \n            <table class=\"trends-table\">\n                <thead>\n                    <tr>\n                        <th>Rang</th>\n                        <th>Source</th>\n                        <th>Auteur</th>\n                        <th>Contenu</th>\n                        <th>Score</th>\n                        <th>Level</th>\n                    </tr>\n                </thead>\n                <tbody>\n                    {{ $('Rank Instagram Posts1').all().map(item => `\n                        <tr onclick=\"window.open('${item.json.url}', '_blank')\" style=\"cursor: pointer;\">\n                            <td>\n                                <span class=\"rank-number ${item.json.rank <= 3 ? 'top3' : ''}\">${item.json.rank}</span>\n                            </td>\n                            <td>\n                                <span class=\"source-badge ${item.json.source.toLowerCase()}\">${item.json.source}</span>\n                            </td>\n                            <td>\n                                <a href=\"${item.json.url}\" target=\"_blank\" class=\"author-link\">${item.json.author}</a>\n                            </td>\n                            <td>\n                                <div class=\"content-text\" title=\"${item.json.content}\">${item.json.content}</div>\n                            </td>\n                            <td>\n                                <span class=\"score-number\">${item.json.score.toLocaleString('fr-FR')}</span>\n                            </td>\n                            <td>\n                                <span class=\"level-badge ${item.json.level.toLowerCase()}\">${item.json.level}</span>\n                            </td>\n                        </tr>\n                    `).join('') }}\n                </tbody>\n            </table>\n        </section>\n\n        <!-- Footer -->\n        <footer class=\"footer\">\n            <p><strong>Social Media Trends Dashboard</strong></p>\n            <p>Analyse automatisée des contenus par mot-clé</p>\n            <div class=\"date-info\">\n                <p>Généré le {{ new Date().toLocaleDateString('fr-FR', { \n                    year: 'numeric', \n                    month: 'long', \n                    day: 'numeric', \n                    hour: '2-digit', \n                    minute: '2-digit' \n                }) }}</p>\n            </div>\n        </footer>\n    </div>\n</body>\n</html>"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendEmailV2"
+            }
+          },
+          "runAfter": {
+            "Rank_Instagram_Posts1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Save_Results_to_Data_Table": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Save Results to Data Table",
+            "n8nNodeType": "n8n-nodes-base.dataTable",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "url": "={{ $json.url }}",
+                  "Date": "={{ $now.toISO() }}",
+                  "rank": "={{ $json.rank }}",
+                  "level": "={{ $json.level }}",
+                  "score": "={{ $json.score }}",
+                  "author": "={{ $json.author }}",
+                  "source": "={{ $json.source }}",
+                  "content": "={{ $json.content }}",
+                  "keyword": "={{ $json.keyword }}"
+                },
+                "schema": [
+                  {
+                    "id": "rank",
+                    "type": "number",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "rank",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "keyword",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "keyword",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "source",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "source",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "author",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "author",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "content",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "content",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "score",
+                    "type": "number",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "score",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "level",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "level",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "url",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "url",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "Date",
+                    "type": "dateTime",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Date",
+                    "defaultMatch": false
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "dataTableId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "75Jvx9ALCoEGcdwY",
+                "cachedResultUrl": "/projects/oTpNUA7ZOCuhiQA0/datatables/75Jvx9ALCoEGcdwY",
+                "cachedResultName": "Trend Social media"
+              }
+            }
+          },
+          "runAfter": {
+            "Rank_Instagram_Posts1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Loop_Over_Queries1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Loop Over Queries1",
+            "n8nNodeType": "n8n-nodes-base.splitInBatches",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Read_Queries_from_Table": [
+              "Succeeded"
+            ],
+            "Send_Instagram_Report_Email": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Rank_Instagram_Posts1": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Sort_Instagram_Results'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Code pour nœud Code n8n - Classement Instagram\n// Récupérer le keyword dynamiquement\nconst keyword = __node('Loop_Over_Query').first().json.Query;\n\n// Récupérer les données du nœud précédent\nconst instagramData = __node('Sort_Instagram').all();\n\nconsole.log(`📥 Récupération des données:`);\nconsole.log(`- Instagram: ${instagramData.length} posts`);\n\n// Fonction pour déterminer le level basé sur le score\nfunction getLevel(score) {\n  if (score >= 10000) return 'High';\n  if (score >= 1000) return 'Medium';\n  return 'Low';\n}\n\n// Fonction pour extraire l'auteur Instagram\nfunction getAuthor(item) {\n  const instaMatch = item.url.match(/instagram\\.com\\/([^\\/]+)/);\n  return instaMatch ? `@${instaMatch[1]}` : '@inconnu';\n}\n\n// Transformer les données Instagram\nconst instagramPosts = instagramData.map(item => ({\n  json: {\n    source: 'Instagram',\n    keyword: keyword,\n    author: getAuthor(item.json),\n    content: (item.json.caption || 'Pas de caption').substring(0, 50) + '...',\n    score: item.json.score,\n    level: getLevel(item.json.score),\n    url: item.json.url,\n    originalRank: item.json.rank\n  }\n}));\n\n// Trier par score décroissant\nconst sortedPosts = instagramPosts.sort((a, b) => b.json.score - a.json.score);\n\n// Ajouter le rang\nconst rankedPosts = sortedPosts.map((post, index) => ({\n  json: {\n    ...post.json,\n    rank: index + 1,\n    date: new Date().toISOString().split('T')[0]\n  }\n}));\n\n// Prendre le top 15\nconst topPosts = rankedPosts.slice(0, 15);\n\n// Statistiques par niveau\nconst stats = {\n  total: topPosts.length,\n  byLevel: {\n    High: topPosts.filter(p => p.json.level === 'High').length,\n    Medium: topPosts.filter(p => p.json.level === 'Medium').length,\n    Low: topPosts.filter(p => p.json.level === 'Low').length\n  }\n};\n\n// Log pour debug\nconsole.log(`🏆 TOP ${topPosts.length} POSTS INSTAGRAM - Mot-clé: \"${keyword}\"`);\nconsole.log(`────────────────────────────────────────────────────────────────────────────────`);\n\ntopPosts.forEach((post) => {\n  const p = post.json;\n  console.log(`${p.rank}. ${p.author} - Score: ${p.score.toLocaleString()} (${p.level})`);\n  console.log(`   Contenu: \"${p.content}\"`);\n  console.log(`   URL: ${p.url}`);\n  console.log(`   ────────────────────────────────────────────────────────────────────────────`);\n});\n\nconsole.log(`\\n📊 STATISTIQUES:`);\nconsole.log(`Total: ${stats.total} posts`);\nconsole.log(`Par niveau: High(${stats.byLevel.High}) | Medium(${stats.byLevel.Medium}) | Low(${stats.byLevel.Low})`);\n\n// Retourner le classement\nreturn topPosts;\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Sort_Instagram_Results": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fetch_Instagram_Posts_via_Apify1": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.apify.com/v2/acts/reGe1ST3OBgYZSsZJ/run-sync-get-dataset-items",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": "{\n    \"hashtags\": [\n        \"@{body('Loop_Over_Queries1')?['Query']?['replace'](/\\s+/g, '')}\"\n    ],\n    \"keywordSearch\": false,\n    \"resultsLimit\": 50,\n    \"resultsType\": \"posts\"\n}"
+          },
+          "runAfter": {
+            "Loop_Over_Queries1": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Scheduled_Run_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "gmail_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/gmail"
+    }
+  }
+}

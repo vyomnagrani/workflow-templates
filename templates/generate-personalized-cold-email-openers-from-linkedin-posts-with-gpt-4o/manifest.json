@@ -1,0 +1,147 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "generate-personalized-cold-email-openers-from-linkedin-posts-with-gpt-4o",
+    "name": "Generate personalized cold email openers from LinkedIn posts with GPT-4o",
+    "description": "Turn any LinkedIn post into a personalized cold email opener that sounds like a human wrote it in seconds.\n\nWhether you're in sales, partnerships, or outreach, this tool reads LinkedIn posts like a human, distills the core message, and gives you a smart, conversational opener to kick off the relationship the right way.\n\n**How It Works:**\n\n1.) Paste the post + author info into a short form.\n\n2.) AI reads the post like a B2B sales expert would.\n\n3.) Output = personalized opener, company name, prospect’s name, and next steps.\n\n4.) Copy-paste into your cold email and hit send.\n\nThe opener isn’t generic fluff — it references real details, sounds natural, and shows you actually paid attention.\n\n**Perfect For:**\n\nSDRs and BDRs\n\nAgency outreach\n\nPartnership prospecting\n\nAny cold outreach that starts with a real conversation\n\n**Setup Steps**\n\n*Setup time: ~2-3 mins*\n\n1.) Add your OpenAI credentials (or use n8n’s built-in credits).\n\n2.) Open the form and test it with the sample post.\n\n3.) Tweak the AI prompt if you want to target a different niche or tone.\n\n(Optional) Connect to Google Sheets, a CRM, or your email tool.\n\nYou're live.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Lead Nurturing",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/inlineCode",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Format_Output": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['AI_Magic'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Get AI response and original data\nconst aiResponse = $input.first().json;\nconst originalData = __node('Process_Input').first().json;\n\n// Extract the personalized opener\nconst opener = aiResponse.message?.content || aiResponse.text || \"Something went wrong. Try again.\";\n\n// Clean up the opener\nconst cleanOpener = opener\n  .replace(/^\"|\"$/g, '')\n  .replace(/^'|'$/g, '')\n  .trim();\n\n// Create final response\nconst response = {\n  success: true,\n  opener: cleanOpener,\n  prospect: originalData.first_name,\n  company: originalData.company_name,\n  next_steps: [\n    \"1. Copy the opener above\",\n    \"2. Add your value prop (2-3 sentences max)\",\n    \"3. Include clear CTA\",\n    \"4. Send it\"\n  ],\n  tips: [\n    \"Keep total email under 100 words\",\n    \"Send Tuesday-Thursday, 8-10am\",\n    \"Follow up in 3-5 days if no response\",\n    \"Personalize the subject line too\"\n  ]\n};\n\nreturn { json: response };\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "AI_Magic": [
+              "Succeeded"
+            ]
+          }
+        },
+        "AI_Magic": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "AI Magic",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini"
+              },
+              "options": {
+                "maxTokens": 150,
+                "temperature": 0.8
+              },
+              "messages": {
+                "values": [
+                  {
+                    "content": "You are an elite B2B sales expert who crafts personalized cold email openers that get responses.\n\nYour specialty: Taking LinkedIn posts and creating openers that feel like they came from someone who actually READ and UNDERSTOOD the content.\n\nRules:\n- Reference specific details, metrics, or insights from the post\n- Sound like a human, not a bot\n- Show genuine interest in their work/achievement\n- Avoid generic praise (\"great post\", \"inspiring\", \"amazing\")\n- Be conversational but professional\n- Focus on what makes this post unique\n\nComplete this sentence: \"Came across your post on LinkedIn - \"\n\nMake it feel like you're genuinely interested in what they shared, not just trying to sell them something.\n\nExamples of what works:\n- \"Came across your post on LinkedIn - going from 5 to 50 employees in 18 months while maintaining 98% customer satisfaction is seriously impressive execution.\"\n- \"Came across your post on LinkedIn - the insight about AI replacing tasks, not jobs, really resonates with what we're seeing in manufacturing right now.\"\n- \"Came across your post on LinkedIn - bootstrapping to $2M ARR without external funding while building a distributed team is exactly the kind of scrappy growth I respect.\"\n\nOutput ONLY the completed sentence."
+                  },
+                  {
+                    "content": "=LinkedIn Post:\n{{ $json.post_content }}\n\nAuthor: {{ $json.first_name }}\nCompany: {{ $json.company_name }}"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Process_Input": [
+              "Succeeded"
+            ]
+          }
+        },
+        "LinkedIn_Post_Form": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "LinkedIn Post Form",
+            "n8nNodeType": "n8n-nodes-base.formTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "path": "6fbe076d-b99c-4dea-8575-ec53ad0a6e0a",
+              "options": {},
+              "formTitle": "LinkedIn Post Opener Generator",
+              "formFields": {
+                "values": [
+                  {
+                    "fieldLabel": "Author's First Name",
+                    "requiredField": true
+                  },
+                  {
+                    "fieldLabel": "Company Name",
+                    "requiredField": true
+                  },
+                  {
+                    "fieldType": "textarea",
+                    "fieldLabel": "LinkedIn Post Content",
+                    "requiredField": true
+                  }
+                ]
+              },
+              "formDescription": "Paste any LinkedIn post and get a personalized cold email opener that actually sounds human."
+            }
+          },
+          "runAfter": {}
+        },
+        "Process_Input": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['LinkedIn_Post_Form'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Get form data\nconst firstName = $json['Author\\'s First Name']?.trim();\nconst companyName = $json['Company Name']?.trim();\nconst postContent = $json['LinkedIn Post Content']?.trim();\n\n// Validate input\nif (!firstName || !companyName || !postContent) {\n  throw new Error('All fields are required');\n}\n\nif (postContent.length < 50) {\n  throw new Error('Post too short. Need at least 50 characters for good personalization.');\n}\n\n// Clean the post content\nconst cleanedPost = postContent\n  .replace(/\\s+/g, ' ')\n  .replace(/[\\r\\n]+/g, ' ')\n  .trim();\n\nreturn {\n  json: {\n    first_name: firstName,\n    company_name: companyName,\n    post_content: cleanedPost,\n    timestamp: new Date().toISOString()\n  }\n};\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "LinkedIn_Post_Form": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

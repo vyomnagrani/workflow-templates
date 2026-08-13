@@ -1,0 +1,230 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "generate-marketing-ad-banners-with-line-gemini-and-nano-banana-pro",
+    "name": "Generate marketing ad banners with LINE, Gemini, and Nano Banana Pro",
+    "description": "## About This Template\nThis workflow creates high-quality, text-rich advertising banners from simple LINE messages. \n\nIt combines **Google Gemini** (for marketing-focused prompt engineering) and **Nano Banana Pro** (accessed via Kie.ai API) to generate images with superior text rendering capabilities. It also handles the asynchronous API polling required for high-quality image generation.\n\n## How It Works\n1.  **Input:** Users send a banner concept via LINE (e.g., \"Coffee brand, morning vibe\").\n2.  **Prompt Engineering:** Gemini optimizes the request into a detailed prompt, specifying lighting, composition, and Japanese catch-copy placement.\n3.  **Async Generation:** The workflow submits a job to Nano Banana Pro (Kie API) and intelligently waits/polls until the image is ready.\n4.  **Hosting:** The final image is downloaded and uploaded to a public AWS S3 bucket.\n5.  **Delivery:** The image is pushed back to the user on LINE.\n\n## Who It’s For\n* Marketing teams creating A/B test assets.\n* Japanese market advertisers needing accurate text rendering.\n* Developers looking for an example of **Async API Polling** patterns in n8n.\n\n## Requirements\n* **n8n** (Cloud or Self-hosted).\n* **Kie.ai API Key** (for Nano Banana Pro model).\n* **Google Gemini API Key**.\n* **AWS S3 Bucket** (Public access enabled).\n* **LINE Official Account** (Messaging API).\n\n## Setup Steps\n1.  **Credentials:** Configure the \"Header Auth\" credential for the Kie.ai nodes (Header: `Authorization`, Value: `Bearer YOUR_API_KEY`).\n2.  **AWS:** Ensure your S3 bucket allows public read access so LINE can display the image.\n3.  **Webhook:** Add the production webhook URL to your LINE Developers console.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "LINE_Webhook1": {
+          "type": "Request",
+          "kind": "Http",
+          "inputs": {
+            "method": "POST"
+          }
+        }
+      },
+      "actions": {
+        "Check_Job_Status": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.kie.ai/api/v1/jobs/recordInfo"
+          },
+          "runAfter": {
+            "Wait1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_Data1": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.trigger.outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// LINE Webhook parsing\nconst body = items[0].json.body;\n\nif (!body.events || !Array.isArray(body.events) || !body.events[0]) {\n  throw new Error(\"No LINE events found\");\n}\n\nconst event = body.events[0];\n\nreturn [\n  {\n    json: {\n      replyToken: event.replyToken,\n      userId: event.source.userId,\n      message: event.message.text,\n      timestamp: event.timestamp\n    }\n  }\n];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {}
+        },
+        "Optimize_Prompt_Marketing_1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Optimize Prompt (Marketing)1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.googleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "models/gemini-2.0-flash-lite",
+                "cachedResultName": "models/gemini-2.0-flash-lite"
+              },
+              "options": {},
+              "messages": {
+                "values": [
+                  {
+                    "content": "\"You are an expert Marketing Creative Director for Japanese market.\\nThe user will send you details for an ad banner in Japanese (Product, Target Audience, Catch Copy).\\nYour goal is to write a highly detailed English prompt for Nano Banana Pro (Gemini 3 Pro Image).\\n\\nIMPORTANT RULES:\\n1. Analyze the target audience and suggest appropriate color palette, mood, and design style.\\n2. Describe the visual composition with clear space for text overlay.\\n3. Include the specific Japanese Catch Copy text, instructing to render it clearly and legibly.\\n4. Specify camera angle, lighting, product placement, and overall aesthetic.\\n5. Keep the prompt focused and under 500 characters for optimal generation.\\n6. Output ONLY the English prompt text, nothing else - no explanations, no meta-commentary.\\n7. NEVER use double quotes (\\\") in your response. Use 'single quotes' or [brackets] for emphasis instead.\\n\\nExample format:\\n'Professional product photography, [product description], featuring Japanese text [キャッチコピー] in bold modern font, [composition details], [lighting style], [color palette], negative space for additional text, high quality, 8K resolution'\\n\\nRemember: Output ONLY the prompt text, nothing before or after. NO DOUBLE QUOTES.\""
+                  },
+                  {
+                    "content": "={{ $json.message }}"
+                  }
+                ]
+              },
+              "jsonOutput": true
+            }
+          },
+          "runAfter": {
+            "Extract_Data1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Submit_to_Nano_Banana_Pro1": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.kie.ai/api/v1/jobs/createTask",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": "{\n  \"model\": \"nano-banana-pro\",\n  \"input\": {\n    \"prompt\": \"@{body('Code1')?['prompt']}\",\n    \"aspect_ratio\": \"1:1\",\n    \"resolution\": \"2K\",\n    \"output_format\": \"png\"\n  }\n}"
+          },
+          "runAfter": {
+            "Code1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait1": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 10,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Submit_to_Nano_Banana_Pro1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_for_Generation1": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 10,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Check_Job_Status": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Parse_Result1": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Wait_for_Generation1'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Parse response and extract image URL\nconst response = items[0].json;\nconst data = Array.isArray(response) ? response[0] : response;\n\nif (data.code === 200 && data.data) {\n  const taskData = data.data;\n  \n  if (taskData.state === 'success') {\n    let imageUrl = null;\n    try {\n      const resultData = JSON.parse(taskData.resultJson);\n      const resultUrls = resultData.resultUrls || [];\n      if (resultUrls.length > 0) {\n        imageUrl = resultUrls[0];\n      }\n    } catch (e) {\n      throw new Error('Failed to parse resultJson');\n    }\n    \n    if (imageUrl) {\n      return [{\n        json: {\n          imageUrl: imageUrl,\n          taskId: taskData.taskId,\n          status: 'completed'\n        }\n      }];\n    }\n  } else if (taskData.state === 'fail') {\n    throw new Error(`Image generation failed: ${taskData.failMsg}`);\n  } else {\n    // Loop back if processing\n    return [{\n        json: { status: 'processing' }\n    }];\n  }\n}\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Wait_for_Generation1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_Image1": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@body('Parse_Result1')?['imageUrl']"
+          },
+          "runAfter": {
+            "Parse_Result1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_to_S": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Upload to S",
+            "n8nNodeType": "n8n-nodes-base.awsS3",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileName": "={{ 'banner-' + Date.now() + '.png' }}",
+              "operation": "upload",
+              "bucketName": "banners-bot-v7158",
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {
+            "Download_Image1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "HTTP_Request2": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.line.me/v2/bot/message/reply",
+            "headers": {
+              "Authorization": "Bearer YOUR_TOKEN_HERE",
+              "Content-Type": "application/json"
+            },
+            "body": "{\n \"replyToken\": \"@{body('LINE_Webhook')?['body']?['events'][0].replyToken}\",\n  \"messages\": [\n    {\n      \"type\": \"image\",\n      \"originalContentUrl\": \"@{body('Upload_to_S3')?['Location']}\",\n      \"previewImageUrl\": \"@{body('Upload_to_S3')?['Location']}\"\n    }\n  ]\n}"
+          },
+          "runAfter": {
+            "Upload_to_S": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Code1": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Optimize_Prompt_Marketing_1'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Extract the actual prompt text from Gemini's response\nconst response = items[0].json;\n\nlet promptText = \"\";\n\n// Check if we have the content structure from Gemini\nif (response.content && response.content.parts && response.content.parts[0]) {\n  let text = response.content.parts[0].text;\n  \n  // Parse the JSON array if it's a string\n  try {\n    const parsed = JSON.parse(text);\n    // If it's an array, get the first element\n    if (Array.isArray(parsed) && parsed.length > 0) {\n      promptText = parsed[0];\n    } else if (typeof parsed === 'string') {\n      promptText = parsed;\n    } else {\n      promptText = text; // Use as is if not parseable\n    }\n  } catch (e) {\n    // If JSON parsing fails, clean the text manually\n    promptText = text\n      .replace(/^\\[|\\]$/g, '') // Remove brackets\n      .replace(/^[\"']|[\"']$/g, '') // Remove quotes\n      .replace(/\\\\n/g, '') // Remove newlines\n      .trim();\n  }\n}\n\n// Clean any remaining escape characters\npromptText = promptText.replace(/\\\\\"/g, '\"').trim();\n\nreturn [{\n  json: {\n    prompt: promptText,\n    userId: __node('Extract_Data').item.json.userId,\n    taskId: response.taskId || null\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Optimize_Prompt_Marketing_1": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "LINE_Webhook1",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

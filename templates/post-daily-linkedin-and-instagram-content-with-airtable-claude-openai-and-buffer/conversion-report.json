@@ -1,0 +1,82 @@
+{
+  "sourceWorkflowName": "Post daily LinkedIn and Instagram content with Airtable, Claude, OpenAI and Buffer",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 13,
+  "totalNodes": 19,
+  "coverage": 0.6842,
+  "diagnostics": [
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.airtable.",
+      "severity": "warning",
+      "node_name": "Get Post Ideas",
+      "node_type": "n8n-nodes-base.airtable",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.airtable.",
+      "severity": "warning",
+      "node_name": "Check History Posts",
+      "node_type": "n8n-nodes-base.airtable",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Filter and Choose Post Topic",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =$node[\"Is Valid Post?\"].json.topic",
+      "severity": "warning",
+      "node_name": "ChatGPT - Generate Image",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "EXPRESSION_PARTIAL",
+      "message": "Expression could not be translated safely: =A professional, modern SaaS vector illustration for a tech company named 'Kijkes', which provides automated, lightning-fast website creation and online tools for Belgian small businesses.\n\nCORE CONCEPT:\nKijkes is about fast, hassle-free web delivery, launching offline companies online instantly, and providing automated growth tools (like Google Business and automated reviews).\n\nTHEME & TEXT INCLUSION:\nThe main subject of this post is: \"{{ $node[\"Is Valid Post?\"].json.topic }}\".\nInside the image, clearly and cleanly render one logical, highly relevant Dutch word integrated into the design (for example: \"ONLINE!\", \"KIJKES\", \"SNEL\", or \"WEBSITE\"). Ensure perfect typography and correct spelling.\n\nINSPIRATION FROM CONTENT:\nUse the specific theme of this text to shape the main object of the illustration:\n\"{{ $json.postText }}\"\n\nCOLOR PALETTE (Mandatory):\n- Main Color: #6c54f7 (Vibrant Purple)\n- Secondary Color: #b8affa (Soft Lavender-grey)\n- Accents: Deep Charcoal/Black and Pure White\n\nSTYLE DETAILS:\n- Clean 2D vector art with smooth, modern gradients.\n- Visually dynamic: Create a central, recognizable metaphor for speed, instant automation, and hassle-free web creation (like a website popping up instantly out of a clean box, a digital dashboard launching, or a fast automated setup).\n- Constraints: White background only. No photorealism. No corporate logos. No random gibberish text.",
+      "severity": "warning",
+      "node_name": "ChatGPT - Generate Image",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.convertToFile.",
+      "severity": "warning",
+      "node_name": "Base64 to PNG",
+      "node_type": "n8n-nodes-base.convertToFile",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @bufferapp/n8n-nodes-buffer.buffer.",
+      "severity": "warning",
+      "node_name": "Create LinkedIn Post",
+      "node_type": "@bufferapp/n8n-nodes-buffer.buffer",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @bufferapp/n8n-nodes-buffer.buffer.",
+      "severity": "warning",
+      "node_name": "Create Instagram Post",
+      "node_type": "@bufferapp/n8n-nodes-buffer.buffer",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.airtable.",
+      "severity": "warning",
+      "node_name": "Log Posted Content",
+      "node_type": "n8n-nodes-base.airtable",
+      "json_path": null
+    }
+  ]
+}

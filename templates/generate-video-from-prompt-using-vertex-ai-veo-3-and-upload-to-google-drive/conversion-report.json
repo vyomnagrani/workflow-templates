@@ -1,0 +1,42 @@
+{
+  "sourceWorkflowName": "Generate video from prompt using Vertex AI Veo 3 and upload to Google Drive",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 12,
+  "totalNodes": 15,
+  "coverage": 0.8,
+  "diagnostics": [
+    {
+      "code": "TRIGGER_MISSING",
+      "message": "No supported n8n trigger was found.",
+      "severity": "warning",
+      "node_name": null,
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.convertToFile.",
+      "severity": "warning",
+      "node_name": "Convert to File",
+      "node_type": "n8n-nodes-base.convertToFile",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.formTrigger.",
+      "severity": "warning",
+      "node_name": "On form submission",
+      "node_type": "n8n-nodes-base.formTrigger",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.googleDrive.",
+      "severity": "warning",
+      "node_name": "Google Drive",
+      "node_type": "n8n-nodes-base.googleDrive",
+      "json_path": null
+    }
+  ]
+}

@@ -1,0 +1,540 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "create-and-approve-ai-social-posts-with-openai-telegram-and-blotato",
+    "name": "Create and approve AI social posts with OpenAI, Telegram and Blotato",
+    "description": "## Quick overview\nThis workflow runs daily to generate an AI-written social post and DALL·E image with OpenAI, sends it to Telegram for approval, and—if approved—publishes it to LinkedIn, X, Instagram, Facebook, and Threads via [Blotato](https://blotato.com/?ref=firas)  while logging outcomes to Google Sheets.\n\n## How it works\n1. Runs every 24 hours on a schedule trigger.\n2. Uses OpenAI to generate a single content topic (title, angle, and hook) based on your niche, audience, and language settings.\n3. Uses OpenAI to write one social post with a separate hashtag line and an image prompt in your specified tone and style.\n4. Uses OpenAI Images (DALL·E) to generate a matching image and extracts a shareable image URL.\n5. Sends the post text, hashtags, and image link to Telegram and waits for you to approve or skip within the configured time window.\n6. If approved, publishes the post with the image to LinkedIn, X, Instagram, Facebook, and Threads using [Blotato](https://blotato.com/?ref=firas)  and appends a “Published” log row to Google Sheets.\n7. If skipped or not approved, appends a “Skipped” log row to Google Sheets.\n\n## Setup\n1. Add OpenAI API credentials and ensure the selected chat model and image model in the configuration match models available to your account.\n2. Add Telegram credentials, set the `telegram_chat_id` in the Configuration values, and make sure you can receive and respond to approval buttons.\n3. Add [Blotato](https://blotato.com/?ref=firas)  API credentials and select the correct Blotato account IDs for LinkedIn, X, Instagram, Facebook (including the Facebook Page ID), and Threads.\n4. Add Google Sheets OAuth credentials and set the target spreadsheet document ID and sheet/tab name used for logging in both Google Sheets steps.\n5. Review and adjust the Configuration values (niche, tone, hashtag count, image size, and approval wait time) and the schedule interval as needed.\n\n## Additional info\n## Generate AI social posts and publish to multiple networks with Blotato\n\n# 📥  [Open full documentation on Notion](https://automatisation.notion.site/Course-Generate-AI-social-posts-and-publish-to-multiple-networks-with-Blotato-39a3d6550fd981e29df3f2a5cd8cc5c6)\n\n## Need help customizing?\nContact me for consulting and support : [Linkedin](https://www.linkedin.com/in/doctor-firass/)\n\n# MY NEW YOUTUBE CHANNEL\n👉 [Subscribe to my new YouTube channel](https://www.youtube.com/@DrFiras_AI). Here I'll share videos and Shorts with practical tutorials and FREE templates for n8n.\n\n[![The AI Doctor](https://www.dr-firas.com/the-ai-doctor.png)](https://www.youtube.com/@DrFiras_AI)",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Social Media",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Run_on_schedule": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Hour",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Configuration": {
+          "type": "Compose",
+          "inputs": {
+            "content_language": "English",
+            "brand_niche": "AI automation, n8n workflows and content systems for creators and solopreneurs",
+            "target_audience": "creators, solopreneurs and marketing teams",
+            "post_tone": "expert but accessible, direct, concrete, one strong idea, short paragraphs",
+            "image_style": "clean modern professional editorial illustration, brand-consistent, no text, high quality",
+            "hashtag_count": 5,
+            "text_model": "gpt-5-mini",
+            "image_model": "dall-e-3",
+            "image_size": "1024x1024",
+            "telegram_chat_id": "",
+            "approval_wait_minutes": 30
+          },
+          "runAfter": {}
+        },
+        "Generate_content_topic": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Generate content topic",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chainLlm",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "Generate ONE fresh, specific content idea now. Return only the structured fields.",
+              "batching": {},
+              "messages": {
+                "messageValues": [
+                  {
+                    "message": "=You are a senior content strategist for a personal brand in {{ $('Configuration').item.json.brand_niche }}. Audience: {{ $('Configuration').item.json.target_audience }}. Propose a single high-value, non-generic topic with a clear angle and a scroll-stopping hook. Favor systemized, practical, slightly contrarian insight. Avoid hype and jargon. Write in {{ $('Configuration').item.json.content_language }}."
+                  }
+                ]
+              },
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "Topic_parser": [
+              "Succeeded"
+            ],
+            "Configuration": [
+              "Succeeded"
+            ],
+            "Topic_model_OpenAI": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Topic_model_OpenAI": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Topic model (OpenAI)",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "={{ $('Configuration').item.json.text_model }}",
+                "cachedResultName": "gpt-5-mini"
+              },
+              "options": {},
+              "builtInTools": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Topic_parser": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Topic parser",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsonSchemaExample": "{ \"topic_title\": \"A specific content idea in one line\", \"angle\": \"why it matters in 1-2 sentences\", \"hook\": \"a scroll-stopping opening line\" }"
+            }
+          },
+          "runAfter": {}
+        },
+        "Write_post": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Write post",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chainLlm",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=Topic: {{ $('Generate content topic').item.json.output.topic_title }}\nAngle: {{ $('Generate content topic').item.json.output.angle }}\nHook: {{ $('Generate content topic').item.json.output.hook }}",
+              "batching": {},
+              "messages": {
+                "messageValues": [
+                  {
+                    "message": "=You are an expert social media copywriter. Write ONE post in {{ $('Configuration').item.json.content_language }}. Tone: {{ $('Configuration').item.json.post_tone }}. Rules: one strong idea; short punchy paragraphs; open with a strong hook; be honest and never claim a tool is 100% automatic when a human check is involved; end with a light, clear call to action. Do NOT put hashtags inside post_content. Separately return exactly {{ $('Configuration').item.json.hashtag_count }} relevant hashtags as a single space-separated string. Also return image_prompt: a vivid visual concept in this style: {{ $('Configuration').item.json.image_style }}."
+                  }
+                ]
+              },
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "Post_parser": [
+              "Succeeded"
+            ],
+            "Writer_model_OpenAI": [
+              "Succeeded"
+            ],
+            "Generate_content_topic": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Writer_model_OpenAI": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Writer model (OpenAI)",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "={{ $('Configuration').item.json.text_model }}",
+                "cachedResultName": "gpt-5-mini"
+              },
+              "options": {},
+              "builtInTools": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Post_parser": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Post parser",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsonSchemaExample": "{ \"post_content\": \"the full social media post body, no hashtags inside\", \"hashtags\": \"#tag1 #tag2 #tag3 #tag4 #tag5\", \"image_prompt\": \"a vivid description of a matching visual\" }"
+            }
+          },
+          "runAfter": {}
+        },
+        "Generate_image": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Generate image",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "images": {
+                "values": [
+                  {}
+                ]
+              },
+              "prompt": "={{ $('Write post').item.json.output.image_prompt }}",
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "={{ $('Configuration').item.json.image_model }}",
+                "cachedResultName": "dall-e-3"
+              },
+              "options": {
+                "size": "={{ $('Configuration').item.json.image_size }}",
+                "returnImageUrls": true
+              },
+              "resource": "image"
+            }
+          },
+          "runAfter": {
+            "Write_post": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_image_URL": {
+          "type": "Compose",
+          "inputs": {
+            "image_url": "@body('Generate_image')?['url'] || (body('Generate_image')?['data'] && body('Generate_image')?['data'][0] ? body('Generate_image')?['data'][0].url : '')"
+          },
+          "runAfter": {
+            "Generate_image": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Approve_on_Telegram": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Approve on Telegram",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "chatId": "={{ $('Configuration').item.json.telegram_chat_id }}",
+              "message": "=New social post ready for review:\n\n{{ $('Write post').item.json.output.post_content }}\n\n{{ $('Write post').item.json.output.hashtags }}\n\nImage: {{ $('Get image URL').item.json.image_url }}",
+              "options": {
+                "limitWaitTime": {
+                  "values": {
+                    "resumeUnit": "minutes",
+                    "resumeAmount": "={{ $('Configuration').item.json.approval_wait_minutes }}"
+                  }
+                }
+              },
+              "operation": "sendAndWait",
+              "approvalOptions": {
+                "values": {
+                  "approvalType": "double",
+                  "approveLabel": "✅ Publish",
+                  "disapproveLabel": "❌ Skip"
+                }
+              }
+            }
+          },
+          "runAfter": {
+            "Get_image_URL": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Approved": {
+          "type": "If",
+          "expression": {
+            "equals": [
+              "@body('Approve_on_Telegram')?['data']?['approved']",
+              true
+            ]
+          },
+          "actions": {
+            "Publish_to_LinkedIn": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Publish to LinkedIn",
+                "n8nNodeType": "@blotato/n8n-nodes-blotato.blotato",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "platform": "linkedin",
+                  "accountId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "1446",
+                    "cachedResultUrl": "https://backend.blotato.com/v2/accounts/1446",
+                    "cachedResultName": "Samuel Amalric"
+                  },
+                  "postContentText": "={{ $('Write post').item.json.output.post_content }}\n\n{{ $('Write post').item.json.output.hashtags }}",
+                  "postContentMediaUrls": "={{ $('Get image URL').item.json.image_url }}"
+                }
+              },
+              "runAfter": {}
+            },
+            "Publish_to_X": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Publish to X",
+                "n8nNodeType": "@blotato/n8n-nodes-blotato.blotato",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "platform": "twitter",
+                  "accountId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "1289",
+                    "cachedResultUrl": "https://backend.blotato.com/v2/accounts/1289",
+                    "cachedResultName": "Docteur_Firas"
+                  },
+                  "postContentText": "={{ $('Write post').item.json.output.post_content }}\n\n{{ $('Write post').item.json.output.hashtags }}",
+                  "postContentMediaUrls": "={{ $('Get image URL').item.json.image_url }}"
+                }
+              },
+              "runAfter": {
+                "Publish_to_LinkedIn": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Publish_to_Instagram": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Publish to Instagram",
+                "n8nNodeType": "@blotato/n8n-nodes-blotato.blotato",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "accountId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "11892",
+                    "cachedResultUrl": "https://backend.blotato.com/v2/accounts/11892",
+                    "cachedResultName": "doc.firass"
+                  },
+                  "postContentText": "={{ $('Write post').item.json.output.post_content }}\n\n{{ $('Write post').item.json.output.hashtags }}",
+                  "postContentMediaUrls": "={{ $('Get image URL').item.json.image_url }}"
+                }
+              },
+              "runAfter": {
+                "Publish_to_X": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Publish_to_Facebook": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Publish to Facebook",
+                "n8nNodeType": "@blotato/n8n-nodes-blotato.blotato",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "platform": "facebook",
+                  "accountId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "1759",
+                    "cachedResultUrl": "https://backend.blotato.com/v2/accounts/1759",
+                    "cachedResultName": "Firass Ben"
+                  },
+                  "facebookPageId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "101603614680195",
+                    "cachedResultUrl": "https://backend.blotato.com/v2/accounts/1759/subaccounts/101603614680195",
+                    "cachedResultName": "Dr. Firas"
+                  },
+                  "postContentText": "={{ $('Write post').item.json.output.post_content }}\n\n{{ $('Write post').item.json.output.hashtags }}",
+                  "postContentMediaUrls": "={{ $('Get image URL').item.json.image_url }}"
+                }
+              },
+              "runAfter": {
+                "Publish_to_Instagram": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Publish_to_Threads": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Publish to Threads",
+                "n8nNodeType": "@blotato/n8n-nodes-blotato.blotato",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "platform": "threads",
+                  "accountId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "2280",
+                    "cachedResultUrl": "https://backend.blotato.com/v2/accounts/2280",
+                    "cachedResultName": "doc.firass"
+                  },
+                  "postContentText": "={{ $('Write post').item.json.output.post_content }}\n\n{{ $('Write post').item.json.output.hashtags }}",
+                  "postContentMediaUrls": "={{ $('Get image URL').item.json.image_url }}"
+                }
+              },
+              "runAfter": {
+                "Publish_to_Facebook": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Log_published_post": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "referenceName": "googlesheet_#workflowname#"
+                  }
+                },
+                "method": "post",
+                "path": "/datasets/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_SPREADSHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('linkedin'))}/items",
+                "body": {
+                  "date": "={{ $now.toFormat('yyyy-LL-dd HH:mm:ss') }}",
+                  "topic": "@body('Generate_content_topic')?['output']?['topic_title']",
+                  "status": "Published",
+                  "hashtags": "@body('Write_post')?['output']?['hashtags']",
+                  "image_url": "@body('Get_image_URL')?['image_url']",
+                  "platforms": "LinkedIn, X, Instagram, Facebook, Threads",
+                  "post_content": "@body('Write_post')?['output']?['post_content']"
+                }
+              },
+              "metadata": {
+                "flowSystemMetadata": {
+                  "swaggerOperationId": "PostItem"
+                }
+              },
+              "runAfter": {
+                "Publish_to_Threads": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "Log_skipped_post": {
+                "type": "ApiConnection",
+                "inputs": {
+                  "host": {
+                    "connection": {
+                      "referenceName": "googlesheet_#workflowname#"
+                    }
+                  },
+                  "method": "post",
+                  "path": "/datasets/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_SPREADSHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('linkedin'))}/items",
+                  "body": {
+                    "date": "={{ $now.toFormat('yyyy-LL-dd HH:mm:ss') }}",
+                    "topic": "@body('Generate_content_topic')?['output']?['topic_title']",
+                    "status": "Skipped",
+                    "hashtags": "@body('Write_post')?['output']?['hashtags']",
+                    "image_url": "@body('Get_image_URL')?['image_url']",
+                    "platforms": "",
+                    "post_content": "@body('Write_post')?['output']?['post_content']"
+                  }
+                },
+                "metadata": {
+                  "flowSystemMetadata": {
+                    "swaggerOperationId": "PostItem"
+                  }
+                },
+                "runAfter": {}
+              }
+            }
+          },
+          "runAfter": {
+            "Approve_on_Telegram": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Run_on_schedule",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

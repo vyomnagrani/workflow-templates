@@ -1,0 +1,74 @@
+{
+  "sourceWorkflowName": "Automate restaurant customer service with WhatsApp and Llama AI chatbot",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 3,
+  "totalNodes": 9,
+  "coverage": 0.3333,
+  "diagnostics": [
+    {
+      "code": "TRIGGER_MISSING",
+      "message": "No supported n8n trigger was found.",
+      "severity": "warning",
+      "node_name": null,
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.whatsAppTrigger.",
+      "severity": "warning",
+      "node_name": "Receive WhatsApp Message",
+      "node_type": "n8n-nodes-base.whatsAppTrigger",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.agent.",
+      "severity": "warning",
+      "node_name": "Extract Customer Query",
+      "node_type": "@n8n/n8n-nodes-langchain.agent",
+      "json_path": null
+    },
+    {
+      "code": "CONNECTION_SEMANTICS_REVIEW",
+      "message": "Typed, indexed, or uncompiled branched connection requires manual review.",
+      "severity": "warning",
+      "node_name": "Extract Customer Query",
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for @n8n/n8n-nodes-langchain.lmChatOllama.",
+      "severity": "warning",
+      "node_name": "Generate Reply with AI",
+      "node_type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.postgres.",
+      "severity": "warning",
+      "node_name": "Create New Table Booking",
+      "node_type": "n8n-nodes-base.postgres",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.whatsApp.",
+      "severity": "warning",
+      "node_name": "Send Booking Confirmation to Customer",
+      "node_type": "n8n-nodes-base.whatsApp",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.whatsApp.",
+      "severity": "warning",
+      "node_name": "Send Reply to Customer",
+      "node_type": "n8n-nodes-base.whatsApp",
+      "json_path": null
+    }
+  ]
+}

@@ -1,0 +1,298 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "leadbot-autopilot-chat-to-lead-for-salesforce",
+    "name": "LeadBot autopilot — chat-to-lead for Salesforce",
+    "description": "# LeadBot Autopilot — Chat-to-Lead for Salesforce\n\n## Description — How It Works\n1. **Greets & Guides:** Welcomes the visitor and collects info step-by-step — Full Name → Email → Mobile → Product Interest.\n2. **Validates Inputs:** Checks email/phone formats; politely re-asks if invalid.\n3. **De-dupe in Salesforce:** Looks up by email; updates an existing lead if found.\n4. **Create/Update Lead:** Writes to Salesforce, including `ProductInterest__c`.\n5. **Notify Instantly:** Sends a Slack alert to your team and a personalized email to the prospect.\n6. **Close the Loop:** Confirms submission and ends the chat.\n\n## Description — Set Up Steps (≈45–75 mins)\n- **Connect Credentials (20–30 mins):** Salesforce OAuth, OpenAI, Slack, SMTP.  \n- **Tune the Prompt (5–10 mins):** Greeting, field order, product options.  \n- **Map Fields (10–15 mins):** Name split, email/phone, `ProductInterest__c`.  \n- **Smoke Test (10–15 mins):** Run a full chat; verify de-dupe, Slack + email.  \n- **Go Live (5–10 mins):** Expose the webhook/chat entry point on your site.\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Lead Generation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "When_chat_message_received": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "When chat message received",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chatTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "public": true,
+              "options": {},
+              "initialMessages": "Hi! I'm LeadBot. I'll help you submit your interest. Let's start with your full name."
+            }
+          },
+          "runAfter": {}
+        },
+        "AI_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "AI Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "systemMessage": "You are a friendly and efficient chatbot named LeadBot, designed to replace web forms. Your goal is to collect information conversationally: Full Name, Email, Mobile Phone, and Product Interest. Guide the user step-by-step, asking one piece of info at a time. Be polite, confirm inputs, and handle corrections.\nRules:\n\nStart by greeting and explaining: \"Hi! I'm LeadBot. I'll help you submit your interest. Let's start with your full name.\"\nCollect in order: Name → Email (validate format) → Mobile Phone (validate as phone number) → Product Interest ([\"CRM Software\", \"Marketing Automation\"] – present as options).\nAfter Email: Always use the 'check_duplicate_lead' tool to search for existing records by email. If duplicate found, silently proceed to update the existing record (do not ask the user).\nValidate all inputs: If invalid (e.g., bad email or phone format), politely ask again.\nOnce all info collected: Use 'create_lead' or 'update_lead' tool to submit or update the info – If there is an existing record, pass the lead_id to update_lead; otherwise, use create_lead.\nAfter success: Use 'send_notification_internal' to notify the internal team via Slack (e.g., \"New/updated interest: [Name] - [Email] - [Interest]\"), and 'send_notification_client' to send a personalized message to the client based on their product interest (e.g., email with details about the chosen interest).\nEnd conversation: \"Thanks! Your request has been logged. We'll contact you soon.\"\nIf user wants to stop: Politely end and don't submit anything.\nKeep responses concise, under 100 words.\nOnly use tools when necessary; do not hallucinate data.\nUse the 'think' tool for internal reasoning on complex decisions, like ambiguous inputs or name splitting.\n\nAvailable Tools (use function calling format):\n\ncheck_duplicate_lead: Checks for duplicate record by email.\n\nParameters: email (string, required)\nReturns: {exists: boolean, lead_id: string or null, details: {name: string, birthday: string, interest: string} or null}\n\n\nupdate_lead: Updates existing record.\n\nParameters: firstname (string), lastname (string), email (string), mobile (string), interest (string), lead_id (string)\nReturns: {success: boolean, lead_id: string, message: string}\nAlways respond in JSON if calling tools, but output natural text to user.\n\n\ncreate_lead: Creates new record.\n\nParameters: firstname (string), lastname (string), email (string), mobile (string), interest (string)\nReturns: {success: boolean, lead_id: string, message: string}\nAlways respond in JSON if calling tools, but output natural text to user.\n\n\nsend_notification_internal: Sends Slack notification to internal team about the new/updated record.\n\nParameters: lead_id (string), name (string), email (string), interest (string)\nReturns: {success: boolean, message: string}\nAlways respond in JSON if calling tools, but output natural text to user.\n\n\nsend_notification_client: Sends personalized notification to the client based on their product interest.\n\nParameters: email (string), name (string), interest (string)\nReturns: {success: boolean, message: string}\nAlways respond in JSON if calling tools, but output natural text to user.\n\n\nthink: Allows you to reflect and reason step by step before answering. Use for complex queries or decisions.\n\nParameters: none\nReturns: {thought: string} (your reasoned response for internal use)\nAlways respond in JSON if calling tools, but output natural text to user."
+              }
+            }
+          },
+          "runAfter": {
+            "Think": [
+              "Succeeded"
+            ],
+            "create_lead": [
+              "Succeeded"
+            ],
+            "update_lead": [
+              "Succeeded"
+            ],
+            "Simple_Memory": [
+              "Succeeded"
+            ],
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ],
+            "check_duplicate_lead": [
+              "Succeeded"
+            ],
+            "send_notification_client": [
+              "Succeeded"
+            ],
+            "When_chat_message_received": [
+              "Succeeded"
+            ],
+            "send_notification_internal": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenAI_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4.1",
+                "cachedResultName": "gpt-4.1"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Simple_Memory": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Simple Memory",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "check_duplicate_lead": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "check_duplicate_lead",
+            "n8nNodeType": "n8n-nodes-base.salesforceTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "conditionsUi": {
+                  "conditionValues": [
+                    {
+                      "field": "Email",
+                      "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('conditionValues0_Value', ``, 'string') }}"
+                    }
+                  ]
+                }
+              },
+              "operation": "getAll",
+              "returnAll": true,
+              "descriptionType": "manual",
+              "toolDescription": "Get many leads in Salesforce"
+            }
+          },
+          "runAfter": {}
+        },
+        "Think": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Think",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.toolThink",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "update_lead": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "update_lead",
+            "n8nNodeType": "n8n-nodes-base.salesforceTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "leadId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Lead_ID', ``, 'string') }}",
+              "operation": "update",
+              "updateFields": {
+                "email": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Email', ``, 'string') }}",
+                "lastname": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Last_Name', ``, 'string') }}",
+                "firstname": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('First_Name', ``, 'string') }}",
+                "mobilePhone": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Mobile_Phone', ``, 'string') }}",
+                "customFieldsUi": {
+                  "customFieldsValues": [
+                    {
+                      "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('customFieldsValues0_Value', ``, 'string') }}",
+                      "fieldId": "ProductInterest__c"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "create_lead": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "create_lead",
+            "n8nNodeType": "n8n-nodes-base.salesforceTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "company": "={{ $fromAI('Company', ``, 'string') }}",
+              "lastname": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Last_Name', ``, 'string') }}",
+              "additionalFields": {
+                "email": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Email', ``, 'string') }}",
+                "firstname": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('First_Name', ``, 'string') }}",
+                "mobilePhone": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Mobile_Phone', ``, 'string') }}",
+                "customFieldsUi": {
+                  "customFieldsValues": [
+                    {
+                      "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('customFieldsValues0_Value', ``, 'string') }}",
+                      "fieldId": "ProductInterest__c"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "send_notification_client": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "send_notification_client",
+            "n8nNodeType": "n8n-nodes-base.emailSendTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "html": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('HTML', ``, 'string') }}",
+              "options": {},
+              "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+              "toEmail": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To_Email', ``, 'string') }}",
+              "fromEmail": "test@example.com"
+            }
+          },
+          "runAfter": {}
+        },
+        "send_notification_internal": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "send_notification_internal",
+            "n8nNodeType": "n8n-nodes-base.slackTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "={{ $fromAI('Message_Text', ``, 'string') }}",
+              "user": {
+                "__rl": true,
+                "mode": "list",
+                "value": "U08QYRBEE3V",
+                "cachedResultName": "ai_agent"
+              },
+              "select": "user",
+              "otherOptions": {}
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

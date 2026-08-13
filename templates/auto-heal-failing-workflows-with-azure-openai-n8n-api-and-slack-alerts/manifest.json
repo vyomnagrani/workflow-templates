@@ -1,0 +1,328 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "auto-heal-failing-workflows-with-azure-openai-n8n-api-and-slack-alerts",
+    "name": "Auto-heal failing workflows with Azure OpenAI, n8n API, and Slack alerts",
+    "description": "## 📊 Description\nEliminate manual troubleshooting with an AI-powered autonomous recovery engine for n8n 🤖. This system monitors your entire n8n instance for failures, analyzes the root cause using Azure OpenAI, and automatically repairs broken workflows in real-time. By distinguishing between temporary network glitches and logic errors, it either retries the execution or dynamically patches the workflow JSON via the n8n API. It provides a \"closed-loop\" automation experience, ensuring your mission-critical processes stay online without human intervention 🔍⚡.\n\n## What This Template Does\n- Monitors All Workflows: Captures errors globally across your instance via the Error Trigger.\n- Prevents Infinite Loops: Automatically filters out errors originating from the healing system itself.\n- Fetches Live Context: Pulls the complete, latest JSON structure of the failing workflow for analysis.\n- AI Root Cause Analysis: Uses Azure OpenAI (GPT-4o) to diagnose if the issue is a \"RETRY\" (timeout/rate limit) or a \"FIX\" (invalid parameter/logic).\n- Autonomous Patching: For logic errors, a JavaScript engine injects the AI's corrected values directly into the workflow code.\n- Human-in-the-Loop Alerts: Sends detailed Slack notifications for successful auto-fixes or requests manual help if the error is too complex.\n\n## Key Benefits\n✅ 24/7 Autonomous Reliability: Workflows fix themselves while you sleep, reducing downtime significantly.\n✅ Intelligent Recovery: Moves beyond simple retries by actually correcting \"hard\" errors like broken IDs or missing parameters.\n✅ Production-Grade Governance: Adds a safety layer to your automation stack that learns and adapts to errors.\n\n## Features\n\n- Global Error Listener: Catch-all trigger for instance-wide monitoring.\n- Dual-Path Recovery: Distinct logic branches for transient vs. permanent failures.\n- Wait-State Logic: Built-in \"cool down\" periods to respect external API rate limits during retries.\n- AI Patching Engine: Structured output parsing ensures the AI provides valid, deployable code changes.\n- Slack Integration: Real-time visibility into the \"healing\" process with deep-links to specific executions.\n\n## Requirements\n- n8n Instance: (Cloud or Self-hosted) with API access enabled.\n- Azure OpenAI Account: With GPT-4o deployment and valid API credentials.\n- n8n API Key: To allow the system to read and update workflows.\n- Slack App: For receiving diagnostic alerts and success notifications.\n\n## Target Audience\n- Enterprise Automation Teams: Managing high volumes of mission-critical workflows.\n- n8n Power Users: Looking to build \"bulletproof\" automation infrastructure.\n- SaaS Founders: Ensuring customer-facing integrations remain stable.\n- Managed Service Providers (MSPs): Offering proactive automation monitoring and maintenance.\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "DevOps",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Azure_OpenAI_Chat_Model1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Azure OpenAI Chat Model1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": "gpt-4o",
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "On_Workflow_Error": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "On Workflow Error",
+            "n8nNodeType": "n8n-nodes-base.errorTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "Filter_Ignore_Self": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Filter: Ignore Self",
+            "n8nNodeType": "n8n-nodes-base.filter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "conditions": {
+                "string": [
+                  {
+                    "value1": "={{ $json.workflow.id }}",
+                    "value2": "={{ $workflow.id }}",
+                    "operation": "notEqual"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "On_Workflow_Error": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_Workflow_JSON": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://n8n.tdwebsites.in/api/v1/workflows/@{body('Filter_Ignore_Self')?['workflow']?['id']}",
+            "headers": {
+              "X-N8N-API-KEY": "your_api_key",
+              "Accept": "application/json"
+            }
+          },
+          "runAfter": {
+            "Filter_Ignore_Self": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Diagnose_Error": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Diagnose Error",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=\"You are an n8n Senior Engineer.\n\nCONTEXT:\n\nFailed Node: {{ $node[\"On Workflow Error\"].json.workflow.name }}\n\nError: {{ $node[\"On Workflow Error\"].json.execution.error.message }}\n\nWorkflow JSON: {{ JSON.stringify($node[\"Get Workflow JSON\"].json) }}\n\nTASK:\n\nDecide if this is a 'RETRY' (network/timeout) or a 'FIX' (logic/wrong param).\n\nIf 'FIX', identify the specific parameter name in the failed node that caused the error.\n\nProvide the corrected value for that parameter.\n\nReturn the result in the structured format.\"",
+              "options": {},
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "Decision_Schema": [
+              "Succeeded"
+            ],
+            "Get_Workflow_JSON": [
+              "Succeeded"
+            ],
+            "Azure_OpenAI_Chat_Model1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Decision_Schema": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Decision Schema",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsonSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"state\": { \"type\": \"string\", \"enum\": [\"RETRY\", \"FIX\"] },\n    \"diagnosis\": { \"type\": \"string\" },\n    \"patch\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"parameterName\": { \"type\": \"string\" },\n        \"newValue\": { \"type\": \"string\" }\n      }\n    }\n  }\n}"
+            }
+          },
+          "runAfter": {}
+        },
+        "Determine_Action": {
+          "type": "If",
+          "expression": {
+            "equals": [
+              "@body('Diagnose_Error')?['output']?['state']",
+              "RETRY"
+            ]
+          },
+          "actions": {
+            "Cool_Down": {
+              "type": "Wait",
+              "inputs": {
+                "interval": {
+                  "count": 1,
+                  "unit": "Minute"
+                }
+              },
+              "runAfter": {}
+            },
+            "Retry_Execution": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "=https://n8n.tdwebsites.in/api/v1/executions/{{$node[\"On Workflow Error\"].json.execution.id}}/retry",
+                "headers": {
+                  "X-N8N-API-KEY": "your_api_key",
+                  "Accept": "application/json"
+                }
+              },
+              "runAfter": {
+                "Cool_Down": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "Rule_2": {
+                "type": "If",
+                "expression": {
+                  "equals": [
+                    "@body('Diagnose_Error')?['output']?['state']",
+                    "FIX"
+                  ]
+                },
+                "actions": {
+                  "Generate_Patch_JSON": {
+                    "type": "JavaScriptCode",
+                    "inputs": {
+                      "code": "const __inputRaw = workflowContext.trigger.outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// 1. Get the data from previous nodes using  to avoid undefined errors\nconst workflowData = $node[\"Get Workflow JSON\"].json;\nconst aiResponse = $node[\"Diagnose Error\"].json.output;\nconst errorData = $node[\"On Workflow Error\"].json;\n\n// 2. Clone the workflow to avoid mutating original data unexpectedly\nlet updatedWorkflow = JSON.parse(JSON.stringify(workflowData));\n\n// 3. Safety Check: Ensure the AI actually provided a patch\nif (aiResponse && aiResponse.patch && aiResponse.patch.parameterName) {\n  const targetNodeName = errorData.execution.lastNodeExecuted;\n  const paramToFix = aiResponse.patch.parameterName;\n  const newValue = aiResponse.patch.newValue;\n\n  // 4. Loop through nodes and apply the fix\n  let found = false;\n  for (let node of updatedWorkflow.nodes) {\n    if (node.name === targetNodeName) {\n      // Initialize parameters if for some reason they don't exist\n      node.parameters = node.parameters || {};\n      node.parameters[paramToFix] = newValue;\n      \n      // Add a note so you can see the fix in the UI\n      node.notes = `🛠 AI AUTO-FIX: Changed ${paramToFix} to ${newValue}`;\n      found = true;\n      break;\n    }\n  }\n}\n\n// 5. Return the result in the standard n8n format\nreturn {\n  json: {\n    workflowJSON: updatedWorkflow, // This will be used in the PUT body\n    diagnosis: aiResponse.diagnosis,\n    fixedParam: aiResponse.patch ? aiResponse.patch.parameterName : 'none',\n    success: true\n  }\n};\n})();\nreturn { body: __unwrap(__result) };"
+                    },
+                    "runAfter": {}
+                  },
+                  "Update_Workflow": {
+                    "type": "Http",
+                    "inputs": {
+                      "method": "PUT",
+                      "uri": "=https://n8n.tdwebsites.in/api/v1/workflows/{{ $node[\"On Workflow Error\"].json.workflow.id}}",
+                      "headers": {
+                        "X-N8N-API-KEY": "your_api_key",
+                        "Accept": "application/json"
+                      },
+                      "body": "{\n  \"name\": \"@{body('Generate_Patch_JSON')?['workflowJSON']?['name']}\",\n  \"nodes\": @{JSON.stringify(body('Generate_Patch_JSON')?['workflowJSON']?['nodes'])},\n  \"connections\": @{JSON.stringify(body('Generate_Patch_JSON')?['workflowJSON']?['connections'])},\n  \"settings\": @{JSON.stringify(body('Generate_Patch_JSON')?['workflowJSON']?['settings'] || {})},\n  \"staticData\": @{JSON.stringify(body('Generate_Patch_JSON')?['workflowJSON']?['staticData'] || null)}\n}"
+                    },
+                    "runAfter": {
+                      "Generate_Patch_JSON": [
+                        "Succeeded"
+                      ]
+                    }
+                  },
+                  "Notify_Success": {
+                    "type": "Compose",
+                    "inputs": {
+                      "conversionStatus": "unsupported",
+                      "n8nNodeName": "Notify Success",
+                      "n8nNodeType": "n8n-nodes-base.slack",
+                      "message": "Replace this placeholder with an equivalent LAA action."
+                    },
+                    "description": "Generated placeholder for an unsupported n8n node.",
+                    "metadata": {
+                      "x-n8n-original-parameters": {
+                        "text": "=✅ I successfully patched the workflow! Diagnosis: {{ $node[\"Generate Patch JSON\"].json.diagnosis }}",
+                        "select": "channel",
+                        "channelId": {
+                          "__rl": true,
+                          "mode": "list",
+                          "value": "C09L70CVDL3",
+                          "cachedResultName": "alerting-channel"
+                        },
+                        "otherOptions": {},
+                        "authentication": "oAuth2"
+                      }
+                    },
+                    "runAfter": {
+                      "Update_Workflow": [
+                        "Succeeded"
+                      ]
+                    }
+                  }
+                },
+                "else": {
+                  "actions": {
+                    "Rule_3": {
+                      "type": "If",
+                      "expression": {
+                        "equals": [
+                          "",
+                          ""
+                        ]
+                      },
+                      "actions": {
+                        "Notify_Manual_Fix": {
+                          "type": "Compose",
+                          "inputs": {
+                            "conversionStatus": "unsupported",
+                            "n8nNodeName": "Notify Manual Fix",
+                            "n8nNodeType": "n8n-nodes-base.slack",
+                            "message": "Replace this placeholder with an equivalent LAA action."
+                          },
+                          "description": "Generated placeholder for an unsupported n8n node.",
+                          "metadata": {
+                            "x-n8n-original-parameters": {
+                              "text": "=⚠️ Manual Action Required\nWorkflow: {{ $node[\"On Workflow Error\"].json.workflow.name }}\nFailed Node: {{ $node[\"On Workflow Error\"].json.execution.lastNodeExecuted }}\nAI Diagnosis: {{ $node[\"Diagnose Error\"].json.output.diagnosis }}\nLink: https://n8n.tdwebsites.in/workflow/{{ $node[\"On Workflow Error\"].json.workflow.id}}/execution/{{ $node[\"On Workflow Error\"].json.execution.id }})",
+                              "select": "channel",
+                              "channelId": {
+                                "__rl": true,
+                                "mode": "list",
+                                "value": "C09L70CVDL3",
+                                "cachedResultName": "alerting-channel"
+                              },
+                              "otherOptions": {},
+                              "authentication": "oAuth2"
+                            }
+                          },
+                          "runAfter": {}
+                        }
+                      },
+                      "else": {
+                        "actions": {}
+                      },
+                      "runAfter": {}
+                    }
+                  }
+                },
+                "runAfter": {}
+              }
+            }
+          },
+          "runAfter": {
+            "Diagnose_Error": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

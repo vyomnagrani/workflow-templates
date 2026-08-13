@@ -1,0 +1,66 @@
+{
+  "sourceWorkflowName": "Create Ken Burns zoom video clips from text prompts with Pollinations and FFmpeg",
+  "success": true,
+  "qualityGrade": "C",
+  "convertedNodes": 8,
+  "totalNodes": 12,
+  "coverage": 0.6667,
+  "diagnostics": [
+    {
+      "code": "TRIGGER_MISSING",
+      "message": "No supported n8n trigger was found.",
+      "severity": "warning",
+      "node_name": null,
+      "node_type": null,
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.formTrigger.",
+      "severity": "warning",
+      "node_name": "Image prompt and length form",
+      "node_type": "n8n-nodes-base.formTrigger",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Build the image prompt and file paths",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.executeCommand.",
+      "severity": "warning",
+      "node_name": "Create the temp folder",
+      "node_type": "n8n-nodes-base.executeCommand",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.executeCommand.",
+      "severity": "warning",
+      "node_name": "Download the AI image (Pollinations)",
+      "node_type": "n8n-nodes-base.executeCommand",
+      "json_path": null
+    },
+    {
+      "code": "NODE_UNSUPPORTED",
+      "message": "No deterministic mapping exists for n8n-nodes-base.executeCommand.",
+      "severity": "warning",
+      "node_name": "Render the Ken Burns zoom video (FFmpeg)",
+      "node_type": "n8n-nodes-base.executeCommand",
+      "json_path": null
+    },
+    {
+      "code": "CODE_RUNTIME_REVIEW",
+      "message": "JavaScript was wrapped with an n8n item-model compatibility adapter; review runtime assumptions before publishing.",
+      "severity": "warning",
+      "node_name": "Verify the render succeeded",
+      "node_type": "n8n-nodes-base.code",
+      "json_path": null
+    }
+  ]
+}

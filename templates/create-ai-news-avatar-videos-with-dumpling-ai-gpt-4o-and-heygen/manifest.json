@@ -1,0 +1,323 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "create-ai-news-avatar-videos-with-dumpling-ai-gpt-4o-and-heygen",
+    "name": "Create AI news avatar videos with Dumpling AI, GPT-4o and HeyGen",
+    "description": "## 🧾 What this workflow does\n\nThis workflow automatically generates avatar-style videos from the latest AI-related news using Dumpling AI and HeyGen. It runs every hour, scrapes trending articles, turns them into 30–60 second spoken scripts with GPT-4o, and produces short avatar videos with HeyGen. Finally, it logs the final video URL in a Google Sheet.\n\n---\n\n## 👤 Who is this for\n\n- Newsletters and creators who want to automate AI trend updates  \n- Content marketers generating short-form video content  \n- Product teams experimenting with AI-generated summaries  \n- Automation enthusiasts combining LLMs + video + trending data  \n\n---\n\n## ⚙️ How to set up\n\n### 🔐 Requirements\n- **Dumpling AI API Key** stored securely as HTTP Header credential  \n- **HeyGen API Key** added as an HTTP Header credential  \n- **OpenAI API Key** for GPT-4o (can use GPT-4o-mini if preferred)  \n- **Google Sheets account** with one column: `Video link`  \n\n### 🛠 Step-by-step setup\n\n1. **Google Sheet Setup**  \n   - Create a Google Sheet with a single column named: `Video link`\n\n2. **Update Credentials**  \n   - Use n8n’s credential manager to add tokens for:  \n     - Dumpling AI  \n     - HeyGen  \n     - OpenAI  \n     - Google Sheets\n\n3. **Optional Customizations**\n   - In the \"Dumpling AI: Search AI News\" node, you can change `\"query\": \"AI Agent\"`  \n     to other trending keywords (e.g., `\"Generative AI\"`, `\"Autonomous Agents\"`, etc.)\n   - Update the `avatar_id` and `voice_id` in the HeyGen request to match your preferred look/sound\n\n---\n\n## 🧠 How it works\n\n1. The Schedule Trigger runs hourly.  \n2. Dumpling AI searches for fresh news related to \"AI Agent.\"  \n3. The top 4 news links are scraped for full content.  \n4. Articles are merged and fed into GPT-4o via a LangChain Agent to produce a casual, conversational video script.  \n5. HeyGen creates a video using the script, avatar, and voice.  \n6. The workflow waits until the video rendering is complete.  \n7. Once done, the final video link is logged into Google Sheets.\n\n---\n\n## 🧪 Customization Ideas\n\n- Change the interval (e.g., every 6 hours, daily)\n- Swap avatar/voice in HeyGen to fit your brand\n- Expand to post the video directly to social media\n- Add image background or B-roll overlays using Creatomate\n\n\n---\n\nThis is a fast, automated pipeline to create explainer-style AI news updates using real-time data and generative video tools.\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "connectionProviders/Http",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Schedule_Trigger": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Dumpling_AI_Search_AI_News": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://app.dumplingai.com/api/v1/search-news",
+            "body": "={\n  \"query\": \"AI Agent\",\n  \"language\": \"en\",\n  \"dateRange\": \"pastHour\",\n  \"page\": \"1\"\n}\n"
+          },
+          "runAfter": {}
+        },
+        "Split_Individual_News_Items": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Split: Individual News Items",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldToSplitOut": "news"
+            }
+          },
+          "runAfter": {
+            "Dumpling_AI_Search_AI_News": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Limit_Top_4_News_Results": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Limit: Top 4 News Results",
+            "n8nNodeType": "n8n-nodes-base.limit",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "maxItems": 4
+            }
+          },
+          "runAfter": {
+            "Split_Individual_News_Items": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Dumpling_AI_Scrape_Article_Content": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://app.dumplingai.com/api/v1/scrape",
+            "body": "{\n  \"url\": \"@{body('Limit_Top_4_News_Results')?['link']}\",\n  \"cleaned\": \"true\"\n}"
+          },
+          "runAfter": {
+            "Limit_Top_4_News_Results": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Combine_Merge_Scraped_News_Content": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": " Combine: Merge Scraped News Content",
+            "n8nNodeType": "n8n-nodes-base.aggregate",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldsToAggregate": {
+                "fieldToAggregate": [
+                  {
+                    "fieldToAggregate": "content"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Dumpling_AI_Scrape_Article_Content": [
+              "Succeeded"
+            ]
+          }
+        },
+        "GPT_4o_Agent_Write_Video_Script": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "GPT-4o Agent: Write Video Script",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=Here is the topic:{{ $json.content }}\n\n\nHere is the news article:{{ $('Dumpling AI: Search AI News').item.json.searchParameters.q }}\n",
+              "options": {
+                "systemMessage": "=You are a creative content writer. I will give you a news article and the intended topic or angle I want to focus on. Your job is to turn that into a short, engaging script suitable for a 30 to 60-second video. Write in a natural, conversational tone that sounds like someone talking to a general audience. Keep it simple, clear, and focused on the most interesting or important angle based on the topic I provide. Avoid technical jargon. The goal is to grab attention and make the message easy to understand and relatable. Very important: Output the final script as a single line only — no new lines, no paragraph breaks, no titles or formatting. Just plain text in one continuous sentence."
+              },
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "GPT_4o_Model": [
+              "Succeeded"
+            ],
+            "Combine_Merge_Scraped_News_Content": [
+              "Succeeded"
+            ]
+          }
+        },
+        "GPT_4o_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": " GPT-4o Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "HeyGen_Generate_Avatar_Video": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.heygen.com/v2/video/generate",
+            "headers": {
+              "accept": "application/json"
+            },
+            "body": "{\n  \"video_inputs\": [\n    {\n      \"character\": {\n        \"type\": \"avatar\",\n        \"avatar_id\": \"\",\n        \"avatar_style\": \"normal\"\n      },\n      \"voice\": {\n        \"type\": \"text\",\n        \"input_text\": \"@{body('GPT_4o_Agent_Write_Video_Script')?['output']}\",\n        \"voice_id\": \"\",\n        \"speed\": 1.1\n      }\n    }\n  ],\n  \"dimension\": {\n    \"width\": 1280,\n    \"height\": 720\n  }\n}"
+          },
+          "runAfter": {
+            "GPT_4o_Agent_Write_Video_Script": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_For_HeyGen_to_Process": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 1,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "HeyGen_Generate_Avatar_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "HeyGen_Check_Video_Status": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.heygen.com/v1/video_status.get"
+          },
+          "runAfter": {
+            "Wait_For_HeyGen_to_Process": [
+              "Succeeded"
+            ],
+            "Wait_Retry_if_Not_Complete": [
+              "Succeeded"
+            ]
+          }
+        },
+        "IF_Video_Completed": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "IF: Video Completed?",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "fbed8c0e-f2ad-4519-9eb9-1423731654ea",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.data.status }}",
+                    "rightValue": "completed"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "HeyGen_Check_Video_Status": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_Retry_if_Not_Complete": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 20,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "IF_Video_Completed": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Sheets_Log_Video_URL": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_SPREADSHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+            "body": {
+              "Video link": "@body('IF_Video_Completed')?['data']?['video_url']"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "IF_Video_Completed": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Schedule_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

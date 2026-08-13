@@ -1,0 +1,409 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "beginner-ai-dataset-generator-using-openai-langchain-in-n8n",
+    "name": "Beginner AI dataset generator using OpenAI + LangChain in n8n",
+    "description": "This n8n workflow dynamically generates a realistic sample dataset based on a single topic you provide. It uses OpenAI (via LangChain) and n8n’s built-in nodes to:\n\n1. **Generate structured JSON data** for 5 columns with 3–5 values each  \n2. **Flatten** that data into a single text blob  \n3. **Infer meaningful column names** via a second AI call  \n4. **Pivot, split, merge, and rename** columns automatically  \n5. **Output** a clean, labeled dataset ready for export or further processing  \n\n---\n\n## ⚙️ Prerequisites\n\n1. **OpenAI API Key**  \n   - Visit: https://platform.openai.com/account/api-keys  \n   - Create a new key  \n   - In n8n: **Credentials → New → OpenAI API**, paste key, name it “OpenAi account”  \n\n2. **LangChain nodes enabled** in your n8n instance  \n\n\n### 🥇 Step 1: Set Up OpenAI Credential\n1. Go to [OpenAI API Keys](https://platform.openai.com/account/api-keys)  \n2. Create and copy your key  \n3. In n8n: **Credentials → New → OpenAI API** → paste key as “OpenAi account”\n\n### 🥈 Step 2: Manual Trigger\n- Add **Manual Trigger** to start the workflow\n\n### 🥉 Step 3: Set Topic\n- Add a **Set** node named `Set Topic to Search`  \n- Field: `Topic` = `n8n use cases` (or any topic you choose)\n\n### ✨ Step 4: Generate Structured Data\n- **LangChain Agent** node `Generate Random Data`\n- Connect to **OpenAI Chat Model1** and **Tool: Inject Creativity1**  \n- System prompt: instruct AI to output 5 columns of realistic values in JSON  \n\n### 🔧 Step 5: Parse AI Output\n- **Structured Output Parser** to validate JSON  \n\n### 🔄 Step 6: Flatten Data\n- **Code** node `Outpt all Data to One Field`  \n- Joins all values into a comma-separated string for column naming\n\n### 🧠 Step 7: Generate Column Names\n- **LangChain Agent** `Generate Column Names`  \n- Connect to **OpenAI Chat Model2**  \n- Prompt: infer 5 column names from the string  \n\n### 🔢 Step 8: Pivot Names Row\n- **Code** node `Pivot Column Names` transforms array into `{ column1: name1, … }`\n\n### 🪓 Step 9: Split Columns\n- 5 `SplitOut` nodes to break each array back into rows per column\n\n### 🔗 Step 10: Merge Rows\n- **Merge** node `Merge Columns together` using `combineByPosition`  \n\n### 🏷️ Step 11: Rename Columns\n- **Set** node `Rename Columns` assigns the AI-generated names to each column\n\n### 🔗 Step 12: Final Output\n- **Merge** `Append Column Names` combines data and header row\n\n---\n\n🏁 **Done!** You now have a fully AI-driven, labeled dataset generated from a single topic—no external services needed. Easily extend by adding a Google Sheets or HTTP node to export.\n\n\n## 📬 Need Help or Want to Customize This?\n📧 [robert@ynteractive.com](mailto:robert@ynteractive.com)  \n🔗 [LinkedIn](https://www.linkedin.com/in/robert-breen-29429625/)",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Document Extraction",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/inlineCode",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Run_Workflow": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "OpenAI_Chat_Model1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Tool_Inject_Creativity1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Tool: Inject Creativity1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.toolThink",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "Structured_Output_Parser": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Structured Output Parser",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsonSchemaExample": "{\n  \"column1\": [\n    \"2025-08-01\",\n    \"2025-08-02\",\n    \"2025-08-03\"\n  ],\n  \"column2\": [\n    \"Instagram\",\n    \"LinkedIn\",\n    \"Twitter\"\n  ],\n  \"column3\": [\n    \"Image Post\",\n    \"Blog Link\",\n    \"Video Snippet\"\n  ],\n  \"column4\": [\n    \"Workflow Automation\",\n    \"AI Agent Demo\",\n    \"Case Study\"\n  ],\n  \"column5\": [\n    \"Alice\",\n    \"Bob\",\n    \"Charlie\"\n  ]\n}\n"
+            }
+          },
+          "runAfter": {}
+        },
+        "OpenAI_Chat_Model2": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model2",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Structured_Output_Parser1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Structured Output Parser1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsonSchemaExample": "{\n  \"columnnames\": [\n    \"first\",\n    \"second\",\n    \"third\"\n  ]\n}\n"
+            }
+          },
+          "runAfter": {}
+        },
+        "Set_Topic_to_Search": {
+          "type": "Compose",
+          "inputs": {
+            "Topic": "n8n use cases"
+          },
+          "runAfter": {}
+        },
+        "Generate_Random_Data": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Generate Random Data",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=idea: {{ $json.Topic }}",
+              "options": {
+                "systemMessage": "You are a tool that generates structured sample data in JSON format.\n\nWhen given a topic or a description of the type of data the user needs (e.g., \"marketing campaigns\", \"customer feedback\", \"blog ideas\"), do the following:\n\n1. Identify 5 relevant columns that would make up a realistic dataset for the topic.\n2. Generate 3–5 realistic values for each column.\n3. Output the result in a JSON object using the following structure:\n   - Each key should be labeled as \"columnX (Column Name)\" where X is the column number from 1 to 5.\n   - Each value should be a list of 3–5 strings representing data for that column.\n\nDo not explain your output. Do not include anything outside the JSON.\n\nOutput 5 columns of data like this. \n\nExample format:\n{\n  \"column1 (Date)\": [\n    \"2025-08-01\",\n    \"2025-08-02\",\n    \"2025-08-03\"\n  ],\n  \"column2 (Platform)\": [\n    \"Instagram\",\n    \"LinkedIn\",\n    \"Twitter\"\n  ],\n  \"column3 (Content Type)\": [\n    \"Image Post\",\n    \"Blog Link\",\n    \"Video Snippet\"\n  ],\n  \"column4 (Topic)\": [\n    \"Workflow Automation\",\n    \"AI Agent Demo\",\n    \"Case Study\"\n  ],\n  \"column5 (Owner)\": [\n    \"Alice\",\n    \"Bob\",\n    \"Charlie\"\n  ]\n}\n\n\nMake sure the data is contextually relevant to the user's input.\n"
+              },
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "OpenAI_Chat_Model1": [
+              "Succeeded"
+            ],
+            "Set_Topic_to_Search": [
+              "Succeeded"
+            ],
+            "Structured_Output_Parser": [
+              "Succeeded"
+            ],
+            "Tool_Inject_Creativity1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Outpt_all_Data_to_One_Field": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Generate_Random_Data'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Get the object from input\nconst data = $input.first().json.output;\n\n// Flatten all column values into one array\nconst allValues = Object.values(data).flat();\n\n// Join all values with commas\nconst result = allValues.join(', ');\n\n// Return the final text as a single field\nreturn [\n  {\n    json: {\n      text: result\n    }\n  }\n];\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Generate_Random_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Generate_Column_Names": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Generate Column Names",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=output: {{ $json.text }}",
+              "options": {
+                "systemMessage": "Take the input and output relevent column names for the data. there are 5 columns. give each of them a name that makes sense for the values in the column. "
+              },
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "OpenAI_Chat_Model2": [
+              "Succeeded"
+            ],
+            "Structured_Output_Parser1": [
+              "Succeeded"
+            ],
+            "Outpt_all_Data_to_One_Field": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Pivot_Column_Names": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Generate_Column_Names'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst columnNames = $input.first().json.output.columnnames;\n\n// Build a single row with column1, column2, etc. as keys and names as values\nconst row = {};\n\ncolumnNames.forEach((name, index) => {\n  row[`column${index + 1}`] = name;\n});\n\nreturn [\n  { json: row }\n];\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Generate_Column_Names": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Split_Column_1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Split Column 1",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldToSplitOut": "output.column1"
+            }
+          },
+          "runAfter": {
+            "Generate_Random_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Split_Column_2": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Split Column 2",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldToSplitOut": "output.column2"
+            }
+          },
+          "runAfter": {
+            "Generate_Random_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Split_Column_3": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Split Column 3",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldToSplitOut": "output.column3"
+            }
+          },
+          "runAfter": {
+            "Generate_Random_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Split_Column_4": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Split Column 4",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldToSplitOut": "output.column4"
+            }
+          },
+          "runAfter": {
+            "Generate_Random_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Split_Column_5": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Split Column 5",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldToSplitOut": "output.column5"
+            }
+          },
+          "runAfter": {
+            "Generate_Random_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Merge_Columns_together": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Merge Columns together",
+            "n8nNodeType": "n8n-nodes-base.merge",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "combine",
+              "options": {},
+              "combineBy": "combineByPosition",
+              "numberInputs": 5
+            }
+          },
+          "runAfter": {
+            "Split_Column_1": [
+              "Succeeded"
+            ],
+            "Split_Column_2": [
+              "Succeeded"
+            ],
+            "Split_Column_3": [
+              "Succeeded"
+            ],
+            "Split_Column_4": [
+              "Succeeded"
+            ],
+            "Split_Column_5": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Rename_Columns": {
+          "type": "Compose",
+          "inputs": {
+            "column1": "@body('Split_Column_1')?['output.column1']",
+            "column2": "@body('Split_Column_2')?['output.column2']",
+            "column3": "@body('Split_Column_3')?['output.column3']",
+            "column4": "@body('Split_Column_4')?['output.column4']",
+            "column5": "@body('Split_Column_5')?['output.column5']"
+          },
+          "runAfter": {
+            "Merge_Columns_together": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Append_Column_Names": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Append Column Names",
+            "n8nNodeType": "n8n-nodes-base.merge",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "Rename_Columns": [
+              "Succeeded"
+            ],
+            "Pivot_Column_Names": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Run_Workflow",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

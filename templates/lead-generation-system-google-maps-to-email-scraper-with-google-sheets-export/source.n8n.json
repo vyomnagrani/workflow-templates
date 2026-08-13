@@ -1,0 +1,623 @@
+{
+  "id": "5385",
+  "meta": {
+    "instanceId": "d7661a849ead114a9aa6d9ceaf4160465aeb79532a35bde62160c840ffba9fc8"
+  },
+  "name": "Lead generation system: Google Maps to email scraper with Google Sheets export",
+  "tags": [
+    "Lead Generation"
+  ],
+  "nodes": [
+    {
+      "id": "sticky-note-1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        100,
+        -280
+      ],
+      "parameters": {
+        "width": 350,
+        "height": 180,
+        "content": "## 🗺️ STEP 1: Google Maps Data Extraction\n\nThis workflow starts by scraping Google Maps for business listings:\n\n**Process:** Uses HTTP requests to search Google Maps with queries like \"Calgary dentists\"\n**Output:** Raw HTML containing business listings and website URLs\n**Key:** No APIs required - direct HTML scraping\n\n**Note:** Replace search URL with your target location and business type"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-note-2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        300,
+        -320
+      ],
+      "parameters": {
+        "width": 380,
+        "height": 200,
+        "content": "## 🔗 STEP 2: Website URL Processing\n\nExtracts and cleans business website URLs:\n\n1. **Extract URLs:** JavaScript regex finds all website URLs in Google Maps data\n2. **Filter Google URLs:** Removes irrelevant domains (google.com, gstatic, etc.)\n3. **Remove Duplicates:** Eliminates duplicate websites\n4. **Limit:** Controls batch size for testing (adjust for production)\n\n**Result:** Clean list of actual business websites ready for email extraction"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-note-3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        700,
+        -320
+      ],
+      "parameters": {
+        "width": 380,
+        "height": 200,
+        "content": "## 🔄 STEP 3: Smart Website Scraping\n\nProcesses each website individually to prevent IP blocking:\n\n**Loop Over Items:** Processes websites one by one with built-in delays\n**Scrape Site:** Downloads HTML content from each business website\n**Wait Nodes:** Prevent rate limiting and IP blocking\n**Error Handling:** Continues processing even if some sites fail\n\n**Critical:** The batching and delays are essential for reliable operation at scale"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-note-4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1100,
+        -340
+      ],
+      "parameters": {
+        "width": 400,
+        "height": 220,
+        "content": "## 📧 STEP 4: Email Extraction & Export\n\nFinal processing pipeline:\n\n1. **Extract Emails:** JavaScript regex finds all email addresses in website HTML\n2. **Filter Out Empties:** Removes websites with no emails found\n3. **Split Out:** Converts email arrays into individual items\n4. **Remove Duplicates:** Final deduplication across all sources\n5. **Add to Sheet:** Exports clean email list to Google Sheets\n\n**Result:** Organized database of business emails ready for outreach"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4a6f9faa-5b11-41fe-88c9-cc8a262a2de2",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        140,
+        0
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "47d741e7-a53f-40c7-bf7c-09a446b0d229",
+      "name": "Remove Duplicates",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        940,
+        0
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6cd049c8-425e-45e0-8d45-6a4883c2f496",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        1340,
+        0
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "3c3a3870-034d-4147-936a-4b0f19b7727d",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1700,
+        100
+      ],
+      "webhookId": "19cc6ed4-4fe7-485b-b879-c679e4b3374d",
+      "parameters": {
+        "amount": 1
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "a377879d-517d-4c90-a3d4-a7a0c190787e",
+      "name": "Limit",
+      "type": "n8n-nodes-base.limit",
+      "position": [
+        1120,
+        0
+      ],
+      "parameters": {
+        "maxItems": 10
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5f4ae91a-29c7-4fb3-b535-34bc5194b183",
+      "name": "Wait1",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1520,
+        -60
+      ],
+      "webhookId": "0fe34756-6e43-4603-8891-5747a9a6500a",
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "645bf31c-4b3c-4f4c-b90b-610fc2d6007c",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        1880,
+        -60
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "emails"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7e9c227c-2321-429a-a3f3-4c3a77bc6cf3",
+      "name": "Extract Emails",
+      "type": "n8n-nodes-base.code",
+      "onError": "continueRegularOutput",
+      "position": [
+        1880,
+        100
+      ],
+      "parameters": {
+        "jsCode": "const input = $input.first().json.data\nconst regex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.(?!jpeg|jpg|png|gif|webp|svg)[a-zA-Z]{2,}/g\nconst emails = input.match(regex)\nreturn {json: {emails:emails}}"
+      },
+      "typeVersion": 2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "fb76c70c-385d-4e7f-93cd-43023690076a",
+      "name": "Extract URLs",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        540,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const input = $input.first().json.data\nconst regex = /https?:\\/\\/[^\\/\\s\"'>]+/g\nconst websites = input.match(regex)\nreturn websites.map(website => ({json:{website}}))"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b10c0ed6-5a94-4272-b65c-bd19bd674fa0",
+      "name": "Scrape Google Maps",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        340,
+        0
+      ],
+      "parameters": {
+        "url": "https://www.google.com/maps/search/calgary+dentists",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          },
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "58a0d85d-f6eb-47d1-ba9c-3af69ddd30fb",
+      "name": "Scrape Site",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        1520,
+        100
+      ],
+      "parameters": {
+        "url": "={{ $json.website }}",
+        "options": {
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          }
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4618e775-d14d-4355-b3a2-cd6a6bbc70e8",
+      "name": "Filter Out Empties",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        1700,
+        -60
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "a6786c58-424a-409a-b87f-8a7592cb7944",
+              "operator": {
+                "type": "array",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.emails }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "74513e7e-a7dc-4b19-b23e-01efd82c9d6d",
+      "name": "Filter Google URLs",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        740,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "bf0a5053-9660-457c-9581-964793bb6d7d",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              },
+              "leftValue": "={{ $json.website }}",
+              "rightValue": "schema"
+            },
+            {
+              "id": "9110b9e0-12aa-45cc-bde0-9eda8c10970e",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              },
+              "leftValue": "={{ $json.website }}",
+              "rightValue": "google"
+            },
+            {
+              "id": "fb9b6ed6-96a5-4560-ab10-b8a4b9a61a2b",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              },
+              "leftValue": "={{ $json.website }}",
+              "rightValue": "gg"
+            },
+            {
+              "id": "10500c0b-cdbd-4816-aba3-df60d69845dc",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              },
+              "leftValue": "={{ $json.website }}",
+              "rightValue": "gstatic"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "035fbbe8-7758-4c7b-be8e-c1cba8fc48bc",
+      "name": "Remove Duplicates (2)",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        2080,
+        -60
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "aa3e9285-235d-4fda-ab0e-45134cf825dd",
+      "name": "Add to Sheet (or whatever you want!)",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2280,
+        -60
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "emails": "={{ $json.emails }}"
+          },
+          "schema": [
+            {
+              "id": "emails",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "emails",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "emails"
+          ]
+        },
+        "options": {
+          "useAppend": true
+        },
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1fcijyZM1oU73i2xUbXYJ4j6RshmVEduOkCJji2SJP68/edit#gid=0",
+          "cachedResultName": "emails"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1fcijyZM1oU73i2xUbXYJ4j6RshmVEduOkCJji2SJP68",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1fcijyZM1oU73i2xUbXYJ4j6RshmVEduOkCJji2SJP68/edit?usp=drivesdk",
+          "cachedResultName": "Scrape WITHOUT Paying for APIs"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "googleSheetsOAuth2Api Credential"
+        }
+      },
+      "typeVersion": 4.5
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9e487a0d-a606-4859-a6e2-b70372b61388",
+  "connections": {
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Extract Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Filter Out Empties",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates (2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape Site": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract URLs": {
+      "main": [
+        [
+          {
+            "node": "Filter Google URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Emails": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Scrape Site",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Google URLs": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Out Empties": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape Google Maps": {
+      "main": [
+        [
+          {
+            "node": "Extract URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates (2)": {
+      "main": [
+        [
+          {
+            "node": "Add to Sheet (or whatever you want!)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Scrape Google Maps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "description": "# Google Maps Email Scraper System\n\n**Categories:** Lead Generation, Web Scraping, Business Automation\n\nThis workflow creates a completely free Google Maps email scraping system that extracts unlimited business emails without requiring expensive third-party APIs. Built entirely in N8N using simple HTTP requests and JavaScript, this system can generate thousands of targeted leads for any industry or location while operating at 99% free cost structure.\n\n## **Benefits**\n\n- **Zero API Costs** - Operates entirely through free Google Maps scraping without expensive third-party services\n- **Unlimited Lead Generation** - Extract emails from thousands of Google Maps listings across any industry\n- **Geographic Targeting** - Search by specific cities, regions, or business types for precise lead targeting\n- **Complete Automation** - From search query to organized email list with minimal manual intervention\n- **Built-in Data Cleaning** - Automatic duplicate removal, filtering, and data validation\n- **Scalable Processing** - Handle hundreds of businesses per search with intelligent rate limiting\n\n## **How It Works**\n\n**Google Maps Search Integration:**\n- Uses strategic HTTP requests to Google Maps search URLs\n- Processes search queries like \"Calgary + dentist\" to extract business listings\n- Bypasses API restrictions through direct HTML scraping techniques\n\n**Intelligent URL Extraction:**\n- Custom JavaScript regex patterns extract website URLs from Google Maps data\n- Filters out irrelevant domains (Google, schema, static files)\n- Returns clean list of actual business websites for processing\n\n**Smart Website Processing:**\n- Loop-based architecture prevents IP blocking through intelligent batching\n- Built-in delays and redirect handling for reliable scraping\n- Processes each website individually with error handling\n\n**Email Pattern Recognition:**\n- Advanced regex patterns identify email addresses within website HTML\n- Extracts contact emails, info emails, and administrative addresses\n- Handles multiple email formats and validation patterns\n\n**Data Aggregation & Cleaning:**\n- Automatically removes duplicate emails across all processed websites\n- Filters null entries and invalid email formats\n- Exports clean, organized email lists to Google Sheets\n\n## **Required Google Sheets Setup**\n\nCreate a Google Sheet with these exact column headers:\n\n**Search Tracking Sheet:**\n- `searches` - Contains your search queries (e.g., \"Calgary dentist\", \"Miami lawyers\")\n\n**Email Results Sheet:**\n- `emails` - Contains extracted email addresses from all processed websites\n\n**Setup Instructions:**\n1. Create Google Sheet with two tabs: \"searches\" and \"emails\"\n2. Add your target search queries to the searches tab (one per row)\n3. Connect Google Sheets OAuth credentials in n8n\n4. Update the Google Sheets document ID in all sheet nodes\n\nThe workflow reads search queries from the first sheet and exports results to the second sheet automatically.\n\n## **Business Use Cases**\n\n- **Local Service Providers** - Find competitors and potential partners in specific geographic areas\n- **B2B Sales Teams** - Generate targeted prospect lists for cold outreach campaigns  \n- **Marketing Agencies** - Build industry-specific lead databases for client campaigns\n- **Real Estate Professionals** - Identify businesses in target neighborhoods for commercial opportunities\n- **Franchise Development** - Research potential markets and existing competition\n- **Market Research** - Analyze business density and contact information across regions\n\n## **Revenue Potential**\n\nThis system transforms lead generation economics:\n- $0 per lead vs. $2-5 per lead from paid databases\n- Process 1,000+ leads daily without hitting API limits\n- Sell as a service for $500-2,000 per industry/location\n- Perfect for agencies offering lead generation to local businesses\n\n**Difficulty Level:** Intermediate  \n**Estimated Build Time:** 1-2 hours  \n**Monthly Operating Cost:** $0 (completely free)\n\n## **Watch My Complete Build Process**\n\nWant to watch me build this entire system live from scratch? I walk through every single step - including the JavaScript code, regex patterns, error handling, and all the debugging that goes into creating a bulletproof scraping system.\n\n🎥 **Watch My Live Build:** \"[Scrape Unlimited Leads WITHOUT Paying for APIs (99% FREE)](https://www.youtube.com/watch?v=OroDNJl-pyc)\"\n\nThis comprehensive tutorial shows the real development process - including writing custom JavaScript, handling rate limits, and building systems that actually work at scale without getting blocked.\n\n## **Set Up Steps**\n\n**Basic Workflow Architecture:**\n- Set up manual trigger for testing and Google Sheets integration\n- Configure initial HTTP request node for Google Maps searches  \n- Enable SSL ignore and response headers for reliable scraping\n\n**URL Extraction Code Setup:**\n- Configure JavaScript code node with custom regex patterns\n- Set up input data processing from Google Maps HTML responses\n- Implement URL filtering logic to remove irrelevant domains\n\n**Website Processing Pipeline:**\n- Add \"Split in Batches\" node for intelligent loop processing\n- Configure HTTP request nodes with proper delays and redirect handling\n- Set up error handling for websites that can't be scraped\n\n**Email Extraction System:**\n- Implement JavaScript code node with email-specific regex patterns\n- Configure email validation and format checking\n- Set up data aggregation for multiple emails per website\n\n**Data Cleaning & Export:**\n- Configure filtering nodes to remove null entries and duplicates\n- Set up \"Split Out\" node to aggregate emails into single list\n- Connect Google Sheets integration for organized data export\n\n**Testing & Optimization:**\n- Use limit nodes during testing to prevent IP blocking\n- Test with small batches before scaling to full searches\n- Implement proxy integration for high-volume usage\n\n## **Advanced Optimizations**\n\nScale the system with:\n- **Multi-Page Scraping:** Extract URLs from homepages, then scrape contact pages for more emails\n- **Proxy Integration:** Add residential proxies for unlimited scraping without rate limits\n- **Industry Templates:** Create pre-configured searches for different business types\n- **Contact Information Expansion:** Extract phone numbers, addresses, and social media profiles\n- **CRM Integration:** Automatically add leads to sales pipelines and marketing sequences\n\n## **Important Considerations**\n\n- **Rate Limiting:** Built-in delays prevent IP blocking during normal usage\n- **Scalability:** For high-volume usage, consider proxy services for unlimited requests\n- **Compliance:** Ensure proper usage rights for extracted contact information\n- **Data Quality:** System includes filtering but manual verification recommended for critical campaigns\n\n## **Check Out My Channel**\n\nFor more advanced automation systems and business-building strategies that generate real revenue, explore [my YouTube channel](https://www.youtube.com/@nicksaraev) where I share proven automation techniques used by successful agencies and entrepreneurs.",
+  "author": "Nick Saraev",
+  "sourceUrl": "https://n8n.io/workflows/5385/",
+  "sourceMetadata": {
+    "templateId": 5385,
+    "createdAt": "2025-06-26T18:05:16.205Z",
+    "totalViews": 131922,
+    "recentViews": 8,
+    "status": "published",
+    "reviewStatus": "published",
+    "categories": [
+      "Lead Generation"
+    ],
+    "author": {
+      "name": "Nick Saraev",
+      "username": "nicksaraev",
+      "bio": "Hi 👋 I'm Nick. I make money with automation & teach others how they can too.\n\nIf you have any questions about my templates or about my n8n builds, feel free to ask and I'll happily respond in the comments. Thanks for reading!",
+      "verified": true,
+      "links": [
+        "https://youtube.com/@nicksaraev"
+      ],
+      "avatar": "https://gravatar.com/avatar/f97278e63ed1d89eb840d0bd3e5817cd0493e5a0b0ea45620a7aec62ceafb039?r=pg&d=retro&size=200"
+    },
+    "workflowInfo": {
+      "nodeCount": 19,
+      "nodeTypes": {
+        "n8n-nodes-base.code": {
+          "count": 2
+        },
+        "n8n-nodes-base.wait": {
+          "count": 2
+        },
+        "n8n-nodes-base.limit": {
+          "count": 1
+        },
+        "n8n-nodes-base.filter": {
+          "count": 2
+        },
+        "n8n-nodes-base.splitOut": {
+          "count": 1
+        },
+        "n8n-nodes-base.stickyNote": {
+          "count": 4
+        },
+        "n8n-nodes-base.httpRequest": {
+          "count": 2
+        },
+        "n8n-nodes-base.googleSheets": {
+          "count": 1
+        },
+        "n8n-nodes-base.manualTrigger": {
+          "count": 1
+        },
+        "n8n-nodes-base.splitInBatches": {
+          "count": 1
+        },
+        "n8n-nodes-base.removeDuplicates": {
+          "count": 2
+        }
+      }
+    }
+  }
+}

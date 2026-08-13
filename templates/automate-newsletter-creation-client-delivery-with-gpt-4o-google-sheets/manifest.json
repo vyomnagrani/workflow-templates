@@ -1,0 +1,565 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "automate-newsletter-creation-client-delivery-with-gpt-4o-google-sheets",
+    "name": "Automate newsletter creation & client delivery with GPT-4O, Google Sheets",
+    "description": "## How it Works\n\nThis workflow automates the complete **newsletter management process** from content creation to client delivery, using **Google Sheets**, **AI content generation**, **Google Drive**, and **Gmail**.\n\nWhether you're a content creator, marketing agency, or small business owner, this workflow helps you **automate newsletter creation** and **manage client communications** with built-in approval workflows — all triggered from a simple spreadsheet.\n\n## 🎯 Use Case\n\nIdeal for:\n- **Marketing Teams** streamlining newsletter distribution\n- **Agencies** managing multiple client newsletters  \n- **Content Creators** automating regular communications\n- **Small Businesses** maintaining customer engagement\n\n## Setup Instructions\n\n### 1. Upload the Spreadsheet\n\n- File name: `Newsletter_Management`\n- Sheet structure:\n  | ID | Topic | Client Name | Client Email | Status | Created Date | Send Date |\n- Add newsletter topics and set their `Status` as `Pending`\n\n### 2. Configure Google Sheets Nodes\n\nConnect your **Google account** to:\n- `Get topic from newsletter sheet`\n- `Pick records to send email to client`\n- `Get Client email address`\n- `Update Status as Generated`\n- `Update status as Sent`\n\n### 3. Add API Credentials\n\n- **OpenAI API Key** → for AI content generation\n- **Google Drive Access** → for document storage\n- **Gmail Account** → for sending newsletters and notifications\n\n### 4. Activate the Workflow\n\nOnce live, the workflow will:\n1. **Manual Path**: Generate newsletter content from pending topics\n2. **Scheduled Path**: Send approved newsletters to clients automatically\n3. Track status updates throughout the entire process\n4. Store generated content in Google Drive\n5. Send admin notifications and client emails\n\n## 🔁 Workflow Logic\n\n### Main Workflow (Content Generation)\n1. **Trigger**: Manual activation for newsletter creation\n2. **Retrieve**: Pending topics from Google Sheets\n3. **Validate**: Status confirmation (Pending only)\n4. **Generate**: AI-powered HTML newsletter content\n5. **Store**: Upload to Google Drive\n6. **Notify**: Send completion email to admin\n7. **Update**: Mark status as \"Generated\"\n\n### Scheduled Workflow (Client Distribution)\n1. **Trigger**: Schedule-based activation\n2. **Retrieve**: Approved newsletters from Google Sheets\n3. **Validate**: Status confirmation (Approved only)\n4. **Lookup**: Client email addresses\n5. **Loop**: Process multiple recipients\n6. **Send**: Personalized newsletters via Gmail\n7. **Update**: Mark status as \"Sent\"\n\n## 🧩 Node Descriptions\n\n| Node Name | Description |\n|-----------|-------------|\n| When clicking 'Test workflow' | Manual trigger to start newsletter generation |\n| Get topic from newsletter sheet | Retrieves pending newsletter topics from Google Sheets |\n| Validate Status as Pending | Checks whether status is 'Pending' for processing |\n| Create HTML for Newsletter | AI-powered content generation using OpenAI |\n| Prepare Data to create word doc | Formats generated content for document creation |\n| Upload doc to google drive | Stores completed newsletters in Google Drive |\n| Send an email to admin | Notifies administrators of completion |\n| Update Status as Generated | Marks processed items as 'Generated' |\n| Schedule Trigger | Automated trigger for client email distribution |\n| Pick records to send email to client | Retrieves approved newsletters for sending |\n| Validate Status as Approved | Ensures only approved content is processed |\n| Get Client email address | Fetches client contact information |\n| Loop Over Items | Processes multiple newsletter recipients |\n| Send email to client | Delivers personalized newsletters via Gmail |\n| Update status as Sent | Marks newsletters as successfully delivered |\n\n## 🛠️ Customization Tips\n\n- Modify AI prompts for different content styles and tones\n- Add Slack notifications instead of or alongside Gmail\n- Export to different formats (PDF, Word, etc.)\n- Schedule multiple sending times for different client segments\n- Add approval workflows with webhook triggers\n- Integrate with CRM systems for client management\n\n## 📒 Suggested Sticky Notes for Workflow\n\n| Node/Section | Sticky Note Content |\n|--------------|---------------------|\n| Manual Trigger | \"Click to start newsletter generation process\" |\n| AI Content Generation | \"Customize prompts here for different newsletter styles\" |\n| Google Drive Upload | \"Organized storage - change folder structure as needed\" |\n| Gmail Admin Notification | \"Update admin email addresses and notification templates\" |\n| Schedule Trigger | \"Set optimal sending times for your audience\" |\n| Client Email Loop | \"Handles bulk sending - monitors for delivery errors\" |\n| Status Updates | \"Maintains audit trail - prevents duplicate processing\" |\n\n## 📎 Required Files\n\n| File Name | Purpose |\n|-----------|---------|\n| Newsletter_Management.xlsx | Google Sheet to manage topics, clients, and status tracking |\n| Client_Database.xlsx | Client contact information and preferences |\n| Newsletter_Workflow.json | Main n8n workflow export for this automation |\n\n\n## 🧪 Testing Tips\n\n- Add one test topic with status = `Pending` and run manual trigger\n- Verify AI content generation produces quality HTML\n- Check Google Drive upload and folder organization\n- Test admin email delivery and formatting\n- Add test client with valid email for scheduled workflow\n- Monitor workflow logs for API responses and errors\n- Confirm status updates occur at each step\n\n## 🏷 Suggested Tags & Categories\n\n- #Newsletter\n- #EmailMarketing\n- #ContentGeneration\n- #ClientCommunication\n- #Automation\n- #GoogleWorkspace\n- #AIContent\n- #MarketingAutomation\n- #WorkflowManagement\n- #BusinessProcess\n\n## 🔧 Prerequisites\n\n- Google Workspace account (Sheets, Drive, Gmail)\n- OpenAI API account with GPT-4 access\n- n8n instance (Cloud or self-hosted)\n- Basic understanding of Google Sheets and email marketing\n\n## 📊 Expected Performance\n\n- **Setup Time**: 30-45 minutes\n- **Monthly Executions**: 100-500 (varies by newsletter frequency)\n- **Processing Time**: 2-5 minutes per newsletter\n- **Scalability**: Handles 100+ clients efficiently\n\n## 🚨 Important Notes\n\n- Ensure proper Google API permissions are configured\n- Monitor OpenAI API usage and rate limits\n- Set up error handling for failed email deliveries\n- Regularly backup your Google Sheets data\n- Test thoroughly before production deployment\n\n## 💡 Advanced Features\n\n- **Approval Workflows**: Add manual approval steps between generation and sending\n- **A/B Testing**: Create multiple versions and track performance\n- **Analytics Integration**: Connect with Google Analytics for tracking\n- **Multi-language Support**: Generate content in different languages\n- **Dynamic Personalization**: Use client data for personalized content",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Social Media",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/gmail",
+      "/managedApis/googlesheet",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "When_clicking_Test_workflow": {
+          "type": "Request",
+          "kind": "Http"
+        },
+        "Schedule_Trigger": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Get_topic_from_newsletter_sheet": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('YOUR_GOOGLE_SHEET_ID_HERE'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {}
+        },
+        "Validate_Status_as_Pending": {
+          "type": "If",
+          "expression": {
+            "equals": [
+              "@body('Get_topic_from_newsletter_sheet')?['Date']",
+              "={{ new Date().toLocaleDateString('en-US') }}"
+            ]
+          },
+          "actions": {
+            "Create_HTML_for_Newsletter": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Create HTML for Newsletter",
+                "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "modelId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "gpt-4o",
+                    "cachedResultName": "GPT-4O"
+                  },
+                  "options": {},
+                  "messages": {
+                    "values": [
+                      {
+                        "content": "=Create an HTML newsletter on the topic:{{ $json.Topic }}. \n Include these hook sentences:{{ $json.hooks }} . \n Structure with a header, body paragraphs, and footer\n"
+                      }
+                    ]
+                  }
+                }
+              },
+              "runAfter": {}
+            },
+            "Prepare_Data_to_create_word_doc": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Prepare Data to create word doc",
+                "n8nNodeType": "n8n-nodes-base.code",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "jsCode": "// Get HTML content from current input\nconst htmlContent = $input.first().json.message.content;\n\n// Generate filename with current date\nconst currentDate = new Date().toISOString().split('T')[0];\nconst filename = `document_${currentDate}.html`;\n\n// Convert string to binary buffer\nconst buffer = Buffer.from(htmlContent, 'utf8');\n\nreturn [{\n  json: {\n    fileName: filename,\n    mimeType: 'text/html'\n  },\n  binary: {\n    data: buffer\n  }\n}];"
+                }
+              },
+              "runAfter": {
+                "Create_HTML_for_Newsletter": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Upload_doc_to_google_drive": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Upload doc to google drive",
+                "n8nNodeType": "n8n-nodes-base.googleDrive",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "name": "=newsletter-{{ $('Get topic from newsletter sheet').item.json.Date }}.html",
+                  "driveId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "My Drive",
+                    "cachedResultUrl": "https://drive.google.com/drive/my-drive",
+                    "cachedResultName": "My Drive"
+                  },
+                  "options": {},
+                  "folderId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "YOUR_GOOGLE_DRIVE_FOLDER_ID",
+                    "cachedResultUrl": "https://drive.google.com/drive/folders/YOUR_GOOGLE_DRIVE_FOLDER_ID",
+                    "cachedResultName": "Newsletter"
+                  },
+                  "inputDataFieldName": "=data"
+                }
+              },
+              "runAfter": {
+                "Prepare_Data_to_create_word_doc": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Send_an_email_to_admin": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "referenceName": "gmail_#workflowname#"
+                  }
+                },
+                "method": "post",
+                "path": "/v2/Mail",
+                "body": {
+                  "To": "user@example.com",
+                  "Subject": "Newsletter Preview for @{body('Get_topic_from_newsletter_sheet')?['Date']} and HTML body attached",
+                  "Body": "Review the attached newsletter  @{body('Upload_doc_to_google_drive')?['webViewLink']}"
+                }
+              },
+              "metadata": {
+                "flowSystemMetadata": {
+                  "swaggerOperationId": "SendEmailV2"
+                }
+              },
+              "runAfter": {
+                "Upload_doc_to_google_drive": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Update_Status_as_Generated": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Update Status as Generated",
+                "n8nNodeType": "n8n-nodes-base.googleSheets",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "columns": {
+                    "value": {
+                      "Date": "={{ $('Get topic from newsletter sheet').item.json.Date }}",
+                      "Status": "Generated",
+                      "Timestamp": "={{ $('Upload doc to google drive').item.json.createdTime }}",
+                      "Document URL": "={{ $('Upload doc to google drive').item.json.webViewLink }}"
+                    },
+                    "schema": [
+                      {
+                        "id": "Date",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "required": false,
+                        "displayName": "Date",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Topic",
+                        "type": "string",
+                        "display": true,
+                        "removed": true,
+                        "required": false,
+                        "displayName": "Topic",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "hooks",
+                        "type": "string",
+                        "display": true,
+                        "removed": true,
+                        "required": false,
+                        "displayName": "hooks",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Status",
+                        "type": "string",
+                        "display": true,
+                        "required": false,
+                        "displayName": "Status",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Timestamp",
+                        "type": "string",
+                        "display": true,
+                        "required": false,
+                        "displayName": "Timestamp",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Document URL",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "required": false,
+                        "displayName": "Document URL",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "row_number",
+                        "type": "string",
+                        "display": true,
+                        "removed": true,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "row_number",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      }
+                    ],
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [
+                      "Date"
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                  },
+                  "options": {},
+                  "operation": "update",
+                  "sheetName": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "gid=0",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID_HERE/edit#gid=0",
+                    "cachedResultName": "Topic"
+                  },
+                  "documentId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "YOUR_GOOGLE_SHEET_ID_HERE",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID_HERE/edit?usp=drivesdk",
+                    "cachedResultName": "Newsletter"
+                  }
+                }
+              },
+              "runAfter": {
+                "Send_an_email_to_admin": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "Get_topic_from_newsletter_sheet": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Validate_Status_as_Approved": {
+          "type": "If",
+          "expression": {
+            "equals": [
+              "@body('Pick_records_to_send_email_to_client')?['Status']",
+              "Approved"
+            ]
+          },
+          "actions": {
+            "Loop_Over_Items": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Loop Over Items",
+                "n8nNodeType": "n8n-nodes-base.splitInBatches",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {}
+                }
+              },
+              "runAfter": {
+                "Send_email_to_client": [
+                  "Succeeded"
+                ],
+                "Get_Client_email_address": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Get_Client_email_address": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "referenceName": "googlesheet_#workflowname#"
+                  }
+                },
+                "method": "post",
+                "path": "/datasets/@{encodeURIComponent(encodeURIComponent('YOUR_GOOGLE_SHEET_ID_HERE'))}/tables/@{encodeURIComponent(encodeURIComponent('YOUR_EMAIL_SHEET_GID'))}/items",
+                "body": {}
+              },
+              "metadata": {
+                "flowSystemMetadata": {
+                  "swaggerOperationId": "PostItem"
+                }
+              },
+              "runAfter": {}
+            },
+            "Send_email_to_client": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "referenceName": "gmail_#workflowname#"
+                  }
+                },
+                "method": "post",
+                "path": "/v2/Mail",
+                "body": {
+                  "To": "@body('Loop_Over_Items')?['Email']",
+                  "Subject": "Newsletter",
+                  "Body": "Attached is the newsletter  @{body('Pick_records_to_send_email_to_client')?['Document URL']}"
+                }
+              },
+              "metadata": {
+                "flowSystemMetadata": {
+                  "swaggerOperationId": "SendEmailV2"
+                }
+              },
+              "runAfter": {
+                "Loop_Over_Items": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Update_status_as_Sent": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Update status as Sent",
+                "n8nNodeType": "n8n-nodes-base.googleSheets",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "columns": {
+                    "value": {
+                      "Date": "={{ $('Pick records to send email to client').item.json.Date }}",
+                      "Status": "Sent"
+                    },
+                    "schema": [
+                      {
+                        "id": "Date",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "required": false,
+                        "displayName": "Date",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Topic",
+                        "type": "string",
+                        "display": true,
+                        "removed": true,
+                        "required": false,
+                        "displayName": "Topic",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "hooks",
+                        "type": "string",
+                        "display": true,
+                        "removed": true,
+                        "required": false,
+                        "displayName": "hooks",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Status",
+                        "type": "string",
+                        "display": true,
+                        "required": false,
+                        "displayName": "Status",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Timestamp",
+                        "type": "string",
+                        "display": true,
+                        "removed": true,
+                        "required": false,
+                        "displayName": "Timestamp",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Document URL",
+                        "type": "string",
+                        "display": true,
+                        "removed": true,
+                        "required": false,
+                        "displayName": "Document URL",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "row_number",
+                        "type": "string",
+                        "display": true,
+                        "removed": true,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "row_number",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      }
+                    ],
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [
+                      "Date"
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                  },
+                  "options": {},
+                  "operation": "update",
+                  "sheetName": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "gid=0",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID_HERE/edit#gid=0",
+                    "cachedResultName": "Topic"
+                  },
+                  "documentId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "YOUR_GOOGLE_SHEET_ID_HERE",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID_HERE/edit?usp=drivesdk",
+                    "cachedResultName": "Newsletter"
+                  }
+                }
+              },
+              "runAfter": {
+                "Loop_Over_Items": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "Pick_records_to_send_email_to_client": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Pick_records_to_send_email_to_client": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('YOUR_GOOGLE_SHEET_ID_HERE'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "When_clicking_Test_workflow",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    },
+    "gmail_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/gmail"
+    }
+  }
+}

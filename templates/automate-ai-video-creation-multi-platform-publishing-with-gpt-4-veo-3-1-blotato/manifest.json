@@ -1,0 +1,683 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "automate-ai-video-creation-multi-platform-publishing-with-gpt-4-veo-3-1-blotato",
+    "name": "Automate AI video creation & multi-platform publishing with GPT-4, Veo 3.1 & Blotato",
+    "description": "# 💥 Automate AI Video Creation & Multi-Platform Publishing with Veo 3.1 & Blotato\n\n![Workflow Overview](https://www.dr-firas.com/veo31.png)\n\n### 🎯 Who is this for?\nThis workflow is designed for **content creators, marketers, and automation enthusiasts** who want to produce professional AI-generated videos and publish them automatically on social media — without editing or manual uploads. Perfect for those using **Veo 3.1**, **GPT-4**, and **Blotato** to scale video creation.\n\n---\n\n### 💡 What problem is this workflow solving?\nCreating short-form content (TikTok, Instagram Reels, YouTube Shorts) is time-consuming — from writing scripts to video editing and posting.  \nThis workflow eliminates the manual steps by combining **AI storytelling + video generation + automated publishing**, letting you focus on creativity while your system handles production and distribution.\n\n---\n\n### ⚙️ What this workflow does\n1. **Reads new ideas from Google Sheets**  \n2. **Generates story scripts** using GPT-4  \n3. **Creates cinematic videos** using Veo 3.1 (`fal.ai/veo3.1/reference-to-video`) with 3 input reference images  \n4. **Uploads the final video** automatically to Google Drive  \n5. **Publishes the video** across multiple platforms (TikTok, Instagram, Facebook, X, LinkedIn, YouTube) via **Blotato**  \n6. **Updates Google Sheets** with video URL and status (Completed / Failed)\n\n---\n\n### 🧩 Setup\n**Required accounts:**\n- [OpenAI](https://platform.openai.com/api-keys) → GPT-4 API key  \n- [fal.ai](https://fal.ai/dashboard/keys) → Veo 3.1 API key  \n- [Google Cloud Console](https://console.cloud.google.com) → Sheets & Drive connection  \n- [Blotato](https://blotato.com/?ref=firas) → API key for social media publishing  \n\n**Configuration steps:**\n1. Copy the **Google Sheets structure**:  \n   - A: `id_video`  \n   - B: `niche`  \n   - C: `idea`  \n   - D: `url_1`  \n   - E: `url_2`  \n   - F: `url_3`  \n   - G: `url_final`  \n   - H: `status`  \n\n2. Add your API keys to the **Workflow Configuration** node.  \n3. Insert three image URLs and a short idea into your sheet.  \n4. Wait for the automation to process and generate your video.  \n\n---\n\n### 🧠 How to customize this workflow\n- **Change duration or aspect ratio** → Edit the Veo 3.1 node JSON body (`duration`, `aspect_ratio`)  \n- **Modify prompt style** → Adjust the “Optimize Prompt for Veo” node for your desired tone or cinematic look  \n- **Add more platforms** → Extend Blotato integration to publish on Pinterest, Reddit, or Threads  \n- **Enable Telegram Trigger** → Allow users to submit ideas and images directly via Telegram  \n\n---\n\n### 🚀 Expected Outcome\nWithin **2–3 minutes**, your idea is transformed into a full cinematic AI video — complete with storytelling, visuals, and automatic posting to your social media channels.  \n\nSave hours of editing and focus on strategy, creativity, and growth.\n\n---\n\n### 👋 Need help or want to customize this?\n📩 Contact: [LinkedIn](https://www.linkedin.com/in/dr-firas/)  \n📺 YouTube: [@DRFIRASS](https://www.youtube.com/@DRFIRASS)  \n🚀 Workshops: [Mes Ateliers n8n](https://hotm.art/formation-n8n)\n\n---\n📄 **Documentation**: [Notion Guide](https://automatisation.notion.site/Automate-AI-Video-Creation-Multi-Platform-Publishing-with-Veo-3-1-Blotato-29c3d6550fd981cd982fd4a031bdfe07?source=copy_link)\n### Need help customizing?\nContact me for consulting and support : [Linkedin](https://www.linkedin.com/in/dr-firas/) / [Youtube](https://www.youtube.com/channel/UCriIQI8uaoEro5FEnOpeidQ) / [🚀 Mes Ateliers n8n  ](https://hotm.art/formation-n8n)",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Workflow_Configuration": {
+          "type": "Compose",
+          "inputs": {
+            "openai_api_key": "YOUR_OPENAI_API_KEY",
+            "min_idea_length": 5,
+            "required_photos": 3,
+            "fal_api_key": "key YOUR_FAL_API_KEY",
+            "google_drive_folder_id": "YOUR_GOOGLE_DRIVE_FOLDER_ID",
+            "google_sheet_id": "YOUR_GOOGLE_SHEETS_ID"
+          },
+          "runAfter": {
+            "Parse_Sheet_Input": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Parse_GPT_Response": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['GPT_4_API_Call'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Parse OpenAI-style responses into { prompt, caption, hashtags[], hashtags_string }\nreturn $input.all().map(item => {\n  const data = item.json || {};\n  \n  // Try to locate \"content\" in the common places\n  let content =\n    data?.choices?.[0]?.message?.content ??\n    data?.message?.content ??\n    data?.content ??\n    null;\n\n  let prompt = \"\";\n  let caption = \"\";\n  let hashtagsArr = [];\n\n  // If content is an object (your current input case)\n  if (content && typeof content === \"object\") {\n    prompt = content.prompt ?? \"\";\n    caption = content.caption ?? \"\";\n    if (Array.isArray(content.hashtags)) {\n      hashtagsArr = content.hashtags;\n    } else if (typeof content.hashtags === \"string\") {\n      // Support comma/space separated string\n      hashtagsArr = content.hashtags.split(/[,\\s]+/).filter(Boolean);\n    }\n  }\n  // If content is a string (some models return JSON as string)\n  else if (typeof content === \"string\" && content.trim()) {\n    try {\n      const parsed = JSON.parse(content);\n      prompt = parsed.prompt ?? \"\";\n      caption = parsed.caption ?? \"\";\n      if (Array.isArray(parsed.hashtags)) {\n        hashtagsArr = parsed.hashtags;\n      } else if (typeof parsed.hashtags === \"string\") {\n        hashtagsArr = parsed.hashtags.split(/[,\\s]+/).filter(Boolean);\n      }\n    } catch {\n      // Not a JSON string — leave fields empty\n      prompt = \"\";\n      caption = \"\";\n      hashtagsArr = [];\n    }\n  }\n\n  // Normalize hashtags: ensure leading '#', dedupe, no empties\n  const norm = Array.from(\n    new Set(\n      (hashtagsArr || [])\n        .map(h => (h ?? \"\").toString().trim())\n        .filter(Boolean)\n        .map(h => (h.startsWith(\"#\") ? h : `#${h}`))\n    )\n  );\n  const hashtags_string = norm.join(\" \");\n\n  return {\n    json: {\n      prompt,\n      caption,\n      hashtags: norm,\n      hashtags_string\n    }\n  };\n});\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "GPT_4_API_Call": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Optimize_Prompt_for_Veo": {
+          "type": "Compose",
+          "inputs": {
+            "veo_prompt": "@{body('Parse_GPT_Response')?['prompt']} consistent character throughout, photorealistic quality, professional cinematography, 8 seconds duration, 9:16 aspect ratio, 24fps"
+          },
+          "runAfter": {
+            "Parse_GPT_Response": [
+              "Succeeded"
+            ]
+          }
+        },
+        "GPT_4_API_Call": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "GPT-4 API Call",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "modelId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "gpt-4o-mini"
+              },
+              "options": {},
+              "messages": {
+                "values": [
+                  {
+                    "role": "system",
+                    "content": "You are a viral video content creator"
+                  },
+                  {
+                    "content": "=Create viral video content for {{ $json.niche }} about {{ $json.idea }}. Return JSON with: prompt (150-200 word cinematic Veo 3.1 description), caption (50-100 word social media text with emojis), hashtags (array of 8-10 tags)"
+                  }
+                ]
+              },
+              "jsonOutput": true
+            }
+          },
+          "runAfter": {
+            "Workflow_Configuration": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_Video": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@body('Extract_Video_Data')?['video_url']"
+          },
+          "runAfter": {
+            "Extract_Video_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Drive_Upload": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Drive Upload",
+            "n8nNodeType": "n8n-nodes-base.googleDrive",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "name": "={{ 'AI_Video_' + $json.user_id + '_' + $json.timestamp + '.mp4' }}",
+              "driveId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "My Drive"
+              },
+              "options": {},
+              "folderId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $('Workflow Configuration').first().json.google_drive_folder_id }}"
+              }
+            }
+          },
+          "runAfter": {
+            "Download_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Sheets_Append": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Sheets Append",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {},
+                "schema": [],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "update",
+              "sheetName": {
+                "__rl": true,
+                "mode": "id",
+                "value": "="
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $('Workflow Configuration').first().json.google_sheet_id }}"
+              }
+            }
+          },
+          "runAfter": {
+            "Google_Drive_Upload": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Sheets_Trigger": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Sheets Trigger",
+            "n8nNodeType": "n8n-nodes-base.googleSheetsTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "event": "rowAdded",
+              "options": {},
+              "pollTimes": {
+                "item": [
+                  {
+                    "mode": "everyX",
+                    "unit": "minutes",
+                    "value": 30
+                  }
+                ]
+              },
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gid=0",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10yrKcdX92Yxauixzl58RDN6yNKfxAk0zX5avPy0uqAE/edit#gid=0",
+                "cachedResultName": "Video_Requests"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "10yrKcdX92Yxauixzl58RDN6yNKfxAk0zX5avPy0uqAE",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10yrKcdX92Yxauixzl58RDN6yNKfxAk0zX5avPy0uqAE/edit?usp=drivesdk",
+                "cachedResultName": "Video_Requests"
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Parse_Sheet_Input": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Google_Sheets_Trigger'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Parse Google Sheets Input (headers) and Validate for Veo 3.1 workflow\nconst items = $input.all();\nconst results = [];\n\n// Helper to read and trim a field safely\nfunction getField(data, key) {\n  const v = (data[key] ?? data[key?.toUpperCase?.()] ?? \"\").toString();\n  return v.trim();\n}\n\nfor (const item of items) {\n  const data = item.json || {};\n\n  // Read by header names\n  const id_video  = getField(data, \"id_video\");\n  const niche     = getField(data, \"niche\");\n  const idea      = getField(data, \"idea\");\n  const url_1     = getField(data, \"url_1\");\n  const url_2     = getField(data, \"url_2\");\n  const url_3     = getField(data, \"url_3\");\n  const url_final = getField(data, \"url_final\");   // peut être vide au départ\n  const status    = getField(data, \"status\");      // ex: pending|processing|completed|failed\n  const row_number = data.row ?? data._row ?? \"\";\n\n  // Validation\n  const errors = [];\n\n  // niche & idea\n  if (!niche || niche.length <= 2) {\n    errors.push(\"niche must be longer than 2 characters\");\n  }\n  if (!idea || idea.length <= 5) {\n    errors.push(\"idea must be longer than 5 characters\");\n  }\n\n  // URLs images requises\n  if (!url_1 || !url_1.startsWith(\"http\")) {\n    errors.push(\"url_1 is missing or invalid - must start with http\");\n  }\n  if (!url_2 || !url_2.startsWith(\"http\")) {\n    errors.push(\"url_2 is missing or invalid - must start with http\");\n  }\n  if (!url_3 || !url_3.startsWith(\"http\")) {\n    errors.push(\"url_3 is missing or invalid - must start with http\");\n  }\n\n  // url_final si présent\n  if (url_final && !url_final.startsWith(\"http\")) {\n    errors.push(\"url_final is invalid - must start with http if provided\");\n  }\n\n  // status optionnel : normalisation (facultatif)\n  const allowedStatus = new Set([\"\", \"pending\", \"processing\", \"completed\", \"failed\", \"draft\"]);\n  if (!allowedStatus.has(status.toLowerCase?.() ?? \"\")) {\n    errors.push(`status '${status}' is not recognized (use: pending|processing|completed|failed|draft)`);\n  }\n\n  // Build output item\n  const image_urls = [url_1, url_2, url_3];\n\n  const out = {\n    json: {\n      id_video,\n      niche,\n      idea,\n      image_urls,\n      url_final: url_final || \"\",\n      status: (status || \"pending\").toLowerCase(),\n      row_number,\n      timestamp: new Date().toISOString(),\n    },\n  };\n\n  // Valid flag + errors\n  if (errors.length) {\n    out.json.valid = false;\n    out.json.validation_errors = errors;\n  } else {\n    out.json.valid = true;\n  }\n\n  results.push(out);\n}\n\nreturn results;\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Google_Sheets_Trigger": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Veo_Generation1": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://fal.run/fal-ai/veo3.1/reference-to-video",
+            "headers": {
+              "Authorization": "@body('Workflow_Configuration')?['fal_api_key']",
+              "Content-Type": "application/json"
+            },
+            "body": "@JSON.stringify(body('Prepare_Veo_Request_Body')?['veo_request_body'])"
+          },
+          "runAfter": {
+            "Prepare_Veo_Request_Body": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Prepare_Veo_Request_Body": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Optimize_Prompt_for_Veo'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst prompt = $input.item.json.veo_prompt || $input.item.json.prompt;\nlet imageUrls = __node('Parse_Sheet_Input').item.json.image_urls;\n\nfunction convertGoogleDriveUrl(url) {\n  if (!url) return url;\n  if (url.includes('drive.google.com/file/d/')) {\n    const match = url.match(/\\/d\\/([a-zA-Z0-9_-]+)/);\n    if (match && match[1]) {\n      return `https://drive.google.com/uc?export=download&id=${match[1]}`;\n    }\n  }\n  return url;\n}\n\nif (!prompt || prompt.length < 10) {\n  throw new Error('Prompt required');\n}\n\nif (!Array.isArray(imageUrls) || imageUrls.length !== 3) {\n  throw new Error('Need 3 image URLs');\n}\n\nconst directImageUrls = imageUrls.map(url => convertGoogleDriveUrl(url));\n\ndirectImageUrls.forEach((url, index) => {\n  if (!url || !url.startsWith('http')) {\n    throw new Error('Invalid image URL at position ' + (index + 1));\n  }\n});\n\nreturn {\n  json: {\n    veo_request_body: {\n      prompt: prompt,\n      image_urls: directImageUrls,\n      duration: 8,\n      aspect_ratio: \"9:16\"\n    },\n    ...($input.item.json)\n  }\n};\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Optimize_Prompt_for_Veo": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_Video_Data": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Veo_Generation1'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Extract video data from Veo Generation response\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const data = item.json || {};\n  \n  // Extract video data from current node\n  const video_url = data.video?.url || '';\n  const video_content_type = data.video?.content_type || '';\n  const video_file_size = data.video?.file_size || 0;\n  const video_file_name = data.video?.file_name || '';\n  \n  // Preserve data from previous nodes\n  const niche = __node('Parse_Sheet_Input').item.json.niche || '';\n  const idea = __node('Parse_Sheet_Input').item.json.idea || '';\n  const caption = __node('Parse_GPT_Response').item.json.caption || '';\n  const hashtags_string = __node('Parse_GPT_Response').item.json.hashtags_string || '';\n  const veo_prompt = __node('Optimize_Prompt_for_Veo').item.json.veo_prompt || '';\n  const id_video = __node('Parse_Sheet_Input').item.json.id_video || '';\n  const row_number = __node('Parse_Sheet_Input').item.json.row_number || '';\n  \n  results.push({\n    json: {\n      video_url,\n      video_content_type,\n      video_file_size,\n      video_file_name,\n      generation_completed_at: new Date().toISOString(),\n      niche,\n      idea,\n      caption,\n      hashtags_string,\n      veo_prompt,\n      id_video,\n      row_number\n    }\n  });\n}\n\nreturn results;\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Veo_Generation1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_Video_to_BLOTATO": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Upload Video to BLOTATO",
+            "n8nNodeType": "@blotato/n8n-nodes-blotato.blotato",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mediaUrl": "={{ $json.url_final }}",
+              "resource": "media"
+            }
+          },
+          "runAfter": {
+            "Google_Sheets_Append": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Youtube": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Youtube",
+            "n8nNodeType": "@blotato/n8n-nodes-blotato.blotato",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "platform": "youtube",
+              "accountId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "8047",
+                "cachedResultUrl": "https://backend.blotato.com/v2/accounts/8047",
+                "cachedResultName": "DR FIRASS (Dr. Firas)"
+              },
+              "postContentText": "={{ $('Save to Google Sheets').item.json.CAPTION }}",
+              "postContentMediaUrls": "={{ $json.url }}",
+              "postCreateYoutubeOptionTitle": "={{ $('Save to Google Sheets').item.json.IDEA }}",
+              "postCreateYoutubeOptionPrivacyStatus": "private",
+              "postCreateYoutubeOptionShouldNotifySubscribers": false
+            }
+          },
+          "runAfter": {
+            "Upload_Video_to_BLOTATO": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Tiktok": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Tiktok",
+            "n8nNodeType": "@blotato/n8n-nodes-blotato.blotato",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "platform": "tiktok",
+              "accountId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "9332",
+                "cachedResultUrl": "https://backend.blotato.com/v2/accounts/9332",
+                "cachedResultName": "docteur.firas"
+              },
+              "postContentText": "={{ $('Save to Google Sheets').item.json.CAPTION }}",
+              "postContentMediaUrls": "={{ $json.url }}"
+            }
+          },
+          "runAfter": {
+            "Upload_Video_to_BLOTATO": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Linkedin": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Linkedin",
+            "n8nNodeType": "@blotato/n8n-nodes-blotato.blotato",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "platform": "linkedin",
+              "accountId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1446",
+                "cachedResultUrl": "https://backend.blotato.com/v2/accounts/1446",
+                "cachedResultName": "Samuel Amalric"
+              },
+              "postContentText": "={{ $('Save to Google Sheets').item.json.CAPTION }}",
+              "postContentMediaUrls": "={{ $json.url }}"
+            }
+          },
+          "runAfter": {
+            "Upload_Video_to_BLOTATO": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Facebook": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Facebook",
+            "n8nNodeType": "@blotato/n8n-nodes-blotato.blotato",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "platform": "facebook",
+              "accountId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1759",
+                "cachedResultUrl": "https://backend.blotato.com/v2/accounts/1759",
+                "cachedResultName": "Firass Ben"
+              },
+              "facebookPageId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "101603614680195",
+                "cachedResultUrl": "https://backend.blotato.com/v2/accounts/1759/subaccounts/101603614680195",
+                "cachedResultName": "Dr. Firas"
+              },
+              "postContentText": "={{ $('Save to Google Sheets').item.json.CAPTION }}",
+              "postContentMediaUrls": "={{ $json.url }}"
+            }
+          },
+          "runAfter": {
+            "Upload_Video_to_BLOTATO": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Instagram": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Instagram",
+            "n8nNodeType": "@blotato/n8n-nodes-blotato.blotato",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "accountId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1687",
+                "cachedResultUrl": "https://backend.blotato.com/v2/accounts/1687",
+                "cachedResultName": "acces.a.vie"
+              },
+              "postContentText": "={{ $('Save to Google Sheets').item.json.CAPTION }}",
+              "postContentMediaUrls": "={{ $json.url }}"
+            }
+          },
+          "runAfter": {
+            "Upload_Video_to_BLOTATO": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Twitter_X": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Twitter (X)",
+            "n8nNodeType": "@blotato/n8n-nodes-blotato.blotato",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "platform": "twitter",
+              "accountId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1289",
+                "cachedResultUrl": "https://backend.blotato.com/v2/accounts/1289",
+                "cachedResultName": "Docteur_Firas"
+              },
+              "postContentText": "={{ $('Save to Google Sheets').item.json.CAPTION }}",
+              "postContentMediaUrls": "={{ $json.url }}"
+            }
+          },
+          "runAfter": {
+            "Upload_Video_to_BLOTATO": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Merge1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Merge1",
+            "n8nNodeType": "n8n-nodes-base.merge",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "chooseBranch",
+              "numberInputs": 6
+            }
+          },
+          "runAfter": {
+            "Tiktok": [
+              "Succeeded"
+            ],
+            "Youtube": [
+              "Succeeded"
+            ],
+            "Facebook": [
+              "Succeeded"
+            ],
+            "Linkedin": [
+              "Succeeded"
+            ],
+            "Instagram": [
+              "Succeeded"
+            ],
+            "Twitter_X": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Sheets_Append1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Sheets Append1",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "status": "Published",
+                  "id_video": "={{ $('Google Sheets Trigger').first().json.id_video }}"
+                },
+                "schema": [
+                  {
+                    "id": "id_video",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "id_video",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "niche",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "niche",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "idea",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "idea",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "url_1",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "url_1",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "url_2",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "url_2",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "url_3",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "url_3",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "url_final",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "url_final",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "status",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "status",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "row_number",
+                    "type": "number",
+                    "display": true,
+                    "removed": true,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "row_number",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "id_video"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "update",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gid=0",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10yrKcdX92Yxauixzl58RDN6yNKfxAk0zX5avPy0uqAE/edit#gid=0",
+                "cachedResultName": "Video_Requests"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "=10yrKcdX92Yxauixzl58RDN6yNKfxAk0zX5avPy0uqAE"
+              }
+            }
+          },
+          "runAfter": {
+            "Merge1": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

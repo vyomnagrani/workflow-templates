@@ -1,0 +1,571 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "screen-rental-applicants-with-telegram-openai-gmail-and-google-sheets",
+    "name": "Screen rental applicants with Telegram, OpenAI, Gmail and Google Sheets",
+    "description": "## Quick Overview\nThis workflow captures rental applications from Telegram, uses OpenAI to extract applicant details and score risk after a credit/background API check, logs everything in Google Sheets, notifies the landlord via Telegram, and optionally emails a reference check via Gmail while sending Slack alerts on failures.\n\n## How it works\n1. Triggers when a new Telegram message is received from an applicant.\n2. Uses OpenAI (GPT-4o-mini) to extract structured application fields (identity, income, rent, employer, and previous landlord details) from the message.\n3. Appends the parsed application to a Google Sheets tracker and calls an external credit/background check API with the applicant’s basic details.\n4. Uses OpenAI (GPT-4o-mini) to generate a 0–100 score, red flags, a landlord-facing summary, and a recommendation based on the application and credit check result.\n5. Updates the applicant’s row in Google Sheets with the screening results, sends a confirmation message to the applicant on Telegram, and notifies the landlord on Telegram.\n6. If a previous landlord email is present, sends a Gmail reference request and waits for the reply, then uses OpenAI to extract key reference answers and updates Google Sheets with the reference response.\n7. If any step fails, posts an error alert to a Slack channel with execution details.\n\n## Setup\n1. Connect credentials for Telegram Bot, OpenAI, Google Sheets (OAuth2), Gmail (OAuth2), and Slack (OAuth2).\n2. Create or adapt a Google Sheet with the required columns and set YOUR_GOOGLE_SHEET_ID in both Google Sheets nodes.\n3. Replace the placeholder credit/background check HTTP endpoint with your provider’s API URL and add the required authentication.\n4. Set YOUR_LANDLORD_CHAT_ID for Telegram landlord notifications and YOUR_SLACK_CHANNEL_ID for Slack error alerts.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "HR",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "/managedApis/telegrambotip",
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Slack_Post_Workflow_Error_Alert": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Slack – Post Workflow Error Alert",
+            "n8nNodeType": "n8n-nodes-base.slack",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=🚨 *RentalOS Workflow Error*\n\n*Workflow:* {{ $workflow.name }}\n*Failed Node:* {{ $execution.lastNodeExecuted }}\n*Time:* {{ $now.format('MMM D, YYYY – HH:mm') }}\n*Execution ID:* {{ $execution.id }}\n\nPlease check the n8n execution log and follow up with the applicant manually if needed.",
+              "select": "channel",
+              "channelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "YOUR_SLACK_CHANNEL_ID",
+                "cachedResultName": "your-alerts-channel"
+              },
+              "otherOptions": {},
+              "authentication": "oAuth2"
+            }
+          },
+          "runAfter": {
+            "On_Workflow_Error": [
+              "Succeeded"
+            ]
+          }
+        },
+        "On_Workflow_Error": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "On Workflow Error",
+            "n8nNodeType": "n8n-nodes-base.errorTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "Notify_Landlord_New_Ranked_Applicant_Active": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "telegrambotip_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/bot@{encodeURIComponent('REPLACE_WITH_TELEGRAM_BOT_TOKEN')}/sendMessage",
+            "body": {
+              "chat_id": "YOUR_LANDLORD_CHAT_ID",
+              "text": "New screened applicant: @{body('Parse_Scoring_Output_Active')?['applicantName']}\nScore: @{body('Parse_Scoring_Output_Active')?['score']}/100\nRecommendation: @{body('Parse_Scoring_Output_Active')?['recommendation']}\nRed flags: @{body('Update_Application_Score_Active')?['red_flags'] || 'None'}\nSummary: @{body('Parse_Scoring_Output_Active')?['summary']}"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendMessage"
+            }
+          },
+          "runAfter": {
+            "Update_Application_Score_Active": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Confirm_Receipt_to_Applicant_Active": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "telegrambotip_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/bot@{encodeURIComponent('REPLACE_WITH_TELEGRAM_BOT_TOKEN')}/sendMessage",
+            "body": {
+              "chat_id": "@first(body('Extract_Message_Data_Active'))?['chatId']",
+              "text": "Thanks! Your rental application has been received and is now being reviewed. We'll be in touch shortly."
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendMessage"
+            }
+          },
+          "runAfter": {
+            "Update_Application_Score_Active": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Has_Previous_Landlord_Email_Active": {
+          "type": "If",
+          "expression": {
+            "not": {
+              "empty": [
+                "@body('Parse_Scoring_Output_Active')?['previous_landlord_email']"
+              ]
+            }
+          },
+          "actions": {
+            "Update_Reference_Response_in_Sheet_Active": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Update Reference Response in Sheet (Active)",
+                "n8nNodeType": "n8n-nodes-base.googleSheets",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "columns": {
+                    "value": {
+                      "Status": "Reference Received",
+                      "row_number": 0,
+                      "ReferenceResponse": "={{ JSON.stringify($json) }}",
+                      "PreviousLandlordEmail": "={{ $json.fromEmail }}"
+                    },
+                    "schema": [
+                      {
+                        "id": "PreviousLandlordEmail",
+                        "type": "string",
+                        "display": true,
+                        "required": false,
+                        "displayName": "PreviousLandlordEmail",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "ReferenceResponse",
+                        "type": "string",
+                        "display": true,
+                        "required": false,
+                        "displayName": "ReferenceResponse",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Status",
+                        "type": "string",
+                        "display": true,
+                        "required": false,
+                        "displayName": "Status",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "row_number",
+                        "type": "number",
+                        "display": true,
+                        "removed": true,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "row_number",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      }
+                    ],
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [
+                      "PreviousLandlordEmail"
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                  },
+                  "options": {},
+                  "operation": "update",
+                  "sheetName": {
+                    "__rl": true,
+                    "mode": "name",
+                    "value": "applications-sheet-template"
+                  },
+                  "documentId": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "YOUR_GOOGLE_SHEET_ID"
+                  }
+                }
+              },
+              "runAfter": {
+                "Parse_Reference_Output_Active": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Parse_Reference_Output_Active": {
+              "type": "JavaScriptCode",
+              "inputs": {
+                "code": "const __inputRaw = workflowContext.actions['Extract_Reference_Answers_Active_AI'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nlet parsed = {};\ntry {\n  const raw = $input.first().json.message?.content || $input.first().json.text || '';\n  const cleaned = raw.replace(/```json|```/g, '').trim();\n  parsed = JSON.parse(cleaned);\n} catch (e) {\n  parsed = { parse_error: true };\n}\nreturn [{ json: { ...parsed, fromEmail: __node('Parse_Scoring_Output_Active').item.json.previous_landlord_email } }];\n})();\nreturn { body: __unwrap(__result) };"
+              },
+              "runAfter": {
+                "Extract_Reference_Answers_Active_AI": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Extract_Reference_Answers_Active_AI": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Extract Reference Answers (Active AI)",
+                "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "modelId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "gpt-4o-mini",
+                    "cachedResultName": "GPT-4O-MINI"
+                  },
+                  "options": {
+                    "maxTokens": 300,
+                    "temperature": 0.2
+                  },
+                  "messages": {
+                    "values": [
+                      {
+                        "role": "system",
+                        "content": "Extract reference-check answers from this text. Return ONLY valid JSON, no markdown, with: tenancy_dates, rent_paid_on_time (true/false/unclear), damages_or_disputes, would_rent_again (true/false/unclear), notes."
+                      },
+                      {
+                        "content": "={{ $json.data.text || 'No response received' }}"
+                      }
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "Send_Reference_Check_Email_Active": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Send_Reference_Check_Email_Active": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Send Reference Check Email (Active)",
+                "n8nNodeType": "n8n-nodes-base.gmail",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "sendTo": "={{ $('Parse Scoring Output (Active)').item.json.previous_landlord_email }}",
+                  "message": "=Hello {{ $('Parse Scoring Output (Active)').item.json.previous_landlord_name }},\n\n{{ $('Parse Scoring Output (Active)').item.json.full_name }} has listed you as a previous landlord on a rental application and given us permission to contact you. Please click the link below and reply in your own words to:\n\n1. What were the tenancy dates?\n2. Was rent paid on time consistently?\n3. Were there any damages or disputes?\n4. Would you rent to this tenant again?\n\nThank you for your time.",
+                  "options": {},
+                  "subject": "=Reference request for {{ $('Parse Scoring Output (Active)').item.json.applicantName }}",
+                  "operation": "sendAndWait",
+                  "responseType": "freeText"
+                }
+              },
+              "runAfter": {}
+            }
+          },
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "Update_Application_Score_Active": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Update_Application_Score_Active": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update Application Score (Active)",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "Score": "={{ $json.score }}",
+                  "Status": "Screened",
+                  "Summary": "={{ $json.summary }}",
+                  "RedFlags": "={{ $json.red_flags }}",
+                  "row_number": 0,
+                  "Recommendation": "={{ $json.recommendation }}",
+                  "ApplicantChatId": "={{ $json.chatId }}",
+                  "CreditCheckStatus": "Checked"
+                },
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "ApplicantChatId"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "update",
+              "sheetName": {
+                "__rl": true,
+                "mode": "name",
+                "value": "applications-sheet-template"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "YOUR_GOOGLE_SHEET_ID"
+              }
+            }
+          },
+          "runAfter": {
+            "Parse_Scoring_Output_Active": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Parse_Scoring_Output_Active": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Score_Flag_Red_Flags_Active_AI'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst applicant = __node('Parse_AI_Output_Active').first().json;\nlet parsed = {};\ntry {\n  const raw = $input.first().json.message?.content || $input.first().json.text || '';\n  const cleaned = raw.replace(/```json|```/g, '').trim();\n  parsed = JSON.parse(cleaned);\n} catch (e) {\n  parsed = { score: null, red_flags: ['scoring_parse_error'], summary: '', recommendation: 'Needs manual review' };\n}\nreturn [{\n  json: {\n    ...applicant,\n    score: parsed.score,\n    red_flags: (parsed.red_flags || []).join('; '),\n    summary: parsed.summary,\n    recommendation: parsed.recommendation\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Score_Flag_Red_Flags_Active_AI": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Score_Flag_Red_Flags_Active_AI": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Score & Flag Red Flags (Active AI)",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini",
+                "cachedResultName": "GPT-4O-MINI"
+              },
+              "options": {
+                "maxTokens": 500,
+                "temperature": 0.3
+              },
+              "messages": {
+                "values": [
+                  {
+                    "role": "system",
+                    "content": "You are a tenant screening assistant. Given the applicant's data and a credit/background check result, return ONLY valid JSON, no markdown, with: score (0-100, based mainly on income-to-rent ratio of at least 2.5x, clean rental history, and a clean credit/background result), red_flags (array of short strings, e.g. 'income below 2.5x rent', 'gap in rental history', 'credit check flagged'), summary (2-3 sentence plain-English summary for the landlord), recommendation (one of 'Strong fit', 'Proceed with caution', 'Not recommended')."
+                  },
+                  {
+                    "content": "={{ JSON.stringify({ applicant: $('Parse AI Output (Active)').first().json, credit_check: $json }) }}"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Credit_Background_Check_Active": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Credit_Background_Check_Active": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.your-credit-bureau.com/v1/check",
+            "body": "@{ \"full_name\": body('Save_Application_to_Sheet_Active')?['full_name'], \"email\": body('Save_Application_to_Sheet_Active')?['email'], \"phone\": body('Save_Application_to_Sheet_Active')?['phone'] }"
+          },
+          "runAfter": {
+            "Save_Application_to_Sheet_Active": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Save_Application_to_Sheet_Active": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('YOUR_GOOGLE_SHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('applications-sheet-template'))}/items",
+            "body": {
+              "Status": "New",
+              "Employer": "@body('Parse_AI_Output_Active')?['employer']",
+              "Timestamp": "={{ $now }}",
+              "IDUploaded": "@body('Parse_AI_Output_Active')?['id_document_mentioned']",
+              "RentAmount": "@body('Parse_AI_Output_Active')?['rent_amount']",
+              "ApplicantName": "@body('Parse_AI_Output_Active')?['full_name'] || body('Parse_AI_Output_Active')?['applicantName']",
+              "EmployerPhone": "@body('Parse_AI_Output_Active')?['employer_phone']",
+              "MonthlyIncome": "@body('Parse_AI_Output_Active')?['monthly_income']",
+              "ApplicantEmail": "@body('Parse_AI_Output_Active')?['email']",
+              "ApplicantPhone": "@body('Parse_AI_Output_Active')?['phone']",
+              "ApplicantChatId": "@body('Parse_AI_Output_Active')?['chatId']",
+              "RentalHistoryNotes": "@body('Parse_AI_Output_Active')?['rental_history_notes']",
+              "PreviousLandlordName": "@body('Parse_AI_Output_Active')?['previous_landlord_name']",
+              "PreviousLandlordEmail": "@body('Parse_AI_Output_Active')?['previous_landlord_email']",
+              "PreviousLandlordPhone": "@body('Parse_AI_Output_Active')?['previous_landlord_phone']"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Parse_AI_Output_Active": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Parse_AI_Output_Active": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Parse_Application_Data_Active_AI'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst prev = __node('Extract_Message_Data_Active').first().json;\nlet parsed = {};\ntry {\n  const raw = $input.first().json.message?.content || $input.first().json.text || '';\n  const cleaned = raw.replace(/```json|```/g, '').trim();\n  parsed = JSON.parse(cleaned);\n} catch (e) {\n  parsed = { parse_error: true, raw: JSON.stringify($input.first().json) };\n}\nreturn [{\n  json: {\n    ...prev,\n    ...parsed\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Parse_Application_Data_Active_AI": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Parse_Application_Data_Active_AI": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Parse Application Data (Active AI)",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini",
+                "cachedResultName": "GPT-4O-MINI"
+              },
+              "options": {
+                "maxTokens": 500,
+                "temperature": 0.2
+              },
+              "messages": {
+                "values": [
+                  {
+                    "role": "system",
+                    "content": "You are an intake assistant for a rental application. Extract structured data from the applicant's message. Return ONLY valid JSON, no markdown, no extra text, with these fields: full_name, phone, email, employer, employer_phone, monthly_income (number only, no symbols), rent_amount (number or null), previous_landlord_name, previous_landlord_email, previous_landlord_phone, rental_history_notes, id_document_mentioned (true/false), missing_fields (array of field names not provided in the message)."
+                  },
+                  {
+                    "content": "={{ $json.applicantMessage }}"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Extract_Message_Data_Active": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_Message_Data_Active": {
+          "type": "Compose",
+          "inputs": {
+            "chatId": "@body('New_Applicant_Message_Active')?['message']?['chat']?['id']",
+            "applicantMessage": "@body('New_Applicant_Message_Active')?['message']?['text']",
+            "applicantName": "@body('New_Applicant_Message_Active')?['message']?['from']?['first_name'] + ' ' + (body('New_Applicant_Message_Active')?['message']?['from']?['last_name'] || '')",
+            "telegramUsername": "@body('New_Applicant_Message_Active')?['message']?['from']?['username'] || ''"
+          },
+          "runAfter": {
+            "New_Applicant_Message_Active": [
+              "Succeeded"
+            ]
+          }
+        },
+        "New_Applicant_Message_Active": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "New Applicant Message (Active)",
+            "n8nNodeType": "n8n-nodes-base.telegramTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "updates": [
+                "message"
+              ],
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "telegrambotip_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/telegrambotip"
+    },
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

@@ -1,0 +1,427 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "amazon-affiliate-marketing-automation",
+    "name": "Amazon affiliate marketing automation",
+    "description": "## **Who this is for**\n\nThis workflow is for **Amazon affiliate marketers** and **social media managers** who want to quickly turn product links into **engaging Facebook posts** with AI-generated captions and images — fully automated.\n\n---\n\n## **What this workflow does**\n\nThis workflow starts every time a new **Product Link** is added to a connected **Google Sheet**. It then:\n\n* **Extracts the ASIN** from the product link.\n* **Fetches product details** from Amazon using RapidAPI.\n* **Generates a short, scroll-stopping Facebook caption** with OpenRouter AI.\n* **Creates a product image prompt** and sends it to Google Gemini for high-quality image generation.\n* **Uploads the creative directly to Facebook** via the Facebook Graph API.\n* **Marks the Google Sheet row** as “Done ✅” after posting.\n\nThe Facebook post includes:\n\n* Product image (AI-enhanced)\n* Short, benefit-focused caption with emojis\n* Affiliate link\n\n---\n\n## **Setup**\n\nTo set this template up, follow the sticky notes inside the workflow and:\n\n1. **Google Sheets** → Connect your sheet and ensure the columns “Product Link” & “Facebook Upload” exist.\n2. **RapidAPI** → Add your API key in the “Amazon Product Details” node.\n3. **OpenRouter** → Add credentials for caption generation.\n4. **Google Gemini** → Add your API key for image generation.\n5. **Facebook Graph API** → Connect your Facebook account for posting.\n\n---\n\n## **How to customize this workflow to your needs**\n\n* Change the Facebook caption prompt to match your tone or branding.\n* Adjust the AI image generation prompt to fit your preferred photography style.\n* Modify the Google Sheet update logic if you want to track additional info (e.g., posting date, engagement stats).\n* Switch Facebook posting to Instagram or another platform by replacing the final API call.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Social Media",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Amazon_Product_Details": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://real-time-amazon-data.p.rapidapi.com/product-details?asin=@{body('asin_number')?['output']}&country=US",
+            "headers": {
+              "x-rapidapi-host": "real-time-amazon-data.p.rapidapi.com",
+              "x-rapidapi-key": "YOUR_API_KEY",
+              "country": "US"
+            }
+          },
+          "runAfter": {
+            "asin_number": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Product_Image": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@body('Amazon_Product_Details')?['data']?['product_photo']"
+          },
+          "runAfter": {
+            "FB_caption": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Image_Upload_To_Server": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "=https://generativelanguage.googleapis.com/upload/v1beta/files?key=YOUR_API_KEY",
+            "headers": {
+              "X-Goog-Upload-Command": "start,upload,finalize",
+              "X-Goog-Upload-Header-Content-Length": "123",
+              "X-Goog-Upload-Header-Content-Type": "image/png",
+              "Content-Type": "image/png"
+            }
+          },
+          "runAfter": {
+            "Product_Image": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenRouter_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenRouter Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": "google/gemini-2.0-flash-exp:free",
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Convert_to_File": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Convert to File",
+            "n8nNodeType": "n8n-nodes-base.convertToFile",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "operation": "toBinary",
+              "sourceProperty": "candidates[0].content.parts[0].inlineData.data"
+            }
+          },
+          "runAfter": {
+            "ai_image_generator": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Facebook_Graph_API": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Facebook Graph API",
+            "n8nNodeType": "n8n-nodes-base.facebookGraphApi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "edge": "photos",
+              "node": "me",
+              "options": {
+                "queryParameters": {
+                  "parameter": [
+                    {
+                      "name": "message",
+                      "value": "={{ $('FB caption').item.json.output }}"
+                    }
+                  ]
+                }
+              },
+              "sendBinaryData": true,
+              "graphApiVersion": "v22.0",
+              "httpRequestMethod": "POST",
+              "binaryPropertyName": "data"
+            }
+          },
+          "runAfter": {
+            "Wait": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenRouter_Chat_Model1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenRouter Chat Model1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": "google/gemini-2.0-flash-exp:free",
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Google_Sheets_Trigger": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Sheets Trigger",
+            "n8nNodeType": "n8n-nodes-base.googleSheetsTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "event": "rowAdded",
+              "options": {},
+              "pollTimes": {
+                "item": [
+                  {}
+                ]
+              },
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gid=0",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1unoIMG4dKLP1Fw0euo64deo_FyBJp4viN4_Sy4LT0Dc/edit#gid=0",
+                "cachedResultName": "Sheet1"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1unoIMG4dKLP1Fw0euo64deo_FyBJp4viN4_Sy4LT0Dc",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1unoIMG4dKLP1Fw0euo64deo_FyBJp4viN4_Sy4LT0Dc/edit?usp=drivesdk",
+                "cachedResultName": "Affiliate Automation"
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "OpenRouter_Chat_Model2": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenRouter Chat Model2",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": "google/gemini-2.0-flash-exp:free",
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Google_Sheets": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Sheets",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "Product Link": "={{ $('Google Sheets Trigger').item.json['Product Link'] }}",
+                  "Facebook Upload": "Done ✅"
+                },
+                "schema": [
+                  {
+                    "id": "Product Link",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "Product Link",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Facebook Upload",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Facebook Upload",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "row_number",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "row_number",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "Product Link"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "update",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gid=0",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1unoIMG4dKLP1Fw0euo64deo_FyBJp4viN4_Sy4LT0Dc/edit#gid=0",
+                "cachedResultName": "Sheet1"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1unoIMG4dKLP1Fw0euo64deo_FyBJp4viN4_Sy4LT0Dc",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1unoIMG4dKLP1Fw0euo64deo_FyBJp4viN4_Sy4LT0Dc/edit?usp=drivesdk",
+                "cachedResultName": "Affiliate Automation"
+              }
+            }
+          },
+          "runAfter": {
+            "Facebook_Graph_API": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 10,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Convert_to_File": [
+              "Succeeded"
+            ]
+          }
+        },
+        "FB_caption": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "FB caption",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=You are a copywriter helping an Amazon affiliate marketer write high-converting, scroll-stopping Facebook captions.\n\nFor each product, generate a short and engaging caption (1–3 lines max) that:\n- Grabs attention fast\n- Focuses on the product’s top benefit or unique feature\n- Sounds casual and native to Facebook\n- Includes a CTA to buy\n- Ends with the affiliate link\n\nHere is the product name and features:\n\nProduct: {{ $('Amazon Product Details').item.json.data.product_title }}\n\nAbout Product : {{ $('Amazon Product Details').item.json.data.about_product[3] }}\n\nAffiliate Link: {{ $('Amazon Product Details').item.json.data.product_url }}?tag=rakin114-20\n\n\nGive only 1 caption directly and don't contain any symbol. Add emojis and with the affiliate link add here's the poduct or purchase link any thing that goes well.",
+              "options": {},
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "Amazon_Product_Details": [
+              "Succeeded"
+            ],
+            "OpenRouter_Chat_Model1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Image_Prompt_Generate": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Image Prompt Generate",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=Create a very short prompt for an AI image generator that will be fed a photo of a product, to ultimately have professional product photography. \n\n- If the product is wearable you have to include the product worn by a human model, if it's not wearable then include a model holding it or doing something with it. The product should ALWAYS be with a human model, and with the model's face visible.\n\n- Make sure to include instructions to get the best realism, the best lighting, the best angle, the best colors, the best model positioning, etc. according to the type of product.\n\n- Always prompt it as referring to the product, eg. \"this [PRODUCT]\" so that the AI image generator knows that it's gonna be sent an input photo of the product.\n\n- Make sure to always instruct to include subtle grain for a cinematic look.\n\nThe description of the product will be sent to you. Only reply with the final prompt inside double quotes.\n\nThe prompt must be under 100 words and very simple.\n\n\nHere is the Product Description:\nProduct Title: {{ $('Amazon Product Details').item.json.data.product_title }}\n\nAbout Product: {{ $('Amazon Product Details').item.json.data.about_product[0] }}\n\n",
+              "options": {},
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "OpenRouter_Chat_Model": [
+              "Succeeded"
+            ],
+            "Image_Upload_To_Server": [
+              "Succeeded"
+            ]
+          }
+        },
+        "asin_number": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "asin number",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=You only have to give the asin number from this amazon product url:  {{ $json['Product Link'] }}",
+              "options": {},
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "Google_Sheets_Trigger": [
+              "Succeeded"
+            ],
+            "OpenRouter_Chat_Model2": [
+              "Succeeded"
+            ]
+          }
+        },
+        "ai_image_generator": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "=https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=YOUR_API_KEY",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": "{\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\n          \"fileData\": {\n            \"fileUri\": \"@{body('Image_Upload_To_Server')?['file']?['uri']}\",\n            \"mimeType\": \"@{body('Image_Upload_To_Server')?['file']?['mimeType']}\"\n          }\n        },\n        {\n          \"text\": @{body('Image_Prompt_Generate')?['output']}\n        }\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"temperature\": 1.4,\n    \"topK\": 40,\n    \"topP\": 0.95,\n    \"maxOutputTokens\": 8192,\n    \"responseModalities\": [\"Text\", \"Image\"]\n  }\n}"
+          },
+          "runAfter": {
+            "Image_Prompt_Generate": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

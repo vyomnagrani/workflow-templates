@@ -10,6 +10,7 @@ from .expressions import translate_value
 from .mappings import get_mapping
 from .models import ConversionMode, ConversionResult, Diagnostic
 from .naming import action_name, template_id, unique_name
+from .sanitization import sanitize_secrets
 
 WDL_SCHEMA = (
     "https://schema.management.azure.com/providers/Microsoft.Logic/"
@@ -1385,7 +1386,7 @@ def convert_workflow(
     if options.include_source_metadata:
         metadata["tags"] = list(dict.fromkeys([*normalized_tags, "n8n-converted"]))
 
-    template = {
+    template = sanitize_secrets({
         "kind": "AutoTemplate",
         "apiVersion": "v1",
         "metadata": metadata,
@@ -1401,7 +1402,7 @@ def convert_workflow(
         },
         "mocks": mocks,
         "connections": connections,
-    }
+    })
     return ConversionResult(
         template=template,
         diagnostics=diagnostics,

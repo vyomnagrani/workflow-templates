@@ -1,0 +1,229 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "edit-and-post-tiktok-videos-with-gemini-omni-flash-and-openai",
+    "name": "Edit and post TikTok videos with Gemini Omni Flash and OpenAI",
+    "description": "## Quick overview\nThis workflow receives a webhook request with a video URL and edit prompt, sends the job to Fal.run’s Gemini Omni Flash for video editing, generates a title with OpenAI, downloads the rendered file, and uploads it to TikTok via the [Upload-Post](https://www.upload-post.com/?linkId=lp_144414&sourceId=n3witalia&tenantId=upload-post-app) API.\n\n## How it works\n1. Receives a webhook request containing a `video_url` and an editing `prompt`.\n2. Submits the video edit job to Fal.run’s Gemini Omni Flash queue API.\n3. Polls Fal.run every 60 seconds to check the job status until it returns `COMPLETED`.\n4. Fetches the completed job details from Fal.run to obtain the final rendered video URL.\n5. Uses OpenAI (GPT-5) to generate an SEO-friendly title from the original prompt.\n6. Downloads the rendered video file from the provided URL and uploads it to TikTok using the Upload-Post.com upload API.\n7. Returns the Upload-Post.com API response to the original webhook caller.\n\n## Setup\n1. Create and add Fal.run API header-auth credentials, and ensure the Gemini Omni Flash endpoints are accessible from your n8n instance.\n2. Add an OpenAI API credential for the title generation step and select the model you want to use.\n3. Create an Upload-Post.com account, add its API header-auth credentials, and replace `YOUR_USERNAME` with your Upload-Post username in the upload request.\n4. Copy the webhook URL from n8n and configure the calling app to send `prompt` and `video_url` fields to this endpoint.\n\n## Additional info\n### MY NEW YOUTUBE CHANNEL\n👉 [Subscribe to my new **YouTube channel**](https://youtube.com/@n3witalia). Here I'll share videos and Shorts with practical tutorials and **FREE templates for n8n**.\n\n[![image](https://n3wstorage.b-cdn.net/n3witalia/youtube-n8n-cover.jpg)](https://youtube.com/@n3witalia)\n\n---\n\n### Need help customizing?\n[Contact me](mailto:info@n3w.it) for consulting and support or add me on [Linkedin](https://www.linkedin.com/in/davideboizza/)",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Webhook": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Get_status": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://queue.fal.run/google/gemini-omni-flash/requests/@{body('Create_Video')?['request_id']}/status"
+          },
+          "runAfter": {
+            "Wait_60_sec": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_60_sec": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 60,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Completed": [
+              "Succeeded"
+            ],
+            "Create_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Completed": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Completed?",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "383d112e-2cc6-4dd4-8985-f09ce0bd1781",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "COMPLETED"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Get_status": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Create_Video": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://queue.fal.run/google/gemini-omni-flash/edit",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": "{\n     \"prompt\": \"@{triggerBody()?['prompt']}\",\n     \"video_url\": \"@{triggerBody()?['video_url']}\"\n   }"
+          },
+          "runAfter": {}
+        },
+        "Get_Url_Video": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://queue.fal.run/google/gemini-omni-flash/requests/@{body('Completed')?['request_id']}"
+          },
+          "runAfter": {
+            "Completed": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_File_Video": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@body('Get_Url_Video')?['video']?['url']"
+          },
+          "runAfter": {
+            "Generate_title": [
+              "Succeeded"
+            ]
+          }
+        },
+        "HTTP_Request": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.upload-post.com/api/upload",
+            "body": {
+              "title": "@body('Generate_title')?['message']?['content']",
+              "user": "YOUR_USERNAME",
+              "platform[]": "tiktok",
+              "video": null
+            }
+          },
+          "runAfter": {
+            "Get_File_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Generate_title": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Generate title",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-5",
+                "cachedResultName": "GPT-5"
+              },
+              "options": {},
+              "messages": {
+                "values": [
+                  {
+                    "content": "=Input: {{ $('Webhook').item.json.prompt }}"
+                  },
+                  {
+                    "role": "system",
+                    "content": "You are a Video SEO expert specialized in creating engaging and optimized titles.\n\nYour task is to generate an effective title for a YouTube video based on the user's video description.\n\nGUIDELINES:\n- Maximum 60 characters to avoid truncation\n- Use relevant keywords for SEO\n- Make the title catchy and clickable\n- Avoid excessive or misleading clickbait\n- Consider the target audience of the content\n- Use numbers, questions, or power words when appropriate\n- IMPORTANT: Generate the title in the same language as the input description\n\nOUTPUT FORMAT:\nProvide only the title, without additional explanations.\n\nEXAMPLE:\nInput: \"Tutorial video on how to cook perfect pasta carbonara\"\nOutput: \"PERFECT Carbonara in 10 Minutes - Chef's Secrets\""
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Get_Url_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Respond_to_Webhook": {
+          "type": "Response",
+          "kind": "Http",
+          "inputs": {
+            "statusCode": 200,
+            "body": ""
+          },
+          "runAfter": {
+            "HTTP_Request": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Webhook",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {
+        "prompt": "Make this video anime. Keep everything else the same.",
+        "video_url": "https://storage.googleapis.com/falserverless/model_tests/video_models/mmaudio_input.mp4"
+      }
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

@@ -1,0 +1,244 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "scrape-physician-profiles-from-browseract-into-google-sheets-and-notify-slack",
+    "name": "Scrape physician profiles from BrowserAct into Google Sheets and notify Slack",
+    "description": "# Scrape physician profiles from BrowserAct to Google Sheets\n\nThis workflow automates the process of building a targeted database of healthcare providers by scraping physician details for a specific location and syncing them to your records. It leverages BrowserAct to extract data from healthcare directories and ensures your database stays clean by preventing duplicate entries.\n\n## Target Audience\nMedical recruiters, pharmaceutical sales representatives, lead generation specialists, and healthcare data analysts.\n\n## How it works\n1. **Define Location**: The workflow starts by setting the target `Location` and `State` in a Set node.\n2. **Scrape Data**: A **BrowserAct** node executes a task (using the \"Physician Profile Enricher\" template) to search a healthcare directory (e.g., Healow) for doctors matching the criteria.\n3. **Parse JSON**: A **Code** node takes the raw string output from the scraper and parses it into individual JSON objects.\n4. **Update Database**: The workflow uses a **Google Sheets** node to append new records or update existing ones based on the physician's name, preventing duplicates.\n5. **Notify Team**: A **Slack** node sends a message to a specific channel to confirm the batch job has finished successfully.\n\n## How to set up\n1. **Configure Credentials**: Connect your **BrowserAct**, **Google Sheets**, and **Slack** accounts in n8n.\n2. **Prepare BrowserAct**: Ensure the **Physician Profile Enricher** template is saved in your BrowserAct account.\n3. **Setup Google Sheet**: Create a new Google Sheet with the required headers (listed below).\n4. **Select Spreadsheet**: Open the **Google Sheets** node and select your newly created file and sheet.\n5. **Set Variables**: Open the **Define Location** node and input your target `Location` (City) and `State`.\n6. **Configure Notification**: Open the **Slack** node and select the channel where you want to receive alerts.\n\n## Google Sheet Headers\nTo use this workflow, create a Google Sheet with the following headers:\n* Name\n* Specialty\n* Address\n\n## Requirements\n* **BrowserAct** account with the **Physician Profile Enricher** template.\n* **Google Sheets** account.\n* **Slack** account.\n\n## How to customize the workflow\n1. **Change the Data Source**: Modify the BrowserAct template to scrape a different directory (e.g., Zocdoc or WebMD) and update the Google Sheet columns accordingly.\n2. **Switch Notifications**: Replace the Slack node with a **Microsoft Teams**, **Discord**, or **Email** node to suit your team's communication preferences.\n3. **Enrich Data**: Add an **AI Agent** node after the Code node to format addresses or research the specific clinics listed.\n\n## Need Help?\n* [How to Find Your BrowserAct API Key & Workflow ID](https://docs.browseract.com)\n* [How to Connect n8n to BrowserAct](https://www.youtube.com/watch?v=RoYMdJaRdcQ)\n* [How to Use & Customize BrowserAct Templates](https://www.youtube.com/watch?v=CPZHFUASncY)\n\n---\n### Workflow Guidance and Showcase Video\n\n* #### [Automate Medical Lead Gen: Scrape Healow to Google Sheets & Slack](https://www.youtube.com/watch?v=DZ_Jq_b2-Ww)",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Lead Generation",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/inlineCode",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "On_Demand_Execution": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Splitting_Items": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Run_BrowserAct_Workflow'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Get the JSON string using the exact path provided by the user.\nconst jsonString = $input.first().json.output.string;\n\nlet parsedData;\n\n// Check if the string exists before attempting to parse\nif (!jsonString) {\n    // Return an empty array or throw an error if no string is found\n    // Throwing an error is usually better to stop the workflow if data is missing.\n    throw new Error(\"Input string is empty or missing at the specified path: $input.first().json.output.string\");\n}\n\ntry {\n    // 1. Parse the JSON string into a JavaScript array of objects\n    parsedData = JSON.parse(jsonString);\n} catch (error) {\n    // Handle JSON parsing errors (e.g., if the string is malformed)\n    throw new Error(`Failed to parse JSON string: ${error.message}`);\n}\n\n// 2. Ensure the parsed data is an array\nif (!Array.isArray(parsedData)) {\n    throw new Error('Parsed data is not an array. It cannot be split into multiple items.');\n}\n\n// 3. Map the array of objects into the n8n item format { json: object }\n// Each element in this array will be treated as a new item by n8n, achieving the split.\nconst outputItems = parsedData.map(item =&gt; ({\n    json: item,\n}));\n\n// 4. Return the new array of items\nreturn outputItems;\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Run_BrowserAct_Workflow": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Define_Location": {
+          "type": "Compose",
+          "inputs": {
+            "Location": "Brooklyn",
+            "State": "NY"
+          },
+          "runAfter": {}
+        },
+        "Update_Leads": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update Leads",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "Name": "={{ $json.item[0].Name }}",
+                  "Address": "={{ $json.item[0].Address }}",
+                  "Specialty": "={{ $json.item[0].Specialty }}"
+                },
+                "schema": [
+                  {
+                    "id": "Name",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "Name",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Specialty",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "Specialty",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Address",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "Address",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "Name"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "appendOrUpdate",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": 243879573,
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/164YfKm0Jiwy2KNUyX18ugWxbKM9xfXhA2BHg8VPg8vU/edit#gid=243879573",
+                "cachedResultName": "Physician Profile"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "164YfKm0Jiwy2KNUyX18ugWxbKM9xfXhA2BHg8VPg8vU",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/164YfKm0Jiwy2KNUyX18ugWxbKM9xfXhA2BHg8VPg8vU/edit?usp=drivesdk",
+                "cachedResultName": "Physician Profile Enricher"
+              }
+            }
+          },
+          "runAfter": {
+            "Splitting_Items": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Alert_Team": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Alert Team",
+            "n8nNodeType": "n8n-nodes-base.slack",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "Physician Profile Enricher Workflow Finished succesfully",
+              "select": "channel",
+              "channelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "C09KLV9DJSX",
+                "cachedResultName": "all-browseract-workflow-test"
+              },
+              "otherOptions": {}
+            }
+          },
+          "runAfter": {
+            "Update_Leads": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Run_BrowserAct_Workflow": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Run BrowserAct Workflow",
+            "n8nNodeType": "n8n-nodes-browseract.browserAct",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "type": "WORKFLOW",
+              "timeout": 7200,
+              "workflowId": "71087742787674119",
+              "workflowConfig": {
+                "value": {
+                  "input-State": "={{ $json.State }}",
+                  "input-Location": "={{ $json.Location }}"
+                },
+                "schema": [
+                  {
+                    "id": "input-healow",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "description": "If left blank, the default value defined in BrowserAct will be used.",
+                    "displayName": "healow",
+                    "defaultMatch": true
+                  },
+                  {
+                    "id": "input-Location",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "description": "If left blank, the default value defined in BrowserAct will be used.",
+                    "displayName": "Location",
+                    "defaultMatch": true
+                  },
+                  {
+                    "id": "input-State",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "description": "If left blank, the default value defined in BrowserAct will be used.",
+                    "displayName": "State",
+                    "defaultMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "input-State"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "open_incognito_mode": false
+            }
+          },
+          "runAfter": {
+            "Define_Location": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "On_Demand_Execution",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

@@ -1,0 +1,394 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "generate-ad-image-variations-using-gpt-4-dumpling-ai-google-drive",
+    "name": "Generate ad image variations using GPT-4, Dumpling AI & Google Drive",
+    "description": "## 🧾 What this workflow does\n\nThis workflow takes a reference ad image and brand website, then uses GPT-4, LangChain, and Dumpling AI to generate 10 high-quality image variations for ad testing. These image variations are visually consistent but subtly different in background, mood, lighting, and tone — perfect for performance testing on platforms like Meta Ads or TikTok.\n\n---\n\n## 👤 Who is this for\n\n- DTC marketers and brand designers testing ad creatives  \n- Creative teams automating visual experimentation  \n- Content agencies using AI for fast ad mockups  \n- Performance marketers running multivariate testing\n\n---\n\n## ⚙️ How to set up\n\n### ✅ Requirements\n\nYou’ll need the following tools set up in n8n:\n- Google Drive (OAuth2 credential)\n- Google Sheets (OAuth2 credential)\n- OpenAI API (for GPT-4 or GPT-4o)\n- Dumpling AI API (via HTTP header authentication)\n\n---\n\n### 🛠️ Steps to configure\n\n1. **Google Sheet Setup**  \n   - Create a sheet with one column: `Image URL`  \n   - Update the Sheet ID and tab name in the final Google Sheets node.\n\n2. **Drive Setup**  \n   - Create a folder in Google Drive for storing the reference image.  \n   - Replace the `folderId` in the “Upload Ad Image to Google Drive” node.\n\n3. **Dumpling AI API Key**  \n   - Use n8n’s credential manager (HTTP Header Auth) — do **not** hardcode the key.\n\n4. **OpenAI API Key**  \n   - Required for both image description and LangChain agent prompt generation.\n\n5. **Form Inputs Required**\n   - `Brand Name`  \n   - `Brand Website`  \n   - `Ad Image` (upload field)\n\n---\n\n## 🧠 How it works\n\n1. A user submits the brand name, website, and a reference ad image through a form.\n2. The image is uploaded to Google Drive.\n3. GPT-4o describes the image’s visual style (e.g., mood, lighting, composition).\n4. GPT-4 analyzes the brand’s website to define its visual aesthetic.\n5. A LangChain agent uses both analyses to create 10 tightly scoped variation prompts.\n6. Dumpling AI generates a new image for each prompt using its “FLUX.1-pro” model.\n7. Each new image’s link is logged into Google Sheets.\n\n---\n\n## 🛠️ How to customize\n\n- 🧪 Change prompt logic to experiment with different variations (e.g., theme, season).\n- 🎨 Switch image model in Dumpling AI to one that supports your desired style.\n- 🔗 Log additional metadata (prompt, timestamp) to Google Sheets.\n- 📤 Connect output images to Airtable, Notion, or a review tool like Figma.\n- 🎯 Modify GPT system message to reflect a different tone or brand strategy.\n\n---\n\nThis workflow gives creative teams and marketers an instant, AI-powered ad image testing system — built on real brand visuals, not generic stock content.\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "connectionProviders/Http",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Submit_Brand_Info_Image": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Submit Brand Info + Image",
+            "n8nNodeType": "n8n-nodes-base.formTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "formTitle": "Ad Image Generator",
+              "formFields": {
+                "values": [
+                  {
+                    "fieldLabel": "Brand Name",
+                    "requiredField": true
+                  },
+                  {
+                    "fieldLabel": "Brand Website",
+                    "requiredField": true
+                  },
+                  {
+                    "fieldType": "file",
+                    "fieldLabel": "Ad Image",
+                    "multipleFiles": false,
+                    "requiredField": true
+                  }
+                ]
+              },
+              "formDescription": "Provide brand and product info, and an optional reference image to generate image variations with AI."
+            }
+          },
+          "runAfter": {}
+        },
+        "Upload_Ad_Image_to_Google_Drive": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": " Upload Ad Image to Google Drive",
+            "n8nNodeType": "n8n-nodes-base.googleDrive",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "name": "={{ $json['Ad Image'].filename }} (Original)",
+              "driveId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "My Drive",
+                "cachedResultUrl": "https://drive.google.com/drive/my-drive",
+                "cachedResultName": "My Drive"
+              },
+              "options": {},
+              "folderId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1R5bTxrKmi9NDMFJIh3aQgbNuZwmCybLV",
+                "cachedResultUrl": "https://drive.google.com/drive/folders/1R5bTxrKmi9NDMFJIh3aQgbNuZwmCybLV",
+                "cachedResultName": "n8n Testing"
+              },
+              "inputDataFieldName": "Ad_Image"
+            }
+          },
+          "runAfter": {
+            "Submit_Brand_Info_Image": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_Ad_Image_for_Analysis": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Download Ad Image for Analysis",
+            "n8nNodeType": "n8n-nodes-base.googleDrive",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $(' Upload Ad Image to Google Drive').item.json.id }}"
+              },
+              "options": {},
+              "operation": "download"
+            }
+          },
+          "runAfter": {
+            "Upload_Ad_Image_to_Google_Drive": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Describe_Visual_Style_of_Image": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Describe Visual Style of Image",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "Describe the visual style, subject matter, and composition of this image. Is it a lifestyle image, a product-only shot, or a combination? Include lighting style and camera angle if possible.",
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o",
+                "cachedResultName": "GPT-4O"
+              },
+              "options": {},
+              "resource": "image",
+              "inputType": "base64",
+              "operation": "analyze"
+            }
+          },
+          "runAfter": {
+            "Download_Ad_Image_for_Analysis": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Analyze_Brand_Website_Style": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Analyze Brand Website Style",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4",
+                "cachedResultName": "GPT-4"
+              },
+              "options": {},
+              "messages": {
+                "values": [
+                  {
+                    "content": "=You are a visual brand strategist and art director for direct-to-consumer (DTC) e-commerce brands.\n\nPlease analyze the following brand website. Focus **only** on the brand’s **visual aesthetic**, including:\n\n- Color palette\n- Photography style and lighting\n- Imagery themes (e.g. lifestyle vs. product shots)\n- Mood or tone evoked by visuals\n- Any repeating design elements or layout patterns\n\nBe descriptive but concise. The output will be used to help design consistent and creative AI-generated images for ad creatives — so focus entirely on the visual look and feel.\n\n\nBrand Website: {{ $('Submit Brand Info + Image').item.json['Brand Website'] }}\nBrand Name: {{ $('Submit Brand Info + Image').item.json['Brand Name'] }}\n"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Describe_Visual_Style_of_Image": [
+              "Succeeded"
+            ]
+          }
+        },
+        "LangChain_Agent_Generate_Variation_Prompts": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "LangChain Agent: Generate Variation Prompts",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=Brand Name: {{ $('Submit Brand Info + Image').item.json['Brand Name'] }}\nWebsite: {{ $('Submit Brand Info + Image').item.json['Brand Website'] }}\nReference Ad Description: {{ $('Describe Visual Style of Image').item.json.content }}\nVisual Style Overview: {{ $json.message.content }}",
+              "options": {
+                "systemMessage": "=Brand Name: {{ $('Submit Brand Info + Image').item.json['Brand Name'] }}\nWebsite: {{ $('Submit Brand Info + Image').item.json['Brand Website'] }}\nReference Ad Description: {{ $('Describe Visual Style of Image').item.json.content }}\nVisual Style Overview: {{ $json.message.content }}\n\nYour task is to generate **10 tightly related visual variations** of a reference ad image — not new concepts. These prompts are for testing subtle creative changes on Facebook/Instagram ads (e.g., backdrop, mood, color, lighting) while preserving the original subject and composition.\n\n### Reference Materials:\n\n**Brand Info**: {{ $('Submit Brand Info + Image').item.json['Brand Name'] }}\n**Website**:  {{ $('Submit Brand Info + Image').item.json['Brand Website'] }}\n**Visual Aesthetics Guideline**: {{ $json.message.content }}\n**Reference Image Description**: {{ $('Describe Visual Style of Image').item.json.content }}\n\nUse the Reference Image Description to ground your concepts in visual reality — the new prompts should **feel like believable variations** of this original ad image in terms of camera angle, lighting, and context, while introducing fresh concepts or creative twists.\n\n### For each of the 10 prompts:\n\n- **Preserve** the reference image's subject (product, camera angle, core framing)\n- **Only vary** the background, environment, mood, lighting, or color treatment\n- Examples of variation types:\n  - Daylight vs sunset lighting\n  - Poolside vs marble countertop\n  - Lavender tones vs beach sand tones\n  - Summer vibe vs spa-like calm\n- Use vivid, sensory language to describe each variation\n- Always include **aspect ratio** (1:1 or 4:5)\n- Never introduce logos, overlays, or major subject changes\n\nThe goal is to create **subtle, performance-testable image variations**, not entirely new compositions.\n\nPlease return **only** a JSON array of 10 objects, each with a single property `\"prompt\"` containing the image prompt. Example output structure:\n\n[\n  {\n    \"prompt\": \"Sun-drenched poolside shot of the product on a marble ledge at golden hour, with soft shadows and warm tones. Aspect ratio 1:1.\"\n  },\n  {\n    \"prompt\": \"Cool lavender-tinted sunset beach backdrop behind the product, highlighting reflective metallic accents. Aspect ratio 4:5.\"\n  },\n  {\n    \"prompt\": \"...\"\n  }\n]"
+              },
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "Analyze_Brand_Website_Style": [
+              "Succeeded"
+            ],
+            "Parse_Prompts_into_JSON_Array": [
+              "Succeeded"
+            ],
+            "GPT_4o_Connected_to_LangChain_Agent": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Parse_Prompts_into_JSON_Array": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Parse Prompts into JSON Array",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsonSchemaExample": "[\n  {\n    \"prompt\": \"Sun-drenched poolside shot of the product on a marble ledge at golden hour, with soft shadows and warm tones. Aspect ratio 1:1.\"\n  },\n  {\n    \"prompt\": \"Cool lavender-tinted sunset beach backdrop behind the product, highlighting reflective metallic accents. Aspect ratio 4:5.\"\n  },\n  {\n    \"prompt\": \"...\"\n  }\n]"
+            }
+          },
+          "runAfter": {}
+        },
+        "Split_One_Prompt_per_Item": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Split: One Prompt per Item",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldToSplitOut": "output"
+            }
+          },
+          "runAfter": {
+            "LangChain_Agent_Generate_Variation_Prompts": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_Base_Image_for_Each_Variation": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Download Base Image for Each Variation",
+            "n8nNodeType": "n8n-nodes-base.googleDrive",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $(' Upload Ad Image to Google Drive').item.json.id }}"
+              },
+              "options": {},
+              "operation": "download"
+            }
+          },
+          "runAfter": {
+            "Split_One_Prompt_per_Item": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Loop_Process_Image_Variations": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Loop: Process Image Variations",
+            "n8nNodeType": "n8n-nodes-base.splitInBatches",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Download_Base_Image_for_Each_Variation": [
+              "Succeeded"
+            ],
+            "Log_Image_Variation_URLs_to_Google_Sheets": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Dumpling_AI_Generate_Image_Variation": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://app.dumplingai.com/api/v1/generate-ai-image",
+            "body": "{\n  \"model\": \"FLUX.1-pro\",\n  \"input\": {\n    \"prompt\": \"@{body('Loop_Process_Image_Variations')?['prompt']}\"\n  }\n}"
+          },
+          "runAfter": {
+            "Loop_Process_Image_Variations": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Log_Image_Variation_URLs_to_Google_Sheets": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_SPREADSHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+            "body": {
+              "Image URL": "@body('Dumpling_AI_Generate_Image_Variation')?['url']"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Dumpling_AI_Generate_Image_Variation": [
+              "Succeeded"
+            ]
+          }
+        },
+        "GPT_4o_Connected_to_LangChain_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "GPT-4o (Connected to LangChain Agent)",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

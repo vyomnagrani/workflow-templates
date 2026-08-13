@@ -1,0 +1,295 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "build-a-knowledge-base-chatbot-with-jotform-rag-supabase-together-ai-gemini",
+    "name": "Build a knowledge base chatbot with Jotform, RAG Supabase, Together AI & Gemini",
+    "description": "Youtube Video: [https://youtu.be/dEtV7OYuMFQ?si=fOAlZWz4aDuFFovH](https://youtu.be/dEtV7OYuMFQ?si=fOAlZWz4aDuFFovH)\n\n\n# Workflow Pre-requisites\n\n### **Step 1: Supabase Setup**\n\nFirst, replace the keys in the \"Save the embedding in DB\" & \"Search Embeddings\" nodes with your new Supabase keys. After that, run the following code snippets in your Supabase SQL editor:\n\n1.  Create the table to store chunks and embeddings:\n    ```sql\n    CREATE TABLE public.\"RAG\"\n    (\n        id bigserial PRIMARY KEY,\n        chunk text NULL,\n        embeddings vector(1024) NULL\n    )\n    TABLESPACE pg_default;\n    ```\n\n2.  Create a function to match embeddings:\n    ```sql\n    DROP FUNCTION IF EXISTS public.matchembeddings1(integer, vector);\n\n    CREATE OR REPLACE FUNCTION public.matchembeddings1(\n        match_count integer,\n        query_embedding vector\n    )\n    RETURNS TABLE (\n        chunk text,\n        similarity float\n    )\n    LANGUAGE plpgsql\n    AS $$\n    BEGIN\n        RETURN QUERY\n        SELECT\n            R.chunk,\n            1 - (R.embeddings &lt;=&gt; query_embedding) AS similarity\n        FROM public.\"RAG\" AS R\n        ORDER BY R.embeddings &lt;=&gt; query_embedding\n        LIMIT match_count;\n    END;\n    $$;\n    ```\n\n### **Step 2: Create Jotform with these fields**\n1. Your full name\n2. email address\n3. Upload PDF Document [field where you upload the knowledgebase in PDF]\n\n\n### **Step 3: Get Together AI API Key**\n\nGet a Together AI API key and paste it into the \"Embedding Uploaded document\" node and the \"Embed User Message\" node.\n\n\n\n\n### Here is a detailed, node-by-node explanation of the n8n workflow, which is divided into two main parts.\n\n***\n\n### Part 1: Ingesting Knowledge from a PDF\n\nThis first sequence of nodes runs when you submit a PDF through a Jotform. Its purpose is to read the document, process its content, and save it in a specialized database for the AI to use later.\n\n1.  **`JotForm Trigger`**\n    * **Type:** Trigger\n    * **What it does:** This node starts the entire workflow. It's configured to listen for new submissions on a **specific Jotform**. When someone uploads a file and submits the form, this node activates and passes the submission data to the next step.\n\n2.  **`Grab New knowledgebase`**\n    * **Type:** HTTP Request\n    * **What it does:** The initial trigger from Jotform only contains basic information. This node makes a follow-up call to the Jotform API using the `submissionID` to get the complete details of that submission, including the specific link to the uploaded file.\n\n3.  **`Grab the uploaded knowledgebase file link`**\n    * **Type:** HTTP Request\n    * **What it does:** Using the file link obtained from the previous node, this step downloads the actual PDF file. It's set to receive the response as a file, not as text.\n\n4.  **`Extract Text from PDF File`**\n    * **Type:** Extract From File\n    * **What it does:** This utility node takes the binary PDF file downloaded in the previous step and extracts all the readable text content from it. The output is a single block of plain text.\n\n5.  **`Splitting into Chunks`**\n    * **Type:** Code\n    * **What it does:** This node runs a small JavaScript snippet. It takes the large block of text from the PDF and chops it into smaller, more manageable pieces, or **\"chunks,\"** each of a **predefined length**. This is critical because AI models work more effectively with smaller, focused pieces of text.\n\n6.  **`Embedding Uploaded document`**\n    * **Type:** HTTP Request\n    * **What it does:** This is a key AI step. It sends each individual text chunk to an embeddings API. A **specified AI model** converts the semantic meaning of the chunk into a numerical list called an **embedding** or vector. This vector is like a mathematical fingerprint of the text's meaning.\n\n7.  **`Save the embedding in DB`**\n    * **Type:** Supabase\n    * **What it does:** This node connects to your Supabase database. For every chunk, it creates a new row in a **specified table** and stores two important pieces of information: the original text chunk and its corresponding numerical embedding (its \"fingerprint\") from the previous step.\n\n***\n\n### Part 2: Answering Questions via Chat\n\nThis second sequence starts when a user sends a message. It uses the knowledge stored in the database to find relevant information and generate an intelligent answer.\n\n1.  **`When chat message received`**\n    * **Type:** Chat Trigger\n    * **What it does:** This node starts the second part of the workflow. It listens for any incoming message from a user in a connected chat application.\n\n2.  **`Embend User Message`**\n    * **Type:** HTTP Request\n    * **What it does:** This node takes the user's question and sends it to the *exact same* embeddings API and model used in Part 1. This converts the question's meaning into the same kind of numerical vector or \"fingerprint.\"\n\n3.  **`Search Embeddings`**\n    * **Type:** HTTP Request\n    * **What it does:** This is the \"retrieval\" step. It calls a **custom database function** in Supabase. It sends the question's embedding to this function and asks it to search the knowledge base table to find a **specified number of top text chunks** whose embeddings are mathematically most similar to the question's embedding.\n\n4.  **`Aggregate`**\n    * **Type:** Aggregate\n    * **What it does:** The search from the previous step returns multiple separate items. This utility node simply bundles those items into a single, combined piece of data. This makes it easier to feed all the context into the final AI model at once.\n\n5.  **`AI Agent` & `Google Gemini Chat Model`**\n    * **Type:** LangChain Agent & AI Model\n    * **What it does:** This is the \"generation\" step where the final answer is created.\n        * The **`AI Agent`** node is given a detailed set of instructions (a prompt).\n        * The prompt tells the **`Google Gemini Chat Model`** to act as a professional support agent.\n        * Crucially, it provides the AI with the user's original question and the **aggregated text chunks** from the `Aggregate` node as its **only source of truth**.\n        * It then instructs the AI to formulate an answer based *only* on that provided context, format it for a **specific chat style**, and to say \"I don't know\" if the answer cannot be found in the chunks. This prevents the AI from making things up.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Internal Wiki",
+      "AI RAG",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Splitting_into_Chunks": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Extract_Text_from_PDF_File'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst text = $input.first().json.text;\nconst chunkSize = 1000;\n\nlet chunks = [];\nfor (let i = 0; i < text.length; i += chunkSize) {\n  chunks.push({\n    json: { chunk: text.slice(i, i + chunkSize) }\n  });\n}\n\nreturn chunks;\n\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Extract_Text_from_PDF_File": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Embedding_Uploaded_document": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.together.xyz/v1/embeddings",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "model": "BAAI/bge-large-en-v1.5",
+              "input": "@body('Splitting_into_Chunks')?['chunk']"
+            }
+          },
+          "runAfter": {
+            "Splitting_into_Chunks": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Save_the_embedding_in_DB": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Save the embedding in DB",
+            "n8nNodeType": "n8n-nodes-base.supabase",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "tableId": "RAG",
+              "fieldsUi": {
+                "fieldValues": [
+                  {
+                    "fieldId": "chunk",
+                    "fieldValue": "={{ $('Splitting into Chunks').item.json.chunk }}"
+                  },
+                  {
+                    "fieldId": "embeddings",
+                    "fieldValue": "={{ JSON.stringify($json.data[0].embedding) }}"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Embedding_Uploaded_document": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Aggregate": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Aggregate",
+            "n8nNodeType": "n8n-nodes-base.aggregate",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldsToAggregate": {
+                "fieldToAggregate": [
+                  {
+                    "fieldToAggregate": "chunk"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Search_Embeddings": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Search_Embeddings": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://enter-your-supabase-host/rest/v1/rpc/matchembeddings1",
+            "body": {
+              "=query_embedding": "@body('Embend_User_Message')?['data'][0].embedding",
+              "match_count": "5"
+            }
+          },
+          "runAfter": {
+            "Embend_User_Message": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Embend_User_Message": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.together.xyz/v1/embeddings",
+            "body": {
+              "model": "BAAI/bge-large-en-v1.5",
+              "input": "@body('When_chat_message_received')?['chatInput']"
+            }
+          },
+          "runAfter": {
+            "When_chat_message_received": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Gemini_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Gemini Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "AI_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "AI Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=You are a helpful and professional customer support agent. Use the following context to answer the user's question. \n\nHandle greetings without the need of the context...\n\nContext:\n{{ $json.chunk }}\n\nUser's message:\n{{ $('When chat message received').item.json.chatInput }}\n\nFormat your reply in WhatsApp style:\n- Use _italics_ for emphasis\n- Use *bold* for key points\n- Use • for bullet lists (no markdown dashes or hashes)\n- Keep responses short, clear, and conversational, like real WhatsApp support\n- Avoid markdown headers or code blocks\n\nGive a clear, accurate, and friendly response based only on the context.  \nIf the answer cannot be found in the context, reply: _\"I don't know based on the provided information.\"_\n",
+              "options": {},
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "Aggregate": [
+              "Succeeded"
+            ],
+            "Google_Gemini_Chat_Model": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_Text_from_PDF_File": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Extract Text from PDF File",
+            "n8nNodeType": "n8n-nodes-base.extractFromFile",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "operation": "pdf"
+            }
+          },
+          "runAfter": {
+            "Grab_the_uploaded_knowledgebase_file_link": [
+              "Succeeded"
+            ]
+          }
+        },
+        "When_chat_message_received": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "When chat message received",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chatTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "JotForm_Trigger": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "JotForm Trigger",
+            "n8nNodeType": "n8n-nodes-base.jotFormTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "form": "252862840518058",
+              "onlyAnswers": false
+            }
+          },
+          "runAfter": {}
+        },
+        "Grab_New_knowledgebase": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.jotform.com/submission/@{body('JotForm_Trigger')?['submissionID']}?apiKey=enter-your-jotfomr-api"
+          },
+          "runAfter": {
+            "JotForm_Trigger": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Grab_the_uploaded_knowledgebase_file_link": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@body('Grab_New_knowledgebase')?['content']?['answers']?['6']?['answer'][0]",
+            "headers": {
+              "APIKEY": "enter-your-jotfomr-api"
+            }
+          },
+          "runAfter": {
+            "Grab_New_knowledgebase": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

@@ -1,0 +1,450 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "one-click-youtube-shorts-generator-with-leonardo-ai-gpt-and-elevenlabs",
+    "name": "One-click YouTube shorts generator with Leonardo AI, GPT and ElevenLabs",
+    "description": "## 🎬 What it does  \nThis workflow creates an engaging YouTube Short with a single click — from script to voiceover, to visuals and background music.  \nIt combines several AI tools to automate content creation and final video assembly.\n\n---\n\n## ⚙️ How it works  \n- Accepts an input prompt or topic  \n- Generates script using GPT  \n- Converts script to voiceover using ElevenLabs  \n- Generates b-roll style images via Leonardo.Ai  \n- Matches background music  \n- Assembles a vertical 1080×1920 MP4 video using JSON render config  \n- Optionally uploads to YouTube or saves to Cloudinary\n\n---\n\n## 🧰 Setup steps  \n- Add your credentials:  \n  - Leonardo API (image generation)  \n  - ElevenLabs (voiceover)  \n  - Cloudinary (upload destination)  \n  - Any GPT-based text generator\n\n- Drop your audio/music file in the right node  \n- Replace API expressions with your own credentials\n\n&gt; 🟨 Full step-by-step instructions are in sticky notes inside the workflow.\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "When_clicking_Execute_workflow": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Ideator": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Ideator 🧠",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "modelId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "=o3-mini-2025-01-31"
+              },
+              "options": {},
+              "messages": {
+                "values": [
+                  {
+                    "role": "system",
+                    "content": "you create video concepts based on the user query.\n\nYou output the following in JSON:\n{\n  \"Script\": {\n    \"Intro\": \"40-70 characters\",\n    \"Base\": \"280-350 characters\",\n    \"CTA\": \"≈50 characters\"\n  },\n  \"Title\": \"30-50 characters (short, engaging, curiosity-driven e.g. “I tried THIS for 7 days… Crazy results!”)\",\n  \"Description\": \"50-150 characters (punchy hook, add context, CTA, #hashtags)\"\n}\n\n}"
+                  },
+                  {
+                    "content": "<user-query>\nGive me top 5 interesting facts about plastic \n</user-query>"
+                  }
+                ]
+              },
+              "jsonOutput": true
+            }
+          },
+          "runAfter": {}
+        },
+        "Script": {
+          "type": "Compose",
+          "inputs": {
+            "Script": "@{body('Ideator')?['message']?['content']?['Script']?['Intro']} @{body('Ideator')?['message']?['content']?['Script']?['Base']} @{body('Ideator')?['message']?['content']?['Script']?['CTA']}"
+          },
+          "runAfter": {
+            "Ideator": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Script_Generator": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.elevenlabs.io/v1/text-to-speech/2qfp6zPuviqeCOZIE9RZ/with-timestamps?output_format=mp3_44100_128",
+            "body": {
+              "text": "@body('Script')?['Script']",
+              "output_format": "mp3_44100_128",
+              "model_id": "eleven_multilingual_v2"
+            }
+          },
+          "runAfter": {
+            "Script": [
+              "Succeeded"
+            ]
+          }
+        },
+        "HTTP_Request": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://prod.0codekit.com/code/python",
+            "body": {
+              "code": "# -*- coding: utf-8 -*-\n\"\"\"\nn8n  ▸  “Execute Python” (or “Run Python”) node\nPurpose: slice an ElevenLabs alignment object into fixed-length\n         caption / transcript chunks and return them as JSON.\n\nInput  (item JSON) must contain:\n  ├─ audio_base64            – MP3/WAV in base-64 (not used here but kept in case you want it)\n  ├─ alignment               – full alignment object from ElevenLabs\n  └─ normalized_alignment    – (optional) same structure but already normalised\n\nOutput:\n  {\n    \"data\": [\n      { \"words\": \"Hello world\", \"id\": 1, \"duration\": 3.98 },\n      { \"words\": \"… next chunk …\", \"id\": 2, \"duration\": 4.0 },\n      …\n    ]\n  }\n\"\"\"\nimport json\nfrom typing import List, Dict, Union\n\n# Extract data from N8N context\naudio_base64 = \"@{body('Script_Generator')?['audio_base64']}\"\nalignment_str = r'''@{JSON.stringify(body('Script_Generator')?['alignment']).replace(/\\u2014/g, '-')}'''\nnormalized_alignment_str = r'''@{JSON.stringify(body('Script_Generator')?['normalized_alignment']).replace(/\\u2014/g, '-')}'''\n\ndef sanitize_unicode(text: str) -> str:\n    \"\"\"Remove problematic Unicode characters that could break JSON parsing.\"\"\"\n    return text.encode(\"ascii\", \"ignore\").decode(\"ascii\")\n\ndef parse_alignment_data(alignment_str: str, normalized_str: str) -> tuple:\n    \"\"\"Parse and sanitize alignment JSON strings.\"\"\"\n    clean_alignment = sanitize_unicode(alignment_str)\n    clean_normalized = sanitize_unicode(normalized_str)\n    \n    alignment = json.loads(clean_alignment or \"{}\")\n    normalized_alignment = json.loads(clean_normalized or \"{}\")\n    \n    return alignment, normalized_alignment\n\n# Parse alignment data\nalignment, normalized_alignment = parse_alignment_data(alignment_str, normalized_alignment_str)\n\n# ────────────────────────────────────────────────────────────────────────────\n# 4.  Helper: split the aligned characters into 6-second (default) windows\n# ────────────────────────────────────────────────────────────────────────────\ndef create_audio_segments(alignment: Dict, segment_duration: float = 4.0) -> List[Dict[str, Union[str, int, float]]]:\n    \"\"\"\n    Split aligned audio data into fixed-duration segments optimized for video generation.\n    \n    Args:\n        alignment: Dictionary containing characters and timing data from ElevenLabs\n        segment_duration: Target duration for each segment in seconds (default: 4.0)\n        \n    Returns:\n        List of segment dictionaries with words, id, and precise duration\n    \"\"\"\n    chars = alignment.get(\"characters\", [])\n    start_times = [float(t) for t in alignment.get(\"character_start_times_seconds\", [])]\n    end_times = [float(t) for t in alignment.get(\"character_end_times_seconds\", [])]\n    \n    # Validate input data\n    if not chars or not start_times or not end_times:\n        return []\n    \n    total_duration = end_times[-1] if end_times else 0\n    segments = []\n    \n    # Handle short audio that fits in one segment\n    if 0 < total_duration <= segment_duration:\n        return [{\n            \"words\": \"\".join(chars).strip(),\n            \"id\": 1,\n            \"duration\": round(total_duration, 2)\n        }]\n    \n    # Create time-based segments with improved character distribution\n    current_time = 0.0\n    segment_id = 1\n    \n    while current_time < total_duration:\n        segment_end = min(current_time + segment_duration, total_duration)\n        \n        # Extract characters within this time window\n        segment_chars = [\n            char for char, start_time in zip(chars, start_times)\n            if current_time <= start_time < segment_end\n        ]\n        \n        # Only add non-empty segments with meaningful content\n        if segment_chars:\n            segment_text = \"\".join(segment_chars).strip()\n            if segment_text:  # Ensure we don't add empty segments\n                segments.append({\n                    \"words\": segment_text,\n                    \"id\": segment_id,\n                    \"duration\": round(segment_end - current_time, 2)\n                })\n                segment_id += 1\n        \n        current_time = segment_end\n    \n    return segments\n\n# ────────────────────────────────────────────────────────────────────────────\n# 5.  Run it & hand the result back to n8n\n# ────────────────────────────────────────────────────────────────────────────\ntry:\n    segments = create_audio_segments(alignment, segment_duration=4.0)\n    result = {\"data\": segments}\nexcept Exception as e:\n    # makes debugging in n8n easier\n    result = {\"data\": {\"error\": \"Processing failed\", \"details\": str(e)}}\n\n# n8n expects the Python node to expose a variable named “result”\n# (one per incoming item) – that’s exactly what we return above."
+            }
+          },
+          "runAfter": {
+            "Script_Generator": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Split_Out": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Split Out",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "include": "allOtherFields",
+              "options": {},
+              "fieldToSplitOut": "result.data"
+            }
+          },
+          "runAfter": {
+            "HTTP_Request": [
+              "Succeeded"
+            ]
+          }
+        },
+        "image_prompter": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "image-prompter",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "modelId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "o3-mini-2025-01-31"
+              },
+              "options": {},
+              "messages": {
+                "values": [
+                  {
+                    "role": "system",
+                    "content": "You are an image-prompt generator agent for video production.\nYour job is to turn each script segment into a concise, visually descriptive prompt that will serve as the opening frame of a longer video.\n\nReturn a JSON object for the current script segment only:\n\n{\n  \"Prompt\": \"enter prompt here\"\n}\nYour prompt must depict the first frame of the 4-second scene and set the overall visual tone for that shot.\n\nIMPORTANT INSTRUCTIONS\n\nNever include text in the image; on-screen words cannot be animated later.\nKeep the prompt under 240 characters.\n\nMake the image concept extremely simple. The video-generation model struggles with people, complex motion, and busy scenes, but it excels at landscapes, POV shots, and close-ups."
+                  },
+                  {
+                    "content": "=Here's the full script:\n{{ $('Script').item.json.Script }}\n\nHere's the current scene:\nscript portion: {{ $json['result.data'].words }}\nscript position: {{ $json['result.data'].id }}"
+                  }
+                ]
+              },
+              "jsonOutput": true
+            }
+          },
+          "runAfter": {
+            "Split_Out": [
+              "Succeeded"
+            ]
+          }
+        },
+        "request_image": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://cloud.leonardo.ai/api/rest/v1/generations",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": "{ \"prompt\":\"@{body('image_prompter')?['message']?['content']?['Prompt']}\",\n  \"modelId\":\"6bef9f1b-29cb-40c7-b9df-32b51c1f67d3\",\n  \"width\":832, \"height\":480, \"num_images\":1 }"
+          },
+          "runAfter": {
+            "image_prompter": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_Cloudinary": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "=https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/raw/upload",
+            "body": {
+              "file": "data:audio/mp3;base64,@{body('Script_Generator')?['audio_base64']}",
+              "upload_preset": "default"
+            }
+          },
+          "runAfter": {
+            "Script_Generator": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Aggregate": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Aggregate",
+            "n8nNodeType": "n8n-nodes-base.aggregate",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "include": "specifiedFields",
+              "options": {},
+              "aggregate": "aggregateAllItemData",
+              "fieldsToInclude": "=output",
+              "destinationFieldName": "Videos"
+            }
+          },
+          "runAfter": {
+            "Edit_Fields": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Merge": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Merge",
+            "n8nNodeType": "n8n-nodes-base.merge",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "combine",
+              "options": {
+                "includeUnpaired": true
+              },
+              "combineBy": "combineByPosition"
+            }
+          },
+          "runAfter": {
+            "Aggregate": [
+              "Succeeded"
+            ],
+            "Upload_Cloudinary": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Create_editor_JSON": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://prod.0codekit.com/code/python",
+            "body": {
+              "code": "#!/usr/bin/env python3\n\"\"\"\nOptimized Video Render JSON Generator for N8N\nCreates Creatomate-compatible render configuration with enhanced video composition\n\nInput: Video segments and audio URL\nOutput: Creatomate render JSON with optimized transitions and timing\n\"\"\"\nimport json\nfrom typing import List, Dict, Union, Any\n\ndef create_video_element(video: Dict, start_time: float, crossfade_duration: float = 0.3) -> Dict[str, Any]:\n    \"\"\"\n    Create a single video element with optimized animations.\n    \n    Args:\n        video: Video segment data with 'output' URL and 'duration'\n        start_time: Start time for this video segment\n        crossfade_duration: Duration of crossfade transition\n        \n    Returns:\n        Formatted video element for Creatomate\n    \"\"\"\n    duration = video.get(\"duration\", 4.0)\n    \n    return {\n        \"type\": \"video\",\n        \"source\": video[\"output\"],\n        \"duration\": duration,\n        \"time\": start_time,\n        \"track\": 1,\n        \"animations\": [{\n            \"type\": \"fade\",\n            \"duration\": crossfade_duration,\n            \"direction\": \"both\",\n            \"transition\": True\n        }]\n    }\n\ndef build_optimized_render_json(videos: List[Dict], audio_url: str, crossfade_duration: float = 0.3) -> Dict[str, Any]:\n    \"\"\"\n    Build optimized render JSON for Creatomate with enhanced video composition.\n    \n    Args:\n        videos: List of video segments with URLs and durations\n        audio_url: Background audio URL\n        crossfade_duration: Duration of crossfade transitions between videos\n        \n    Returns:\n        Complete render configuration for Creatomate API\n    \"\"\"\n    elements = []\n    timeline_position = 0.0\n    \n    # Add background audio track (spans entire video duration)\n    elements.append({\n        \"type\": \"audio\",\n        \"source\": audio_url,\n        \"track\": 0  # Audio on separate track\n    })\n    \n    # Add video segments with optimized transitions\n    for i, video in enumerate(videos):\n        if not video or \"output\" not in video:\n            continue  # Skip invalid video segments\n            \n        video_element = create_video_element(video, timeline_position, crossfade_duration)\n        elements.append(video_element)\n        \n        # Advance timeline by full duration (overlaps handled by crossfade)\n        timeline_position += video.get(\"duration\", 4.0)\n    \n    # Return optimized render configuration\n    return {\n        \"source\": {\n            \"output_format\": \"mp4\",\n            \"width\": 1080,\n            \"height\": 1920,  # Vertical format for social media\n            \"frame_rate\": 30,  # Smooth playback\n            \"elements\": elements\n        }\n    }\n\ndef main() -> Dict[str, Any]:\n    \"\"\"Main function with enhanced error handling and validation.\"\"\"\n    try:\n        # Parse N8N input data\n        videos_json = '@{JSON.stringify(body('Merge')?['Videos'])}'\n        audio_url = \"@{body('Merge')?['secure_url']}\"\n        \n        # Validate inputs\n        if not audio_url:\n            raise ValueError(\"Audio URL is required\")\n            \n        videos = json.loads(videos_json) if videos_json else []\n        \n        if not videos:\n            raise ValueError(\"At least one video segment is required\")\n        \n        # Generate optimized render configuration\n        render_config = build_optimized_render_json(videos, audio_url, crossfade_duration=0.3)\n        \n        return render_config\n        \n    except json.JSONDecodeError as e:\n        return {\"error\": \"Invalid JSON in video data\", \"details\": str(e)}\n    except ValueError as e:\n        return {\"error\": \"Validation failed\", \"details\": str(e)}\n    except Exception as e:\n        return {\"error\": \"Render configuration failed\", \"details\": str(e)}\n\n# Execute and return result for N8N\nresult = main()"
+            }
+          },
+          "runAfter": {
+            "Merge": [
+              "Succeeded"
+            ]
+          }
+        },
+        "SET_JSON_VARIABLE": {
+          "type": "Compose",
+          "inputs": {
+            "Creatomate Request": "@body('Create_editor_JSON')?['result']?['source']"
+          },
+          "runAfter": {
+            "Create_editor_JSON": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Editor": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.creatomate.com/v1/renders",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "source": "@body('SET_JSON_VARIABLE')?['Creatomate Request']"
+            }
+          },
+          "runAfter": {
+            "SET_JSON_VARIABLE": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Rendering_wait": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 70,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Editor": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_final_video": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.creatomate.com/v1/renders/@{body('Editor')?['id']}"
+          },
+          "runAfter": {
+            "Rendering_wait": [
+              "Succeeded"
+            ]
+          }
+        },
+        "request_image1": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@'https://cloud.leonardo.ai/api/rest/v1/generations/' + \n  (body('Wait2')?['sdGenerationJob']?.generationId || body('Wait2')?['generationId'] || body('Wait2')?['sdGenerationId'])"
+          },
+          "runAfter": {
+            "Wait2": [
+              "Succeeded"
+            ]
+          }
+        },
+        "request_image2": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://cloud.leonardo.ai/api/rest/v1/generations-motion-svd",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "=imageId": "@body('Wait3')?['body']?['generations_by_pk']?['generated_images'][0].id",
+              "=motionStrength": "={{ 2 }}"
+            }
+          },
+          "runAfter": {
+            "Wait3": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Request_Video": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://cloud.leonardo.ai/api/rest/v1/generations/@{body('Wait4')?['body']?['motionSvdGenerationJob']?['generationId']}"
+          },
+          "runAfter": {
+            "Wait4": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Edit_Fields": {
+          "type": "Compose",
+          "inputs": {
+            "output": "@body('Wait1')?['body']?['generations_by_pk']?['generated_images'][0].motionMP4URL"
+          },
+          "runAfter": {
+            "Wait1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait3": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 1,
+              "unit": "Minute"
+            }
+          },
+          "runAfter": {
+            "request_image1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait1": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 1,
+              "unit": "Minute"
+            }
+          },
+          "runAfter": {
+            "Request_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait2": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 1,
+              "unit": "Minute"
+            }
+          },
+          "runAfter": {
+            "request_image": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait4": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 2,
+              "unit": "Minute"
+            }
+          },
+          "runAfter": {
+            "request_image2": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "When_clicking_Execute_workflow",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

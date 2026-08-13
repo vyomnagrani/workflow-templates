@@ -1,0 +1,312 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "translate-and-distribute-dubbed-videos-with-dublab-to-social-and-cloud-platforms",
+    "name": "Translate and distribute dubbed videos with DubLab to social and cloud platforms",
+    "description": "\n**Automated** n8n workflow: Receives videos via form, dubs/translates them to the selected languages, and—upon completion—uploads them to multiple social media channels and cloud drives, including Box, Dropbox, and YouTube, Telegram, Postiz (Facebook, Instagram, Tiktok, Reddit etc.)\n\n### Workflows\n----------\n 1. Via n8n form select files to dub for desired languages.\n 2. Listen webhook and whenever dubbing finishes upload to desired platforms\n\n### Used Stacks\n-------------\n - DubLab App (ApiKey, Webhook Setup Required)\n#### Optional (Upload)\n - Telegram (Token Required)\n - Box (Oauth2 Required)\n - Dropbox (Oauth2 Required)\n - Youtube (Oauth2 Required)\n - Postiz (ApiKey Required)",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Webhook": {
+          "type": "Request",
+          "kind": "Http",
+          "inputs": {
+            "method": "POST"
+          }
+        }
+      },
+      "actions": {
+        "Fetch_Projects": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://dublab.app/api/v2/dubs",
+            "headers": {
+              "apikey": "DUBLAB_API_KEY"
+            }
+          },
+          "runAfter": {
+            "Create_Dub": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Combine_Videos_and_Languages": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Combine Videos and Languages",
+            "n8nNodeType": "n8n-nodes-base.code",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsCode": "const langMap = {\n  English: \"en\",\n  German: \"de\",\n  Russian: \"ru\",\n  Polish: \"pl\",\n  Spanish: \"es\",\n  Portuguese: \"pt\",\n  French: \"fr\",\n  Italian: 'it',\n  Turkish: \"tr\",\n  Arabic: \"ar\",\n  Dutch: \"nl\"\n};\n\nconst results = [];\nconsole.log($input)\nlet counter = 1\nlet video_key = 0\n$input.all().forEach(item => {\n  const videos = item.json.Video;\n  const languages = item.json[\"Destination Language\"];\n\n  videos.forEach(video => {\n    languages.forEach(lang => {\n      const video_binary = item.json.Video.length === 1 ? \"Video\" : (\"Video_\"+video_key);\n      results.push({\n        json: {\n          ...video,\n          language: langMap[lang] || lang, // fallback to original if not mapped\n          submittedAt: item.json.submittedAt,\n          formMode: item.json.formMode,\n          binary_order: counter\n        },\n        binary: { \n          [\"VIDEO_\" + counter] : item.binary[video_binary]\n        }\n      });\n      counter +=1\n    });\n    video_key +=1\n  });\n});\n\nreturn results;"
+            }
+          },
+          "runAfter": {
+            "Start": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Original_Video": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@triggerBody()?['body']?['data']?['outputs']?['original_mp4']?['download_url']"
+          },
+          "runAfter": {}
+        },
+        "Dubbed_Video": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@triggerBody()?['body']?['data']?['outputs']?['translated_mp4']?['download_url']"
+          },
+          "runAfter": {}
+        },
+        "Telegram": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Telegram",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "chatId": "123456789",
+              "operation": "sendVideo",
+              "binaryData": true,
+              "additionalFields": {
+                "fileName": "Dubbed Video"
+              }
+            }
+          },
+          "runAfter": {
+            "Dubbed_Video": [
+              "Succeeded"
+            ],
+            "Original_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Box": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Box",
+            "n8nNodeType": "n8n-nodes-base.box",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileName": "={{ Math.random().toString(36).slice(2) }}-dubbed-{{ $json.body.dest_lang }}-{{ $json.body.name }}",
+              "binaryData": true
+            }
+          },
+          "runAfter": {
+            "Dubbed_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Dropbox": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Dropbox",
+            "n8nNodeType": "n8n-nodes-base.dropbox",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "path": "=/dublab-files/{{ Math.random().toString(36).slice(2) }}-dubbed-{{ $json.body.dest_lang }}-{{ $json.body.name }}",
+              "binaryData": true,
+              "authentication": "oAuth2"
+            }
+          },
+          "runAfter": {
+            "Dubbed_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "YouTube": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "YouTube",
+            "n8nNodeType": "n8n-nodes-base.youTube",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "title": "={{ $json.body.name }}",
+              "options": {},
+              "resource": "video",
+              "operation": "upload",
+              "regionCode": "PL"
+            }
+          },
+          "runAfter": {
+            "Dubbed_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Postiz": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.postiz.com/api/public/v1/upload",
+            "headers": {
+              "Authorization": "POSTIZ_API_KEY",
+              "Proxy-Authorization": "PROXY_AUTH"
+            },
+            "body": {
+              "file": null
+            }
+          },
+          "runAfter": {
+            "Dubbed_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Start": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Start",
+            "n8nNodeType": "n8n-nodes-base.formTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "formTitle": "Dub Videos",
+              "formFields": {
+                "values": [
+                  {
+                    "fieldType": "file",
+                    "fieldLabel": "Video",
+                    "requiredField": true,
+                    "acceptFileTypes": ".mp4"
+                  },
+                  {
+                    "fieldType": "dropdown",
+                    "fieldLabel": "Destination Language",
+                    "multiselect": true,
+                    "fieldOptions": {
+                      "values": [
+                        {
+                          "option": "English"
+                        },
+                        {
+                          "option": "German"
+                        },
+                        {
+                          "option": "Russian"
+                        },
+                        {
+                          "option": "Polish"
+                        },
+                        {
+                          "option": "Spanish"
+                        },
+                        {
+                          "option": "Portuguese"
+                        },
+                        {
+                          "option": "Italian"
+                        },
+                        {
+                          "option": "Arabic"
+                        },
+                        {
+                          "option": "French"
+                        },
+                        {
+                          "option": "Turkish"
+                        },
+                        {
+                          "option": "Dutch"
+                        }
+                      ]
+                    },
+                    "requiredField": true
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Create_Dub": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://dublab.app/api/v2/dubs",
+            "headers": {
+              "apikey": "DUBLAB_API_KEY"
+            },
+            "body": {
+              "source_lang": "auto",
+              "dest_lang": "@body('Combine_Videos_and_Languages')?['language']",
+              "name": "@body('Combine_Videos_and_Languages')?['filename']",
+              "source": "n8n",
+              "is_studio_quality": "false",
+              "file": null
+            }
+          },
+          "runAfter": {
+            "Combine_Videos_and_Languages": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Webhook",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

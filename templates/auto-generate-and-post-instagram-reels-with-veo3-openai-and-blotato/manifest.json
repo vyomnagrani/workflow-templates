@@ -1,0 +1,396 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "auto-generate-and-post-instagram-reels-with-veo3-openai-and-blotato",
+    "name": "Auto-generate and post Instagram reels with Veo3, OpenAI, and Blotato",
+    "description": "📱 Veo3 Instagram Agent – Create & Auto-Post Reels with Blotato\n\nDescription:\nThis no-code workflow automates the full pipeline of generating and publishing Instagram Reels using Veo3 (via Wavespeed API). From prompt to post, it handles content ideation, short-form video generation, caption writing, logging, and even automatic publishing to Instagram via Blotato.\n\nPerfect for creators, brands, and marketers who want to scale content creation without needing to shoot or edit videos manually.\n\n🔗  Watch the full step-by-step tutorial on how to build this workflow:\nhttps://youtu.be/s-KzxeKWmIA?si=6x8WKMeiyWodZWVq\n\nGoogle Sheet Template: https://docs.google.com/spreadsheets/d/1bA-PQTrvekC1Rti-XumGANgjIwLjvcFCqoIxVCYsq2E/edit?usp=sharing\n\n🚀 What This Workflow Does:\nTrigger via Chat or Telegram\n Start with a simple message like:\n \"Make a reel for a luxury minimalist candle brand using calm aesthetics.\"\n\nAI Video Prompt Generation\n Uses OpenAI to craft a visually rich, platform-optimized video description prompt.\n\n🎞️ Video Creation with Veo3 API\n Submits your prompt to Veo3 to create a short video (9:16 ratio, 8 seconds) with motion, tone, and trend styles.\n\n✍️ Caption Writing\n An AI agent writes an engaging and playful caption based on the video content.\n\n📄 Google Sheets Logging\n Stores prompt, video URL, caption, and status in a GSheet to keep track of all generated assets.\n\n📤 Auto-Publish to Instagram\n Posts the video + caption directly to Instagram using Blotato’s social media publishing API.\n\n🔌 Tools & Integrations Used:\nOpenAI for prompt & caption generation\n\nWavespeed API (Veo3) for video generation\n\nGoogle Sheets for tracking\n\nBlotato for scheduling & publishing content\n\nn8n for orchestration and automation logic\n\n💡 Use Cases:\nContent calendar automation for small teams\n\nTrend-based ad creation and testing\n\nUGC-style reel generation for e-commerce\n\nRapid ideation & creative experimentation",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "connectionProviders/Http",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "When_chat_message_received": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "When chat message received",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chatTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "AI_Video_Prompt_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "AI Video Prompt Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4",
+                "cachedResultName": "GPT-4"
+              },
+              "options": {},
+              "messages": {
+                "values": [
+                  {
+                    "content": "={{ $json.chatInput }}"
+                  },
+                  {
+                    "role": "system",
+                    "content": "You are a creative video prompt generator for short-form reels (e.g., Instagram, TikTok). Based on:\n\nThe chat input of the user\n\nYour task is to craft an elaborate, visually descriptive video generation prompt suitable for input into the Seedance/Veo3 API.\n\n🛑 Do not include any extra explanation, formatting, or commentary. Your entire output must be the exact prompt to pass into the video generator.\n\nThe prompt should:\n– Be under 100 words\n– Describe the visual elements, tone, and motion clearly\n– Reflect the thematic visual in a coherent manner\n\nExample of your expected output format:\n\n“A close-up slow-motion shot of a glass perfume bottle as morning sunlight filters through mist. The background shows soft-focus wildflowers, matching the theme of natural beauty and calm. Overlay text: ‘Nature’s Elegance. Reinvented.’ Trend-inspired styling based on the ‘quiet luxury’ aesthetic. For Instagram.”"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "When_chat_message_received": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Action_30_Wait": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 30,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Veo3_Video_Generator": [
+              "Succeeded"
+            ]
+          }
+        },
+        "HTTP_Get_Request": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.wavespeed.ai/api/v3/predictions/@{body('Action_30_Wait')?['data']?['id']}/result"
+          },
+          "runAfter": {
+            "Action_30_Wait": [
+              "Succeeded"
+            ],
+            "Wait_30_Secs": [
+              "Succeeded"
+            ]
+          }
+        },
+        "If": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "If",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "57f70829-d058-494e-b438-7ce9dc8a6384",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.data.status }}",
+                    "rightValue": "processing"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "HTTP_Get_Request": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_30_Secs": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 30,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "If": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Caption_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Caption Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "chatgpt-4o-latest",
+                "cachedResultName": "CHATGPT-4O-LATEST"
+              },
+              "options": {},
+              "messages": {
+                "values": [
+                  {
+                    "content": "=Based on this video generation prompt, create an impactful accompanying caption for the Instagram Post: {{ $('AI Video Prompt Agent').item.json.message.content }}"
+                  },
+                  {
+                    "role": "system",
+                    "content": "You're an Instagram Caption copywriter. You'll receive a set of video prompt message that is used for generating an Instagram short reel video. Your job is to write an effective accompanying caption. Language style should be playful and impactful."
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "If": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Edit_Fields": {
+          "type": "Compose",
+          "inputs": {
+            "mode": "raw",
+            "options": {},
+            "jsonOutput": "{}"
+          },
+          "runAfter": {
+            "Google_Sheet_Ready_To_Post": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_Bloatato": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://backend.blotato.com/v2/media",
+            "body": {
+              "url": "@body('Google_Sheet_Ready_To_Post')?['Video URL (google drive)']"
+            }
+          },
+          "runAfter": {
+            "Edit_Fields": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Sheets1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Sheets1",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "Status": "Posted",
+                  "Video URL (google drive)": "={{ $('Google Sheet Ready To Post').item.json['Video URL (google drive)'] }}"
+                },
+                "schema": [
+                  {
+                    "id": "Video Description / Prompt",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Video Description / Prompt",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Video URL (google drive)",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "Video URL (google drive)",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Caption",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Caption",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Status",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Status",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "Video URL (google drive)"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "appendOrUpdate",
+              "sheetName": "",
+              "documentId": ""
+            }
+          },
+          "runAfter": {
+            "Publish_to_IG": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Publish_to_IG": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://backend.blotato.com/v2/posts",
+            "body": "@{\n  \"post\": {\n    \"target\": {\n      \"targetType\": \"instagram\"\n    },\n    \"content\": {\n      \"text\": {{ body('Google_Sheet_Ready_To_Post')?['Caption']?['toJsonString']() }},\n      \"platform\": \"instagram\",\n      \"mediaUrls\": [\"{{ body('Upload_Bloatato')?['url'] }}\"]\n    },\n    \"accountId\": \"{{ YOUR_INSTAGRAM_ID }}\"\n  }\n}"
+          },
+          "runAfter": {
+            "Upload_Bloatato": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Veo3_Video_Generator": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.wavespeed.ai/api/v3/google/veo3-fast",
+            "body": {
+              "aspect_ratio": "9:16",
+              "duration": "8",
+              "enable_prompt_expansion": "true",
+              "generate_audio": "true",
+              "prompt": "@body('AI_Video_Prompt_Agent')?['message']?['content']"
+            }
+          },
+          "runAfter": {
+            "AI_Video_Prompt_Agent": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Sheet_Ready_To_Post": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_SPREADSHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_WORKSHEET'))}/items",
+            "body": {
+              "Status": "Ready to Post",
+              "Caption": "@body('Caption_Agent')?['message']?['content']",
+              "Video URL (google drive)": "@body('If')?['data']?['outputs'][0]",
+              "Video Description / Prompt": "@body('AI_Video_Prompt_Agent')?['message']?['content']"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Caption_Agent": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

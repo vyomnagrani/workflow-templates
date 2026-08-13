@@ -1,0 +1,232 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "rag-starter-template-using-simple-vector-stores-form-trigger-and-openai",
+    "name": "RAG Starter Template using Simple Vector Stores, Form trigger and OpenAI",
+    "description": "This template quickly shows how to use RAG in n8n.\n\n## Who is this for?\nThis template is for everyone who wants to start giving knowledge to their Agents through RAG.\n\n## Requirements\nHave a PDF with custom knowledge that you want to provide to your agent.\n\n## Setup\nNo setup required. Just hit `Execute Workflow`, upload your knowledge document and then start chatting.\n\n## How to customize this to your needs\n1. Add custom instructions to your Agent by changing the prompts in it.\n2. Add a different way to load in knowledge to your vector store, e.g. by looking at some Google Drive files or loading knowledge from a table.\n2. Exchange the `Simple Vector Store` nodes with your own vector store tools ready for production.\n3. Add a more sophisticated way to rank files found in the vector store.\n\nFor more information read our [docs on RAG in n8n](https://docs.n8n.io/advanced-ai/rag-in-n8n/).\n\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Internal Wiki",
+      "AI RAG",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Upload_your_file_here": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Upload your file here",
+            "n8nNodeType": "n8n-nodes-base.formTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "formTitle": "Upload your data to test RAG",
+              "formFields": {
+                "values": [
+                  {
+                    "fieldType": "file",
+                    "fieldLabel": "Upload your file(s)",
+                    "requiredField": true,
+                    "acceptFileTypes": ".pdf, .csv"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Embeddings_OpenAI": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Embeddings OpenAI",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Default_Data_Loader": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Default Data Loader",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "dataType": "binary"
+            }
+          },
+          "runAfter": {}
+        },
+        "Insert_Data_to_Store": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Insert Data to Store",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "insert",
+              "memoryKey": {
+                "__rl": true,
+                "mode": "list",
+                "value": "vector_store_key",
+                "cachedResultName": "vector_store_key"
+              }
+            }
+          },
+          "runAfter": {
+            "Embeddings_OpenAI": [
+              "Succeeded"
+            ],
+            "Default_Data_Loader": [
+              "Succeeded"
+            ],
+            "Upload_your_file_here": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Query_Data_Tool": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Query Data Tool",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "retrieve-as-tool",
+              "toolName": "knowledge_base",
+              "memoryKey": {
+                "__rl": true,
+                "mode": "list",
+                "value": "vector_store_key"
+              },
+              "toolDescription": "Use this knowledge base to answer questions from the user"
+            }
+          },
+          "runAfter": {
+            "Embeddings_OpenAI": [
+              "Succeeded"
+            ]
+          }
+        },
+        "AI_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "AI Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Query_Data_Tool": [
+              "Succeeded"
+            ],
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ],
+            "When_chat_message_received": [
+              "Succeeded"
+            ]
+          }
+        },
+        "When_chat_message_received": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "When chat message received",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chatTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "OpenAI_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

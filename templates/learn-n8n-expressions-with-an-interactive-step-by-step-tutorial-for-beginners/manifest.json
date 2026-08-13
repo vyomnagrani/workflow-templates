@@ -1,0 +1,196 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "learn-n8n-expressions-with-an-interactive-step-by-step-tutorial-for-beginners",
+    "name": "🎓 Learn n8n expressions with an interactive step-by-step tutorial for beginners",
+    "description": "## How it works\n\nThis template is an interactive, step-by-step tutorial designed to teach you the most important skill in n8n: **using expressions to access and manipulate data**.\n\nIf you know what JSON is but aren't sure how to pull a specific piece of information from one node and use it in another, this workflow is for you. It starts with a single \"Source Data\" node that acts as our filing cabinet, and then walks you through a series of lessons, each demonstrating a new technique for retrieving and transforming that data.\n\nYou will learn how to:\n1.  **Access a simple value** from a previous node.\n2.  Use n8n's built-in selectors like **`.last()`** and **`.first()`**.\n3.  Get a specific item from a list (**Array**).\n4.  Drill down into nested data (**Objects**).\n5.  Combine these techniques to access data in an **array of objects**.\n6.  Go beyond simple retrieval by using **JavaScript functions** to do math or change text.\n7.  Inspect data with utility functions like **`Object.keys()`** and **`JSON.stringify()`**.\n8.  Summarize data from **multiple items** using `.all()` and arrow functions.\n\n## Set up steps\n\n**Setup time: 0 minutes!**\n\nThis workflow is a self-contained tutorial and requires no setup or external credentials.\n\n1.  Click **\"Execute Workflow\"** to run the entire tutorial.\n2.  Follow the flow from the \"Source Data\" node to the \"Final Exam\" node.\n3.  For each lesson, click on the node to see how its expressions are configured in the parameters panel.\n4.  Read the detailed sticky note next to each lesson—it breaks down exactly how the expression works and why.\n\nBy the end, you'll have the foundational knowledge to connect data and build powerful, dynamic workflows in n8n.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Engineering",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Start_Tutorial": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Source_Data": {
+          "type": "Compose",
+          "inputs": {
+            "name": "Alice",
+            "age": 30,
+            "is_active": true,
+            "skills": "[\"JavaScript\",\"Python\",\"n8n\"]",
+            "projects": "[{\"name\":\"Project A\",\"status\":\"Done\"},{\"name\":\"Project B\",\"status\":\"In Progress\"}]",
+            "contact": "{\"email\":\"user@example.com\",\"phone\":null}"
+          },
+          "runAfter": {}
+        },
+        "Action_1_The_Basics": {
+          "type": "Compose",
+          "inputs": {
+            "user_name": "@body('Source_Data')?['name']"
+          },
+          "runAfter": {
+            "Source_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Action_3_Working_with_Arrays": {
+          "type": "Compose",
+          "inputs": {
+            "second_skill": "@last(body('Source_Data'))?['skills'][1]"
+          },
+          "runAfter": {
+            "Action_2_The_n8n_Selectors": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Action_4_Going_Deeper": {
+          "type": "Compose",
+          "inputs": {
+            "user_email": "@last(body('Source_Data'))?['contact']?['email']"
+          },
+          "runAfter": {
+            "Action_3_Working_with_Arrays": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Action_5_The_Combo_Move": {
+          "type": "Compose",
+          "inputs": {
+            "first_project_status": "@last(body('Source_Data'))?['projects'][0].status"
+          },
+          "runAfter": {
+            "Action_4_Going_Deeper": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Action_6_A_Touch_of_Magic": {
+          "type": "Compose",
+          "inputs": {
+            "name_in_caps": "@last(body('Source_Data'))?['name']?['toUpperCase']()",
+            "age_in_dog_years": "@Math.round(last(body('Source_Data'))?['age'] / 7)",
+            "age_data_type": "@typeof last(body('Source_Data'))?['age']"
+          },
+          "runAfter": {
+            "Action_5_The_Combo_Move": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Action_9_The_All_Items_View": {
+          "type": "Compose",
+          "inputs": {
+            "all_skills_string": "={{ $('Split Out Skills').all().map(item => item.json.skills).join(', ') }}"
+          },
+          "runAfter": {
+            "Split_Out_Skills": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Final_Exam": {
+          "type": "Compose",
+          "inputs": {
+            "final_summary": "=User {{ $('2. The n8n Selectors').last().json.user_name_from_first }} is {{ $('Source Data').last().json.age }}.\n\nTheir best skill is {{ $('3. Working with Arrays').last().json.second_skill }}.\n\nTheir first project was {{ $('Source Data').last().json.projects[0].name }}, which is now {{ $('5. The Combo Move').last().json.first_project_status }}.\n\nAll skills: {{ $('9. The \"All Items\" View').last().json.all_skills_string }}."
+          },
+          "runAfter": {
+            "Action_9_The_All_Items_View": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Action_2_The_n8n_Selectors": {
+          "type": "Compose",
+          "inputs": {
+            "user_name_from_first": "@last(body('Source_Data'))?['name']"
+          },
+          "runAfter": {
+            "Action_1_The_Basics": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Action_7_Inspecting_Objects": {
+          "type": "Compose",
+          "inputs": {
+            "contact_keys": "@Object.keys(last(body('Source_Data'))?['contact'])"
+          },
+          "runAfter": {
+            "Action_6_A_Touch_of_Magic": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Action_8_Utility_Functions": {
+          "type": "Compose",
+          "inputs": {
+            "contact_as_string": "@JSON.stringify(last(body('Source_Data'))?['contact'], null, 2)",
+            "skills": "@last(body('Source_Data'))?['skills']"
+          },
+          "runAfter": {
+            "Action_7_Inspecting_Objects": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Split_Out_Skills": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Split Out Skills",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "include": "allOtherFields",
+              "options": {},
+              "fieldToSplitOut": "skills"
+            }
+          },
+          "runAfter": {
+            "Action_8_Utility_Functions": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Start_Tutorial",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

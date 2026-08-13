@@ -1,0 +1,362 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "track-ai-agent-token-usage-and-estimate-costs-in-google-sheets",
+    "name": "Track AI agent token usage and estimate costs in Google Sheets",
+    "description": "![image.png](fileId:1659)\n### This n8n template demonstrates how to obtain token usage from AI Agents and places the data into a spreadsheet that calculates the estimated cost of the execution.\n\nObtaining the token usage from AI Agents is tricky, because it doesn't provide all the data from tool calls. This workflow taps into the workflow execution metadata to extract token usage information.\n\nWorks well with OpenAI, Google and Anthropic. Other LLM providers might need small tweaks.\n\n### How it works\n1. The AI Agent executes and then calls a subworkflow to calculate the token usage.\n2. The data is stored in Google Sheets\n3. The spreadsheet has formulas to calculate the estimated cost of the execution.\n\n### How to use\n- The AI Agent is used as an example. Feel free to replace this with other agents you have.\n- Call the subworkflow AFTER all the other branches have finished executing.\n\n### Requirements\n- LLM account (OpenAI, Gemini...) for API usage.\n- Google Drive and Sheets credentials\n- n8n API key of your instance",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Engineering",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "When_clicking_Test_workflow": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "AI_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "AI Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "Help me test something and output the text \"This is a test workflow\" after calling the think tool twice.",
+              "options": {},
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "Think": [
+              "Succeeded"
+            ],
+            "OpenAI": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Call_sub_workflow": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Call sub-workflow",
+            "n8nNodeType": "n8n-nodes-base.executeWorkflow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "each",
+              "options": {
+                "waitForSubWorkflow": false
+              },
+              "workflowId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $workflow.id }}"
+              },
+              "workflowInputs": {
+                "value": {
+                  "execution_id": "={{ $execution.id }}"
+                },
+                "schema": [
+                  {
+                    "id": "execution_id",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "execution_id",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "execution_id"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": true
+              }
+            }
+          },
+          "runAfter": {
+            "AI_Agent": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Think": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Think",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.toolThink",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "Extract_token_usage_data": {
+          "type": "Compose",
+          "inputs": {
+            "execution_id": "@body('When_Executed_by_Another_Workflow')?['execution_id']",
+            "tokenUsage": "={{$jmespath(\n  $json,\n  \"data.resultData.runData.*[] | [?data.ai_languageModel] | [].{model: data.ai_languageModel[0][0].json.response.generations[0][0].generationInfo.model_name || inputOverride.ai_languageModel[0][0].json.options.model_name || inputOverride.ai_languageModel[0][0].json.options.model, tokenUsage: data.ai_languageModel[0][0].json.tokenUsage || data.ai_languageModel[0][0].json.tokenUsageEstimate}\"\n)}}"
+          },
+          "runAfter": {
+            "Get_execution_data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_execution_data": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get execution data",
+            "n8nNodeType": "n8n-nodes-base.n8n",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "activeWorkflows": true
+              },
+              "resource": "execution",
+              "operation": "get",
+              "executionId": "={{ $json.execution_id }}",
+              "requestOptions": {}
+            }
+          },
+          "runAfter": {
+            "When_Executed_by_Another_Workflow": [
+              "Succeeded"
+            ]
+          }
+        },
+        "When_Executed_by_Another_Workflow": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "When Executed by Another Workflow",
+            "n8nNodeType": "n8n-nodes-base.executeWorkflowTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "workflowInputs": {
+                "values": [
+                  {
+                    "name": "execution_id"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Split_Out": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Split Out",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "include": "allOtherFields",
+              "options": {},
+              "fieldToSplitOut": "tokenUsage"
+            }
+          },
+          "runAfter": {
+            "Extract_token_usage_data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Sum_Token_Totals_aggregate_by_model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Sum Token Totals - aggregate by model",
+            "n8nNodeType": "n8n-nodes-base.summarize",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldsToSplitBy": "id, name, tokenUsage.model, execution_id",
+              "fieldsToSummarize": {
+                "values": [
+                  {
+                    "field": "tokenUsage.tokenUsage.promptTokens",
+                    "aggregation": "sum"
+                  },
+                  {
+                    "field": "tokenUsage.tokenUsage.completionTokens",
+                    "aggregation": "sum"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Split_Out": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Record_token_usage": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('1c9CeePI6ebNnIKogyJKHUpDWT6UEowpH9OwVtViadyE'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+            "body": {
+              "llm_model": "@body('Sum_Token_Totals_aggregate_by_model')?['tokenUsage_model']",
+              "timestamp": "={{ $now.format('yyyy-MM-dd HH:mm:ss')}}",
+              "workflow_id": "@body('Sum_Token_Totals_aggregate_by_model')?['id']",
+              "execution_id": "@body('Sum_Token_Totals_aggregate_by_model')?['execution_id']",
+              "input tokens": "@body('Sum_Token_Totals_aggregate_by_model')?['sum_tokenUsage_tokenUsage_promptTokens']",
+              "workflow_name": "@body('Sum_Token_Totals_aggregate_by_model')?['name']",
+              "completion tokens": "@body('Sum_Token_Totals_aggregate_by_model')?['sum_tokenUsage_tokenUsage_completionTokens']"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Sum_Token_Totals_aggregate_by_model": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Gemini": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Gemini",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "modelName": "models/gemini-2.5-flash"
+            }
+          },
+          "runAfter": {}
+        },
+        "OpenAI": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini",
+                "cachedResultName": "gpt-4o-mini"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Anthropic": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Anthropic",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "claude-3-haiku-20240307",
+                "cachedResultName": "Claude Haiku 3"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "When_clicking_Test_workflow",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {
+    "When_Executed_by_Another_Workflow": {
+      "status": "Succeeded",
+      "outputs": {
+        "statusCode": "200",
+        "body": {
+          "execution_id": "594878"
+        }
+      }
+    }
+  },
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

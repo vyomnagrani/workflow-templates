@@ -1,0 +1,267 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "turn-youtube-meeting-recordings-into-notion-notes-with-ai-agent-deapi-slack",
+    "name": "Turn YouTube meeting recordings into Notion notes with AI Agent, deAPI & Slack",
+    "description": "## Who is this for?\n\n- Teams who upload meeting recordings to YouTube (unlisted or private) and want automated notes\n- Project managers who need to track action items across recurring meetings\n- Remote teams who want searchable, structured meeting notes in Notion\n- Content teams repurposing recorded calls into documentation\n\n## What problem does this solve?\n\nMeeting notes are either rushed, incomplete, or never written at all. This workflow removes that bottleneck — upload a recording to YouTube and get a structured Notion page with summary, action items, decisions, and key topics, plus a Slack notification, all within minutes.\n\n## What this workflow does\n\n1. **Monitors** a YouTube channel via RSS for new video uploads\n2. **Transcribes** the video using deAPI (Whisper Large V3) directly from the YouTube URL — no file download or size limits\n3. **AI Agent** analyzes the transcript and extracts a title, summary, action items, decisions, and key topics\n4. **Creates** a structured meeting notes page in a Notion database\n5. **Posts** the summary and action items to a Slack channel\n\n## Setup\n\n### Requirements\n\n- **n8n instance** (self-hosted or n8n Cloud)\n- [deAPI](https://deapi.ai) account for video transcription\n- Anthropic account for the AI Agent\n- Notion workspace with a meeting notes database\n- Slack workspace\n\n### Installing the deAPI Node\n\n- **n8n Cloud**: Go to **Settings** → **Community Nodes** and toggle the \"Verified Community Nodes\" option\n- **Self-hosted**: Go to **Settings** → **Community Nodes** and install `n8n-nodes-deapi`\n\n### Configuration\n\n1. Add your deAPI credentials (API key + webhook secret)\n2. Add your Anthropic credentials (API key)\n3. Set the **Feed URL** in the RSS trigger to your YouTube channel's RSS feed: `https://www.youtube.com/feeds/videos.xml?channel_id=YOUR_CHANNEL_ID`\n4. Add your Notion credentials and set the **Database ID** in the Notion node\n5. Add your Slack credentials and set the **Channel** in the Slack node\n6. Ensure your n8n instance is on HTTPS\n\n## How to customize this workflow\n\n- **Change the AI model**: Swap Anthropic for OpenAI, Google Gemini, or any other LLM provider\n- **Adjust the note structure**: Modify the AI Agent system message to extract different fields (attendees, follow-up date, sentiment, etc.)\n- **Change the trigger**: Replace the RSS trigger with a Google Drive trigger or form upload for non-YouTube recordings\n- **Change the output destination**: Replace Notion with Google Docs, Confluence, or Airtable\n- **Change the notification**: Replace Slack with Microsoft Teams, email, or Discord\n- **Monitor multiple channels**: Duplicate the RSS trigger or use multiple feed URLs to track several YouTube channels\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Document Extraction",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "YouTube_RSS_Trigger": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "YouTube RSS Trigger",
+            "n8nNodeType": "n8n-nodes-base.rssFeedReadTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=YOUR_CHANNEL_ID",
+              "pollTimes": {
+                "item": [
+                  {
+                    "mode": "everyMinute"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "deAPI_Transcribe_Video": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "deAPI Transcribe Video",
+            "n8nNodeType": "n8n-nodes-deapi.deapi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "waitTimeout": 600
+              },
+              "resource": "video",
+              "videoUrl": "={{ $json.link }}",
+              "operation": "transcribe"
+            }
+          },
+          "runAfter": {
+            "YouTube_RSS_Trigger": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_Transcript_Text": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Extract Transcript Text",
+            "n8nNodeType": "n8n-nodes-base.extractFromFile",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "operation": "text"
+            }
+          },
+          "runAfter": {
+            "deAPI_Transcribe_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "AI_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "AI Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=Here is a transcript of a meeting recording. Please extract structured meeting notes.\n\nVideo title: {{ $('YouTube RSS Trigger').item.json.title }}\n\nTranscript:\n{{ $json.data }}",
+              "options": {
+                "systemMessage": "You are an expert meeting note-taker. You will receive a meeting transcript.\n\nYour tasks:\n1. Write a concise title for the meeting based on the discussion topics.\n2. Write a brief summary (3-5 sentences) of what was discussed.\n3. Extract all action items with the responsible person if mentioned (format: \"- @person: task\").\n4. List key decisions that were made.\n5. List the main topics that were covered.\n\nReturn the structured notes in the required JSON format."
+              },
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "Anthropic_Chat_Model": [
+              "Succeeded"
+            ],
+            "Extract_Transcript_Text": [
+              "Succeeded"
+            ],
+            "Structured_Output_Parser": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Structured_Output_Parser": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Structured Output Parser",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsonSchemaExample": "{\n  \"title\": \"Weekly Product Sync — March 5\",\n  \"summary\": \"The team reviewed Q2 roadmap priorities and agreed to focus on the auth redesign first. Timeline for the migration was pushed to next sprint.\",\n  \"action_items\": \"- @alice: Finalize design specs by Friday\\n- @bob: Set up staging environment\\n- @carol: Schedule follow-up with security team\",\n  \"decisions\": \"- Moving forward with Option B for the auth system\\n- Postponing the database migration to next sprint\",\n  \"key_topics\": \"- Q2 roadmap priorities\\n- Auth system redesign\\n- Database migration timeline\\n- Team capacity planning\"\n}"
+            }
+          },
+          "runAfter": {}
+        },
+        "Anthropic_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Anthropic Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "claude-opus-4-6",
+                "cachedResultName": "Claude Opus 4.6"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Notion": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Notion",
+            "n8nNodeType": "n8n-nodes-base.notion",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "title": "={{ $json.output.title }}",
+              "options": {},
+              "resource": "databasePage",
+              "databaseId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "YOUR_NOTION_DATABASE_ID"
+              },
+              "propertiesUi": {
+                "propertyValues": [
+                  {
+                    "key": "Title|title",
+                    "title": "={{ $json.output.title }}"
+                  },
+                  {
+                    "key": "Summary|rich_text",
+                    "textContent": "={{ $json.output.summary }}"
+                  },
+                  {
+                    "key": "Action Items|rich_text",
+                    "textContent": "={{ $json.output.action_items }}"
+                  },
+                  {
+                    "key": "Decisions|rich_text",
+                    "textContent": "={{ $json.output.decisions }}"
+                  },
+                  {
+                    "key": "Key Topics|rich_text",
+                    "textContent": "={{ $json.output.key_topics }}"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "AI_Agent": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Slack": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Slack",
+            "n8nNodeType": "n8n-nodes-base.slack",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=:memo: *{{ $('AI Agent').item.json.output.title }}*\n\n*Summary:*\n{{ $('AI Agent').item.json.output.summary }}\n\n*Action Items:*\n{{ $('AI Agent').item.json.output.action_items }}",
+              "select": "channel",
+              "channelId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "YOUR_SLACK_CHANNEL_ID"
+              },
+              "otherOptions": {},
+              "authentication": "oAuth2"
+            }
+          },
+          "runAfter": {
+            "Notion": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

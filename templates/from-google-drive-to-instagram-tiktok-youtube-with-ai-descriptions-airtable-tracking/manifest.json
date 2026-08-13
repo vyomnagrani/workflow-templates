@@ -1,0 +1,618 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "from-google-drive-to-instagram-tiktok-youtube-with-ai-descriptions-airtable-tracking",
+    "name": "From Google Drive to Instagram, TikTok & YouTube with AI descriptions & Airtable tracking",
+    "description": "## Description\n\n![Captura de pantalla 20250708 a las 18.45.22.png](fileId:1713)\n\nThis automation template is designed for content creators, social media managers, and influencers who want to streamline their video publishing workflow. It automatically detects new videos uploaded to a specific Google Drive folder, generates AI-powered descriptions based on video audio content, and simultaneously publishes them across Instagram, TikTok, and YouTube while tracking everything in Airtable.\n\n***Note: This workflow uses upload-post.com API (free trial no credit card required) for multi-platform video distribution and requires API tokens for each service. The AI-generated descriptions are created using OpenAI's transcription and chat models to analyze video audio content.***\n\n## Who Is This For?\n- **Content Creators & Influencers:** Automatically publish your videos across all major social platforms without manual work.\n- **Social Media Managers:** Maintain consistent posting schedules across multiple platforms with AI-generated, platform-optimized descriptions.\n- **Marketing Teams:** Scale video content distribution with automated workflows that include tracking and status monitoring.\n- **Video Producers:** Focus on creating content while the system handles the tedious task of multi-platform publishing and description generation.\n\n## What Problem Does This Workflow Solve?\nPublishing the same video content across Instagram, TikTok, and YouTube is time-consuming and repetitive. You need to manually upload each video, write unique descriptions, and track publication status. This workflow addresses these challenges by:\n- **Automated Video Distribution:** Detects new videos in Google Drive and automatically uploads them to all three platforms simultaneously.\n- **AI-Powered Content Generation:** Uses OpenAI to transcribe video audio and generate engaging, platform-appropriate descriptions automatically.\n- **Centralized Tracking:** Maintains detailed records in Airtable including upload status, URLs, and metadata for each platform.\n- **Error Monitoring:** Provides real-time error notifications via Telegram to ensure you're always aware of any issues.\n\n## How It Works\n1. **Video Upload Detection:** The workflow monitors a specific Google Drive folder for new video uploads using automated triggers.\n2. **Content Analysis:** Downloads the video, extracts audio, and uses OpenAI to transcribe and generate compelling descriptions.\n3. **Airtable Integration:** Creates and updates records to track video metadata, descriptions, and publication status.\n4. **Multi-Platform Publishing:** Simultaneously uploads the video to Instagram, TikTok, and YouTube using the upload-post.com API.\n5. **Status Tracking:** Updates Airtable records with publication status and platform-specific URLs for each successful upload.\n\n## Setup\n1. **Google Drive Configuration:** \n   - Set up the Google Drive trigger to monitor your specific folder\n   - Configure OAuth2 credentials for Google Drive access\n2. **OpenAI Integration:** Add your OpenAI API key to enable audio transcription and description generation\n3. **Airtable Setup:** \n   - Create an Airtable base with fields for Video Name, Description, Platform Status, URLs, and Upload Date\n   - Add your Airtable API token and configure base/table IDs in the \"Set Variables\" node\n4. **Upload-Post.com Account:** \n   - Create an account at upload-post.com to get your API token\n   - Configure the token in the HTTP request nodes for each platform\n   - Set your user ID in the variables section\n5. **Platform Accounts:** Ensure your Instagram, TikTok, and YouTube accounts are connected to upload-post.com\n6. **Error Notifications:** (Optional) Configure Telegram bot credentials for error notifications\n\n## Requirements\n- **Accounts:** Google Drive, OpenAI, Airtable, upload-post.com, Telegram (optional)\n- **API Keys & Credentials:** Google Drive OAuth2, OpenAI API Key, Airtable API Token, upload-post.com API Token\n- **Platform Setup:** Instagram, TikTok, and YouTube accounts connected to upload-post.com\n\nTransform your video publishing workflow from hours of manual work to a fully automated system that handles everything from content analysis to multi-platform distribution and tracking.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Social Media",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Set_Variables": {
+          "type": "Compose",
+          "inputs": {
+            "airtable_app_id": "add_airtable_app_id",
+            "airtable_table_id": "add_airtable_table_id",
+            "upload_post_user": "test2"
+          },
+          "runAfter": {
+            "Generate_Description_for_Videos": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Drive_Trigger": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Drive Trigger",
+            "n8nNodeType": "n8n-nodes-base.googleDriveTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "event": "fileCreated",
+              "options": {},
+              "pollTimes": {
+                "item": [
+                  {
+                    "mode": "everyMinute"
+                  }
+                ]
+              },
+              "triggerOn": "specificFolder",
+              "folderToWatch": {
+                "__rl": true,
+                "mode": "list",
+                "value": "18m0i341QLQuyWuHv_FBdz8-r-QDtofYm",
+                "cachedResultUrl": "https://drive.google.com/drive/folders/18m0i341QLQuyWuHv_FBdz8-r-QDtofYm",
+                "cachedResultName": "Influencersde"
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Google_Drive": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Drive",
+            "n8nNodeType": "n8n-nodes-base.googleDrive",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileId": {
+                "__rl": true,
+                "mode": "",
+                "value": "={{ $json.id || $json.data[0].id }}"
+              },
+              "options": {},
+              "operation": "download",
+              "authentication": "oAuth2"
+            }
+          },
+          "runAfter": {
+            "Google_Drive_Trigger": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Create_Airtable_Record": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Create Airtable Record",
+            "n8nNodeType": "n8n-nodes-base.airtable",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "table": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $('Set Variables').item.json.airtable_table_id }}"
+              },
+              "fields": [
+                "Video Name"
+              ],
+              "options": {},
+              "operation": "append",
+              "application": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $('Set Variables').item.json.airtable_app_id }}"
+              },
+              "addAllFields": false,
+              "authentication": "airtableTokenApi"
+            }
+          },
+          "runAfter": {
+            "Set_Variables": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Error_Trigger": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Error Trigger",
+            "n8nNodeType": "n8n-nodes-base.errorTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "If": {
+          "type": "If",
+          "expression": {
+            "not": {
+              "contains": [
+                "@body('Error_Trigger')?['trigger']?['error']?['message']",
+                "The DNS server returned an error, perhaps the server is offline"
+              ]
+            }
+          },
+          "actions": {
+            "Telegram": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Telegram",
+                "n8nNodeType": "n8n-nodes-base.telegram",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "text": "=🔔 ERROR SUBIENDO VIDEOS",
+                  "additionalFields": {
+                    "appendAttribution": false
+                  }
+                }
+              },
+              "runAfter": {}
+            }
+          },
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "Error_Trigger": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_Audio_from_Video": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get Audio from Video",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "resource": "audio",
+              "operation": "transcribe"
+            }
+          },
+          "runAfter": {
+            "Read_video_from_Google_Drive": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Read_video_from_Google_Drive": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Read video from Google Drive",
+            "n8nNodeType": "n8n-nodes-base.writeBinaryFile",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fileName": "={{ $json.originalFilename.replaceAll(\" \", \"_\") }}"
+            }
+          },
+          "runAfter": {
+            "Google_Drive": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Generate_Description_for_Videos": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Generate Description for Videos",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o",
+                "cachedResultName": "GPT-4O"
+              },
+              "options": {},
+              "messages": {
+                "values": [
+                  {
+                    "role": "system",
+                    "content": "You are an expert assistant in creating engaging social media video titles."
+                  },
+                  {
+                    "content": "=I'm going to upload a video to social media. Here are some examples of descriptions that have worked well on Instagram:\n\nFollow and save for later. Discover InfluencersDe, the AI tool that automates TikTok creation and publishing to drive traffic to your website. Perfect for entrepreneurs and brands.\n#digitalmarketing #ugc #tiktok #ai #influencersde #contentcreation\n\nDiscover the video marketing revolution with InfluencersDe!\n.\n.\n.\n#socialmedia #videomarketing #ai #tiktok #influencersde #growthhacking\n\nDon't miss InfluencersDe, the tool that transforms your marketing strategy with just one click!\n.\n.\n.\n#ugc #ai #tiktok #digitalmarketing #influencersde #branding\n\nCan you create another title for the Instagram post based on this recognized audio from the video?\n\nAudio: {{ $('Get Audio from Video').item.json.text }}\n\nIMPORTANT: Reply only with the description, don't add anything else."
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Get_Audio_from_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Update_Airtable_with_Description": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update Airtable with Description",
+            "n8nNodeType": "n8n-nodes-base.airtable",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "id": "={{ $('Create Airtable Record').item.json.id }}",
+              "table": {
+                "__rl": true,
+                "mode": "",
+                "value": "={{ $('Set Variables').item.json.airtable_table_id }}"
+              },
+              "fields": [
+                "Description",
+                "Video Name",
+                "Google Drive Links",
+                "Upload Date"
+              ],
+              "options": {},
+              "operation": "update",
+              "application": {
+                "__rl": true,
+                "mode": "",
+                "value": "={{ $('Set Variables').item.json.airtable_app_id }}"
+              },
+              "authentication": "airtableTokenApi",
+              "updateAllFields": false
+            }
+          },
+          "runAfter": {
+            "Edit_Airtable_Fields1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Read_Video_for_TikTok": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Read Video for TikTok",
+            "n8nNodeType": "n8n-nodes-base.readBinaryFile",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "filePath": "={{ $('Read video from Google Drive').item.json.originalFilename.replaceAll(\" \", \"_\") }}",
+              "dataPropertyName": "datavideo"
+            }
+          },
+          "runAfter": {
+            "Update_Airtable_with_Description": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Read_Video_for_Instagram": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Read Video for Instagram",
+            "n8nNodeType": "n8n-nodes-base.readBinaryFile",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "filePath": "={{ $('Read video from Google Drive').item.json.originalFilename.replaceAll(\" \", \"_\") }}",
+              "dataPropertyName": "datavideo"
+            }
+          },
+          "runAfter": {
+            "Update_Airtable_with_Description": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Read_Video_for_YouTube": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Read Video for YouTube",
+            "n8nNodeType": "n8n-nodes-base.readBinaryFile",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "filePath": "={{ $('Read video from Google Drive').item.json.originalFilename.replaceAll(\" \", \"_\") }}",
+              "dataPropertyName": "datavideo"
+            }
+          },
+          "runAfter": {
+            "Update_Airtable_with_Description": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_Video_to_TikTok": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.upload-post.com/api/upload",
+            "body": {
+              "title": "@body('Generate_Description_for_Videos')?['message']?['content']?['replaceAll'](\"\\\"\", \"\")",
+              "platform[]": "tiktok",
+              "video": null,
+              "user": "@body('Set_Variables')?['upload_post_user']"
+            }
+          },
+          "runAfter": {
+            "Read_Video_for_TikTok": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_Video_to_Instagram": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.upload-post.com/api/upload",
+            "body": {
+              "title": "@body('Generate_Description_for_Videos')?['message']?['content']?['replaceAll'](\"\\\"\", \"\")",
+              "platform[]": "instagram",
+              "video": null,
+              "user": "@body('Set_Variables')?['upload_post_user']"
+            }
+          },
+          "runAfter": {
+            "Read_Video_for_Instagram": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_Video_to_YouTube": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.upload-post.com/api/upload",
+            "body": {
+              "title": "@{body('Generate_Description_for_Videos')?['message']?['content']?['replaceAll'](\"\\\"\", \"\").substring(0, 70)}",
+              "platform[]": "youtube",
+              "video": null,
+              "user": "@body('Set_Variables')?['upload_post_user']"
+            }
+          },
+          "runAfter": {
+            "Read_Video_for_YouTube": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Update_YouTube_Status_Success": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update YouTube Status - Success",
+            "n8nNodeType": "n8n-nodes-base.airtable",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "id": "={{ $('Create Airtable Record').item.json.id }}",
+              "table": {
+                "__rl": true,
+                "mode": "",
+                "value": "={{ $('Set Variables').item.json.airtable_table_id }}"
+              },
+              "fields": [
+                "YouTube Status",
+                "Youtube URL"
+              ],
+              "options": {},
+              "operation": "update",
+              "application": {
+                "__rl": true,
+                "mode": "",
+                "value": "={{ $('Set Variables').item.json.airtable_app_id }}"
+              },
+              "authentication": "airtableTokenApi",
+              "updateAllFields": false
+            }
+          },
+          "runAfter": {
+            "Edit_Airtable_Fields_3": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Update_TikTok_Status": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update TikTok Status",
+            "n8nNodeType": "n8n-nodes-base.airtable",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "id": "={{ $('Create Airtable Record').item.json.id }}",
+              "table": {
+                "__rl": true,
+                "mode": "",
+                "value": "={{ $('Set Variables').item.json.airtable_table_id }}"
+              },
+              "fields": [
+                "TikTok Status",
+                "Tiktok URL"
+              ],
+              "options": {},
+              "operation": "update",
+              "application": {
+                "__rl": true,
+                "mode": "",
+                "value": "={{ $('Set Variables').item.json.airtable_app_id }}"
+              },
+              "authentication": "airtableTokenApi",
+              "updateAllFields": false
+            }
+          },
+          "runAfter": {
+            "Edit_Airtable_Fields": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Update_Instagram_Status": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update Instagram Status",
+            "n8nNodeType": "n8n-nodes-base.airtable",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "id": "={{ $('Create Airtable Record').item.json.id }}",
+              "table": {
+                "__rl": true,
+                "mode": "",
+                "value": "={{ $('Set Variables').item.json.airtable_table_id }}"
+              },
+              "fields": [
+                "Instagram Status",
+                "Instagram URL"
+              ],
+              "options": {},
+              "operation": "update",
+              "application": {
+                "__rl": true,
+                "mode": "",
+                "value": "={{ $('Set Variables').item.json.airtable_app_id }}"
+              },
+              "authentication": "airtableTokenApi",
+              "updateAllFields": false
+            }
+          },
+          "runAfter": {
+            "Edit_Airtable_Fields_2": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Edit_Airtable_Fields": {
+          "type": "Compose",
+          "inputs": {
+            "ID": "@body('Update_Airtable_with_Description')?['id']",
+            "TikTok Status": "success: @{body('Upload_Video_to_TikTok')?['results']?['tiktok']?['success']}",
+            "Tiktok URL": "@body('Upload_Video_to_TikTok')?['results']?['tiktok']?.url || \"error\""
+          },
+          "runAfter": {
+            "Upload_Video_to_TikTok": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Edit_Airtable_Fields_2": {
+          "type": "Compose",
+          "inputs": {
+            "ID": "@body('Update_Airtable_with_Description')?['id']",
+            "Instagram Status": "success: @{body('Upload_Video_to_Instagram')?['results']?['instagram']?['success']}",
+            "Instagram URL": "@body('Upload_Video_to_Instagram')?['results']?['instagram']?.url || \"error\""
+          },
+          "runAfter": {
+            "Upload_Video_to_Instagram": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Edit_Airtable_Fields_3": {
+          "type": "Compose",
+          "inputs": {
+            "ID": "@body('Update_Airtable_with_Description')?['id']",
+            "YouTube Status": "success: @{body('Upload_Video_to_YouTube')?['results']?['youtube']?['success']}",
+            "Youtube URL": "@body('Upload_Video_to_YouTube')?['results']?['youtube']?.url || \"error\""
+          },
+          "runAfter": {
+            "Upload_Video_to_YouTube": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Edit_Airtable_Fields1": {
+          "type": "Compose",
+          "inputs": {
+            "ID": "@body('Create_Airtable_Record')?['id']",
+            "Description": "@body('Generate_Description_for_Videos')?['message']?['content']",
+            "Video Name": "@body('Google_Drive')?['originalFilename']",
+            "Google Drive Links": "@body('Google_Drive')?['webViewLink']",
+            "Upload Date": "={{ $now }}"
+          },
+          "runAfter": {
+            "Create_Airtable_Record": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

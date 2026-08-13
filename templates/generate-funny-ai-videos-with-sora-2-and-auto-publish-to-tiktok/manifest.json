@@ -1,0 +1,288 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "generate-funny-ai-videos-with-sora-2-and-auto-publish-to-tiktok",
+    "name": "Generate Funny AI Videos with Sora 2 and Auto-Publish to TikTok",
+    "description": "This automation creates a fully integrated pipeline to **generate AI-powered videos**, **store them**, and **publish them on TikTok** — all automatically.\nIt connects **OpenAI Sora 2**, and **Postiz (for TikTok publishing)** to streamline content creation.\n\n---\n\n### **Key Benefits**\n\n✅ **Full Automation** – From text prompt to TikTok upload, everything happens automatically with no manual intervention once set up.\n✅ **Centralized Control** – Google Sheets acts as a simple dashboard to manage prompts, durations, and generated results.\n✅ **AI-Powered Creativity** – Uses **OpenAI Sora 2** for realistic video generation and **GPT-5** for optimized titles.\n✅ **Social Media Integration** – Seamlessly posts videos to **TikTok** via **Postiz**, ready for your audience.\n✅ **Scalable & Customizable** – Can easily be extended to other platforms like YouTube, Instagram, or LinkedIn.\n✅ **Time-Saving** – Eliminates repetitive steps like manual video uploads or caption writing.\n\n---\n\n### How it works\n\nThis workflow automates the end-to-end process of generating AI videos and publishing them to TikTok. It is triggered either manually or on a recurring schedule.\n\n1.  **Trigger & Data Fetch:** The workflow starts by checking a specified Form for new entries. It looks for rows where a video has been requested (a \"PROMPT\" is filled) but not yet generated (the \"VIDEO\" column is empty).\n\n2.  **AI Video Generation:** For each new prompt found, the workflow sends a request to the **Fal.ai Sora 2** model to generate a video. It then enters a polling loop, repeatedly checking the status of the generation request every 60 seconds until the video is \"COMPLETED\".\n\n3.  **Post-Processing & Upload:** Once the video is ready, the workflow performs several actions in parallel:\n    *   **Fetch Video & Store:** It retrieves the final video URL, downloads the video file\n    *   **Generate Title:** It uses the **OpenAI GPT-4o-mini** model to analyze the original prompt and generate an optimized, engaging title for the video.\n    *   **Publish to TikTok:** The video file is uploaded to **Postiz**, a social media scheduling tool, which then automatically publishes it to a connected TikTok channel, using the AI-generated title as the post's caption.\n\n---\n### Set up steps\n\nTo make this workflow functional, you need to complete the following configuration steps:\n\n1.  **Prepare the Google Sheet:**\n    *   Create a Form with at least \"PROMPT\", \"DURATION\", and \"VIDEO\" fields.\n\n2.  **Configure Fal.ai for Video Generation:**\n    *   Create an account at [Fal.ai](https://fal.ai/) and obtain your API key.\n    *   In both the **\"Create Video\"** and **\"Get status\"** HTTP Request nodes, set up the \"Header Auth\" credential.\n    *   Set the `Name` to `Authorization` and the `Value` to `Key YOUR_API_KEY`.\n\n3.  **Set up TikTok Publishing via Postiz:**\n    *   Create an account on [Postiz](https://postiz.com/) and connect your TikTok account to get a **Channel ID**.\n    *   Obtain your Postiz API key.\n    *   In the **\"Upload Video to Postiz\"** and **\"TikTok\" (Postiz)** nodes, configure the API credentials.\n    *   In the **\"TikTok\"** node, replace the placeholder `\"XXX\"` in the `integrationId` field with your actual TikTok Channel ID from Postiz.\n\n4.  **(Optional) Configure AI Title Generation:**\n    *   The **\"Generate title\"** node uses OpenAI. Ensure you have valid OpenAI API credentials configured in n8n for this node to work.\n\n---\n### **Need help customizing?**  \n[Contact me](mailto:info@n3w.it) for consulting and support or add me on [Linkedin](https://www.linkedin.com/in/davideboizza/). \n## Header 2",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Get_status": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://queue.fal.run/fal-ai/sora-2/requests/@{body('Create_Video')?['request_id']}/status"
+          },
+          "runAfter": {
+            "Wait_60_sec": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_60_sec": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 60,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Completed": [
+              "Succeeded"
+            ],
+            "Create_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Completed": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Completed?",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "383d112e-2cc6-4dd4-8985-f09ce0bd1781",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "COMPLETED"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Get_status": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Create_Video": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://queue.fal.run/fal-ai/sora-2/text-to-video",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": "{\n     \"prompt\": \"@{body('On_form_submission')?['PROMPT']}. Duration of the video: @{body('On_form_submission')?['DURATION']}\"\n}"
+          },
+          "runAfter": {
+            "On_form_submission": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_Url_Video": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://queue.fal.run/fal-ai/sora-2/requests/@{body('Completed')?['request_id']}"
+          },
+          "runAfter": {
+            "Completed": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_File_Video": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@body('Get_Url_Video')?['video']?['url']"
+          },
+          "runAfter": {
+            "Generate_title": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Generate_title": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Generate title",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini",
+                "cachedResultName": "GPT-4O-MINI"
+              },
+              "options": {},
+              "messages": {
+                "values": [
+                  {
+                    "content": "=Input: {{ $('Get new video').item.json.PROMPT }}"
+                  },
+                  {
+                    "role": "system",
+                    "content": "You are a YouTube SEO expert specialized in creating engaging and optimized titles.\n\nYour task is to generate an effective title for a YouTube video based on the user's video description.\n\nGUIDELINES:\n- Maximum 60 characters to avoid truncation\n- Use relevant keywords for SEO\n- Make the title catchy and clickable\n- Avoid excessive or misleading clickbait\n- Consider the target audience of the content\n- Use numbers, questions, or power words when appropriate\n- IMPORTANT: Generate the title in the same language as the input description\n\nOUTPUT FORMAT:\nProvide only the title, without additional explanations.\n\nEXAMPLE:\nInput: \"Tutorial video on how to cook perfect pasta carbonara\"\nOutput: \"PERFECT Carbonara in 10 Minutes - Chef's Secrets\""
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Get_Url_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "TikTok": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "TikTok",
+            "n8nNodeType": "n8n-nodes-postiz.postiz",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "date": "={{ $now.format('yyyy-LL-dd') }}T{{ $now.format('HH:ii:ss') }}",
+              "posts": {
+                "post": [
+                  {
+                    "value": {
+                      "contentItem": [
+                        {
+                          "image": {
+                            "imageItem": [
+                              {
+                                "id": "={{ $json.id }}",
+                                "path": "={{ $json.path }}"
+                              }
+                            ]
+                          },
+                          "content": "={{ $('Generate title').item.json.message.content }}"
+                        }
+                      ]
+                    },
+                    "integrationId": "XXX"
+                  }
+                ]
+              },
+              "shortLink": true
+            }
+          },
+          "runAfter": {
+            "Upload_Video_to_Postiz": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_Video_to_Postiz": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.postiz.com/public/v1/upload",
+            "body": {
+              "file": null
+            }
+          },
+          "runAfter": {
+            "Get_File_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "On_form_submission": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "On form submission",
+            "n8nNodeType": "n8n-nodes-base.formTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "formTitle": "Generate AI Videos (with audio)",
+              "formFields": {
+                "values": [
+                  {
+                    "fieldLabel": "PROMPT",
+                    "requiredField": true
+                  },
+                  {
+                    "fieldType": "number",
+                    "fieldLabel": "DURATION",
+                    "requiredField": true
+                  }
+                ]
+              },
+              "formDescription": "Generate AI Videos (with audio), using OpenAI Sora 2 and Upload to TikTok"
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

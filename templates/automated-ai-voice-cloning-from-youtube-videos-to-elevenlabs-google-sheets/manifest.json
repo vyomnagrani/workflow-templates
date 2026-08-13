@@ -1,0 +1,245 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "automated-ai-voice-cloning-from-youtube-videos-to-elevenlabs-google-sheets",
+    "name": "Automated AI voice cloning 🤖🎤 from YouTube videos to ElevenLabs & Google Sheets",
+    "description": "This workflow automates the process of **creating cloned voices** in **ElevenLabs** using audio extracted from **YouTube** videos. It processes a list of video URLs from Google Sheets, converts them to audio, submits them to [ElevenLabs for voice cloning](https://try.elevenlabs.io/ahkbf00hocnu)*, and records the generated voice IDs back to the spreadsheet.\n\n*ONLY FOR STARTER, CREATOR, PRO PLAN\n\n\n\n**Important Considerations for Best Results:**\n\nFor optimal voice cloning quality with ElevenLabs, carefully select your source YouTube videos:\n- **Duration**: Choose videos that are sufficiently long (preferably 1-5 minutes of clear speech) to provide enough audio data for accurate voice modeling.\n- **Audio Quality**: Select videos with high-quality audio, minimal background noise, and clear vocal recording.\n- **Single Speaker**: Use videos featuring only **one primary speaker**. Multiple voices in the same audio will confuse the cloning algorithm and produce poor results.\n- **Consistent Voice**: Ensure the speaker maintains a consistent tone and speaking style throughout the clip for the most faithful reproduction.\n\n---\n\n\n### **Key Features**\n\n#### **1. ✅ Fully Automated Voice Creation Workflow**\n\n* No manual downloading, converting, or uploading is required.\n* Just paste the YouTube link and voice name into the sheet—everything else happens automatically.\n\n#### **2. ✅ Seamless Audio Extraction**\n\nUsing RapidAPI ensures:\n\n* High success rate in extracting audio\n* Support for virtually any YouTube video\n* Consistent output format required by ElevenLabs\n\n#### **3. ✅  Hands-Off ElevenLabs Voice Creation**\n\nThe workflow handles all the steps required by the ElevenLabs API, including:\n\n* Uploading binary audio\n* Naming voices\n* Capturing and storing the resulting voice ID\n\nThis is much faster than the manual method inside the ElevenLabs dashboard.\n\n#### **4. ✅ Centralized, Reusable Setup**\n\nOnce the API keys are added:\n\n* The same workflow can be reused indefinitely\n* Users don’t need technical skills\n* Updating only requires editing the sheet\n\n---\n\n### **How it works:**\n\n1. **Data Retrieval**: The workflow starts by fetching data from a Google Sheets spreadsheet that contains YouTube video URLs in the \"YOUTUBE VIDEO\" column and desired voice names in the \"VOICE NAME\" column. It specifically targets rows where the \"ELEVENLABS VOICE ID\" field is empty, ensuring only unprocessed videos are handled.\n\n2. **Video Processing Pipeline**:\n   - **Video ID Extraction**: Each YouTube URL is parsed to extract the unique video identifier using a regular expression.\n   - **Audio Conversion**: The video ID is sent to the RapidAPI \"YouTube MP3 2025\" service, which converts the YouTube video to an audio file (M4A format).\n   - **Audio Download**: The resulting audio file is downloaded locally for processing.\n\n3. **Voice Creation**: The downloaded audio file is submitted to ElevenLabs API via a POST request to the `/v1/voices/add` endpoint. This creates a new voice clone based on the audio sample. The voice name is currently hardcoded as \"Teresa Mannino\" in the workflow but should be dynamically configured to use the value from the \"VOICE NAME\" spreadsheet column.\n\n4. **Data Update**: The workflow captures the `voice_id` returned by ElevenLabs and writes it back to the corresponding row in the Google Sheets spreadsheet in the \"ELEVENLABS VOICE ID\" column, completing the processing cycle for that video.\n\n---\n\n### **Set up steps:**\n\n1. **Prepare the Data Sheet**: Duplicate the provided Google Sheets template. Fill in the \"YOUTUBE VIDEO\" column with YouTube URLs and the \"VOICE NAME\" column with your desired names for the cloned voices. Ensure your videos meet the quality criteria mentioned above.\n\n2. **Configure APIs**:\n   - **RapidAPI**: Sign up for a free trial API key from the \"YouTube MP3 2025\" service on RapidAPI. Enter this key into the `x-rapidapi-key` header field in the \"From video to audio\" node.\n   - **ElevenLabs**: Generate an API key from your ElevenLabs account. Configure the \"Create voice\" node's HTTP Header Authentication with the name `xi-api-key` and your ElevenLabs API key as the value.\n\n3. **Optional Customization**: Modify the \"Create voice\" node to use the dynamic voice name from your spreadsheet instead of the hardcoded \"Teresa Mannino\" value for more flexible operation.\n\n4. **Execute**: Run the workflow. It will automatically process each qualifying row, create voices in ElevenLabs, and populate the spreadsheet with the new Voice IDs. Monitor the workflow execution to ensure successful processing of each video.\n\n---\n\n👉 [Subscribe to my new **YouTube channel**](https://youtube.com/@n3witalia). Here I’ll share videos and Shorts with practical tutorials and **FREE templates for n8n**.\n\n[![image](https://n3wstorage.b-cdn.net/n3witalia/youtube-n8n-cover.jpg)](https://youtube.com/@n3witalia)\n\n---\n\n### **Need help customizing?**  \n[Contact me](mailto:info@n3w.it) for consulting and support or add me on [Linkedin](https://www.linkedin.com/in/davideboizza/). ",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "When_clicking_Execute_workflow": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Loop_Over_Items": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Loop Over Items",
+            "n8nNodeType": "n8n-nodes-base.splitInBatches",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Get_videos": [
+              "Succeeded"
+            ],
+            "Update_row_in_sheet": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Update_row_in_sheet": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update row in sheet",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "row_number": "={{ $('Loop Over Items').item.json.row_number }}",
+                  "ELEVENLABS VOICE ID": "={{ $json.voice_id }}"
+                },
+                "schema": [
+                  {
+                    "id": "YOUTUBE VIDEO",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "YOUTUBE VIDEO",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "VOICE NAME",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "VOICE NAME",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "ELEVENLABS VOICE ID",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "ELEVENLABS VOICE ID",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "row_number",
+                    "type": "number",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "row_number",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "row_number"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "update",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gid=0",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1pZt5RZy6JkcnnxoSG1MFuIrNTLa0P4pVCptuk8uFJdI/edit#gid=0",
+                "cachedResultName": "Foglio1"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1pZt5RZy6JkcnnxoSG1MFuIrNTLa0P4pVCptuk8uFJdI",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1pZt5RZy6JkcnnxoSG1MFuIrNTLa0P4pVCptuk8uFJdI/edit?usp=drivesdk",
+                "cachedResultName": "ElevenLabs Clone voice from Yotubue"
+              }
+            }
+          },
+          "runAfter": {
+            "Create_voice": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_videos": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('1pZt5RZy6JkcnnxoSG1MFuIrNTLa0P4pVCptuk8uFJdI'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {}
+        },
+        "Get_Video_ID": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Loop_Over_Items'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst url = $json['YOUTUBE VIDEO'];\n\nconst regex = /(?:youtube\\.com\\/(?:watch\\?v=|embed\\/|v\\/)|youtu\\.be\\/)([^&?/]+)/;\n\nlet match = url.match(regex);\nlet video_id = match ? match[1] : null;\n\nreturn [\n  {\n    json: {\n      video_id\n    }\n  }\n];\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Loop_Over_Items": [
+              "Succeeded"
+            ]
+          }
+        },
+        "From_video_to_audio": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "=https://youtube-mp3-2025.p.rapidapi.com/v1/social/youtube/audio",
+            "headers": {
+              "x-rapidapi-host": "youtube-mp3-2025.p.rapidapi.com",
+              "x-rapidapi-key": "XXX"
+            },
+            "body": {
+              "id": "@body('Get_Video_ID')?['video_id']"
+            }
+          },
+          "runAfter": {
+            "Get_Video_ID": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_audio": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@body('From_video_to_audio')?['linkDownload']"
+          },
+          "runAfter": {
+            "From_video_to_audio": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Create_voice": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.elevenlabs.io/v1/voices/add",
+            "body": {
+              "name": "Teresa Mannino",
+              "files": null
+            }
+          },
+          "runAfter": {
+            "Download_audio": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "When_clicking_Execute_workflow",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

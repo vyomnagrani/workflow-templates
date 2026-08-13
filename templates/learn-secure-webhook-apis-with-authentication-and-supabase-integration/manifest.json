@@ -1,0 +1,245 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "learn-secure-webhook-apis-with-authentication-and-supabase-integration",
+    "name": "Learn secure webhook APIs with authentication and Supabase integration",
+    "description": "This template is a practical introduction to **n8n Webhooks** with built-in examples for all major HTTP methods and authentication types. It is designed as a learning resource to help you understand how webhooks work in n8n, how to connect them to a data store, and how to secure them properly.\n\n**What’s included:**\n\n* Webhook nodes for **GET, POST, PUT, PATCH, DELETE, and HEAD**\n* Demonstrations of **Basic Auth, Header Auth, and JWT Auth**\n* Supabase integration for creating, retrieving, updating, and deleting rows\n* Example response handling with **Respond to Webhook** nodes\n* Sticky notes explaining each method, response type, and security option\n\n**Use this template to:**\n\n* Learn how to configure and test webhooks in n8n\n* Explore different authentication strategies\n* Connect webhooks to a simple Supabase table\n* Understand best practices for securing webhook endpoints\n\nThis workflow is intended as an educational starting point. It shows you how to receive requests, map data, and return responses securely. For production use, adapt the structure, apply your own security policies, and extend the logic as needed.\n\nCheck out the YouTube video here: https://www.youtube.com/watch?v=o6F36xsiuBk\n\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Engineering",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Webhook": {
+          "type": "Request",
+          "kind": "Http"
+        },
+        "Webhook1": {
+          "type": "Request",
+          "kind": "Http",
+          "inputs": {
+            "method": "POST"
+          }
+        },
+        "Webhook2": {
+          "type": "Request",
+          "kind": "Http",
+          "inputs": {
+            "method": "PUT"
+          }
+        },
+        "Webhook3": {
+          "type": "Request",
+          "kind": "Http",
+          "inputs": {
+            "method": "PATCH"
+          }
+        },
+        "Webhook4": {
+          "type": "Request",
+          "kind": "Http",
+          "inputs": {
+            "method": "DELETE"
+          }
+        },
+        "Webhook5": {
+          "type": "Request",
+          "kind": "Http",
+          "inputs": {
+            "method": "HEAD"
+          }
+        }
+      },
+      "actions": {
+        "Get_a_row": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get a row",
+            "n8nNodeType": "n8n-nodes-base.supabase",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "filters": {
+                "conditions": [
+                  {
+                    "keyName": "email",
+                    "keyValue": "={{ $json.query.email }}"
+                  }
+                ]
+              },
+              "tableId": "demo_contacts",
+              "operation": "get"
+            }
+          },
+          "runAfter": {}
+        },
+        "Respond_to_Webhook": {
+          "type": "Response",
+          "kind": "Http",
+          "inputs": {
+            "statusCode": 200,
+            "body": ""
+          },
+          "runAfter": {
+            "Get_a_row": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Create_a_row": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Create a row",
+            "n8nNodeType": "n8n-nodes-base.supabase",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "tableId": "demo_contacts",
+              "dataToSend": "autoMapInputData",
+              "inputsToIgnore": "id"
+            }
+          },
+          "runAfter": {
+            "Edit_Fields": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Edit_Fields": {
+          "type": "Compose",
+          "inputs": {
+            "mode": "raw",
+            "options": {},
+            "jsonOutput": "@triggerBody()?['body']"
+          },
+          "runAfter": {}
+        },
+        "Edit_Fields1": {
+          "type": "Compose",
+          "inputs": {
+            "mode": "raw",
+            "options": {},
+            "jsonOutput": "@triggerBody()?['body']"
+          },
+          "runAfter": {}
+        },
+        "Respond_to_Webhook1": {
+          "type": "Response",
+          "kind": "Http",
+          "inputs": {
+            "statusCode": 200,
+            "body": ""
+          },
+          "runAfter": {
+            "Create_a_row": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Respond_to_Webhook2": {
+          "type": "Response",
+          "kind": "Http",
+          "inputs": {
+            "statusCode": 200,
+            "body": ""
+          },
+          "runAfter": {
+            "Update_a_row": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Update_a_row": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update a row",
+            "n8nNodeType": "n8n-nodes-base.supabase",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "filters": {
+                "conditions": [
+                  {
+                    "keyName": "id",
+                    "keyValue": "={{ $json.id }}",
+                    "condition": "eq"
+                  }
+                ]
+              },
+              "tableId": "demo_contacts",
+              "operation": "update",
+              "dataToSend": "autoMapInputData"
+            }
+          },
+          "runAfter": {
+            "Edit_Fields1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Delete_a_row": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Delete a row",
+            "n8nNodeType": "n8n-nodes-base.supabase",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "filters": {
+                "conditions": [
+                  {
+                    "keyName": "id",
+                    "keyValue": "={{ $json.query.id }}",
+                    "condition": "eq"
+                  }
+                ]
+              },
+              "tableId": "demo_contacts",
+              "operation": "delete"
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Webhook",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

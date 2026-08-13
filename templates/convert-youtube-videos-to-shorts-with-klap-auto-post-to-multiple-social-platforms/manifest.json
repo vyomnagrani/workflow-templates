@@ -1,0 +1,706 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "convert-youtube-videos-to-shorts-with-klap-auto-post-to-multiple-social-platforms",
+    "name": "Convert YouTube videos to shorts with Klap & auto-post to multiple social platforms",
+    "description": "![Workflow Screenshot](https://www.dr-firas.com/youtube_shortsii.png)\n\n# Convert YouTube videos to viral Shorts with Klap and auto-post with Blotato\n\n&gt; ⚠️ **Disclaimer:** This workflow uses Community Nodes and requires a self-hosted n8n instance.\n\n### Who is this for?\n\nThis workflow is perfect for content creators, YouTubers, marketing teams and entrepreneurs who want to effortlessly convert long YouTube videos into short, viral-ready clips and publish them automatically on TikTok, Instagram, YouTube Shorts and other platforms.\n\n### What problem is this workflow solving?\n\nManually creating short, engaging clips from YouTube videos takes hours:\n- Selecting highlights\n- Adding subtitles and effects\n- Downloading and editing\n- Posting individually on each platform\n\nThis workflow eliminates all of that:\n- AI-powered Shorts generation with Klap\n- Smart scheduling based on your posting calendar\n- Full automation of uploads to multiple platforms\n\n### What this workflow does\n\nFrom a simple YouTube link sent via Telegram, the workflow:\n1. Extracts the YouTube URL and number of Shorts requested\n2. Sends the video to Klap for AI-powered Shorts generation\n3. Checks when the Shorts are ready\n4. Schedules publication times based on your custom settings\n5. Uploads the Shorts to Blotato\n6. Auto-posts on TikTok, YouTube Shorts, Instagram and more\n7. Sends a confirmation recap to Telegram\n\n### Setup\n\n1. Connect your **Telegram bot** to the trigger node\n2. Add your **Klap API key** for video processing\n3. Link your **Google Sheets** with your scheduling preferences\n4. Add your **Blotato API key** and social platform IDs\n5. Adjust the number of Shorts generated if needed\n6. Modify the scheduling logic or time windows in the Google Sheets\n\n### How to customize this workflow to your needs\n\n- Change AI video settings in the Klap API request  \n- Adjust time windows and frequency in the scheduling nodes  \n- Limit the workflow to specific platforms (e.g., TikTok only)  \n- Add a manual approval step before publishing  \n- Modify the Telegram recap message content  \n\n\n\n📄 **Documentation**: [Notion Guide](https://automatisation.notion.site/Youtube-2223d6550fd980d1b270c84fca22110d?source=copy_link)\n\n---\n\n### Need help customizing?\nContact me for consulting and support : [Linkedin](https://www.linkedin.com/in/dr-firas/) / [Youtube](https:/https://www.youtube.com/@DRFIRASS)",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "/managedApis/telegrambotip",
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Assign_Social_Media_IDs": {
+          "type": "Compose",
+          "inputs": {
+            "mode": "raw",
+            "options": {},
+            "jsonOutput": "{\n  \"instagram_id\": \"111\",\n  \"youtube_id\": \"222\",\n  \"tiktok_id\": \"333\",\n  \"facebook_id\": \"444\",\n  \"facebook_page_id\": \"555\",\n  \"threads_id\": \"666\",\n  \"twitter_id\": \"777\",\n  \"linkedin_id\": \"888\",\n  \"pinterest_id\": \"999\",\n  \"pinterest_board_id\": \"101010\",\n  \"bluesky_id\": \"111111\"\n}"
+          },
+          "runAfter": {
+            "Log_Shorts_Schedule_Info_to_Google_Sheets": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_Video_to_Blotato": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://backend.blotato.com/v2/media",
+            "headers": {
+              "blotato-api-key": "YOUR_API"
+            },
+            "body": {
+              "url": "@body('Log_Shorts_Schedule_Info_to_Google_Sheets')?['Clip URL']"
+            }
+          },
+          "runAfter": {
+            "Assign_Social_Media_IDs": [
+              "Succeeded"
+            ]
+          }
+        },
+        "INSTAGRAM": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://backend.blotato.com/v2/posts",
+            "headers": {
+              "blotato-api-key": "YOUR_API"
+            },
+            "body": "{\n  \"post\": {\n    \"accountId\": \"@{body('Assign_Social_Media_IDs')?['instagram_id']}\",\n    \"target\": {\n      \"targetType\": \"instagram\"\n    },\n    \"content\": {\n      \"text\": \"@{body('Get_my_video')?['DESCRIPTION']}\",\n      \"platform\": \"instagram\",\n      \"mediaUrls\": [\n        \"@{body('Upload_Video_to_Blotato')?['url']}\"\n      ]\n    }\n  },\n  \"scheduledTime\": \"@{body('Log_Shorts_Schedule_Info_to_Google_Sheets')?['Schedule Time']}\"\n}"
+          },
+          "runAfter": {
+            "Upload_Video_to_Blotato": [
+              "Succeeded"
+            ]
+          }
+        },
+        "YOUTUBE": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://backend.blotato.com/v2/posts",
+            "headers": {
+              "blotato-api-key": "your_API"
+            },
+            "body": "{\n  \"post\": {\n    \"accountId\": \"@{body('Assign_Social_Media_IDs')?['youtube_id']}\",\n    \"target\": {\n      \"targetType\": \"youtube\",\n      \"title\": \"@{body('Log_Shorts_Schedule_Info_to_Google_Sheets')?['Video Title']}\",\n      \"privacyStatus\": \"public\",\n      \"shouldNotifySubscribers\": true,\n      \"isMadeForKids\": false\n    },\n    \"content\": {\n      \"text\": \"@{body('Log_Shorts_Schedule_Info_to_Google_Sheets')?['Clip Caption']}\",\n      \"platform\": \"youtube\",\n      \"mediaUrls\": [\n        \"@{body('Upload_Video_to_Blotato')?['url']}\"\n      ]\n    }\n},\n  \"scheduledTime\": \"@{body('Log_Shorts_Schedule_Info_to_Google_Sheets')?['Schedule Time']}\"\n}"
+          },
+          "runAfter": {
+            "Upload_Video_to_Blotato": [
+              "Succeeded"
+            ]
+          }
+        },
+        "TIKTOK": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://backend.blotato.com/v2/posts",
+            "headers": {
+              "blotato-api-key": "your_api"
+            },
+            "body": "{\n  \"post\": {\n    \"accountId\": \"@{body('Assign_Social_Media_IDs')?['tiktok_id']}\",\n    \"target\": {\n      \"targetType\": \"tiktok\",\n      \"isYourBrand\": \"false\", \n      \"disabledDuet\": \"false\",\n      \"privacyLevel\": \"PUBLIC_TO_EVERYONE\",\n      \"isAiGenerated\": \"true\",\n      \"disabledStitch\": \"false\",\n      \"disabledComments\": \"false\",\n      \"isBrandedContent\": \"false\"\n      \n    },\n    \"content\": {\n      \"text\": \"@{body('Log_Shorts_Schedule_Info_to_Google_Sheets')?['Clip Caption']}\",\n      \"platform\": \"tiktok\",\n      \"mediaUrls\": [\n        \"@{body('Upload_Video_to_Blotato')?['url']}\"\n      ]\n    }\n  },\n  \"scheduledTime\": \"@{body('Log_Shorts_Schedule_Info_to_Google_Sheets')?['Schedule Time']}\"\n}"
+          },
+          "runAfter": {
+            "Upload_Video_to_Blotato": [
+              "Succeeded"
+            ]
+          }
+        },
+        "FACEBOOK": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://backend.blotato.com/v2/posts",
+            "headers": {
+              "blotato-api-key": "your_api"
+            },
+            "body": "{\n  \"post\": {\n    \"accountId\": \"@{body('Assign_Social_Media_IDs')?['facebook_id']}\",\n    \"target\": {\n      \"targetType\": \"facebook\",\n      \"pageId\": \"@{body('Assign_Social_Media_IDs')?['facebook_page_id']}\"\n\n      \n    },\n    \"content\": {\n      \"text\": \"@{body('Get_my_video')?['DESCRIPTION']}\",\n      \"platform\": \"facebook\",\n      \"mediaUrls\": [\n        \"@{body('Upload_Video_to_Blotato')?['url']}\"\n      ]\n    }\n  },\n  \"scheduledTime\": \"@{body('Log_Shorts_Schedule_Info_to_Google_Sheets')?['Schedule Time']}\"\n}"
+          },
+          "runAfter": {
+            "Upload_Video_to_Blotato": [
+              "Succeeded"
+            ]
+          }
+        },
+        "THREADS": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://backend.blotato.com/v2/posts",
+            "headers": {
+              "blotato-api-key": "your_api"
+            },
+            "body": "{\n  \"post\": {\n    \"accountId\": \"@{body('Assign_Social_Media_IDs')?['threads_id']}\",\n    \"target\": {\n      \"targetType\": \"threads\"\n      \n    },\n    \"content\": {\n      \"text\": \"@{body('Get_my_video')?['DESCRIPTION']}\",\n      \"platform\": \"threads\",\n      \"mediaUrls\": [\n        \"@{body('Upload_Video_to_Blotato')?['url']}\"\n      ]\n    }\n  },\n  \"scheduledTime\": \"@{body('Log_Shorts_Schedule_Info_to_Google_Sheets')?['Schedule Time']}\"\n}"
+          },
+          "runAfter": {
+            "Upload_Video_to_Blotato": [
+              "Succeeded"
+            ]
+          }
+        },
+        "LINKEDIN": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://backend.blotato.com/v2/posts",
+            "headers": {
+              "blotato-api-key": "your_api"
+            },
+            "body": "{\n  \"post\": {\n    \"accountId\": \"@{body('Assign_Social_Media_IDs')?['linkedin_id']}\",\n    \"target\": {\n      \"targetType\": \"linkedin\"\n      \n    },\n    \"content\": {\n      \"text\": \"@{body('Get_my_video')?['DESCRIPTION']}\",\n      \"platform\": \"linkedin\",\n      \"mediaUrls\": [\n        \"@{body('Upload_Video_to_Blotato')?['url']}\"\n      ]\n    }\n  },\n  \"scheduledTime\": \"@{body('Log_Shorts_Schedule_Info_to_Google_Sheets')?['Schedule Time']}\"\n}"
+          },
+          "runAfter": {
+            "Upload_Video_to_Blotato": [
+              "Succeeded"
+            ]
+          }
+        },
+        "BLUESKY": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://backend.blotato.com/v2/posts",
+            "headers": {
+              "blotato-api-key": "your_api"
+            },
+            "body": "{\n  \"post\": {\n    \"accountId\": \"@{body('Assign_Social_Media_IDs')?['bluesky_id']}\",\n    \"target\": {\n      \"targetType\": \"bluesky\"\n      \n    },\n    \"content\": {\n      \"text\": \"@{body('Get_my_video')?['DESCRIPTION']}\",\n      \"platform\": \"bluesky\",\n      \"mediaUrls\": [\n        \"https://pbs.twimg.com/media/GE8MgIiWEAAfsK3.jpg\"\n      ]\n    }\n  },\n  \"scheduledTime\": \"@{body('Log_Shorts_Schedule_Info_to_Google_Sheets')?['Schedule Time']}\"\n}"
+          },
+          "runAfter": {
+            "Upload_Video_to_Blotato": [
+              "Succeeded"
+            ]
+          }
+        },
+        "PINTEREST": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://backend.blotato.com/v2/posts",
+            "headers": {
+              "blotato-api-key": "your_api"
+            },
+            "body": "{\n  \"post\": {\n    \"accountId\": \"@{body('Assign_Social_Media_IDs')?['pinterest_id']}\",\n    \"target\": {\n      \"targetType\": \"pinterest\",\n      \"boardId\": \"@{body('Assign_Social_Media_IDs')?['pinterest_board_id']}\"      \n    },\n    \"content\": {\n      \"text\": \"@{body('Get_my_video')?['DESCRIPTION']}\",\n      \"platform\": \"pinterest\",\n      \"mediaUrls\": [\n        \"https://pbs.twimg.com/media/GE8MgIiWEAAfsK3.jpg\"\n      ]\n    }\n  },\n  \"scheduledTime\": \"@{body('Log_Shorts_Schedule_Info_to_Google_Sheets')?['Schedule Time']}\"\n}"
+          },
+          "runAfter": {
+            "Upload_Video_to_Blotato": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Trigger_Receive_YouTube_URL_via_Telegram": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Trigger: Receive YouTube URL via Telegram",
+            "n8nNodeType": "n8n-nodes-base.telegramTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "updates": [
+                "message"
+              ],
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Extract_YouTube_URL_Number_of_Shorts": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Trigger_Receive_YouTube_URL_via_Telegram'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst message = $input.first().json.message.text;\nconst chatId = $input.first().json.message.chat.id;\n\n// Split by space to get URL and number\nconst parts = message.trim().split(/\\s+/);\n\n// Find the URL part\nconst urlPart = parts.find(part => part.includes('youtube.com') || part.includes('youtu.be'));\n\n// Find the number part\nconst numberPart = parts.find(part => /^\\d+$/.test(part));\n\nif (urlPart && numberPart) {\n\tconst number = parseInt(numberPart);\n\n\t// Validate number range\n\tif (number >= 1 && number <= 10) {\n\t\treturn [{\n\t\t\tjson: {\n\t\t\t\taction: 'process',\n\t\t\t\t'YouTube URL': urlPart,\n\t\t\t\t'How many shorts to generate?': number,\n\t\t\t\tchat_id: chatId\n\t\t\t}\n\t\t}];\n\t} else {\n\t\treturn [{\n\t\t\tjson: {\n\t\t\t\taction: 'invalid_number',\n\t\t\t\tchat_id: chatId,\n\t\t\t\tmessage: 'Please use a number between 1 and 10'\n\t\t\t}\n\t\t}];\n\t}\n} else {\n\treturn [{\n\t\tjson: {\n\t\t\taction: 'invalid_format',\n\t\t\tchat_id: chatId,\n\t\t\tmessage: `Send: YouTube_URL Number\\nExample:\\nhttps://youtu.be/abc123 5`\n\t\t}\n\t}];\n}\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Trigger_Receive_YouTube_URL_via_Telegram": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_Video_to_Klap_for_Shorts_Generation": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.klap.app/v2/tasks/video-to-shorts",
+            "headers": {
+              "Authorization": "YOUR_API"
+            },
+            "body": "{\n  \"source_video_url\": \"@{body('Extract_YouTube_URL_Number_of_Shorts')?['YouTube URL']}\",\n  \"language\": \"en\",\n  \"target_clip_count\": @{body('Extract_YouTube_URL_Number_of_Shorts')?['How many shorts to generate?']},\n  \"max_clip_count\": @{body('Extract_YouTube_URL_Number_of_Shorts')?['How many shorts to generate?']},\n  \"editing_options\": {\n    \"captions\": true,\n    \"reframe\": true,\n    \"emojis\": true,\n    \"remove_silences\": true,\n    \"intro_title\": true\n  },\n  \"min_duration\": 15,\n  \"max_duration\": 60,\n  \"target_duration\": 30\n}"
+          },
+          "runAfter": {
+            "Extract_YouTube_URL_Number_of_Shorts": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Check_Shorts_Generation_Status": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.klap.app/v2/tasks/@{body('Wait_Before_Checking_Status_Again')?['id']}",
+            "headers": {
+              "Authorization": "YOUR_API"
+            }
+          },
+          "runAfter": {
+            "Wait_Before_Checking_Status_Again": [
+              "Succeeded"
+            ],
+            "Send_Video_to_Klap_for_Shorts_Generation": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Is_Video_Processing_Complete": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Is Video Processing Complete?",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "ffa318cf-7bdc-4ea5-bb02-ac69ae94a8c7",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "ready"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Check_Shorts_Generation_Status": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_Before_Checking_Status_Again": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 60,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Is_Video_Processing_Complete": [
+              "Succeeded"
+            ]
+          }
+        },
+        "List_Generated_Clip_Ideas": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.klap.app/v2/projects/@{body('Is_Video_Processing_Complete')?['output_id']}",
+            "headers": {
+              "Authorization": "YOUR_API"
+            }
+          },
+          "runAfter": {
+            "Is_Video_Processing_Complete": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Export_HD_Short_from_Klap": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.klap.app/v2/projects/@{body('Check_Shorts_Generation_Status')?['output_id']}/@{body('List_Generated_Clip_Ideas')?['id']}/exports",
+            "headers": {
+              "Authorization": "YOUR_API"
+            }
+          },
+          "runAfter": {
+            "List_Generated_Clip_Ideas": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fetch_Final_Shorts_URLs": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.klap.app/v2/projects/@{body('Check_Shorts_Generation_Status')?['output_id']}/@{body('List_Generated_Clip_Ideas')?['id']}/exports/@{body('Export_HD_Short_from_Klap')?['id']}",
+            "headers": {
+              "Authorization": "YOUR_API"
+            }
+          },
+          "runAfter": {
+            "Export_HD_Short_from_Klap": [
+              "Succeeded"
+            ],
+            "Wait_Before_Rechecking_Final_Shorts": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Are_All_Shorts_Ready": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Fetch_Final_Shorts_URLs'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst allVideos = $input.all();\n\nconst totalExpected = allVideos.length;\nconst readyCount = allVideos.filter(v => v.json.status === 'ready').length;\n\n// Si tous les items sont présents et tous sont 'ready', alors true\nconst allReady = totalExpected > 0 && readyCount === totalExpected;\n\nreturn allVideos.map(video => ({\n  json: {\n    ...video.json,\n    is_everything_ready: allReady\n  }\n}));\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Fetch_Final_Shorts_URLs": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Ready_to_Schedule_Shorts": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Ready to Schedule Shorts?",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "4d35bf8e-906d-45dd-883e-570a91f06f41",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.is_everything_ready }}",
+                    "rightValue": "true"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Are_All_Shorts_Ready": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_Before_Rechecking_Final_Shorts": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 60,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Ready_to_Schedule_Shorts": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fetch_YouTube_Video_Title": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://www.youtube.com/oembed?url=@{body('Extract_YouTube_URL_Number_of_Shorts')?['YouTube URL']}&format=json"
+          },
+          "runAfter": {
+            "Ready_to_Schedule_Shorts": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Load_Publishing_Schedule_from_Google_Sheets": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_SPREADSHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_WORKSHEET'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Fetch_YouTube_Video_Title": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_Scheduling_Parameters_Posts_Day_Hours": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Load_Publishing_Schedule_from_Google_Sheets'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nlet postsPerDay;\nlet startHour;\nlet endHour;\nfor (const item of items) {\nconst setting = item.json[\"Publishing Settings\"];\nconst value = item.json[\"col_2\"];\nif (setting === \"Post per Day\") {\npostsPerDay = parseInt(value, 10);\n} else if (setting === \"Start Time\") {\nstartHour = parseInt(value.split(\":\")[0], 10);\n} else if (setting === \"End Time\") {\nendHour = parseInt(value.split(\":\")[0], 10);\n}\n}\nreturn [\n{\njson: {\npostsPerDay,\nstartHour,\nendHour\n}\n}\n];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Load_Publishing_Schedule_from_Google_Sheets": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fetch_Already_Scheduled_Shorts": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_SPREADSHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_WORKSHEET'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Extract_Scheduling_Parameters_Posts_Day_Hours": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Determine_Last_Scheduled_Time": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Fetch_Already_Scheduled_Shorts'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Get existing scheduled posts\nconst existingPosts = $input.all();\n// Safe fallback: if the sheet is empty, use an empty object\nconst scheduleSettings = (__node('Fetch_Already_Scheduled_Shorts').first() || {\njson: {} }).json;\n// Find the latest scheduled time\nlet lastScheduledTime = new Date();\nif (existingPosts.length > 0) {\n// Get all scheduled times and find the latest\nconst scheduledTimes = existingPosts\n.map(post => new Date(post.json['Schedule Time']))\n.filter(date => !isNaN(date))\n.sort((a, b) => b - a); // Sort descending\nif (scheduledTimes.length > 0) {\nlastScheduledTime = scheduledTimes[0];\n}\n}\n// Pass this to the next node\nreturn [{\njson: {\nlastScheduledTime: lastScheduledTime.toISOString(),\npostsPerDay: scheduleSettings.postsPerDay,\nstartHour: scheduleSettings.startHour,\nendHour: scheduleSettings.endHour\n}\n}];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Fetch_Already_Scheduled_Shorts": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Calculate_Publication_Times_for_New_Shorts": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Determine_Last_Scheduled_Time'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst postsPerDay = parseInt(__node('Extract_Scheduling_Parameters_Posts_Day_Hours').first().json.postsPerDay);\nconst startHour = parseInt(__node('Extract_Scheduling_Parameters_Posts_Day_Hours').first().json.startHour);\nconst endHour = parseInt(__node('Extract_Scheduling_Parameters_Posts_Day_Hours').first().json.endHour);\nconst lastScheduledTime = new\nDate($input.first().json.lastScheduledTime);\n// Get video data\nconst videos = __node('List_Generated_Clip_Ideas').all();\nconst finalShorts = __node('Fetch_Final_Shorts_URLs').all();\nconst now = new Date();\nconst totalHours = endHour - startHour;\nconst intervalMs = (totalHours * 60 * 60 * 1000) / postsPerDay;\n// Start from the day after the last scheduled post\nlet startDate = new Date(lastScheduledTime);\nstartDate.setDate(startDate.getDate() + 1);\nstartDate.setHours(startHour, 0, 0, 0);\n// If starting date is in the past, use tomorrow\nif (startDate < now) {\nstartDate = new Date();\nstartDate.setDate(startDate.getDate() + 1);\nstartDate.setHours(startHour, 0, 0, 0);\n}\nconst result = [];\nlet videoIndex = 0;\nlet currentDate = new Date(startDate);\nlet dailyPostCount = 0;\nwhile (videoIndex < videos.length) {\n// Calculate time slot\nconst baseTime = new Date(currentDate);\nbaseTime.setHours(startHour + (dailyPostCount * (totalHours /\npostsPerDay)), 0, 0, 0);\n// Add randomness ±30 min\nconst offset = (Math.random() - 0.5) * 60 * 60 * 1000;\nconst scheduledTime = new Date(baseTime.getTime() + offset);\n// Get video data\nconst video = videos[videoIndex].json;\nconst finalShort = finalShorts[videoIndex].json;\nresult.push({\njson: {\nscheduled_at: scheduledTime.toISOString(),\nvideo_name: video.name,\nvideo_virality_score: video.virality_score,\nvideo_caption: video.publication_captions.youtube,\nvideo_tiktok_caption: video.publication_captions.tiktok,\nvideo_url: finalShort.src_url,\nvideo_id: video.id\n}\n});\nvideoIndex++;\ndailyPostCount++;\n// Move to next day if daily limit reached\nif (dailyPostCount >= postsPerDay) {\ncurrentDate.setDate(currentDate.getDate() + 1);\ndailyPostCount = 0;\n}\n}\nreturn result;\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Determine_Last_Scheduled_Time": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Convert_Times_to_Local_Timezone_Paris": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Calculate_Publication_Times_for_New_Shorts'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nreturn $input.all().map(item => {\nconst utc = item.json.scheduled_at;\nconst local = new Date(utc).toLocaleString(\"en-US\", {\ntimeZone: \"Europe/Paris\",\ntimeZoneName: \"short\",\nhour12: false\n});\nreturn {\njson: {\n...item.json, // This includes all the video data\nlocal_time: local\n}\n};\n});\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Calculate_Publication_Times_for_New_Shorts": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Log_Shorts_Schedule_Info_to_Google_Sheets": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_SPREADSHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_WORKSHEET'))}/items",
+            "body": {
+              "Clip URL": "@body('Convert_Times_to_Local_Timezone_Paris')?['video_url']",
+              "Video URL": "@first(body('Extract_YouTube_URL_Number_of_Shorts'))?['YouTube URL']",
+              "Video Title": "@first(body('Fetch_YouTube_Video_Title'))?['title']",
+              "Clip Caption": "@body('Convert_Times_to_Local_Timezone_Paris')?['video_tiktok_caption']",
+              "Schedule Time": "@body('Convert_Times_to_Local_Timezone_Paris')?['scheduled_at']",
+              "Video Clip Idea": "@body('Convert_Times_to_Local_Timezone_Paris')?['video_name']",
+              "Clip Virality Score": "@body('Convert_Times_to_Local_Timezone_Paris')?['video_virality_score']",
+              "Schedule Time (local)": "@body('Convert_Times_to_Local_Timezone_Paris')?['local_time']"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Convert_Times_to_Local_Timezone_Paris": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_Publication_Summary_to_Telegram": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "telegrambotip_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/bot@{encodeURIComponent('REPLACE_WITH_TELEGRAM_BOT_TOKEN')}/sendMessage",
+            "body": {
+              "chat_id": "@first(body('Trigger_Receive_YouTube_URL_via_Telegram'))?['message']?['chat']?['id']",
+              "text": "Your YouTube video \"@{first(body('Fetch_YouTube_Video_Title'))?['title']}\"\nwas converted into @{first(body('Extract_YouTube_URL_Number_of_Shorts'))?['How many shorts to generate?']} shorts and scheduled for publication on Tiktok,\nInstagram, Facebook, LinkedIn, Twitter and YouTube at these\ntimes:\n{{ $('Convert Times to Local Timezone (Paris)').all().map(item =>\nitem.json.local_time).join('\\n') }}"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendMessage"
+            }
+          },
+          "runAfter": {
+            "Upload_Video_to_Blotato": [
+              "Succeeded"
+            ]
+          }
+        },
+        "TWITTER": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://backend.blotato.com/v2/posts",
+            "headers": {
+              "blotato-api-key": "your_api"
+            },
+            "body": "{\n  \"post\": {\n    \"accountId\": \"@{body('Assign_Social_Media_IDs')?['twitter_id']}\",\n    \"target\": {\n      \"targetType\": \"twitter\"\n      \n    },\n    \"content\": {\n      \"text\": \"@{body('Get_my_video')?['DESCRIPTION']}\",\n      \"platform\": \"twitter\",\n      \"mediaUrls\": [\n        \"@{body('Upload_Video_to_Blotato')?['url']}\"\n      ]\n    }\n  },\n  \"scheduledTime\": \"@{body('Log_Shorts_Schedule_Info_to_Google_Sheets')?['Schedule Time']}\"\n}"
+          },
+          "runAfter": {
+            "Upload_Video_to_Blotato": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {
+    "Assign_Social_Media_IDs": {
+      "status": "Succeeded",
+      "outputs": {
+        "statusCode": "200",
+        "body": [
+          {
+            "tiktok_id": "2079",
+            "bluesky_id": "932",
+            "threads_id": "507",
+            "twitter_id": "1289",
+            "youtube_id": "873",
+            "facebook_id": "1759",
+            "linkedin_id": "1446",
+            "instagram_id": "1687",
+            "pinterest_id": "363",
+            "facebook_page_id": "101603614680195",
+            "pinterest_board_id": "1146658823815436667"
+          },
+          {
+            "tiktok_id": "2079",
+            "bluesky_id": "932",
+            "threads_id": "507",
+            "twitter_id": "1289",
+            "youtube_id": "873",
+            "facebook_id": "1759",
+            "linkedin_id": "1446",
+            "instagram_id": "1687",
+            "pinterest_id": "363",
+            "facebook_page_id": "101603614680195",
+            "pinterest_board_id": "1146658823815436667"
+          },
+          {
+            "tiktok_id": "2079",
+            "bluesky_id": "932",
+            "threads_id": "507",
+            "twitter_id": "1289",
+            "youtube_id": "873",
+            "facebook_id": "1759",
+            "linkedin_id": "1446",
+            "instagram_id": "1687",
+            "pinterest_id": "363",
+            "facebook_page_id": "101603614680195",
+            "pinterest_board_id": "1146658823815436667"
+          },
+          {
+            "tiktok_id": "2079",
+            "bluesky_id": "932",
+            "threads_id": "507",
+            "twitter_id": "1289",
+            "youtube_id": "873",
+            "facebook_id": "1759",
+            "linkedin_id": "1446",
+            "instagram_id": "1687",
+            "pinterest_id": "363",
+            "facebook_page_id": "101603614680195",
+            "pinterest_board_id": "1146658823815436667"
+          },
+          {
+            "tiktok_id": "2079",
+            "bluesky_id": "932",
+            "threads_id": "507",
+            "twitter_id": "1289",
+            "youtube_id": "873",
+            "facebook_id": "1759",
+            "linkedin_id": "1446",
+            "instagram_id": "1687",
+            "pinterest_id": "363",
+            "facebook_page_id": "101603614680195",
+            "pinterest_board_id": "1146658823815436667"
+          }
+        ]
+      }
+    }
+  },
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    },
+    "telegrambotip_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/telegrambotip"
+    }
+  }
+}

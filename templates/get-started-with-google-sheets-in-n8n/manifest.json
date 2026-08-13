@@ -1,0 +1,288 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "get-started-with-google-sheets-in-n8n",
+    "name": "Get started with Google Sheets in n8n",
+    "description": "A hands-on starter workflow that teaches beginners how to:\n\nPull rows from a Google Sheet\n\nAppend a new record that mimics a form submission\n\nGenerate AI-powered text with GPT-4o based on a “Topic” column\n\nWrite the AI output back into the correct row using an update operation\n\nAlong the way you’ll learn the three essential Google Sheets operations in n8n (read → append → update), see how to pass sheet data into an OpenAI node, and document each step with sticky-note instructions—perfect for anyone taking their first steps in no-code automation.\n\n\n### 0️⃣ Prerequisites\n- **Google Sheets**\n  1. Open **Google Cloud Console** → create / select a project.  \n  2. Enable **Google Sheets API** under *APIs & Services*.  \n  3. Create an OAuth **Desktop** credential and connect it in n8n.  \n  4. Share the spreadsheet with the Google account linked to the credential.\n- **OpenAI**\n  1. Create a secret key at &lt;https://platform.openai.com/account/api-keys&gt;.  \n  2. In n8n → **Credentials** → **New** → choose **OpenAI API** and paste the key.\n- **Sample sheet to copy** (make your own copy and use its link)  \n  &lt;https://docs.google.com/spreadsheets/d/15i9WIYpqc5lNd5T4VyM0RRptFPdi9doCbEEDn8QglN4/edit?usp=sharing&gt;\n\n---\n\n### 1️⃣ Trigger  \n**Manual Trigger** – lets you run on demand while learning.  \n*(Swap for a Schedule or Webhook once you automate.)*\n\n---\n\n### 2️⃣ Read existing rows  \n- **Node:** `Get Rows from Google Sheets`  \n- Reads every row from **Sheet1** of your copied file.\n\n---\n\n### 3️⃣ Generate a demo row  \n- **Node:** `Generate 1 Row of Data` (Set node)  \n- Pretends a form was submitted:  \n  - `Name`, `Email`, `Topic`, `Submitted = \"Yes\"`\n\n---\n\n### 4️⃣ Append the new row  \n- **Node:** `Append Data to Google`  \n- Operation **append** → writes to the first empty line.\n\n---\n\n### 5️⃣ Create a description with GPT-4o  \n1. **`OpenAI Chat Model`** – uses your OpenAI credential.  \n2. **`Write description`** (AI Agent) – prompt = the **Topic**.  \n3. **`Structured Output Parser`** – forces JSON like: `{ \"description\": \"…\" }`.\n\n---\n\n### 6️⃣ Update that same row  \n- **Node:** `Update Sheets data`  \n- Operation **update**.  \n- Matches on column **Email** to update the correct line.  \n- Writes the new **Description** cell returned by GPT-4o.\n\n---\n\n### 7️⃣ Why this matters  \n- Demonstrates the three core Google Sheets operations: **read → append → update**.  \n- Shows how to enrich sheet data with an **AI step** and push the result right back.  \n- Sticky Notes provide inline docs so anyone opening the workflow understands the flow instantly.\n\n---\n\n### 👤 Need help?  \nRobert Breen – Automation Consultant  \n✉️ robert.j.breen@gmail.com  \n🔗 &lt;https://www.linkedin.com/in/robert-breen-29429625/&gt;\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Run_Workflow": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "OpenAI_Chat_Model4": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model4",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Structured_Output_Parser3": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Structured Output Parser3",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsonSchemaExample": "{\n\t\"description\": \"description\"\n}"
+            }
+          },
+          "runAfter": {}
+        },
+        "Get_Rows_from_Google_Sheets": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('15i9WIYpqc5lNd5T4VyM0RRptFPdi9doCbEEDn8QglN4'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {}
+        },
+        "Generate_1_Row_of_Data": {
+          "type": "Compose",
+          "inputs": {
+            "Name": "Robert Breen",
+            "Email": "user@example.com",
+            "Topic": "n8n workflows",
+            "Submitted": "Yes"
+          },
+          "runAfter": {}
+        },
+        "Append_Data_to_google": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('15i9WIYpqc5lNd5T4VyM0RRptFPdi9doCbEEDn8QglN4'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+            "body": {
+              "Name": "@body('Generate_1_Row_of_Data')?['Name']",
+              "Email": "@body('Generate_1_Row_of_Data')?['Email']",
+              "Topic": "@body('Generate_1_Row_of_Data')?['Topic']",
+              "Submitted": "@body('Generate_1_Row_of_Data')?['Submitted']"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Generate_1_Row_of_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Write_description": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Write description",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "={{ $json.Topic }}",
+              "options": {
+                "systemMessage": "Take in the topic and write a description. "
+              },
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "OpenAI_Chat_Model4": [
+              "Succeeded"
+            ],
+            "Structured_Output_Parser3": [
+              "Succeeded"
+            ],
+            "Get_Rows_from_Google_Sheets": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Update_Sheets_data": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update Sheets data",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "Email": "={{ $('Get Rows from Google Sheets').item.json.Email }}",
+                  "Description": "={{ $json.output.description }}"
+                },
+                "schema": [
+                  {
+                    "id": "Name",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Name",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Email",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "Email",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Topic",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Topic",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Submitted",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Submitted",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Description",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "Description",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "row_number",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "row_number",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "Email"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "update",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gid=0",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15i9WIYpqc5lNd5T4VyM0RRptFPdi9doCbEEDn8QglN4/edit#gid=0",
+                "cachedResultName": "Sheet1"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "15i9WIYpqc5lNd5T4VyM0RRptFPdi9doCbEEDn8QglN4",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15i9WIYpqc5lNd5T4VyM0RRptFPdi9doCbEEDn8QglN4/edit?usp=drivesdk",
+                "cachedResultName": "Sample Data"
+              }
+            }
+          },
+          "runAfter": {
+            "Write_description": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Run_Workflow",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

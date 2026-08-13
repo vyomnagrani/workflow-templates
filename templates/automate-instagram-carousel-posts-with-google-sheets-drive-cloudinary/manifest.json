@@ -1,0 +1,366 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "automate-instagram-carousel-posts-with-google-sheets-drive-cloudinary",
+    "name": "Automate Instagram carousel posts with Google Sheets, Drive & Cloudinary",
+    "description": "## Who is this for?\n\nThis workflow is ideal for social media managers, content creators, marketers, and small businesses who want to automate Instagram Carousel posts using Google Sheets and Google Drive. It is also suitable for anyone looking to streamline repetitive Instagram publishing tasks with n8n, Cloudinary, and the Instagram Graph API.\n\n## What problem is this workflow solving? / Use case\n\nManaging and publishing Instagram Carousel posts manually can be time-consuming, especially when handling multiple accounts or campaigns. This workflow solves that by automatically fetching scheduled posts from Google Sheets, uploading images from Google Drive to Cloudinary, and publishing them to Instagram, saving time and reducing the risk of errors.\n\n## What this workflow does\n\nThis n8n workflow checks a Google Sheet every 5 minutes for new Carousel posts marked as \"ToDo.\" When found, it uploads images from a specified Google Drive folder to Cloudinary, prepares the media on Instagram using the Graph API, and publishes the Carousel post with the given caption.\n\n## Setup\n\n- Prepare a Google Sheet to track posts and image folder URLs.\n Example : https://docs.google.com/spreadsheets/d/1WEUHeQXFMYsWVAW3DykWwpANxxD3DxH-S6c0i06dW1g/edit?usp=sharing\n- Upload post images to a dedicated Google Drive folder.\n- Set up a Cloudinary account and gather API credentials.\n- Obtain Instagram `access_token` and `ig_business_id` for API publishing.\n- Configure the n8n workflow with required credentials and your custom intervals.\n\n## How to customize this workflow to your needs\n\n- Adjust the schedule trigger interval to fit your publishing frequency.\n- Expand the Google Sheet with additional metadata as required.\n- Modify the filter logic to support different content types or statuses.\n- Add extra automation steps, such as sending notifications after publishing.\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Social Media",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "connectionProviders/Http",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Schedule_Trigger": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Get_image_list_from_a_Google_Drive_folder1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Get image list from a Google Drive folder1",
+            "n8nNodeType": "n8n-nodes-base.googleDrive",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "filter": {
+                "folderId": {
+                  "__rl": true,
+                  "mode": "url",
+                  "value": "={{ $('Get Execution for Carousel').item.json.Folder }}"
+                }
+              },
+              "options": {
+                "fields": [
+                  "id",
+                  "name",
+                  "thumbnailLink",
+                  "webViewLink"
+                ]
+              },
+              "resource": "fileFolder",
+              "returnAll": true,
+              "queryString": "="
+            }
+          },
+          "runAfter": {
+            "Get_Execution_for_Carousel": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_Execution_for_Carousel": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('1WEUHeQXFMYsWVAW3DykWwpANxxD3DxH-S6c0i06dW1g'))}/tables/@{encodeURIComponent(encodeURIComponent('1315784118'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {}
+        },
+        "Upload_images_to_Cloudinary": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.cloudinary.com/v1_1/<your-cloud-name>/image/upload",
+            "body": {
+              "file": null,
+              "upload_preset": "<your_upload_preset>"
+            }
+          },
+          "runAfter": {
+            "Download_Image_from_Google_Drive_Carousel": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Setup_for_Instagram_access_token_ig_business_id": {
+          "type": "Compose",
+          "inputs": {
+            "access_token": "<your-instagram-access-token>",
+            "ig_user_id": "<your-ig_user_id>",
+            "image_url": "@body('Upload_images_to_Cloudinary')?['url']",
+            "caption": "@body('Get_Execution_for_Carousel')?['Expected content']"
+          },
+          "runAfter": {
+            "Upload_images_to_Cloudinary": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_Image_from_Google_Drive_Carousel": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://drive.google.com/uc?export=download&id=@{body('Get_image_list_from_a_Google_Drive_folder1')?['id']}"
+          },
+          "runAfter": {
+            "Get_image_list_from_a_Google_Drive_folder1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Create_Media_Container_Image": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://graph.instagram.com/v23.0/@{body('Setup_for_Instagram_access_token_ig_business_id')?['ig_user_id']}/media",
+            "body": {
+              "image_url": "@body('Setup_for_Instagram_access_token_ig_business_id')?['image_url']",
+              "caption": "@body('Setup_for_Instagram_access_token_ig_business_id')?['caption']",
+              "access_token": "@body('Setup_for_Instagram_access_token_ig_business_id')?['access_token']"
+            }
+          },
+          "runAfter": {
+            "Setup_for_Instagram_access_token_ig_business_id": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Combine_Instagram_media_containers": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Combine Instagram media containers",
+            "n8nNodeType": "n8n-nodes-base.aggregate",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "mergeLists": true
+              },
+              "fieldsToAggregate": {
+                "fieldToAggregate": [
+                  {
+                    "fieldToAggregate": "body.id"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Create_Media_Container_Image": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Create_Media_Container_Carousel": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://graph.instagram.com/v23.0/@{first(body('Setup_for_Instagram_access_token_ig_business_id'))?['ig_user_id']}/media",
+            "body": {
+              "caption": "@body('Get_Execution_for_Carousel')?['Expected content']",
+              "media_type": "=CAROUSEL",
+              "children": "@body('Combine_Instagram_media_containers')?['id']",
+              "access_token": "@first(body('Setup_for_Instagram_access_token_ig_business_id'))?['access_token']"
+            }
+          },
+          "runAfter": {
+            "Combine_Instagram_media_containers": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Publish_Instagram_Carousel": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://graph.instagram.com/v23.0/@{first(body('Setup_for_Instagram_access_token_ig_business_id'))?['ig_user_id']}/media_publish",
+            "body": {
+              "creation_id": "@body('Create_Media_Container_Carousel')?['body']?['id']",
+              "access_token": "@first(body('Setup_for_Instagram_access_token_ig_business_id'))?['access_token']"
+            }
+          },
+          "runAfter": {
+            "Create_Media_Container_Carousel": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Update_Execute_to_Processed": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update Execute to \"Processed\"",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "Status": "Processed",
+                  "ExecuteId": "={{ $('Get Execution for Carousel').item.json.ExecuteId }}"
+                },
+                "schema": [
+                  {
+                    "id": "ExecuteId",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "ExecuteId",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Folder",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Folder",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Expected content",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Expected content",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Language",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Language",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Status",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "Status",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Type",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Type",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Schedule_at",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "Schedule_at",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "row_number",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "row_number",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "ExecuteId"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "update",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": 1315784118,
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WEUHeQXFMYsWVAW3DykWwpANxxD3DxH-S6c0i06dW1g/edit#gid=1315784118",
+                "cachedResultName": "Execute "
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1WEUHeQXFMYsWVAW3DykWwpANxxD3DxH-S6c0i06dW1g",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WEUHeQXFMYsWVAW3DykWwpANxxD3DxH-S6c0i06dW1g/edit?usp=drivesdk",
+                "cachedResultName": "0004_Master"
+              }
+            }
+          },
+          "runAfter": {
+            "Publish_Instagram_Carousel": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Schedule_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

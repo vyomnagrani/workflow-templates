@@ -1,0 +1,204 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "generate-video-from-prompt-using-vertex-ai-veo-3-and-upload-to-google-drive",
+    "name": "Generate video from prompt using Vertex AI Veo 3 and upload to Google Drive",
+    "description": "## Who’s it for\nThis template is perfect for content creators, AI enthusiasts, marketers, and developers who want to automate the generation of cinematic videos using Google Vertex AI’s Veo 3 model. It’s also ideal for anyone experimenting with generative AI for video using n8n.\n\n![Alt text](https://drive.google.com/thumbnail?id=1pKMTF3Mk-zcX9qYEk6OW2IHwSXSYUmWx&sz=w1000)\n\n## What it does\nThis workflow:\n- Accepts a text prompt and a GCP access token via form.\n- Sends the prompt to the Veo 3 (preview model) using Vertex AI’s predictLongRunning endpoint.\n- Waits for the video rendering to complete.\n- Fetches the final result and converts the base64-encoded video to a file.\n- Uploads the resulting .mp4 to your Google Drive.\n\n![Alt text](https://drive.google.com/thumbnail?id=1L9KKkuS0hk5LW9hpGJ_FB9giKYFZpmy4&sz=w1000)\n### Output\n![Alt text](https://drive.google.com/thumbnail?id=1Biq2vhbzaFLya1ZsF8PhGL1RRta7XkMK&sz=w1000)\n\n## How to set up\n1. Enable Vertex AI API in your GCP project:\n[https://console.cloud.google.com/marketplace/product/google/aiplatform.googleapis.com](https://console.cloud.google.com/marketplace/product/google/aiplatform.googleapis.com)\n\n2. Authenticate with GCP using Cloud Shell or local terminal:\n```\ngcloud auth login\ngcloud config set project [YOUR_PROJECT_ID]\ngcloud auth application-default set-quota-project [YOUR_PROJECT_ID]\ngcloud auth print-access-token\n```\n- Copy the token and use it in the form when running the workflow.\n- ⚠️ This token lasts ~1 hour. Regenerate as needed.\n\n3. Connect your Google Drive OAuth2 credentials to allow file upload.\n\n4. Import this workflow into n8n and execute it via form trigger.\n\n## Requirements\n- **n8n (v1.94.1+)**\n- A **Google Cloud project** with:\n  - Vertex AI API enabled\n  - Billing enabled\n- A way to get **Access Token** ```gcloud auth print-access-token```\n- A **Google Drive OAuth2 credential** connected to n8n\n\n## How to customize the workflow\n- You can modify the \n  - ```durationSeconds```\n  - ```aspectRatio```\n  - ```generateAudio```\n\n- in the HTTP node to match your use case.\n- Replace the Google Drive upload node with alternatives like Dropbox, S3, or YouTube upload.\n- Extend the workflow to add subtitles, audio dubbing, or LINE/Slack alerts.\n\nStep-by-step for each major node:\n\nPrompt Input → Vertex Predict → Wait → Fetch Result → Convert to File → Upload\n\n## Best Practices Followed\n- No hardcoded API tokens\n- Secure: GCP token is input via form, not stored in workflow\n- All nodes are renamed with clear purpose\n- All editable config grouped in Set node\n\n## External References\n- GCP Veo API Docs:\nhttps://cloud.google.com/vertex-ai/docs/generative-ai/video/overview\n\n## Disclaimer\n- This workflow uses official Google Cloud APIs and requires a valid GCP project.\n- Access token should be generated securely using gcloud CLI.\n- Do not embed tokens in the workflow itself.\n\n### Notes on GCP Access Token\nTo use the Vertex AI API in n8n securely:\n1. Run the following on your local machine or GCP Cloud Shell:\n```\ngcloud auth login\ngcloud config set project your-project-id\ngcloud auth print-access-token\n```\n2. Paste the token in the workflow form field ```YOUR_ACCESS_TOKEN```\n when submitting.\n3. **Do not hardcode the token** into HTTP nodes or Set nodes — input it each time or use a secure credential vault.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Setting": {
+          "type": "Compose",
+          "inputs": {
+            "PROJECT_ID": "<YOUR_PROJECT_ID>",
+            "MODEL_VERSION": "veo-3.0-generate-preview",
+            "LOCATION": "<YOUR_LOCATION>",
+            "TEXT_PROMPT": "@body('On_form_submission')?['Prompt']",
+            "IMAGE_COUNT": "1",
+            "API_ENDPOINT": "<YOUR_LOCATION>-aiplatform.googleapis.com",
+            "ACCESS_TOKEN": "@body('On_form_submission')?['YOUR_ACCESS_TOKEN']"
+          },
+          "runAfter": {
+            "On_form_submission": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Convert_to_File": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Convert to File",
+            "n8nNodeType": "n8n-nodes-base.convertToFile",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "operation": "toBinary",
+              "sourceProperty": "response.videos[0].bytesBase64Encoded"
+            }
+          },
+          "runAfter": {
+            "Vertex_AI_fetch": [
+              "Succeeded"
+            ]
+          }
+        },
+        "On_form_submission": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "On form submission",
+            "n8nNodeType": "n8n-nodes-base.formTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "formTitle": "Google Vertex AI",
+              "formFields": {
+                "values": [
+                  {
+                    "fieldLabel": "Prompt",
+                    "requiredField": true
+                  },
+                  {
+                    "fieldLabel": "YOUR_ACCESS_TOKEN",
+                    "requiredField": true
+                  }
+                ]
+              },
+              "formDescription": "Google Vertex"
+            }
+          },
+          "runAfter": {}
+        },
+        "Google_Drive": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Drive",
+            "n8nNodeType": "n8n-nodes-base.googleDrive",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "name": "={{ $('On form submission').item.json.submittedAt }}.mp4",
+              "driveId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "My Drive",
+                "cachedResultUrl": "https://drive.google.com/drive/my-drive",
+                "cachedResultName": "My Drive"
+              },
+              "options": {},
+              "folderId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1tzpmwAWiUGolnKciZvcCghB5obhPoXzL",
+                "cachedResultUrl": "https://drive.google.com/drive/folders/1tzpmwAWiUGolnKciZvcCghB5obhPoXzL",
+                "cachedResultName": "n8n_VertexAI"
+              }
+            }
+          },
+          "runAfter": {
+            "Convert_to_File": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Vertex_AI_VEO3": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://@{body('Setting')?['API_ENDPOINT']}/v1/projects/@{body('Setting')?['PROJECT_ID']}/locations/@{body('Setting')?['LOCATION']}/publishers/google/models/@{body('Setting')?['MODEL_VERSION']}:predictLongRunning",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "REPLACE_WITH_SECRET"
+            },
+            "body": "{\n  \"endpoint\": \"projects/n8n-project-440404/locations/us-central1/publishers/google/models/veo-3.0-generate-preview\",\n  \"instances\": [\n    {\n      \"prompt\": @{body('Setting')?['TEXT_PROMPT']}\n    }\n  ],\n  \"parameters\": {\n    \"aspectRatio\": \"16:9\",\n    \"sampleCount\": 1,\n    \"durationSeconds\": \"8\",\n    \"personGeneration\": \"allow_all\",\n    \"addWatermark\": true,\n    \"includeRaiReason\": true,\n    \"generateAudio\": true\n  }\n}"
+          },
+          "runAfter": {
+            "Setting": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Vertex_AI_fetch": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://@{body('Setting')?['API_ENDPOINT']}/v1/projects/@{body('Setting')?['PROJECT_ID']}/locations/@{body('Setting')?['LOCATION']}/publishers/google/models/@{body('Setting')?['MODEL_VERSION']}:fetchPredictOperation",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer @{body('On_form_submission')?['YOUR_ACCESS_TOKEN']}"
+            },
+            "body": "{\n  \"operationName\": \"@{body('Wait')?['name']}\"\n}"
+          },
+          "runAfter": {
+            "Wait": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 2,
+              "unit": "Minute"
+            }
+          },
+          "runAfter": {
+            "Vertex_AI_VEO3": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

@@ -1,0 +1,710 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "screen-and-score-candidate-cvs-with-google-gemini-and-gmail",
+    "name": "Screen and score candidate CVs with Google Gemini and Gmail",
+    "description": "## Quick overview\nThis workflow collects job applications via an n8n Form, extracts text from uploaded PDF resumes, uses Google Gemini to score and summarize candidates against a job description, stores the results in an n8n Data Table, and emails HR and the applicant via Gmail based on the score.\n\n## How it works\n1. Receives a job application submission through an n8n Form with candidate details and a PDF resume upload.\n2. Applies role-specific context (job title, job description, HR email, score threshold, and submission timestamp) and extracts text from the uploaded PDF.\n3. Sends the job context and extracted CV text to a Google Gemini-powered AI agent to produce a structured evaluation (score, recommendation, strengths, weaknesses, summary, and interview questions).\n4. Upserts the candidate record and AI evaluation into an n8n Data Table keyed by the candidate email address.\n5. Checks whether the AI score meets or exceeds the configured threshold and emails HR a high-priority or standard candidate notification via Gmail.\n6. Emails the candidate a confirmation message via Gmail acknowledging receipt of their application.\n\n## Setup\n1. Add a Google Gemini (PaLM) API credential to the Google Gemini chat model node used by the AI agent.\n2. Add a Gmail/Google API credential for the HR notification and candidate confirmation emails, and ensure the sending account is authorized.\n3. Create or select an n8n Data Table and replace `YOUR_DATA_TABLE_ID_HERE` with your table ID in the Data Table upsert step.\n4. Update the values in the context configuration (HR email, company name, job title, job description, and score threshold) to match the role you are hiring for.\n5. Publish the n8n Form and share the form URL with candidates.\n\n## Requirements\n- **n8n Version:** Built and tested on **n8n 2.9.4+**. *(Note: You may encounter errors on older versions. It is highly recommended to update to the latest n8n version to use this workflow effectively).*\n- **Google Gemini** API key.\n- **Gmail** account (OAuth2 authentication).\n- n8n instance with the **Data Table** feature enabled.\n\n## Customization\n- **Change the Trigger:** Swap the n8n Form Trigger for a **Gmail Trigger** to automatically process resumes sent directly to your careers@ inbox.\n- **Change the AI Model:** Easily switch the Gemini sub-node for **OpenAI** or **Anthropic Claude** depending on your preferred AI provider.\n- **Team Messaging:** Prefer chat over email? Replace the HR Gmail node with a **Telegram** or **Slack** bot to send candidate alerts directly to your recruitment channel.\n\n## Additional info\n## About the Author\n\n**Created by:** Nguyễn Thiệu Toàn (Jay Nguyen)  \n**Email:** me@nguyenthieutoan.com  \n**Website:** [nguyenthieutoan.com](https://nguyenthieutoan.com)  \n**Company:** GenStaff ([genstaff.net](https://genstaff.net))  \n**Socials (Facebook / X / LinkedIn):** @nguyenthieutoan  \n**More templates:** [n8n.io/creators/nguyenthieutoan](https://n8n.io/creators/nguyenthieutoan)",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "HR",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/gmail",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "When_clicking_Execute_Workflow": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Create_Data_Table": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Create Data Table",
+            "n8nNodeType": "n8n-nodes-base.dataTable",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "column": [
+                  {
+                    "name": "full_name"
+                  },
+                  {
+                    "name": "email"
+                  },
+                  {
+                    "name": "phone"
+                  },
+                  {
+                    "name": "linkedin"
+                  },
+                  {
+                    "name": "expected_salary"
+                  },
+                  {
+                    "name": "cv_filename"
+                  },
+                  {
+                    "name": "ai_score",
+                    "type": "number"
+                  },
+                  {
+                    "name": "ai_recommendation"
+                  },
+                  {
+                    "name": "ai_summary"
+                  },
+                  {
+                    "name": "ai_strengths"
+                  },
+                  {
+                    "name": "ai_weaknesses"
+                  },
+                  {
+                    "name": "ai_interview_questions"
+                  },
+                  {
+                    "name": "job_title"
+                  },
+                  {
+                    "name": "submitted_at"
+                  },
+                  {
+                    "name": "status"
+                  },
+                  {
+                    "name": "ai_salary_eval"
+                  }
+                ]
+              },
+              "options": {},
+              "resource": "table",
+              "operation": "create",
+              "tableName": "=CV_Screeening_DB"
+            }
+          },
+          "runAfter": {}
+        },
+        "When_Form_Submitted": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "When Form Submitted",
+            "n8nNodeType": "n8n-nodes-base.formTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "respondWithOptions": {
+                  "values": {}
+                }
+              },
+              "formTitle": "Job Application Form",
+              "formFields": {
+                "values": [
+                  {
+                    "fieldLabel": "Full Name",
+                    "requiredField": true
+                  },
+                  {
+                    "fieldType": "email",
+                    "fieldLabel": "Email",
+                    "requiredField": true
+                  },
+                  {
+                    "fieldLabel": "Phone Number"
+                  },
+                  {
+                    "fieldLabel": "LinkedIn Profile URL"
+                  },
+                  {
+                    "fieldLabel": "Expected Salary (USD/month)",
+                    "placeholder": "e.g. 2000-3000",
+                    "requiredField": true
+                  },
+                  {
+                    "fieldType": "file",
+                    "fieldLabel": "Your Resume / CV",
+                    "requiredField": true,
+                    "acceptFileTypes": ".pdf"
+                  }
+                ]
+              },
+              "formDescription": "Please fill in the details below and attach your CV/Resume (PDF only)."
+            }
+          },
+          "runAfter": {}
+        },
+        "Set_HR_and_Job_Details": {
+          "type": "Compose",
+          "inputs": {
+            "hr_email": "user@example.com",
+            "company_name": "Your Company Name",
+            "job_title": "Software Engineer",
+            "job_description": "We are looking for a Software Engineer with 2+ years of experience in Node.js, Python, or similar backend languages. Familiarity with REST APIs, databases (SQL/NoSQL), and version control (Git) is required. Experience with cloud platforms (AWS/GCP) is a plus. The candidate should demonstrate strong problem-solving skills, ability to work in a team, and eagerness to learn.",
+            "score_threshold": 7,
+            "submitted_at": "={{ $now.toFormat('dd/MM/yyyy HH:mm') }}"
+          },
+          "runAfter": {
+            "When_Form_Submitted": [
+              "Succeeded"
+            ]
+          }
+        },
+        "CV_Screening_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "CV Screening Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=Please analyze the candidate's profile against the job position.\n\n**Company & Job Info:**\n- Company: {{ $('Set HR and Job Details').item.json.company_name }}\n- Job Title: {{ $('Set HR and Job Details').item.json.job_title }}\n- Job Description:\n{{ $('Set HR and Job Details').item.json.job_description }}\n\n**Candidate Self-Reported Info:**\n- Name: {{ $('Set Candidate Info').item.json.candidate_name }}\n- LinkedIn: {{ $('Set Candidate Info').item.json.candidate_linkedin }}\n- Expected Salary: {{ $('Set Candidate Info').item.json.expected_salary }}\n\n*Note: Use your available tools (like SerpAPI) to verify the companies, universities, or the LinkedIn profile mentioned.*",
+              "options": {
+                "systemMessage": "=You are an elite AI Talent Acquisition Specialist and Technical Assessor, engineered by Nguyen Thieu Toan (Jay Nguyen) - CEO/Founder of GenStaff (genstaff.net).\n\nYour primary directive is to objectively and scientifically evaluate candidate CVs against specific Job Descriptions, incorporating all contextual data (expected salary, LinkedIn).\n\n### Business Context\n- Time (now): {{ $now }}\n\n### Evaluation Protocol\n1. **Information Extraction**: Carefully extract the candidate's core competencies, total years of relevant experience, and educational background.\n2. **Cross-Verification**: Use search tools (e.g., SerpAPI) to verify the provided LinkedIn profile and check the legitimacy of unknown companies or highly improbable claims.\n3. **Salary Evaluation**: Compare their requested `Expected Salary` with their proven experience. If the salary expectation is completely misaligned with their actual skills (too high/too low), note it.\n4. **Gap Analysis**: Identify discrepancies between the CV and the Job Description.\n5. **Strict Scoring Rubric (1-10 Scale)**:\n   - [9-10]: Exceptional fit. Exceeds mandatory requirements.\n   - [7-8]: Solid fit. Meets all core requirements.\n   - [5-6]: Marginal fit. Missing key requirements.\n   - [1-4]: Unqualified or CV is unreadable.\n\n### Required Output Format\nYou must return a strictly valid JSON object. Do NOT wrap the JSON in markdown blocks. Return ONLY the raw JSON string.\n\n{\n  \"score\": <integer 1-10>,\n  \"recommendation\": \"<'Strong Yes' | 'Yes' | 'Maybe' | 'No'>\",\n  \"salary_evaluation\": \"<'Reasonable' | 'Too High' | 'Too Low' | 'Cannot Assess'>\",\n  \"strengths\": [\"<strength>\", \"<...>\"],\n  \"weaknesses\": [\"<weakness>\", \"<...>\"],\n  \"summary\": \"<Concise, analytical summary of the fit. Max 3 sentences.>\",\n  \"suggested_interview_questions\": [\"<Highly targeted behavioral/technical question>\", \"<...>\"]\n}\n\n### Constraints\n- Never hallucinate skills.\n- If CV is completely unreadable/empty, return score 1, recommendation \"No\".",
+                "passthroughBinaryPdfs": true
+              },
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "Aggregate": [
+              "Succeeded"
+            ],
+            "Gemini_Flash_Analysis": [
+              "Succeeded"
+            ],
+            "Parse_Analysis_Output": [
+              "Succeeded"
+            ],
+            "Google_ai_mode_search_in_SerpApi": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Gemini_Flash_Analysis": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Gemini Flash Analysis",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Parse_Analysis_Output": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Parse Analysis Output",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "autoFix": true,
+              "jsonSchemaExample": "{\n  \"score\": 8,\n  \"recommendation\": \"Strong Yes\",\n  \"salary_evaluation\": \"Reasonable\",\n  \"strengths\": [\"Strong Node.js background\", \"5 years experience\"],\n  \"weaknesses\": [\"No AWS experience mentioned\"],\n  \"summary\": \"Highly qualified candidate. Expected salary aligns with experience level.\",\n  \"suggested_interview_questions\": [\"Describe your experience with REST API design.\"]\n}"
+            }
+          },
+          "runAfter": {
+            "Gemini_Flash_Analysis": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Save_Candidate_Info": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Save Candidate Info",
+            "n8nNodeType": "n8n-nodes-base.dataTable",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "email": "={{ $('When Form Submitted').item.json['Email'] }}",
+                  "phone": "={{ $('When Form Submitted').item.json['Phone Number'] || '' }}",
+                  "status": "Pending Review",
+                  "ai_score": "={{ $json.output?.score || 0 }}",
+                  "linkedin": "={{ $('When Form Submitted').item.json['LinkedIn Profile URL'] || '' }}",
+                  "full_name": "={{ $('When Form Submitted').item.json['Full Name'] }}",
+                  "job_title": "={{ $('Set HR and Job Details').item.json.job_title }}",
+                  "ai_summary": "={{ $json.output?.summary || 'N/A' }}",
+                  "cv_filename": "={{ $('When Form Submitted').item.json['Your Resume / CV'][0].filename }}",
+                  "ai_strengths": "={{ $json.output?.strengths ? $json.output.strengths.join(', ') : 'N/A' }}",
+                  "submitted_at": "={{ $('Set HR and Job Details').item.json.submitted_at }}",
+                  "ai_weaknesses": "={{ $json.output?.weaknesses ? $json.output.weaknesses.join(', ') : 'N/A' }}",
+                  "ai_salary_eval": "={{ $json.output?.salary_evaluation || 'N/A' }}",
+                  "expected_salary": "={{ $('When Form Submitted').item.json['Expected Salary (USD/month)'] }}",
+                  "ai_recommendation": "={{ $json.output?.recommendation || 'N/A' }}",
+                  "ai_interview_questions": "={{ $json.output?.suggested_interview_questions ? $json.output.suggested_interview_questions.join(' | ') : 'N/A' }}"
+                },
+                "schema": [
+                  {
+                    "id": "full_name",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "full_name",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "email",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "email",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "phone",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "phone",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "linkedin",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "linkedin",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "expected_salary",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "expected_salary",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "cv_filename",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "cv_filename",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "ai_score",
+                    "type": "number",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "ai_score",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "ai_recommendation",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "ai_recommendation",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "ai_summary",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "ai_summary",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "ai_strengths",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "ai_strengths",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "ai_weaknesses",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "ai_weaknesses",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "ai_interview_questions",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "ai_interview_questions",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "job_title",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "job_title",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "submitted_at",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "submitted_at",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "status",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "status",
+                    "defaultMatch": false
+                  },
+                  {
+                    "id": "ai_salary_eval",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "ai_salary_eval",
+                    "defaultMatch": false
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "filters": {
+                "conditions": [
+                  {
+                    "keyName": "=email",
+                    "keyValue": "={{ $('When Form Submitted').item.json['Email'] }}",
+                    "condition": "=eq"
+                  }
+                ]
+              },
+              "options": {},
+              "operation": "upsert",
+              "dataTableId": {
+                "__rl": true,
+                "mode": "name",
+                "value": "=CV_Screeening_DB"
+              }
+            }
+          },
+          "runAfter": {
+            "CV_Screening_Agent": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_Candidate_Confirmation": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "gmail_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/v2/Mail",
+            "body": {
+              "To": "@body('When_Form_Submitted')?['Email']",
+              "Subject": "We Have Received Your Application – @{body('Set_HR_and_Job_Details')?['job_title']} at @{body('Set_HR_and_Job_Details')?['company_name']}",
+              "Body": "Dear @{body('When_Form_Submitted')?['Full Name']},\n\nThank you for applying for the <b>@{body('Set_HR_and_Job_Details')?['job_title']}</b> position at <b>@{body('Set_HR_and_Job_Details')?['company_name']}</b>.\n\nWe have successfully received your CV and our team will carefully review your application. You will hear from us within 3–5 business days.\n\nBest regards,<br>\nHR Team<br>\n@{body('Set_HR_and_Job_Details')?['company_name']}"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendEmailV2"
+            }
+          },
+          "runAfter": {
+            "Check_Score_Threshold": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Check_Score_Threshold": {
+          "type": "If",
+          "expression": {
+            "greaterOrEquals": [
+              "@body('CV_Screening_Agent')?['output']?.score || 0",
+              "@body('Set_HR_and_Job_Details')?['score_threshold']"
+            ]
+          },
+          "actions": {
+            "Notify_HR_High_Priority": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "referenceName": "gmail_#workflowname#"
+                  }
+                },
+                "method": "post",
+                "path": "/v2/Mail",
+                "body": {
+                  "To": "@body('Set_HR_and_Job_Details')?['hr_email']",
+                  "Subject": "🌟 [HIGH PRIORITY] New CV Received – @{body('When_Form_Submitted')?['Full Name']} | Score: @{body('CV_Screening_Agent')?['output']?['score']}/10",
+                  "Body": "<h2>🌟 High Priority Candidate Alert</h2>\n<p>A new CV has been submitted and received a high compatibility score.</p>\n\n<table style='border-collapse:collapse;width:100%'>\n  <tr><td style='padding:6px;font-weight:bold;background:#f0f4ff'>Candidate Name</td><td style='padding:6px'>@{body('When_Form_Submitted')?['Full Name']}</td></tr>\n  <tr><td style='padding:6px;font-weight:bold;background:#f0f4ff'>Email</td><td style='padding:6px'>@{body('When_Form_Submitted')?['Email']}</td></tr>\n  <tr><td style='padding:6px;font-weight:bold;background:#f0f4ff'>LinkedIn</td><td style='padding:6px'>@{body('When_Form_Submitted')?['LinkedIn Profile URL'] || 'Not provided'}</td></tr>\n  <tr><td style='padding:6px;font-weight:bold;background:#f0f4ff'>Expected Salary</td><td style='padding:6px'>@{body('When_Form_Submitted')?['Expected Salary (USD/month)']}</td></tr>\n  <tr><td style='padding:6px;font-weight:bold;background:#f0f4ff'>Applied For</td><td style='padding:6px'>@{body('Set_HR_and_Job_Details')?['job_title']}</td></tr>\n  <tr><td style='padding:6px;font-weight:bold;background:#f0f4ff'>Submitted At</td><td style='padding:6px'>@{body('Set_HR_and_Job_Details')?['submitted_at']}</td></tr>\n</table>\n\n<h3 style='color:#1d4ed8'>🤖 AI Evaluation (Powered by Gemini AI)</h3>\n<table style='border-collapse:collapse;width:100%'>\n  <tr><td style='padding:6px;font-weight:bold;background:#eff6ff'>AI Score</td><td style='padding:6px'><strong style='font-size:18px;color:#1d4ed8'>@{body('CV_Screening_Agent')?['output']?['score']} / 10</strong></td></tr>\n  <tr><td style='padding:6px;font-weight:bold;background:#eff6ff'>Recommendation</td><td style='padding:6px'><strong>@{body('CV_Screening_Agent')?['output']?['recommendation']}</strong></td></tr>\n  <tr><td style='padding:6px;font-weight:bold;background:#eff6ff'>Summary</td><td style='padding:6px'>@{body('CV_Screening_Agent')?['output']?['summary']}</td></tr>\n  <tr><td style='padding:6px;font-weight:bold;background:#eff6ff'>Strengths</td><td style='padding:6px'>@{body('CV_Screening_Agent')?['output']?['strengths']?['join']('<br>• ')}</td></tr>\n  <tr><td style='padding:6px;font-weight:bold;background:#eff6ff'>Weaknesses</td><td style='padding:6px'>@{body('CV_Screening_Agent')?['output']?['weaknesses']?['join']('<br>• ')}</td></tr>\n  <tr><td style='padding:6px;font-weight:bold;background:#eff6ff'>Suggested Interview Questions</td><td style='padding:6px'>@{body('CV_Screening_Agent')?['output']?['suggested_interview_questions']?['join']('<br>')}</td></tr>\n</table>\n\n<hr>\n<small style='color:#9ca3af'>Automated by GenStaff AI System · Built by Nguyen Thieu Toan (Jay Nguyen) · nguyenthieutoan.com</small>"
+                }
+              },
+              "metadata": {
+                "flowSystemMetadata": {
+                  "swaggerOperationId": "SendEmailV2"
+                }
+              },
+              "runAfter": {}
+            }
+          },
+          "else": {
+            "actions": {
+              "Notify_HR_for_Standard_Candidate": {
+                "type": "ApiConnection",
+                "inputs": {
+                  "host": {
+                    "connection": {
+                      "referenceName": "gmail_#workflowname#"
+                    }
+                  },
+                  "method": "post",
+                  "path": "/v2/Mail",
+                  "body": {
+                    "To": "@body('Set_HR_and_Job_Details')?['hr_email']",
+                    "Subject": "📋 New CV Received – @{body('When_Form_Submitted')?['Full Name']} | Score: @{body('CV_Screening_Agent')?['output']?['score']}/10",
+                    "Body": "<h2>New CV Submission</h2>\n<p>A new CV has been submitted for review.</p>\n\n<table style='border-collapse:collapse;width:100%'>\n  <tr><td style='padding:6px;font-weight:bold;background:#f9fafb'>Candidate Name</td><td style='padding:6px'>@{body('When_Form_Submitted')?['Full Name']}</td></tr>\n  <tr><td style='padding:6px;font-weight:bold;background:#f9fafb'>Email</td><td style='padding:6px'>@{body('When_Form_Submitted')?['Email']}</td></tr>\n  <tr><td style='padding:6px;font-weight:bold;background:#f9fafb'>LinkedIn</td><td style='padding:6px'>@{body('When_Form_Submitted')?['LinkedIn Profile URL'] || 'Not provided'}</td></tr>\n  <tr><td style='padding:6px;font-weight:bold;background:#f9fafb'>Expected Salary</td><td style='padding:6px'>@{body('When_Form_Submitted')?['Expected Salary (USD/month)']}</td></tr>\n  <tr><td style='padding:6px;font-weight:bold;background:#f9fafb'>Applied For</td><td style='padding:6px'>@{body('Set_HR_and_Job_Details')?['job_title']}</td></tr>\n  <tr><td style='padding:6px;font-weight:bold;background:#f9fafb'>Submitted At</td><td style='padding:6px'>@{body('Set_HR_and_Job_Details')?['submitted_at']}</td></tr>\n</table>\n\n<h3>🤖 AI Evaluation</h3>\n<table style='border-collapse:collapse;width:100%'>\n  <tr><td style='padding:6px;font-weight:bold;background:#f9fafb'>AI Score</td><td style='padding:6px'><strong>@{body('CV_Screening_Agent')?['output']?['score']} / 10</strong></td></tr>\n  <tr><td style='padding:6px;font-weight:bold;background:#f9fafb'>Recommendation</td><td style='padding:6px'>@{body('CV_Screening_Agent')?['output']?['recommendation']}</td></tr>\n  <tr><td style='padding:6px;font-weight:bold;background:#f9fafb'>Summary</td><td style='padding:6px'>@{body('CV_Screening_Agent')?['output']?['summary']}</td></tr>\n  <tr><td style='padding:6px;font-weight:bold;background:#f9fafb'>Strengths</td><td style='padding:6px'>@{body('CV_Screening_Agent')?['output']?['strengths']?['join'](', ')}</td></tr>\n</table>\n\n<hr>\n<small style='color:#9ca3af'>Automated by GenStaff AI System · Built by Nguyen Thieu Toan (Jay Nguyen) · nguyenthieutoan.com</small>"
+                  }
+                },
+                "metadata": {
+                  "flowSystemMetadata": {
+                    "swaggerOperationId": "SendEmailV2"
+                  }
+                },
+                "runAfter": {}
+              }
+            }
+          },
+          "runAfter": {
+            "Save_Candidate_Info": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Notify_HR_Error": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "gmail_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/v2/Mail",
+            "body": {
+              "To": "@body('Set_HR_and_Job_Details')?['hr_email']",
+              "Subject": "🚨 Error processing application for @{body('When_Form_Submitted')?['Full Name']}",
+              "Body": "There was an error parsing the PDF or connecting to the AI agent. Please review the candidate's application manually."
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendEmailV2"
+            }
+          },
+          "runAfter": {
+            "CV_Screening_Agent": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_ai_mode_search_in_SerpApi": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google_ai_mode search in SerpApi",
+            "n8nNodeType": "n8n-nodes-serpapi.serpApiTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "q": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Search_Query__q_', `searching query (example: What are the main product and services of GenStaff)`, 'string') }}",
+              "operation": "google_ai_mode",
+              "requestOptions": {},
+              "descriptionType": "manual",
+              "toolDescription": "Use this tool when you need to verify a infomation or seek for a company information to have more context for response.",
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Set_Candidate_Info": {
+          "type": "Compose",
+          "inputs": {
+            "candidate_name": "@body('When_Form_Submitted')?['Full Name']",
+            "candidate_linkedin": "@body('When_Form_Submitted')?['LinkedIn Profile URL'] || 'N/A'",
+            "expected_salary": "@body('When_Form_Submitted')?['Expected Salary (USD/month)']"
+          },
+          "runAfter": {
+            "Set_HR_and_Job_Details": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Merge": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Merge",
+            "n8nNodeType": "n8n-nodes-base.merge",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "Set_Candidate_Info": [
+              "Succeeded"
+            ],
+            "When_Form_Submitted": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Aggregate": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Aggregate",
+            "n8nNodeType": "n8n-nodes-base.aggregate",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "includeBinaries": true
+              },
+              "aggregate": "aggregateAllItemData"
+            }
+          },
+          "runAfter": {
+            "Merge": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "When_clicking_Execute_Workflow",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {
+    "When_Form_Submitted": {
+      "status": "Succeeded",
+      "outputs": {
+        "statusCode": "200",
+        "body": {
+          "Email": "me@nguyenthieutoan.com",
+          "formMode": "test",
+          "Full Name": "Nguyễn Thiệu Toàn",
+          "submittedAt": "2026-08-03T16:04:38.005+07:00",
+          "Phone Number": "0987654311",
+          "Your Resume / CV": [
+            {
+              "size": 489151,
+              "filename": "ChatStaff — Trợ lý AI Tư vấn & Chốt đơn 24_7 · GenStaff.pdf",
+              "mimetype": "application/pdf"
+            }
+          ],
+          "LinkedIn Profile URL": "Nguyễn Thiệu Toàn",
+          "Expected Salary (USD/month)": "5000"
+        }
+      }
+    }
+  },
+  "connections": {
+    "gmail_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/gmail"
+    }
+  }
+}

@@ -1,0 +1,330 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "create-a-personalized-daily-newsletter-with-google-gemini-ai-and-rss-feeds",
+    "name": "Create a personalized daily newsletter with Google Gemini AI and RSS feeds",
+    "description": "### Who's it for\n\nThis workflow is for anyone who wants to stay informed without the overwhelm. Whether you're tracking industry news, following your favorite blogs, monitoring competitors, or just keeping up with topics you care about—this automated newsletter keeps you in the loop effortlessly.\n\n### What it does\n\nThis automated workflow fetches content from your favorite RSS feeds, filters it based on your interests using Google Gemini AI, and sends you a beautifully formatted HTML newsletter at your preferred time. The AI selects the top 10-15 items from each category based on keywords you define, delivering only what matters to you.\n\n### How it works\n\n1. **Schedule Trigger**: Runs daily at your chosen time (default: 9:00 AM)\n2. **RSS Feeds**: Fetches content from your favorite news sources and websites\n3. **Processing**: Splits URLs, loops through feeds in batches to avoid rate limits\n4. **Merge & Convert**: Combines all RSS items into a single CSV file\n5. **AI Curation**: Google Gemini analyzes the content and selects relevant items based on your keywords\n6. **Email Delivery**: Sends a personalized HTML newsletter with summaries and images\n\n### Requirements\n\n- **Google Gemini API** credentials (for AI curation)\n- **SMTP credentials** (for sending emails)\n- Active n8n instance (self-hosted or cloud)\n\n### How to set up\n\n1. Add your **Google Gemini API credentials** in both Gemini nodes\n2. Configure your **SMTP settings** in the \"Send email\" node\n3. Update the **email addresses** (from and to) in the email node\n4. Add your **favorite RSS feed URLs** in the \"Set\" nodes\n5. Customize the **AI keywords** in \"Analyze document\" to match your interests\n6. Set your preferred **schedule time** in the trigger node\n\n### How to customize\n\n- **Add your RSS feeds**: Replace the example URLs in both \"Set\" nodes with RSS feeds from your favorite sources (blogs, news sites, podcasts, YouTube channels, etc.)\n- **Define your interests**: Modify the keywords in the \"Analyze document\" AI prompt to filter content that matters to you\n- **Adjust categories**: Change the two sections to match your needs (e.g., \"Industry News\" and \"Competitor Updates\" or \"Learning Resources\" and \"Tools\")\n- **Change email format**: Update the HTML template in the AI prompt to customize the newsletter design\n- **Modify delivery time**: Update the schedule trigger to run at your preferred time\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Personal Productivity",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/inlineCode",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Schedule_Trigger1": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Tech_News_Sites": {
+          "type": "Compose",
+          "inputs": {
+            "mode": "raw",
+            "options": {},
+            "jsonOutput": "{\"url\" :  [\n\"https://techcrunch.com/feed/\",\n\"https://www.theverge.com/rss/index.xml\",\n    \"https://analyticsindiamag.com/feed/\",\n     \"https://www.wired.com/feed/rss\",\n       \"https://thenextweb.com/feed\"\n]}"
+          },
+          "runAfter": {}
+        },
+        "Tools_Subredit_and_Sites": {
+          "type": "Compose",
+          "inputs": {
+            "mode": "raw",
+            "options": {},
+            "jsonOutput": "{\n  \"Url\": [\n    \n      \"https://www.reddit.com/r/SideProject/.rss\",\n      \"https://www.reddit.com/r/InternetIsBeautiful/.rss\",\n      \"https://dev.to/feed/tag/tools\",\n      \"https://www.producthunt.com/feed\"\n    \n  ]\n}"
+          },
+          "runAfter": {}
+        },
+        "Split_Out": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Split Out",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldToSplitOut": "url"
+            }
+          },
+          "runAfter": {
+            "Tech_News_Sites": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Split_Out1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Split Out1",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldToSplitOut": "Url"
+            }
+          },
+          "runAfter": {
+            "Tools_Subredit_and_Sites": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Loop_Over_Items": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Loop Over Items",
+            "n8nNodeType": "n8n-nodes-base.splitInBatches",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "batchSize": 5
+            }
+          },
+          "runAfter": {
+            "Split_Out": [
+              "Succeeded"
+            ],
+            "RSS_Read_OF_Tech_News": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Loop_Over_Items1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Loop Over Items1",
+            "n8nNodeType": "n8n-nodes-base.splitInBatches",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "batchSize": 4
+            }
+          },
+          "runAfter": {
+            "Split_Out1": [
+              "Succeeded"
+            ],
+            "RSS_Read_OF_Tools": [
+              "Succeeded"
+            ]
+          }
+        },
+        "RSS_Read_OF_Tech_News": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "RSS Read OF Tech News",
+            "n8nNodeType": "n8n-nodes-base.rssFeedRead",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $('Split Out').item.json.url }}",
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Loop_Over_Items": [
+              "Succeeded"
+            ]
+          }
+        },
+        "RSS_Read_OF_Tools": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "RSS Read OF Tools",
+            "n8nNodeType": "n8n-nodes-base.rssFeedRead",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $json.Url }}",
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Loop_Over_Items1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Merge_Both_List": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Merge Both List",
+            "n8nNodeType": "n8n-nodes-base.merge",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {
+            "Loop_Over_Items": [
+              "Succeeded"
+            ],
+            "Loop_Over_Items1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Conver_To_CSV": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Conver To CSV",
+            "n8nNodeType": "n8n-nodes-base.convertToFile",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Merge_Both_List": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_a_file": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Upload a file",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.googleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "resource": "file",
+              "inputType": "binary"
+            }
+          },
+          "runAfter": {
+            "Conver_To_CSV": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Analyze_document": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Analyze document",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.googleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "# Tech Content Writer Prompt\n\nYou are a tech content writer.\nI have two lists of items:\n1️⃣ New Tools & Products\n{products_list}\n2️⃣ Global & India Tech News\n{news_list}\n\n## Task:\n- Select the **top 10-15 items** from each list based on these interests and keywords:\n  - **Tools & Products Keywords:** [\"AI\", \"automation\", \"developer\", \"open source\", \"productivity\", \"creative\", \"innovation\", \"API\", \"web app\", \"tools\"]\n  - **News Keywords:** [\"technology innovation\", \"AI breakthrough\", \"framework\", \"developer update\", \"research\", \"automation trend\", \"product launch\"]\n- Keep **two separate sections**: \n  1. Tools & Products (10-15 items)\n  2. Global & India Tech Innovations (10-15 items)\n- Summarize each item in **2-3 lines**.\n- **If an image URL is provided**, display it beautifully under the title with rounded edges\n- Tone: \"Curious, energetic, and concise – focused on discovery, usefulness, and creativity.\"\n- Format using the HTML template below, replacing placeholder items with actual content from the lists.\n\n## HTML Template:\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Daily Tech Digest</title>\n    <style>\n        body {\n            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;\n            background: #f5f5f5;\n            margin: 0;\n            padding: 16px;\n            line-height: 1.5;\n            font-size: 15px;\n            color: #333;\n        }\n        \n        .container {\n            max-width: 600px;\n            margin: 0 auto;\n            background: #ffffff;\n            border-radius: 8px;\n        }\n        \n        .header {\n            background: #000;\n            color: #fff;\n            padding: 20px 16px;\n            border-radius: 8px 8px 0 0;\n        }\n        \n        .header h1 {\n            font-size: 20px;\n            font-weight: 600;\n            margin: 0 0 4px 0;\n        }\n        \n        .header p {\n            font-size: 13px;\n            margin: 0;\n            opacity: 0.8;\n        }\n        \n        .content {\n            padding: 20px 16px;\n        }\n        \n        .section {\n            margin-bottom: 32px;\n        }\n        \n        .section:last-child {\n            margin-bottom: 0;\n        }\n        \n        .section-title {\n            font-size: 16px;\n            font-weight: 600;\n            color: #000;\n            margin: 0 0 16px 0;\n            padding-bottom: 8px;\n            border-bottom: 2px solid #000;\n        }\n        \n        .item {\n            margin-bottom: 20px;\n            padding-bottom: 20px;\n            border-bottom: 1px solid #e5e5e5;\n        }\n        \n        .item:last-child {\n            border-bottom: none;\n            margin-bottom: 0;\n            padding-bottom: 0;\n        }\n        \n        .item-title {\n            font-size: 15px;\n            font-weight: 600;\n            color: #000;\n            margin: 0 0 12px 0;\n        }\n        \n        .item-image {\n            width: 100%;\n            height: auto;\n            border-radius: 12px;\n            margin-bottom: 12px;\n            display: block;\n            object-fit: cover;\n        }\n        \n        .item-summary {\n            font-size: 14px;\n            color: #555;\n            margin: 0 0 8px 0;\n        }\n        \n        .item-link {\n            color: #0066cc;\n            text-decoration: none;\n            font-size: 14px;\n            font-weight: 500;\n        }\n        \n        .footer {\n            background: #f9f9f9;\n            padding: 16px;\n            text-align: center;\n            font-size: 12px;\n            color: #666;\n            border-radius: 0 0 8px 8px;\n        }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"header\">\n            <h1>⚡ Daily Tech Digest</h1>\n            <p>{current_date}</p>\n        </div>\n        \n        <div class=\"content\">\n            <!-- Tools & Products Section -->\n            <div class=\"section\">\n                <h2 class=\"section-title\">🧠 New Tools & Products</h2>\n                \n                <!-- Example with Image -->\n                <div class=\"item\">\n                    <div class=\"item-title\">{Product Title 1}</div>\n                    <!-- Include image if URL is available -->\n                    <img src=\"{image_url}\" alt=\"{Product Title}\" class=\"item-image\" onerror=\"this.style.display='none'\">\n                    <div class=\"item-summary\">\n                        {2-3 line summary of the product}\n                    </div>\n                    <a href=\"{product_link}\" class=\"item-link\">Learn more →</a>\n                </div>\n                \n                <!-- Example without Image -->\n                <div class=\"item\">\n                    <div class=\"item-title\">{Product Title 2}</div>\n                    <div class=\"item-summary\">\n                        {2-3 line summary of the product}\n                    </div>\n                    <a href=\"{product_link}\" class=\"item-link\">Learn more →</a>\n                </div>\n                \n                <!-- Add more items as needed -->\n            </div>\n            \n            <!-- Global & India Tech News Section -->\n            <div class=\"section\">\n                <h2 class=\"section-title\">🌍 Global & India Tech Innovations</h2>\n                \n                <!-- Example with Image -->\n                <div class=\"item\">\n                    <div class=\"item-title\">{News Title 1}</div>\n                    <!-- Include image if URL is available -->\n                    <img src=\"{image_url}\" alt=\"{News Title}\" class=\"item-image\" onerror=\"this.style.display='none'\">\n                    <div class=\"item-summary\">\n                        {2-3 line summary of the news}\n                    </div>\n                    <a href=\"{news_link}\" class=\"item-link\">Read more →</a>\n                </div>\n                \n                <!-- Example without Image -->\n                <div class=\"item\">\n                    <div class=\"item-title\">{News Title 2}</div>\n                    <div class=\"item-summary\">\n                        {2-3 line summary of the news}\n                    </div>\n                    <a href=\"{news_link}\" class=\"item-link\">Read more →</a>\n                </div>\n                \n                <!-- Add more items as needed -->\n            </div>\n        </div>\n        \n        <div class=\"footer\">\n            Stay curious. Keep building.\n        </div>\n    </div>\n</body>\n</html>\n```",
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "models/gemini-2.5-flash-preview-05-20",
+                "cachedResultName": "models/gemini-2.5-flash-preview-05-20"
+              },
+              "options": {},
+              "resource": "document",
+              "documentUrls": "={{ $json.fileUri }}"
+            }
+          },
+          "runAfter": {
+            "Upload_a_file": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Code_in_JavaScript": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Analyze_document'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Get the HTML from previous node\nlet htmlText = $input.first().json.content.parts[0].text\n// Remove all \\n characters and trim\nhtmlText = htmlText.replace(/\\n/g, \"\").trim();\n\n// Return as JSON\nreturn [{ json: { html: htmlText } }];\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Analyze_document": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_email": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Send email",
+            "n8nNodeType": "n8n-nodes-base.emailSend",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "html": "={{ $json.html.replace(/^```html/, '').replace(/```$/, '').trim() }}\n",
+              "options": {},
+              "subject": "=⚡ Daily Tech Digest - {{ new Date().toLocaleDateString(\"en-US\", { year: \"numeric\", month: \"long\", day: \"numeric\" }) }}\n",
+              "toEmail": "user@example.com",
+              "fromEmail": "user@example.com"
+            }
+          },
+          "runAfter": {
+            "Code_in_JavaScript": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Schedule_Trigger1",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

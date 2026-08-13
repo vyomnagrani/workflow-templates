@@ -1,0 +1,393 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "transform-old-photos-into-animated-videos-with-flux-kling-ai-for-social-media",
+    "name": "Transform old photos into animated videos with FLUX & Kling AI for social media",
+    "description": "*This workflow contains community nodes that are only compatible with the self-hosted version of n8n.*\n\n## Description\n\nSee the transformation in action! Here's an example of what this workflow can achieve:\n\n![_97099274_fotoentera.jpg](fileId:1703)\n\n\n![ezgif822c7da3a75a2b.gif](fileId:1705)\n\nThis automation template is designed for content creators, social media managers, and anyone looking to breathe new life into old family photos and historical images. It transforms any old black and white or sepia photograph into a colorized, animated video using cutting-edge AI technology, then automatically publishes the results across multiple social media platforms including Facebook, Instagram, YouTube, and X (Twitter).\n\nThe workflow combines powerful AI services to create engaging content from vintage photographs: first enhancing and colorizing the image using FLUX Kontext, then bringing it to life with realistic animations using Kling Video AI, and finally distributing the results across your social media channels automatically.\n\n![Captura de pantalla 20250707 a las 21.55.01.png](fileId:1704)\n\n***Note: The estimated cost per workflow execution is approximately $0.29 USD, covering the AI processing for both image colorization and video animation. The upload-post node only works for self-hosted n8n instances, but you can use the standard HTTP request node for uploading content on n8n Cloud.***\n\n## Who Is This For?\n- **Content Creators & Social Media Managers:** Transform historical content into engaging videos that capture audience attention and drive engagement across platforms.\n- **Family History Enthusiasts:** Bring old family photos to life by adding color and motion, creating emotional connections with your audience.\n- **Marketing Professionals:** Leverage nostalgic content for brand storytelling, using vintage aesthetics to create compelling social media campaigns.\n- **Digital Artists & Photo Restorers:** Streamline the process of enhancing and sharing restored vintage photographs with automated AI enhancement.\n- **Social Media Influencers:** Create unique, eye-catching content from historical images that stands out in crowded social feeds.\n\n## What Problem Does This Workflow Solve?\nCreating engaging social media content from old photos typically requires multiple manual steps: photo restoration, colorization, animation, and then individual posting to each platform. This workflow addresses these challenges by:\n- **Automating Photo Enhancement:** Uses advanced AI (FLUX Kontext) to automatically colorize and enhance old photographs, removing artifacts and improving quality.\n- **Creating Dynamic Content:** Transforms static images into animated videos using Kling Video AI, making historical photos come alive with natural movements.\n- **Streamlining Multi-Platform Publishing:** Automatically distributes the final animated videos across Facebook, Instagram, YouTube, and X with a single workflow execution.\n- **Saving Time & Effort:** Eliminates the need for manual photo editing, video creation, and individual social media posting.\n\n## How It Works\n1. **Photo Upload:** Users submit old photographs through a simple web form, with optional custom animation descriptions.\n2. **Image Enhancement:** The workflow uploads the photo to imgbb, then sends it to FLUX Kontext AI for colorization and quality enhancement.\n3. **Animation Creation:** The colorized image is processed by Kling Video AI to create a 5-second animated video with natural movements.\n4. **Cloud Storage:** The final video is automatically saved to Google Drive for backup and easy access.\n5. **Multi-Platform Publishing:** The animated video is simultaneously posted to Facebook, Instagram, YouTube, and X using the upload-post service.\n\n## Setup\n1. **FAL.AI API Key:** Sign up at fal.ai and add your API key to the HTTP Request nodes for both FLUX Kontext and Kling Video AI services.\n2. **ImgBB API Token:** Create a free account at api.imgbb.com to get an API token for image hosting, then update the \"Upload Image to imgbb\" node.\n3. **Google Drive Connection:** Connect your Google Drive account to enable automatic video storage and backup.\n4. **Upload-Post Service:** Create an account at upload-post.com to get your API credentials for multi-platform social media posting.\n   - **Important:** The upload-post node currently only works with self-hosted n8n instances. For n8n Cloud users, replace the upload-post node with standard HTTP request nodes to publish to each social media platform individually.\n5. **Form Customization:** (Optional) Modify the form fields in the \"Photo Upload Form\" node to collect additional information or customize the user experience.\n\n## Requirements\n- **Accounts:** n8n, FAL.AI, ImgBB, Google Drive, upload-post.com\n- **API Keys & Credentials:** FAL.AI API Key, ImgBB API Token, Google Drive OAuth2, Upload-post.com API Token & User ID\n- **File Types:** Supports JPG, PNG image formats for photo uploads\n- **Cost:** Approximately $0.29 USD per workflow execution for AI processing\n\nTransform your old photographs into viral social media content with this powerful AI-driven workflow that handles everything from restoration to distribution automatically.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Photo_Upload_Form": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Photo Upload Form",
+            "n8nNodeType": "n8n-nodes-base.formTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "path": "animate-photo-form",
+              "options": {},
+              "formTitle": "Colorize and Animate Old Photos",
+              "formFields": {
+                "values": [
+                  {
+                    "fieldType": "file",
+                    "fieldLabel": "Upload Old Photo",
+                    "requiredField": true
+                  },
+                  {
+                    "fieldType": "textarea",
+                    "fieldLabel": "Custom Animation Description (Optional)",
+                    "placeholder": "Describe how you'd like the photo to be animated (e.g., 'make the person smile and blink')"
+                  }
+                ]
+              },
+              "formDescription": "Upload an old photo to colorize and animate it with AI"
+            }
+          },
+          "runAfter": {}
+        },
+        "Colorize_Image": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://queue.fal.run/fal-ai/flux-pro/kontext",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": "{\n  \"prompt\": \"Colorize this old black and white or sepia photograph. Make it look natural and vibrant with realistic colors. Remove any noise, scratches, or artifacts. Enhance the image quality and make it crystal clear. Keep all the original details and people exactly as they are, just add beautiful, realistic colors and improve the overall quality\",\n  \"image_url\": \"@{body('Upload_Image_to_imgbb')?['data']?['url']}\",\n  \"num_images\": 1\n}"
+          },
+          "runAfter": {
+            "Upload_Image_to_imgbb": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_for_Colorization": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 1,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Colorize_Image": [
+              "Succeeded"
+            ],
+            "Colorization_Completed": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Check_Colorization_Status": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://queue.fal.run/fal-ai/flux-pro/requests/@{body('Colorize_Image')?['request_id']}/status"
+          },
+          "runAfter": {
+            "Wait_for_Colorization": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Colorization_Completed": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Colorization Completed?",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "colorize-completed",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "COMPLETED"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Check_Colorization_Status": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_Colorized_Image": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://queue.fal.run/fal-ai/flux-pro/requests/@{body('Colorize_Image')?['request_id']}",
+            "headers": {
+              "Accept": "application/json"
+            }
+          },
+          "runAfter": {
+            "Colorization_Completed": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Animate_Image": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://queue.fal.run/fal-ai/kling-video/v2.1/standard/image-to-video",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": "{\n  \"prompt\": \"@{body('Photo_Upload_Form')?['Custom Animation Description (Optional)'] ? body('Photo_Upload_Form')?['Custom Animation Description (Optional)'] : 'Animate this colorized vintage photograph. If there are multiple people, make them interact naturally - perhaps talking, smiling, or making subtle gestures. If there\\'s only one person, animate them with natural movements like breathing, blinking, slight head movements, or gentle smiling. Keep the animation subtle and realistic, maintaining the vintage charm. The movement should feel natural and bring the photo to life. Do not move the camera'}\",\n  \"image_url\": \"@{body('Get_Colorized_Image')?['images'][0].url}\",\n  \"duration\": 5,\n  \"quality\": \"standard\"\n}"
+          },
+          "runAfter": {
+            "Get_Colorized_Image": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_for_Animation": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 60,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Animate_Image": [
+              "Succeeded"
+            ],
+            "Animation_Completed": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Check_Animation_Status": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://queue.fal.run/fal-ai/kling-video/requests/@{body('Animate_Image')?['request_id']}/status"
+          },
+          "runAfter": {
+            "Wait_for_Animation": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Animation_Completed": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Animation Completed?",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "animation-completed",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "COMPLETED"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Check_Animation_Status": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_Animated_Video": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://queue.fal.run/fal-ai/kling-video/requests/@{body('Animate_Image')?['request_id']}"
+          },
+          "runAfter": {
+            "Animation_Completed": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_Video": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@body('Get_Animated_Video')?['video']?['url']"
+          },
+          "runAfter": {
+            "Get_Animated_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_to_Google_Drive": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Upload to Google Drive",
+            "n8nNodeType": "n8n-nodes-base.googleDrive",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "name": "=animated-photo-{{ $now.format('yyyyMMdd-HHmmss') }}.mp4",
+              "driveId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "My Drive",
+                "cachedResultUrl": "https://drive.google.com/drive/my-drive",
+                "cachedResultName": "My Drive"
+              },
+              "options": {},
+              "folderId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "root",
+                "cachedResultUrl": "https://drive.google.com/drive",
+                "cachedResultName": "/ (Root folder)"
+              }
+            }
+          },
+          "runAfter": {
+            "Download_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Final_Results": {
+          "type": "Compose",
+          "inputs": {
+            "success": true,
+            "message": "Your old photo has been successfully colorized and animated!",
+            "colorized_image_url": "@body('Get_Colorized_Image')?['images'][0].url",
+            "animated_video_url": "@body('Get_Animated_Video')?['video']?['url']",
+            "google_drive_url": "@body('Upload_to_Google_Drive')?['webViewLink']",
+            "processing_time": "={{ $now.format('yyyy-MM-dd HH:mm:ss') }}"
+          },
+          "runAfter": {
+            "Upload_to_Google_Drive": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_Image_to_imgbb": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "=https://api.imgbb.com/1/upload",
+            "body": {
+              "image": null,
+              "key": "generate_token_and_add"
+            }
+          },
+          "runAfter": {
+            "Photo_Upload_Form": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_Post": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Upload Post",
+            "n8nNodeType": "n8n-nodes-upload-post.uploadPost",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "user": "ADD_UPLOAD_POST_USER",
+              "title": "This video was uploaded with the upload-post api",
+              "video": "={{ $('Get Animated Video').item.json.video.url }}",
+              "platform": [
+                "instagram",
+                "x",
+                "youtube",
+                "facebook"
+              ],
+              "operation": "uploadVideo",
+              "instagramMediaType": "REELS"
+            }
+          },
+          "runAfter": {
+            "Final_Results": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

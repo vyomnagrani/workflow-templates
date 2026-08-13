@@ -1,0 +1,511 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "recover-overdue-invoices-with-gpt-4o-mini-gmail-google-sheets-and-slack",
+    "name": "Recover overdue invoices with GPT-4o-mini, Gmail, Google Sheets and Slack",
+    "description": "## Quick overview\nThis workflow runs every 24 hours to read overdue invoices from Google Sheets, uses OpenAI (GPT-4o-mini) to draft personalized recovery emails and determine escalation, sends emails via Gmail, logs outcomes back to Google Sheets, and posts status and error alerts to Slack.\n\n## How it works\n1. Runs every 24 hours on a schedule trigger.\n2. Reads invoice rows from a Google Sheets “invoices” tab and checks whether there are any valid invoice entries to process.\n3. If no invoices are found, posts a “no overdue invoices” message to a Slack channel.\n4. For each invoice found, uses OpenAI (GPT-4o-mini) to assign an escalation level, draft a personalized HTML email (including payment plans when applicable), and recommend an escalation action.\n5. Parses the AI output into structured fields and sends the recovery email to the client via Gmail.\n6. If the AI recommends escalation, sends an internal escalation alert email to the legal team via Gmail.\n7. Updates the invoice row in Google Sheets with the new escalation level and AI summary, then appends a full audit log row to a “Recovery sheet” tab.\n8. If AI processing fails, posts an error alert to Slack and continues with the next invoice.\n\n## Setup\n1. Add Google Sheets OAuth2 credentials and set the Spreadsheet ID plus the sheet names (“invoices” and “Recovery sheet”).\n2. Add an OpenAI API credential and ensure the GPT-4o-mini model is available for the AI agent.\n3. Add Gmail OAuth2 credentials and set the reply-to address and recipients (client email field and the internal legal email address).\n4. Add Slack OAuth2 credentials and set the target channel ID for both the “no invoices” and error alerts.\n5. Ensure your invoices sheet includes columns used by the workflow (Invoice, Client, Email, Amount, Due Date, Days Overdue, Reminders Sent, and row_number for updates).",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Invoice Processing",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/gmail",
+      "/managedApis/googlesheet",
+      "connectionProviders/inlineCode",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Daily_Invoice_Check": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Hour",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "AI_Recovery_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "AI Recovery Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=You are a professional accounts receivable recovery agent. Analyze this overdue invoice and generate a personalized, polite but firm recovery message.\n\nInvoice Details:\n- Invoice Number: {{ $json.Invoice }}\n- Client Name: {{ $json.Client }}\n- Client Email: {{ $json.Email }}\n- Amount Due: {{ $json.Amount }}\n- Due Date: {{ $json['Due Date'] }}\n- Days Overdue: {{ $json['Days Overdue'] }}\n- Previous Reminders Sent: {{ $json['Reminders Sent'] || 0 }}\n\nBased on the days overdue and previous reminders, determine the escalation level:\n- Level 1 (1–7 days, 0 reminders): Gentle friendly reminder\n- Level 2 (8–14 days, 1 reminder): Firm reminder with payment plan offer\n- Level 3 (15–30 days, 2 reminders): Urgent notice with payment plan options\n- Level 4 (30+ days, 3+ reminders): Final notice before collections\n\nGenerate:\n1. A personalized email subject line\n2. A personalized HTML email body (addressed by first name, empathetic but firm)\n3. If Level 2+, include 2–3 payment plan options (e.g. 50% now + 50% in 30 days, or 3 monthly installments)\n4. Escalation recommendation: none / legal / collections\n\nRespond ONLY in this exact JSON format with no markdown or code fences:\n{\n  \"escalation_level\": 1,\n  \"subject\": \"email subject line here\",\n  \"email_body\": \"full HTML email body here\",\n  \"payment_plans\": [\"Plan A: ...\", \"Plan B: ...\"],\n  \"escalation_action\": \"none\",\n  \"summary\": \"brief one-line summary of action taken\"\n}",
+              "options": {
+                "systemMessage": "You are a professional AR recovery specialist. Always respond with valid JSON only — no markdown, no code fences, no preamble."
+              },
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "Any_Overdue_Invoices": [
+              "Succeeded"
+            ],
+            "GPT_4o_mini_Language_Model": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_Recovery_Email_to_Client": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "gmail_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/v2/Mail",
+            "body": {
+              "To": "@body('Read_Overdue_Invoices')?['Email']",
+              "Subject": "@body('Parse_Structure_AI_Response')?['subject']",
+              "Body": "@body('Parse_Structure_AI_Response')?['email_body']"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendEmailV2"
+            }
+          },
+          "runAfter": {
+            "Parse_Structure_AI_Response": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Read_Overdue_Invoices": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('YOUR_GOOGLE_SHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('invoices'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Slack_AI_Error_Alert": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Any_Overdue_Invoices": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Any Overdue Invoices?",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "condition-has-invoices",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty"
+                    },
+                    "leftValue": "={{ $json.Invoice }}",
+                    "rightValue": ""
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Read_Overdue_Invoices": [
+              "Succeeded"
+            ]
+          }
+        },
+        "GPT_4o_mini_Language_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "GPT-4o-mini Language Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini",
+                "cachedResultName": "gpt-4o-mini"
+              },
+              "options": {},
+              "builtInTools": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Parse_Structure_AI_Response": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['AI_Recovery_Agent'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst rawOutput = $input.first().json.output || $input.first().json.text || $input.first().json.content || '';\n\nlet parsed;\ntry {\n  const cleaned = rawOutput\n    .replace(/```json\\n?/g, '')\n    .replace(/```\\n?/g, '')\n    .trim();\n  parsed = JSON.parse(cleaned);\n} catch(e) {\n  parsed = {\n    escalation_level: 1,\n    subject: 'Invoice Payment Reminder - Action Required',\n    email_body: rawOutput || 'Please review your outstanding invoice.',\n    payment_plans: [],\n    escalation_action: 'none',\n    summary: 'Standard reminder sent (parse fallback)'\n  };\n}\n\nconst sourceItem = __node('Read_Overdue_Invoices').item.json;\n\nreturn [{\n  json: {\n    ...parsed,\n    invoice_number: sourceItem['Invoice'],\n    client_name: sourceItem['Client'],\n    client_email: sourceItem['Email'],\n    amount_due: sourceItem['Amount'],\n    days_overdue: sourceItem['Days Overdue'],\n    payment_plans_text: Array.isArray(parsed.payment_plans) ? parsed.payment_plans.join(' | ') : ''\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "AI_Recovery_Agent": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Needs_Escalation": {
+          "type": "If",
+          "expression": {
+            "not": {
+              "equals": [
+                "@body('Parse_Structure_AI_Response')?['escalation_action']",
+                "none"
+              ]
+            }
+          },
+          "actions": {
+            "Send_Escalation_Alert_to_Legal_Team": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "referenceName": "gmail_#workflowname#"
+                  }
+                },
+                "method": "post",
+                "path": "/v2/Mail",
+                "body": {
+                  "To": "user@example.com",
+                  "Subject": "🚨 ESCALATION: Invoice @{triggerBody()?['invoice_number']} — @{triggerBody()?['client_name']} ($@{triggerBody()?['amount_due']} overdue)",
+                  "Body": "<h2 style='color:#c0392b;'>Escalation Alert — Accounts Receivable</h2><table style='border-collapse:collapse;font-family:Arial;font-size:14px;'><tr><td style='padding:6px 12px;font-weight:bold;'>Client</td><td style='padding:6px 12px;'>@{triggerBody()?['client_name']}</td></tr><tr style='background:#f9f9f9;'><td style='padding:6px 12px;font-weight:bold;'>Email</td><td style='padding:6px 12px;'>@{triggerBody()?['client_email']}</td></tr><tr><td style='padding:6px 12px;font-weight:bold;'>Invoice #</td><td style='padding:6px 12px;'>@{triggerBody()?['invoice_number']}</td></tr><tr style='background:#f9f9f9;'><td style='padding:6px 12px;font-weight:bold;'>Amount Due</td><td style='padding:6px 12px;color:#c0392b;font-weight:bold;'>$@{triggerBody()?['amount_due']}</td></tr><tr><td style='padding:6px 12px;font-weight:bold;'>Days Overdue</td><td style='padding:6px 12px;'>@{triggerBody()?['days_overdue']}</td></tr><tr style='background:#f9f9f9;'><td style='padding:6px 12px;font-weight:bold;'>Escalation Level</td><td style='padding:6px 12px;'>@{triggerBody()?['escalation_level']}</td></tr><tr><td style='padding:6px 12px;font-weight:bold;'>Recommended Action</td><td style='padding:6px 12px;color:#e67e22;font-weight:bold;'>@{triggerBody()?['escalation_action']}</td></tr><tr style='background:#f9f9f9;'><td style='padding:6px 12px;font-weight:bold;'>AI Summary</td><td style='padding:6px 12px;'>@{triggerBody()?['summary']}</td></tr></table><br/><p style='color:#888;font-size:12px;'>This alert was auto-generated by the AR Recovery Agent.</p>"
+                }
+              },
+              "metadata": {
+                "flowSystemMetadata": {
+                  "swaggerOperationId": "SendEmailV2"
+                }
+              },
+              "runAfter": {}
+            }
+          },
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "Parse_Structure_AI_Response": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Update_Invoice_Status_in_Sheet": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update Invoice Status in Sheet",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "summary": "={{ $('Parse & Structure AI Response').item.json.summary }}",
+                  "labelIds": "={{ $json.labelIds }}",
+                  "row_number": "={{ $('Read Overdue Invoices').item.json.row_number }}",
+                  "escalation_level": "={{ $('Parse & Structure AI Response').item.json.escalation_level }}"
+                },
+                "schema": [
+                  {
+                    "id": "Invoice",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Invoice",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Client",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Client",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Amount",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Amount",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Days Overdue",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Days Overdue",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Level",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Level",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Email",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Email",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "escalation_level",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "escalation_level",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "summary",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "summary",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "subject",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "subject",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "labelIds",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "labelIds",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "row_number",
+                    "type": "number",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "row_number",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "row_number"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "update",
+              "sheetName": {
+                "__rl": true,
+                "mode": "name",
+                "value": "invoices"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "YOUR_GOOGLE_SHEET_ID"
+              }
+            }
+          },
+          "runAfter": {
+            "Send_Recovery_Email_to_Client": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Append_Row_to_Recovery_Log": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('YOUR_GOOGLE_SHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('Recovery sheet'))}/items",
+            "body": {
+              "Email": "@body('Read_Overdue_Invoices')?['Email']",
+              "Level": "@body('Read_Overdue_Invoices')?['Level']",
+              "Amount": "@body('Read_Overdue_Invoices')?['Amount']",
+              "Client": "@body('Read_Overdue_Invoices')?['Client']",
+              "Invoice": "@body('Read_Overdue_Invoices')?['Invoice']",
+              "subject": "@body('Parse_Structure_AI_Response')?['subject']",
+              "summary": "@body('Parse_Structure_AI_Response')?['summary']",
+              "labelIds": "@body('Send_Recovery_Email_to_Client')?['labelIds']",
+              "Days Overdue": "@body('Read_Overdue_Invoices')?['Days Overdue']",
+              "escalation_level": "@body('Parse_Structure_AI_Response')?['escalation_level']"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Needs_Escalation": [
+              "Succeeded"
+            ],
+            "Update_Invoice_Status_in_Sheet": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Slack_AI_Error_Alert": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Slack: AI Error Alert",
+            "n8nNodeType": "n8n-nodes-base.slack",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=⚠️ AR Recovery Agent — AI processing error on invoice: {{ $('Read Overdue Invoices').item.json.Invoice }}. Check the execution log for details.",
+              "select": "channel",
+              "channelId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "YOUR_SLACK_CHANNEL_ID"
+              },
+              "otherOptions": {},
+              "authentication": "oAuth2"
+            }
+          },
+          "runAfter": {
+            "AI_Recovery_Agent": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Slack_No_Invoices_Found_Alert": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Slack: No Invoices Found Alert",
+            "n8nNodeType": "n8n-nodes-base.slack",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "✅ AR Recovery Agent ran successfully — no overdue invoices found today.",
+              "select": "channel",
+              "channelId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "YOUR_SLACK_CHANNEL_ID"
+              },
+              "otherOptions": {},
+              "authentication": "oAuth2"
+            }
+          },
+          "runAfter": {
+            "Any_Overdue_Invoices": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Daily_Invoice_Check",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "gmail_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/gmail"
+    },
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

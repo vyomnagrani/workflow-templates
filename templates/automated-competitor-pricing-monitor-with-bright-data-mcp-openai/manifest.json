@@ -1,0 +1,444 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "automated-competitor-pricing-monitor-with-bright-data-mcp-openai",
+    "name": "Automated competitor pricing monitor with Bright Data MCP & OpenAI",
+    "description": "*This workflow contains community nodes that are only compatible with the self-hosted version of n8n.*\n\nThis workflow automatically monitors competitor pricing changes and website updates to keep you informed of market movements. It saves you time by eliminating the need to manually check competitor websites and provides alerts only when actual changes occur, preventing information overload.\n\n## Overview\n\nThis workflow automatically scrapes competitor pricing pages (like ClickUp) and compares current pricing with previously stored data. It uses Bright Data to access competitor websites without being blocked and AI to intelligently extract pricing information, updating your tracking spreadsheet only when changes are detected.\n\n## Tools Used\n\n- **n8n**: The automation platform that orchestrates the workflow\n- **Bright Data**: For scraping competitor websites without being blocked\n- **OpenAI**: AI agent for intelligent pricing data extraction and parsing\n- **Google Sheets**: For storing and comparing historical pricing data\n\n## How to Install\n\n1. **Import the Workflow**: Download the .json file and import it into your n8n instance\n2. **Configure Bright Data**: Add your Bright Data credentials to the MCP Client node\n3. **Set Up OpenAI**: Configure your OpenAI API credentials\n4. **Configure Google Sheets**: Connect your Google Sheets account and set up your pricing tracking spreadsheet\n5. **Customize**: Set your competitor URLs and pricing monitoring schedule\n\n## Use Cases\n\n- **Product Teams**: Monitor competitor feature and pricing changes for strategic planning\n- **Sales Teams**: Stay informed of competitor pricing to adjust sales strategies\n- **Marketing Teams**: Track competitor messaging and positioning changes\n- **Business Intelligence**: Build comprehensive competitor analysis databases\n\n## Connect with Me\n\n- **Website**: https://www.nofluff.online\n- **YouTube**: https://www.youtube.com/@YaronBeen/videos\n- **LinkedIn**: https://www.linkedin.com/in/yaronbeen/\n- **Get Bright Data**: https://get.brightdata.com/1tndi4600b25 (Using this link supports my free workflows with a small commission)\n\n#n8n #automation #competitoranalysis #pricingmonitoring #brightdata #webscraping #competitortracking #marketintelligence #n8nworkflow #workflow #nocode #pricetracking #businessintelligence #competitiveanalysis #marketresearch #competitormonitoring #pricingdata #websitemonitoring #competitorpricing #marketanalysis #competitorwatch #pricingalerts #businessautomation #competitorinsights #markettrends #pricingchanges #competitorupdates #strategicanalysis #marketposition #competitiveintelligence",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Market Research",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Trigger_Check_Job_Listings": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Set_Search_Parameters": {
+          "type": "Compose",
+          "inputs": {
+            "url": "https://clickup.com/pricing"
+          },
+          "runAfter": {}
+        },
+        "OpenAI_LLM_Brain": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "🧠 OpenAI: LLM Brain",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "MCP_Client_to_Scrape_as_markdown": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "MCP Client to Scrape as markdown",
+            "n8nNodeType": "n8n-nodes-mcp.mcpClientTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "toolName": "scrape_as_markdown",
+              "operation": "executeTool",
+              "toolParameters": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Tool_Parameters', ``, 'json') }}",
+              "descriptionType": "manual",
+              "toolDescription": "Scrape a single webpage URL with advanced options for content extraction and get back the results in markdown."
+            }
+          },
+          "runAfter": {}
+        },
+        "AI_agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "AI agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=Scrape Plan name and pricing from the url below\nurl: {{ $('🛠️ Set Search Parameters').item.json.url }}",
+              "options": {},
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "Retrieve_Pricing_data": [
+              "Succeeded"
+            ],
+            "OpenAI_LLM_Brain": [
+              "Succeeded"
+            ],
+            "Auto_fixing_Output_Parser": [
+              "Succeeded"
+            ],
+            "MCP_Client_to_Scrape_as_markdown": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Retrieve_Pricing_data": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('1olDNB5lFN8NGfVK8otJF2A8aYiR5jG6ve7cqwPyPXrY'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Set_Search_Parameters": [
+              "Succeeded"
+            ]
+          }
+        },
+        "If_price_changes": {
+          "type": "If",
+          "expression": {
+            "and": [
+              {
+                "equals": [
+                  "@body('Retrieve_Pricing_data')?['1 Pricing']",
+                  "@body('AI_agent')?['output']?['plans'][0].price"
+                ]
+              },
+              {
+                "equals": [
+                  "@body('Retrieve_Pricing_data')?['2 Pricing']",
+                  "@{body('AI_agent')?['output']?['plans'][1].price}1"
+                ]
+              },
+              {
+                "equals": [
+                  "@body('Retrieve_Pricing_data')?['3 Pricing']",
+                  "@body('AI_agent')?['output']?['plans'][2].price"
+                ]
+              },
+              {
+                "equals": [
+                  "@body('Retrieve_Pricing_data')?['4 Pricing']",
+                  "@body('AI_agent')?['output']?['plans'][3].price"
+                ]
+              }
+            ]
+          },
+          "actions": {
+            "No_Operation_do_nothing": {
+              "type": "Compose",
+              "inputs": {},
+              "runAfter": {}
+            }
+          },
+          "else": {
+            "actions": {
+              "Update_google_sheet": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "Update google sheet",
+                  "n8nNodeType": "n8n-nodes-base.googleSheets",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "columns": {
+                      "value": {
+                        "1 Plan": "={{ $json.output.plans[0].plan_name }}",
+                        "2 Plan": "={{ $json.output.plans[1].plan_name }}",
+                        "3 Plan": "={{ $json.output.plans[2].plan_name }}",
+                        "4 Plan": "={{ $json.output.plans[3].plan_name }}",
+                        "1 Pricing": "={{ $json.output.plans[0].price }}",
+                        "2 Pricing": "={{ $json.output.plans[1].price }}",
+                        "3 Pricing": "={{ $json.output.plans[2].price }}",
+                        "4 Pricing": "={{ $json.output.plans[3].price }}",
+                        "row_number": "2",
+                        "1 Key Features": "={{ $json.output.plans[0].key_features }}",
+                        "2 Key Features": "={{ $json.output.plans[1].key_features }}",
+                        "3 Key Features": "={{ $json.output.plans[2].key_features }}",
+                        "4 Key Features": "={{ $json.output.plans[3].key_features }}"
+                      },
+                      "schema": [
+                        {
+                          "id": "1 Plan",
+                          "type": "string",
+                          "display": true,
+                          "required": false,
+                          "displayName": "1 Plan",
+                          "defaultMatch": false,
+                          "canBeUsedToMatch": true
+                        },
+                        {
+                          "id": "1 Pricing",
+                          "type": "string",
+                          "display": true,
+                          "required": false,
+                          "displayName": "1 Pricing",
+                          "defaultMatch": false,
+                          "canBeUsedToMatch": true
+                        },
+                        {
+                          "id": "1 Key Features",
+                          "type": "string",
+                          "display": true,
+                          "required": false,
+                          "displayName": "1 Key Features",
+                          "defaultMatch": false,
+                          "canBeUsedToMatch": true
+                        },
+                        {
+                          "id": "2 Plan",
+                          "type": "string",
+                          "display": true,
+                          "required": false,
+                          "displayName": "2 Plan",
+                          "defaultMatch": false,
+                          "canBeUsedToMatch": true
+                        },
+                        {
+                          "id": "2 Pricing",
+                          "type": "string",
+                          "display": true,
+                          "required": false,
+                          "displayName": "2 Pricing",
+                          "defaultMatch": false,
+                          "canBeUsedToMatch": true
+                        },
+                        {
+                          "id": "2 Key Features",
+                          "type": "string",
+                          "display": true,
+                          "required": false,
+                          "displayName": "2 Key Features",
+                          "defaultMatch": false,
+                          "canBeUsedToMatch": true
+                        },
+                        {
+                          "id": "3 Plan",
+                          "type": "string",
+                          "display": true,
+                          "required": false,
+                          "displayName": "3 Plan",
+                          "defaultMatch": false,
+                          "canBeUsedToMatch": true
+                        },
+                        {
+                          "id": "3 Pricing",
+                          "type": "string",
+                          "display": true,
+                          "required": false,
+                          "displayName": "3 Pricing",
+                          "defaultMatch": false,
+                          "canBeUsedToMatch": true
+                        },
+                        {
+                          "id": "3 Key Features",
+                          "type": "string",
+                          "display": true,
+                          "required": false,
+                          "displayName": "3 Key Features",
+                          "defaultMatch": false,
+                          "canBeUsedToMatch": true
+                        },
+                        {
+                          "id": "4 Plan",
+                          "type": "string",
+                          "display": true,
+                          "required": false,
+                          "displayName": "4 Plan",
+                          "defaultMatch": false,
+                          "canBeUsedToMatch": true
+                        },
+                        {
+                          "id": "4 Pricing",
+                          "type": "string",
+                          "display": true,
+                          "required": false,
+                          "displayName": "4 Pricing",
+                          "defaultMatch": false,
+                          "canBeUsedToMatch": true
+                        },
+                        {
+                          "id": "4 Key Features",
+                          "type": "string",
+                          "display": true,
+                          "required": false,
+                          "displayName": "4 Key Features",
+                          "defaultMatch": false,
+                          "canBeUsedToMatch": true
+                        },
+                        {
+                          "id": "row_number",
+                          "type": "string",
+                          "display": true,
+                          "removed": false,
+                          "readOnly": true,
+                          "required": false,
+                          "displayName": "row_number",
+                          "defaultMatch": false,
+                          "canBeUsedToMatch": true
+                        }
+                      ],
+                      "mappingMode": "defineBelow",
+                      "matchingColumns": [
+                        "row_number"
+                      ],
+                      "attemptToConvertTypes": false,
+                      "convertFieldsToString": false
+                    },
+                    "options": {},
+                    "operation": "update",
+                    "sheetName": {
+                      "__rl": true,
+                      "mode": "list",
+                      "value": "gid=0",
+                      "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1olDNB5lFN8NGfVK8otJF2A8aYiR5jG6ve7cqwPyPXrY/edit#gid=0",
+                      "cachedResultName": "Sheet1"
+                    },
+                    "documentId": {
+                      "__rl": true,
+                      "mode": "list",
+                      "value": "1olDNB5lFN8NGfVK8otJF2A8aYiR5jG6ve7cqwPyPXrY",
+                      "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1olDNB5lFN8NGfVK8otJF2A8aYiR5jG6ve7cqwPyPXrY/edit?usp=drivesdk",
+                      "cachedResultName": "Clickup Pricing"
+                    }
+                  }
+                },
+                "runAfter": {}
+              }
+            }
+          },
+          "runAfter": {
+            "AI_agent": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Auto_fixing_Output_Parser": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Auto-fixing Output Parser",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ],
+            "Structured_Output_Parser": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenAI_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o-mini"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Structured_Output_Parser": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Structured Output Parser",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsonSchemaExample": "{\n  \"plans\": [\n    {\n      \"plan_name\": \"Free Forever\",\n      \"price\": \"Free\",\n      \"key_features\": [\n        \"60MB Storage\",\n        \"Unlimited Tasks\",\n        \"Unlimited Free Plan Members\",\n        \"Two-Factor Authentication\",\n        \"Collaborative Docs\",\n        \"Kanban Boards\",\n        \"Sprint Management\",\n        \"Calendar View\",\n        \"Custom Field Manager Basic\",\n        \"In-App Video Recording\",\n        \"24/7 Support\",\n        \"1 Form\"\n      ]\n    },\n    {\n      \"plan_name\": \"Unlimited\",\n      \"price\": \"$7 per user per month\",\n      \"key_features\": [\n        \"Everything in Free Forever plus\",\n        \"2GB Storage per user\",\n        \"Unlimited Folders and Spaces\",\n        \"Unlimited Integrations\",\n        \"Unlimited Gantt Charts\",\n        \"Unlimited Custom Fields\",\n        \"Unlimited Chat Messages\",\n        \"Unlimited Forms\",\n        \"Guests with Permissions\",\n        \"Email in ClickUp\",\n        \"3 Teams (User Group)\",\n        \"Native Time Tracking\",\n        \"Goals & Portfolios\",\n        \"Resource Management\",\n        \"AI Compatible\"\n      ]\n    },\n    {\n      \"plan_name\": \"Business\",\n      \"price\": \"$12 per user per month\",\n      \"key_features\": [\n        \"Everything in Unlimited, plus\",\n        \"Google SSO\",\n        \"Unlimited Storage\",\n        \"Unlimited Teams\",\n        \"Unlimited Message History\",\n        \"Unlimited Mind Maps\",\n        \"Unlimited Activity views\",\n        \"Unlimited Timeline views\",\n        \"Unlimited Dashboards\",\n        \"Unlimited Whiteboards\",\n        \"Sprint Points & Reporting\",\n        \"Automation Integrations\",\n        \"Custom Exporting\",\n        \"Private Whiteboards\",\n        \"Workload Management\",\n        \"SMS 2-Factor Authentication\",\n        \"More Automations\"\n      ]\n    },\n    {\n      \"plan_name\": \"Enterprise\",\n      \"price\": \"Custom pricing\",\n      \"key_features\": [\n        \"Everything in Business, plus\",\n        \"White Labeling\",\n        \"Conditional Logic in Forms\",\n        \"Team Sharing for Spaces\",\n        \"Custom Roles\",\n        \"Custom Capacity in Workload\",\n        \"Enterprise API\",\n        \"Unlimited Posts\",\n        \"Default Personal Views\",\n        \"Advanced Permissions\",\n        \"Advanced Public Sharing\",\n        \"MSA & HIPPA Available\",\n        \"Single Sign-On (SSO)\",\n        \"SCIM Provisioning\",\n        \"US, EU, & APAC Data Residency\",\n        \"Live Onboarding Training\",\n        \"Customer Success Manager\",\n        \"Access to Managed Services\"\n      ]\n    }\n  ]\n}\n"
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Trigger_Check_Job_Listings",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

@@ -1,0 +1,1130 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "categorize-seo-keywords-create-content-strategy-with-ai-and-airtable",
+    "name": "Categorize SEO keywords & create content strategy with AI and Airtable",
+    "description": "## Premium n8n Workflow: SMART AI Keyword Categorization & Content Strategy\n\nThis **n8n workflow** transforms raw keyword data into actionable content intelligence using advanced AI categorization and clustering. It creates a comprehensive content strategy with ready-to-use titles and descriptions for your blog posts.\n\n---\n\n## 🚀 Features\n\n### 🧠 AI-Powered Categorization  \nAutomatically sorts keywords into strategic buckets — **Quick Wins, Authority Builders, Emerging Topics, Intent Signals, and Semantic Topics** — for targeted content creation 🎯.  \n\n### 🔗 Semantic Clustering  \nIdentifies meaningful relationships between keywords to create logically grouped **content clusters** 🕸️.  \n\n### 📑 Content Blueprint Generation  \nCreates compelling **titles and descriptions** for each keyword and cluster to streamline your content creation process 📝.  \n\n### 🌐 Hub & Spoke Strategy Builder  \nDevelops a complete **site architecture plan** with main hub articles and supporting spoke content 🏗️.  \n\n### ⚡ Airtable Integration  \nOrganizes all outputs in a **structured database** for seamless integration with your content workflow.  \n\n### 🤖 n8n AI Agents  \nLeverages **advanced AI capabilities** to analyze keyword intent and potential without manual intervention.  \n\n---\n\n## 👥 This Workflow is Perfect For:\n\n- Content strategists 📊  \n- SEO professionals 🔍  \n- Content marketing teams 👥  \n- Blog managers 💻  \n- Digital publishers 📰  \n- Website owners (E-Commerce) 🏢  \n- Anyone using the **SMART AI Keyword Research Workflow** 🔄  \n\nStop struggling with manual keyword grouping and transform your raw keyword data into a **comprehensive content strategy**.  \n👉 **Get this premium workflow today!**\n\n---\n\n## 📝 What's Included?\n\n### ⚙️ n8n Workflow Template  \nReady-to-use workflow with **AI-powered nodes** for keyword analysis and categorization.  \n\n### 📊 Airtable Database Structure  \nPre-configured tables for **categorized keywords, content ideas, and hub-spoke relationships**.  \n\n### 🧩 Keyword Categorization System  \nAutomated logic to sort keywords by **opportunity, competition, and relevance**.  \n\n### 📋 Content Titles and Descriptions  \nAI prompts to create **optimized titles and descriptions** for each content piece.  \n\n### 🌐 Hub & Spoke Mapper  \nLogic to identify **main topics and supporting content opportunities**.  \n\n### 📚 Documentation  \nStep-by-step instructions for importing keyword data and running the workflow.  \n\n---\n\n## 🏆 Why Choose This Workflow?\n\n- ⏱️ **Save Massive Time**: Automate what would take days of manual analysis and planning.  \n- 📈 **Improve Content ROI**: Create content that targets the right keywords in the right way.  \n- 🔄 **Seamless Integration**: Works perfectly with the **AI Keyword Research** and **Blog Writing workflows** available on my profile.  \n- 🏗️ **Build Site Authority**: Create topically relevant content clusters that boost domain expertise.  \n- 🎯 **Strategic Focus**: Stop guessing which keywords to target and how to organize your content.  \n\n---\n\n## 🛠️ How It Works\n\n1️⃣ Import the provided **n8n workflow** into your n8n instance 📥.  \n2️⃣ Connect to your **Airtable base** containing keyword research data ⚙️.  \n3️⃣ Configure the **AI agents** with your preferred content parameters 🤖.  \n4️⃣ Run the workflow to automatically categorize, cluster, and create content briefs 🔄.  \n5️⃣ Use the generated **content strategy** to guide your blogging or feed directly into the **Multi-Agent Blog Writing System** available on my profile 📝.  \n\n\nAdditional detailed instructions are provided in the workflow.  \n\n---\n![Capture d’écran 20250918 151538.png](fileId:2656)\n## 🏁 What You Need to Get Started\n\n- 🔹 Access to **n8n** (self-hosted or cloud) ☁️  \n- 🔹 An **Airtable account** with keyword data (ideally from the AI Keyword Research Workflow on my profile) 📊  \n- 🔹 **OpenAI API credentials** for the AI categorization and title generation 🔑  \n- 🔹 Basic understanding of **content strategy and n8n workflows** 🧠  \n\n💡 You can also connect this workflow with my **SEO Keyword Research Automation using DataForSEO and Airtable** and my **Multi-Agent SEO Optimized Blog Writing System with Hyperlinks for E-Commerce**, both available on my profile, to build a fully automated, end-to-end **SEO content machine**.\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Market Research",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "When_clicking_Test_workflow": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Agent_Create_Content_Opps": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Agent Create Content Opps",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=For each of the {{ $('Edit Fields2').item.json.number_of_clusters }} clusters, consider its:\n- cluster_name: {{ $json.cluster_name }}\n- core_topic: {{ $json.core_topic }}\n- intent_pattern:{{ $json.intent_pattern }}\n- keywords: {{ $json.keywords }}\n- reasoning: {{ $json.reasoning }}\n- primary_keyword: {{ $json.primary_keyword }}\nTo create one hub article and 5 spoke articles.\n\nYou are creating a hub and spoke content strategy. For each hub and spoke article, you will create:\n- title: an seo-optimized title that is engaging and reflects the article content. It is around 60 characters long.\n- description: 3 to 5 paragraphs desribing the article\n- keyword: the primary keyword of the article\n\nTo create the clusters group all keywords with the same cluster_name. Give each cluster a name and type of either hub or spoke. There will be one hub article and up to 5 spoke articles per cluster.\n\nThe hub article serves as the central piece of content that provides a broad overview of a main topic. The spoke articles are detailed content pieces that branch out from the hub, each focusing on specific subtopics.\n\nImportant: Each cluster as defined above should have one hub article and up to 5 spoke articles. Always make sure that hub and spoke articles are created for each cluster.\nConsider the following when creating the hub and spoke articles.\n1. cluster_name\n2. title\n- SEO-optimized\n- Under 62 characters\n3. description\n- 3-5 paragraphs desribing the article\n4. type \n- hub or spoke\n\nReturn a single-line JSON object with this structure for each cluster (no line breaks). \n    {\n      \"cluster_name\": \"descriptive name\",\n      \"title\": \"the title\",\n      \"description\": \"the description\",\n      \"type\": \"either hub or spoke\",\n      \"keyword\": \"the primary keyword\"\n      \"reasoning\": \"reasoning for the cluster\"\n    }\n\nImportant: Return ONLY the JSON array with NO line breaks (\\n), NO extra quotations, NO extra spaces, and NO additional text.\n\n\n\n",
+              "options": {
+                "systemMessage": "You are an AI content strategist specializing in creating seo-optimized hub and spoke content structures. For each cluster, create one main hub article and up to 5 supporting spoke articles that comprehensively cover the topic while maintaining SEO best practices and user intent.\n"
+              },
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "Split_Out2": [
+              "Succeeded"
+            ],
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Filter_Out_Unknown": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Filter Out Unknown",
+            "n8nNodeType": "n8n-nodes-base.filter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "fa613938-57a8-49f6-a01b-723028c6cbf3",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEquals"
+                    },
+                    "leftValue": "={{ $json.fields.Category }}",
+                    "rightValue": "Unknown"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Category_Table": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Set_Category_Table_Fields": {
+          "type": "Compose",
+          "inputs": {
+            "keyword": "@JSON.parse(body('Category_AI_Agent')?['output']).keyword",
+            "category": "@JSON.parse(body('Category_AI_Agent')?['output']).category",
+            "reasoning": "@JSON.parse(body('Category_AI_Agent')?['output']).reasoning",
+            "msv": "@JSON.parse(body('Category_AI_Agent')?['output']).msv",
+            "kw_difficulty": "@JSON.parse(body('Category_AI_Agent')?['output']).kw_difficulty",
+            "search_intent": "@JSON.parse(body('Category_AI_Agent')?['output']).search_intent",
+            "competition": "@JSON.parse(body('Category_AI_Agent')?['output']).competition",
+            "cpc": "@JSON.parse(body('Category_AI_Agent')?['output']).cpc"
+          },
+          "runAfter": {
+            "Category_AI_Agent": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Category_Table": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Category Table",
+            "n8nNodeType": "n8n-nodes-base.airtable",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "base": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $('Set Airtable Fields').item.json.airtable_base_id }}"
+              },
+              "table": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $('Set Airtable Fields').item.json.categories_table_id }}"
+              },
+              "columns": {
+                "value": {
+                  "CPC": "={{ $json.cpc }}",
+                  "MSV": "={{ $json.msv }}",
+                  "Keyword": "={{ $json.keyword }}",
+                  "Category": "={{ $json.category }}",
+                  "Reasoning": "={{ $json.reasoning }}",
+                  "Competition": "={{ $json.competition }}",
+                  "KW Difficulty": "={{ $json.kw_difficulty }}",
+                  "Search Intent": "={{ $json.search_intent }}"
+                },
+                "schema": [
+                  {
+                    "id": "Category",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Category",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Keyword",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Keyword",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Reasoning",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Reasoning",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "MSV",
+                    "type": "number",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "MSV",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "KW Difficulty",
+                    "type": "number",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "KW Difficulty",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Search Intent",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Search Intent",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Competition",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Competition",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "CPC",
+                    "type": "number",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "CPC",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "create"
+            }
+          },
+          "runAfter": {
+            "Set_Category_Table_Fields": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Set_Content_from_Category_Fields": {
+          "type": "Compose",
+          "inputs": {
+            "keyword": "@body('Filter_Out_Unknown')?['fields']?['Keyword']",
+            "category": "@body('Filter_Out_Unknown')?['fields']?['Category']",
+            "reasoning": "@body('Filter_Out_Unknown')?['fields']?['Reasoning']"
+          },
+          "runAfter": {
+            "Filter_Out_Unknown": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Category_AI_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Category AI Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=Please categorize the following keywords according to the rules. Ensure every keyword is processed and included in the output.\n\nKeyword to Categorize and Data for Categorization:\n {{ $json.keyword }}\n{{ $json.msv }}\n{{ $json.search_intent }}\n{{ $json.kw_difficulty }}\n{{ $json.competition }}\n{{ $json.cpc }}\n",
+              "options": {
+                "systemMessage": "You are an AI agent specialized in analyzing and categorizing SEO keywords and search intent signals.\n\nCategorization Rules:\n1. Quick Wins:\n   - MSV > 100 AND KW Difficulty < 30\n   - These are opportunities for relatively fast ranking\n\n2. Authority Builders:\n   - KW Difficulty > 50 AND MSV > 200\n   - High-value terms worth investing in for authority building\n\n3. Emerging Topics:\n   - MSV < 100 OR (doesn't fit Quick Wins AND shows future potential)\n   - Focus on search intent and growth potential\n- Represent trends or novel concepts that are likely to grow in popularity\n\n4. Intent Signals:\n   - People Also Ask questions\n   - Direct user questions that show search intent\n   - Good opportunities for featured snippets and AI results\n   - Categorize here even if metrics are missing\n\n5. Semantic Topics:\n   - Autocomplete suggestions and semantic subtopics\n   - Related concepts that build topic authority\n   - Categorize here even if metrics are missing\n\n6. Unknown:\n   - Keywords that don't fit other categories\n   - Or have insufficient data and aren't questions/semantic topics\n\nReturn only a JSON object for each keyword with these exact fields:\n{\n    \"keyword\": \"exact keyword text\",\n    \"category\": \"Quick Wins|Authority Builders|Emerging Topics|Intent Signals|Semantic Topics|Unknown\",\n    \"reasoning\": \"brief explanation of categorization\",\n    \"msv\": number or null,\n    \"kw_difficulty\": number or null,\n    \"search_intent\": \"original intent or null\",\n    \"competition\": \"original competition or null\",\n    \"cpc\": number or null\n}\n\n\nImportant: Return ONLY the JSON object with NO line breaks (\\n), NO extra spaces, and NO additional text.\n\nImportant:\n- Process EVERY keyword in the input\n- Preserve all original data\n- Ensure total_processed matches input count\n- Provide brief reasoning for each categorization\n- please be accurate with the language, if the researches are made in Dutch, write in Dutch"
+              },
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "Set_WF_Fields": [
+              "Succeeded"
+            ],
+            "OpenAI_Chat_Model1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Content_Ideas_from_Category_AI_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Content Ideas from Category AI Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=For each keyword, analyze its category and reasoning to create:\n\n1. A title that:\n   - Captures search intent\n   - Is engaging and clickable\n   - Includes the main keyword naturally\n   - Is optimized for both search and social sharing\n   - Is under 60 characters\n   - Aligns with the category context: {{ $json.category }}\n   \n2. A description that:\n   - Clearly outlines the main topics and key points the article should cover\n   - Indicates specific value readers will gain\n   - Provides enough context to guide content creation\n   - Naturally incorporates the keyword\n   - Is concise but comprehensive (aim for 2-3 sentences)\n   - Considers the categorization reasoning: {{ $json.reasoning }}\n\nInput:\n\n{{ $json.keyword }}\n\nReturn a single-line JSON object with this structure (no line breaks):\n{\"keyword\":\"input keyword\",\"title\":\"created title\",\"description\":\"article description\"}",
+              "options": {
+                "systemMessage": "You are an AI content strategist specialized in creating engaging, SEO-optimized titles and article descriptions."
+              },
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "Loop_Over_Items": [
+              "Succeeded"
+            ],
+            "OpenAI_Chat_Model2": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Set_WF_Fields": {
+          "type": "Compose",
+          "inputs": {
+            "keyword": "@body('Airtable_Get_All_KWs')?['Keyword']",
+            "record_id": "@body('Airtable_Get_All_KWs')?['id']",
+            "primary_keyword": "@body('Airtable_Get_All_KWs')?['Primary Keyword']",
+            "competition": "@body('Airtable_Get_All_KWs')?['Competition']",
+            "msv": "@body('Airtable_Get_All_KWs')?['MSV']",
+            "search_intent": "@body('Airtable_Get_All_KWs')?['Search Intent']",
+            "kw_difficulty": "@body('Airtable_Get_All_KWs')?['KW Difficulty']",
+            "type": "@body('Airtable_Get_All_KWs')?['Type']",
+            "cpc": "@body('Airtable_Get_All_KWs')?['CPC']",
+            "Date Pulled from D4SEO": "@body('Airtable_Get_All_KWs')?['Date Pulled from D4SEO']"
+          },
+          "runAfter": {
+            "Airtable_Get_All_KWs": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Set_Content_Ideas_Table_Field": {
+          "type": "Compose",
+          "inputs": {
+            "keyword": "@JSON.parse(body('Content_Ideas_from_Category_AI_Agent')?['output']).keyword",
+            "title": "@JSON.parse(body('Content_Ideas_from_Category_AI_Agent')?['output']).title",
+            "description": "@JSON.parse(body('Content_Ideas_from_Category_AI_Agent')?['output']).description",
+            "primary_keyword": "@body('Set_WF_Fields')?['primary_keyword']",
+            "reasoning": "@body('Filter_Out_Unknown')?['fields']?['Reasoning']",
+            "category": "@body('Filter_Out_Unknown')?['fields']?['Category']"
+          },
+          "runAfter": {
+            "Content_Ideas_from_Category_AI_Agent": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Categories_Content_Ideas_Table": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Categories Content Ideas Table",
+            "n8nNodeType": "n8n-nodes-base.airtable",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "base": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $('Set Airtable Fields').item.json.airtable_base_id }}"
+              },
+              "table": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $('Set Airtable Fields').item.json.content_ideas_from_kws_table_id }}"
+              },
+              "columns": {
+                "value": {
+                  "Title": "={{ $json.title }}",
+                  "Status": "Not Started",
+                  "Keyword": "={{ $json.keyword }}",
+                  "Category": "={{ $json.category }}",
+                  "Reasoning": "={{ $json.reasoning }}",
+                  "Description": "={{ $json.description }}",
+                  "Primary Keyword": "={{ $json.primary_keyword }}"
+                },
+                "schema": [
+                  {
+                    "id": "Title",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Title",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Status",
+                    "type": "options",
+                    "display": true,
+                    "options": [
+                      {
+                        "name": "Not Started",
+                        "value": "Not Started"
+                      },
+                      {
+                        "name": "Send to Article Writer",
+                        "value": "Send to Article Writer"
+                      },
+                      {
+                        "name": "Discard",
+                        "value": "Discard"
+                      },
+                      {
+                        "name": "In Article Writer",
+                        "value": "In Article Writer"
+                      }
+                    ],
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Status",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Description",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Description",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Keyword",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Keyword",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Primary Keyword",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Primary Keyword",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Category",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Category",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Reasoning",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Reasoning",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "create"
+            }
+          },
+          "runAfter": {
+            "Set_Content_Ideas_Table_Field": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Edit_Fields1": {
+          "type": "Compose",
+          "inputs": {
+            "items": "@body('AI_Agent_Analyze_and_Cluster_KWs')?['output']?['parseJson']().clusters"
+          },
+          "runAfter": {
+            "AI_Agent_Analyze_and_Cluster_KWs": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Split_Out": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Split Out",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldToSplitOut": "items"
+            }
+          },
+          "runAfter": {
+            "Edit_Fields1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Set_Fields_for_Airtable": {
+          "type": "Compose",
+          "inputs": {
+            "cluster_name": "@body('Split_Out')?['cluster_name']",
+            "core_topic": "@body('Split_Out')?['core_topic']",
+            "intent_pattern": "@body('Split_Out')?['intent_pattern']",
+            "keywords": "@body('Split_Out')?['keywords']",
+            "reasoning": "@body('Split_Out')?['reasoning']",
+            "primary_keyword": "@body('Split_Out')?['primary_keyword']"
+          },
+          "runAfter": {
+            "Split_Out": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Split_Out1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Split Out1",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldToSplitOut": "keywords"
+            }
+          },
+          "runAfter": {
+            "Set_Fields_for_Airtable": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Split_Out2": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Split Out2",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldToSplitOut": "items"
+            }
+          },
+          "runAfter": {
+            "Edit_Fields2": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenAI_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": "gpt-4o",
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "AI_Agent_Analyze_and_Cluster_KWs": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "AI Agent Analyze and Cluster KWs",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=Analyze ALL keywords as a complete dataset and identify natural semantic clusters. Let the number and size of clusters emerge from the relationships in the data. Each keyword should be assigned to its most relevant cluster based on semantic meaning and user intent.\n\nGuidelines for clustering:\n- Identify genuine thematic relationships across keywords\n- Group keywords based on semantic similarity and shared user intents\n- Consider how different keyword types complement each other in revealing topic patterns\n- Let cluster count and size be determined by the natural groupings in the data\n- Each keyword should belong to exactly one cluster\n\nReturn a single-line JSON object with this structure (no line breaks):\n{\n  \"total_keywords_processed\": number,\n  \"number_of_clusters\": number,\n  \"clusters\": [\n    {\n      \"cluster_name\": \"descriptive name\",\n      \"core_topic\": \"main theme or focus\",\n      \"intent_pattern\": \"primary user intent pattern\",\n      \"keywords\": [\"array of all keywords in this cluster\"],\n      \"reasoning\": \"explanation of why these keywords form a coherent cluster\",\n      \"primary_keyword\": \"the primary keyword\"\n    }\n  ]\n}\n\nIMPORTANT: Do not include extra spaces, backticks ```, or any comments about what you did. Do not include \\n in any part of the output.\n\nInput data:\n{{ $json.keyword_dataset }}\n\n",
+              "options": {
+                "systemMessage": "=You are an AI expert in semantic analysis and content clustering. Your task is to analyze a collection of keywords holistically and identify natural semantic clusters based on:\n- Thematic relationships\n- User intent patterns\n- Topic hierarchies\n- Search behavior signals across different keyword types (direct searches, questions, suggestions)\n\nConsider both keywords with metrics (search_intent) and those without (people also ask, subtopics, autocomplete) as they represent different aspects of user intent."
+              },
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "OpenAI_Chat_Model3": [
+              "Succeeded"
+            ],
+            "Set_Field_for_Agent": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Edit_Fields2": {
+          "type": "Compose",
+          "inputs": {
+            "items": "@body('AI_Agent_Analyze_and_Cluster_KWs')?['output']?['parseJson']().clusters",
+            "number_of_clusters": "@body('AI_Agent_Analyze_and_Cluster_KWs')?['output']?['parseJson']().number_of_clusters"
+          },
+          "runAfter": {
+            "AI_Agent_Analyze_and_Cluster_KWs": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Edit_Fields3": {
+          "type": "Compose",
+          "inputs": {
+            "items": "@body('Agent_Create_Content_Opps')?['output']?['parseJson']()"
+          },
+          "runAfter": {
+            "Agent_Create_Content_Opps": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Split_Out3": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Split Out3",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldToSplitOut": "items"
+            }
+          },
+          "runAfter": {
+            "Edit_Fields3": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Aggregate_Keywords_for_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Aggregate Keywords for Agent",
+            "n8nNodeType": "n8n-nodes-base.aggregate",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "include": "specifiedFields",
+              "options": {},
+              "aggregate": "aggregateAllItemData",
+              "fieldsToInclude": "keyword, primary_keyword, type, search_intent"
+            }
+          },
+          "runAfter": {
+            "Set_WF_Fields": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Set_Field_for_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "keyword_dataset": "@body('Aggregate_Keywords_for_Agent')?['data']"
+          },
+          "runAfter": {
+            "Aggregate_Keywords_for_Agent": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Loop_Over_Items": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Loop Over Items",
+            "n8nNodeType": "n8n-nodes-base.splitInBatches",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Categories_Content_Ideas_Table": [
+              "Succeeded"
+            ],
+            "Set_Content_from_Category_Fields": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Set_Airtable_Fields": {
+          "type": "Compose",
+          "inputs": {
+            "airtable_base_id": "apprrQ0Dv1cJOfMi9",
+            "categories_table_id": "tblD8sMi6W4EikkN4",
+            "content_ideas_from_kws_table_id": "tblRDR7uE4b73ZpRt",
+            "clusters_table_id": "tblDRGVjI1vPuJxvm",
+            "content_ideas_from_clusters_table_id": "tbl7trYCu9sSGdRTJ",
+            "master_all_kw_variations_table_id": "tblHz4bwclrB24afu"
+          },
+          "runAfter": {}
+        },
+        "Airtable_Get_All_KWs": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Airtable Get All KWs",
+            "n8nNodeType": "n8n-nodes-base.airtable",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "base": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $json.airtable_base_id }}"
+              },
+              "table": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $json.master_all_kw_variations_table_id }}"
+              },
+              "options": {},
+              "operation": "search"
+            }
+          },
+          "runAfter": {
+            "Set_Airtable_Fields": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Clusters_Ideas_Table": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Clusters Ideas Table",
+            "n8nNodeType": "n8n-nodes-base.airtable",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "base": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $('Set Airtable Fields').item.json.airtable_base_id }}"
+              },
+              "table": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $('Set Airtable Fields').item.json.content_ideas_from_clusters_table_id }}"
+              },
+              "columns": {
+                "value": {
+                  "Type": "={{ $json.type }}",
+                  "Title": "={{ $json.title }}",
+                  "Status": "Not Started",
+                  "Keyword": "={{ $json.keyword }}",
+                  "Reasoning": "={{ $json.reasoning }}",
+                  "Description": "={{ $json.description }}",
+                  "Cluster Name": "={{ $json.cluster_name }}",
+                  "Primary Keyword": "={{ $('Set WF Fields').first().json.primary_keyword }}"
+                },
+                "schema": [
+                  {
+                    "id": "Cluster Name",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Cluster Name",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Title",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Title",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Description",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Description",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Type",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Type",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Reasoning",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Reasoning",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Status",
+                    "type": "options",
+                    "display": true,
+                    "options": [
+                      {
+                        "name": "Not Started",
+                        "value": "Not Started"
+                      },
+                      {
+                        "name": "Send to Article Writer",
+                        "value": "Send to Article Writer"
+                      },
+                      {
+                        "name": "Complete",
+                        "value": "Complete"
+                      },
+                      {
+                        "name": "Delete",
+                        "value": "Delete"
+                      }
+                    ],
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Status",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Primary Keyword",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Primary Keyword",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Keyword",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Keyword",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "create"
+            }
+          },
+          "runAfter": {
+            "Split_Out3": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Clusters_table": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Clusters table",
+            "n8nNodeType": "n8n-nodes-base.airtable",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "base": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $('Set Airtable Fields').item.json.airtable_base_id }}"
+              },
+              "table": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $('Set Airtable Fields').item.json.clusters_table_id }}"
+              },
+              "columns": {
+                "value": {
+                  "Intent": "={{ $('Set Fields for Airtable').item.json.intent_pattern }}",
+                  "Keywords": "={{ $json.keywords }}",
+                  "Reasoning": "={{ $('Set Fields for Airtable').item.json.reasoning }}",
+                  "Core Topic": "={{ $('Set Fields for Airtable').item.json.core_topic }}",
+                  "Cluster Name": "={{ $('Set Fields for Airtable').item.json.cluster_name }}",
+                  "Primary Keyword": "={{ $('Set Fields for Airtable').item.json.primary_keyword }}"
+                },
+                "schema": [
+                  {
+                    "id": "Cluster Name",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Cluster Name",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Core Topic",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Core Topic",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Intent",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Intent",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Keywords",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Keywords",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Reasoning",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Reasoning",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Primary Keyword",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Primary Keyword",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "create"
+            }
+          },
+          "runAfter": {
+            "Split_Out1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenAI_Chat_Model1": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model1",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "chatgpt-4o-latest",
+                "cachedResultName": "chatgpt-4o-latest"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "OpenAI_Chat_Model2": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model2",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "chatgpt-4o-latest",
+                "cachedResultName": "chatgpt-4o-latest"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "OpenAI_Chat_Model3": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model3",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "chatgpt-4o-latest",
+                "cachedResultName": "chatgpt-4o-latest"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "When_clicking_Test_workflow",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

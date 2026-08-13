@@ -1,0 +1,434 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "evaluate-tool-usage-accuracy-in-multi-agent-ai-workflows-using-evaluation-nodes",
+    "name": "Evaluate tool usage accuracy in multi-agent AI workflows using evaluation nodes",
+    "description": "Who's it for\n------------\n\nThis workflow is ideal for AI developers running multi-agent systems in n8n who need to quantitatively evaluate tool usage behavior. If you're building autonomous agents and want to verify their decisions against ground-truth expectations, this workflow gives you plug-and-play observability.\n\nWhat it does\n------------\n\nThis template uses n8n's built-in Evaluation Trigger and Evaluation nodes to assess whether an AI agent correctly used all the expected tools. It supports:\n\n-   Dataset-driven testing of agent behavior\n\n-   Logging actual tools to compare them with the expected tools\n\n-   Assigning performance metrics (tool_called = true/false)\n\n-   Persisting output back to Google Sheets for further debugging\n\nThe workflow can be triggered by either the chat input or the dataset row evaluation. It routes through a multi-tool agent node powered by the best LLMs. The agent has access to tools such as web search, calculator, vector search, and summarizer tools. The workflow then aims to validate tool use decisions by extracting the intermediate steps from the agent (i.e., action + observation) and comparing the tools that were called with the expected tools. If the tools that were called during the workflow execution match, then it's a pass; otherwise, it's documented as a fail. The evaluation nodes take care of that process. \n\nHow to set it up\n----------------\n\n1.  Connect your Google Sheets OAuth2 credential. Replace the document with your own test dataset.\n\n2.  Set your desired models and configure the different agent tools, such as the summarizer and vector store. The default vector store used is Qdrant, so the user must create this vector store with a few samples of queries + web search results.\n\n3.  Run from either the chat trigger or the evaluation trigger to test.\n\nRequirements\n------------\n\n-   Google Sheets OAuth2 credential\n\n-   OpenRouter / OpenAI credentials for AI agents and embeddings\n\n-   Firecrawl and Qdrant credentials for web + vector search\n\nHow to customize\n----------------\n\n-   Edit the Search Agent system message to define tool selection behavior\n\n-   Add more metric columns in the Evaluation node for complex scoring\n\n-   Add new tool nodes and link them to the agent block\n\n-   Swap in your own summarizer",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Engineering",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Calculator": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Calculator",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.toolCalculator",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "Check_if_tool_called": {
+          "type": "Compose",
+          "inputs": {
+            "tool_called": "@body('When_fetching_a_dataset_row')?['tools_to_call']\n    .split(',').map(t => t.trim())\n    .every(tool => body('Evaluating')?['intermediateSteps']?['some'](step => step.action.tool.toLowerCase() === tool))"
+          },
+          "runAfter": {
+            "Evaluating": [
+              "Succeeded"
+            ]
+          }
+        },
+        "When_chat_message_received": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "When chat message received",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chatTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Match_chat_format": {
+          "type": "Compose",
+          "inputs": {
+            "chatInput": "@body('When_fetching_a_dataset_row')?['question']"
+          },
+          "runAfter": {
+            "When_fetching_a_dataset_row": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Return_chat_response": {
+          "type": "Compose",
+          "inputs": {},
+          "runAfter": {
+            "Evaluating": [
+              "Succeeded"
+            ]
+          }
+        },
+        "When_fetching_a_dataset_row": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "When fetching a dataset row",
+            "n8nNodeType": "n8n-nodes-base.evaluationTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": 969651976,
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18F1WIEq1ykZKBO1bWYhC0YxRb2ngTurfsZ7jO6sGhLY/edit#gid=969651976",
+                "cachedResultName": "Tool calling"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "18F1WIEq1ykZKBO1bWYhC0YxRb2ngTurfsZ7jO6sGhLY",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18F1WIEq1ykZKBO1bWYhC0YxRb2ngTurfsZ7jO6sGhLY/edit?usp=drivesdk",
+                "cachedResultName": "n8n dataset for evaluation"
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Evaluation": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Evaluation",
+            "n8nNodeType": "n8n-nodes-base.evaluation",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "metrics": {
+                "assignments": [
+                  {
+                    "id": "5855df91-5a74-44f9-b25b-23a111dbd7a1",
+                    "name": "tool_called",
+                    "type": "number",
+                    "value": "={{ $json.tool_called.toNumber() }}"
+                  }
+                ]
+              },
+              "operation": "setMetrics"
+            }
+          },
+          "runAfter": {
+            "Set_Outputs": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Evaluating": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Evaluating?",
+            "n8nNodeType": "n8n-nodes-base.evaluation",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "operation": "checkIfEvaluating"
+            }
+          },
+          "runAfter": {
+            "Search_Agent": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Set_Outputs": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Set Outputs",
+            "n8nNodeType": "n8n-nodes-base.evaluation",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "outputs": {
+                "values": [
+                  {
+                    "outputName": "actual_tools_called",
+                    "outputValue": "={{ $('Evaluating?').item.json.intermediateSteps.map(step => step.action.tool.toLowerCase()).join(', ') }}\n"
+                  }
+                ]
+              },
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": 969651976,
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18F1WIEq1ykZKBO1bWYhC0YxRb2ngTurfsZ7jO6sGhLY/edit#gid=969651976",
+                "cachedResultName": "Tool calling"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "18F1WIEq1ykZKBO1bWYhC0YxRb2ngTurfsZ7jO6sGhLY",
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18F1WIEq1ykZKBO1bWYhC0YxRb2ngTurfsZ7jO6sGhLY/edit?usp=drivesdk",
+                "cachedResultName": "n8n dataset for evaluation"
+              }
+            }
+          },
+          "runAfter": {
+            "Check_if_tool_called": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Search_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Search Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "systemMessage": "=You are a helpful assistant who will have access to a few tools to help with responding to user queries. I am providing some instructions below on how to use the tools. Please follow the instructions carefully.\n\nFirst, check the search_db tool to check whether the query exists. The tool expects a query string. If you use this tool and find relevant information, don't use the websearch tool.\n\nUse the web search tool to search the web for relevant information if you need to. You can ONLY call this tool once. \n\nUse the calculator for math operations or tasks. \n\nUse the summarizer tool to summarize the output. It's required to use this once you have gathered all the information you need.",
+                "returnIntermediateSteps": true
+              }
+            }
+          },
+          "runAfter": {
+            "Search_db": [
+              "Succeeded"
+            ],
+            "Calculator": [
+              "Succeeded"
+            ],
+            "Summarizer": [
+              "Succeeded"
+            ],
+            "Web_search": [
+              "Succeeded"
+            ],
+            "Match_chat_format": [
+              "Succeeded"
+            ],
+            "OpenRouter_Chat_Model": [
+              "Succeeded"
+            ],
+            "When_chat_message_received": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Summarizer": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Summarizer",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.toolWorkflow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "workflowId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "fehTbkLtPtlVwDYq",
+                "cachedResultName": "Summarizer Agent"
+              },
+              "description": "Call this tool to summarize the outputs. ",
+              "workflowInputs": {
+                "value": {
+                  "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}"
+                },
+                "schema": [
+                  {
+                    "id": "query",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "query",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "query"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Web_search": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Web search",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "https://api.firecrawl.dev/v1/search",
+              "method": "POST",
+              "options": {},
+              "sendBody": true,
+              "sendHeaders": true,
+              "authentication": "genericCredentialType",
+              "bodyParameters": {
+                "parameters": [
+                  {
+                    "name": "query",
+                    "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', ``, 'string') }}"
+                  },
+                  {
+                    "name": "limit",
+                    "value": "={{ \"3\".toNumber() }}"
+                  }
+                ]
+              },
+              "genericAuthType": "httpBearerAuth",
+              "headerParameters": {
+                "parameters": [
+                  {
+                    "name": "content-type",
+                    "value": "application/json"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "OpenRouter_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenRouter Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": "openai/o3",
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Embeddings_OpenAI": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Embeddings OpenAI",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Search_db": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Search_db",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "retrieve-as-tool",
+              "options": {},
+              "toolDescription": "Retrievel relevant results",
+              "qdrantCollection": {
+                "__rl": true,
+                "mode": "list",
+                "value": "search_queries",
+                "cachedResultName": "search_queries"
+              }
+            }
+          },
+          "runAfter": {
+            "Embeddings_OpenAI": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {
+    "When_chat_message_received": {
+      "status": "Succeeded",
+      "outputs": {
+        "statusCode": "200",
+        "body": [
+          {
+            "chatInput": "What’s the most recent funding round for Anthropic?"
+          },
+          {
+            "chatInput": "How much did OpenAI paid to acquire Windsurf? Take the results and multiply it by 1000."
+          }
+        ]
+      }
+    }
+  },
+  "connections": {}
+}

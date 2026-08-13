@@ -1,0 +1,675 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "ai-content-creation-and-auto-wordpress-publishing-with-pexels-api-image-workflow",
+    "name": "AI content creation and auto WordPress publishing with Pexels API image workflow",
+    "description": "### AI powered content creation and WordPress publishing workflow\n\n**Summary**\n\nThis workflow automates the entire process of blog content creation, from idea generation and article writing using Google Gemini, to sourcing images from Pexels and publishing directly to your WordPress site. It uses Google Sheets as a central hub for managing content ideas and tracking their status, all orchestrated through interactive n8n forms.\n\n**Key features**\n\n*   **AI driven content:** Leverages Google Gemini for generating:\n    *   Full blog articles based on prompts.\n    *   Relevant keywords for image searching.\n    *   New blog topic ideas.\n*   **Automated image sourcing:** Searches Pexels for suitable images based on AI generated keywords and downloads them.\n*   **WordPress integration:**\n    *   Creates new posts with AI generated title and content.\n    *   Uploads sourced images to the WordPress media library.\n    *   Sets the uploaded image as the featured image for the post.\n*   **Google Sheets management:**\n    *   Fetches content ideas (prompts) marked as \"not generated\".\n    *   Updates the sheet after a post is generated with the post ID, title, and generation date.\n    *   Adds newly AI generated blog topic ideas to the sheet.\n*   **Interactive forms:**\n    *   Main trigger form to choose between generating content or adding new ideas.\n    *   Forms to input topics for idea generation.\n    *   Confirmation forms at the end of processes.\n*   **Structured output parsing:** Ensures AI responses for topic generation are correctly formatted as JSON.\n\n**How it works**\n\nThe workflow is initiated via an n8n `Form Trigger: Select Action`, allowing the user to choose one of two main paths:\n\n**1. Generate content path:**\n    *   **Fetch idea:** The `Fetch unprocessed ideas` (Google Sheets) node retrieves a row from your sheet where the \"Generated\" column is \"no\".\n    *   **Set prompt:** The `Set prompt` node prepares the topic from the sheet for the AI.\n    *   **Generate article:** The `Generate article AI` (Langchain Agent with Google Gemini) node takes the prompt and writes a full article.\n    *   **Generate image keyword:** The `Generate image keyword AI` (Langchain Agent with Google Gemini) node creates a concise search term based on the article topic.\n    *   **Search image:** The `Search Pexels image` (HTTP Request) node uses the generated keyword to find a relevant image via the Pexels API.\n    *   **Create WordPress post:** The `Create WordPress post` node publishes the AI generated article and initial image metadata to your WordPress site.\n    *   **Download and upload image:** The `Download Pexels image` (HTTP Request) node fetches the actual image file, and the `Upload image` (HTTP Request) node uploads it to your WordPress media library.\n    *   **Set featured image:** The `Set featured image` (HTTP Request) node links the uploaded image as the featured image for the newly created post.\n    *   **Update sheet:** The `Update Google Sheet` node marks the idea as \"yes\" in your Google Sheet and adds the WordPress post ID and title.\n    *   **Confirmation:** A `Form: End post generation` node displays a completion message.\n\n**2. Add ideas path:**\n    *   **Input topic:** The `Form: Enter topic for ideas` node prompts the user to enter a general subject.\n    *   **Generate topics:** The `Generate blog topics AI` (Langchain Agent with Google Gemini and Structured Output Parser) node generates five SEO friendly blog topic ideas based on the user's input, formatted as JSON.\n    *   **Process topics:** The `Split topics` node separates the generated list of topics into individual items.\n    *   **Add to sheet:** For each topic, the `Add ideas to sheet` (Google Sheets) node appends it as a new row, marked with \"Generated: no\".\n    *   **Loop or end:** The `Form: Add more topics?` node asks the user if they want to generate more ideas or end the process.\n        *   If \"NEXT\", it loops back to the `Form: Enter topic for ideas`.\n        *   If \"END\", a `Form: End idea generation` node displays a completion message with the list of added topics.\n\n**Nodes used**\n\n*   Form Trigger\n*   If\n*   Google Sheets\n*   Set\n*   Langchain Agent (with Google Gemini Chat Model)\n*   Structured Output Parser (Langchain)\n*   HTTP Request (for Pexels API and WordPress Media/Post updates)\n*   WordPress\n*   Split Out\n*   Form (for user interaction and completion messages)\n*   Sticky Note (for instructions within the workflow)\n\n**Setup instructions**\n\n1.  **Credentials:**\n    *   **Google Sheets:** Configure your Google Sheets OAuth2 credentials in the `Fetch unprocessed ideas`, `Update Google Sheet`, and `Add ideas to sheet` nodes.\n    *   **WordPress:** Configure your WordPress API credentials in the `Create WordPress post`, `Upload image`, and `Set featured image` nodes.\n    *   **Google Gemini:** Configure your Google Gemini (PaLM) API key in the `Gemini model for article`, `Gemini model for image keyword`, and `Gemini model for topics` nodes.\n2.  **API keys and URLs:**\n    *   **Pexels:** In the `Search Pexels image` node, replace `&lt;YOUR_PEXELS_API_KEY&gt;` in the `Authorization` header with your actual Pexels API key.\n    *   **WordPress URL:** In the `Upload image` and `Set featured image` nodes, replace `&lt;YOUR_WORDPRESS_URL&gt;` in the URL field with your WordPress site's domain (e.g., `yourblog.com`).\n3.  **Google Sheet configuration:**\n    *   Ensure your Google Sheet (specified by `Document ID` in Google Sheets nodes) has a sheet named `Sheet1` (or update the `Sheet Name` parameter).\n    *   The sheet should have at least the following columns: `Prompt` (for the blog idea/topic), `Generated` (to track status, e.g., \"no\" or \"yes\"), `row_number` (automatically populated by n8n when reading), `Date`, `Title` (for the final WordPress post title), `Post ID`.\n4.  **Activate the workflow.** The `Form Trigger: Select Action` will provide a webhook URL to initiate the process.\n\n**Customization ideas**\n\n*   Modify the AI prompts in the Langchain Agent nodes for different tones, styles, or content structures.\n*   Change the Google Gemini models used for different cost/performance balances.\n*   Integrate other image sources instead of or in addition to Pexels.\n*   Add steps for social media sharing after a post is published.\n*   Extend the Google Sheet to track more metrics like word count or target keywords.\n*   Implement more sophisticated error handling.\n\n**Use cases**\n\n*   Automating blog content generation for personal or company blogs.\n*   Streamlining content marketing efforts.\n*   Quickly populating new websites with initial content.\n*   Assisting SEO agencies in creating draft content for clients.\n*   Helping solo bloggers maintain a consistent publishing schedule.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "connectionProviders/Http",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Gemini_Model_for_Article": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Gemini Model for Article",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "modelName": "models/gemini-1.5-flash-latest"
+            }
+          },
+          "runAfter": {}
+        },
+        "Gemini_Model_for_Image_Keyword": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Gemini Model for Image Keyword",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "modelName": "models/gemini-1.5-flash-latest"
+            }
+          },
+          "runAfter": {}
+        },
+        "Form_Trigger_Select_Action": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Form Trigger: Select Action",
+            "n8nNodeType": "n8n-nodes-base.formTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "path": "wpcontent",
+                "buttonLabel": "Next",
+                "appendAttribution": false
+              },
+              "formTitle": "Create Content",
+              "formFields": {
+                "values": [
+                  {
+                    "fieldType": "dropdown",
+                    "fieldLabel": "Task",
+                    "fieldOptions": {
+                      "values": [
+                        {
+                          "option": "Generate Content"
+                        },
+                        {
+                          "option": "Add Ideas"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "If_Generate_Content": {
+          "type": "If",
+          "expression": {
+            "contains": [
+              "@body('Form_Trigger_Select_Action')?['Task']",
+              "Generate Content"
+            ]
+          },
+          "actions": {
+            "Fetch_Unprocessed_Ideas": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "referenceName": "googlesheet_#workflowname#"
+                  }
+                },
+                "method": "post",
+                "path": "/datasets/@{encodeURIComponent(encodeURIComponent('1UDaTATWOnYorewjEF5-G9edgSBjc2_Rb50BZVFbAu8U'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+                "body": {}
+              },
+              "metadata": {
+                "flowSystemMetadata": {
+                  "swaggerOperationId": "PostItem"
+                }
+              },
+              "runAfter": {}
+            },
+            "Set_Prompt": {
+              "type": "Compose",
+              "inputs": {
+                "prompt": "@body('Fetch_Unprocessed_Ideas')?['Prompt']"
+              },
+              "runAfter": {
+                "Fetch_Unprocessed_Ideas": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Create_WordPress_Post": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Create WordPress Post",
+                "n8nNodeType": "n8n-nodes-base.wordpress",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "title": "={{ $('Fetch Unprocessed Ideas').item.json.Prompt }}",
+                  "additionalFields": {
+                    "status": "publish",
+                    "content": "={{ $('Generate Article AI').item.json.output }}\n\nImage by: {{ $('Search Pexels Image').item.json.photos[0].photographer }}\n{{ $('Search Pexels Image').item.json.photos[0].photographer_url }}"
+                  }
+                }
+              },
+              "runAfter": {
+                "Search_Pexels_Image": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Upload_Image": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "https://<YOUR_WORDPRESS_URL>/wp-json/wp/v2/media",
+                "headers": {
+                  "Content-Disposition": "attachment; filename=\"cover-@{body('Create_WordPress_Post')?['id']}.jpg\""
+                }
+              },
+              "runAfter": {
+                "Download_Pexels_Image": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Set_Featured_Image": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "https://<YOUR_WORDPRESS_URL>/wp-json/wp/v2/posts/@{body('Create_WordPress_Post')?['id']}"
+              },
+              "runAfter": {
+                "Upload_Image": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Update_Google_Sheet": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Update Google Sheet",
+                "n8nNodeType": "n8n-nodes-base.googleSheets",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "columns": {
+                    "value": {
+                      "Date": "={{ $now.format('dd/LL/yyyy') }}",
+                      "Title": "={{ $('Create WordPress Post').item.json.title.raw }}",
+                      "Post ID": "={{ $('Create WordPress Post').item.json.id }}",
+                      "Generated": "yes",
+                      "row_number": "={{ $('Fetch Unprocessed Ideas').item.json.row_number }}"
+                    },
+                    "schema": [
+                      {
+                        "id": "Date",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "required": false,
+                        "displayName": "Date",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Prompt",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "required": false,
+                        "displayName": "Prompt",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Title",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "required": false,
+                        "displayName": "Title",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Post ID",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "required": false,
+                        "displayName": "Post ID",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Generated",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "required": false,
+                        "displayName": "Generated",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "row_number",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "row_number",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      }
+                    ],
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [
+                      "row_number"
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                  },
+                  "options": {},
+                  "operation": "update",
+                  "sheetName": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "gid=0",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UDaTATWOnYorewjEF5-G9edgSBjc2_Rb50BZVFbAu8U/edit#gid=0",
+                    "cachedResultName": "Sheet1"
+                  },
+                  "documentId": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "1UDaTATWOnYorewjEF5-G9edgSBjc2_Rb50BZVFbAu8U",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UDaTATWOnYorewjEF5-G9edgSBjc2_Rb50BZVFbAu8U/edit?usp=drivesdk",
+                    "cachedResultName": "n8n-wp"
+                  }
+                }
+              },
+              "runAfter": {
+                "Set_Featured_Image": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Generate_Article_AI": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Generate Article AI",
+                "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "text": "=You are an SEO expert. Write an article based on this topic: {{ $('Fetch Unprocessed Ideas').item.json.Prompt }}\nInstructions:\n-In the introduction, present the topic that will be discussed in the rest of the text.\n-The introduction should be about 120 words.\n-The conclusion should be about 120 words.\n-In the conclusion, summarize everything said in the article and present the reader with final conclusions.\n-Write a maximum of 4-5 chapters and expand on them.\n-Chapters should maintain a logical sequence and not repeat the same concepts.\n-Chapters should be interconnected, not isolated blocks of text. The text should be fluent and follow a linear logic.\n-Do not start chapters with \"Chapter 1\", \"Chapter 2\", \"Chapter 3\"... just write the chapter title.\n-Use HTML for text formatting, but limit yourself to using bold, italics, paragraphs, lists, and tables.\n-Do not place the result in a ```html code block, only the text itself.\n-Do not use markdown formatting.\n-Delve into the topic you are writing about; do not provide only superficial information.\n-I expect only HTML format in the response.\nDO NOT INCLUDE ```html\nWRITE SO IT DOESN'T LOOK LIKE AI - do not use long dashes, and in titles and subheadings, capitalize only the first word.\n\nIf possible, add data in a table.",
+                  "options": {},
+                  "promptType": "define"
+                }
+              },
+              "runAfter": {
+                "Set_Prompt": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Generate_Image_Keyword_AI": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Generate Image Keyword AI",
+                "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "text": "=Choose an expression based on which you will find a matching graphic in Pexels API.\nTopic: {{ $('Fetch Unprocessed Ideas').item.json.Prompt }} \nInstructions:\n- Choose one expression that will best match to find a graphic.\n- Use a general category to always match a graphic.\n- Do not use any HTML characters.\n- Return only a string containing the expression.\n- Do not use quotation marks. The only allowed special characters are \":\" and \",\".\n- Make each one unique so there are no 2 identical graphics.",
+                  "options": {},
+                  "promptType": "define"
+                }
+              },
+              "runAfter": {
+                "Generate_Article_AI": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Search_Pexels_Image": {
+              "type": "Http",
+              "inputs": {
+                "method": "GET",
+                "uri": "https://api.pexels.com/v1/search?query=@{encodeURIComponent(body('Generate_Image_Keyword_AI')?['output'])}&per_page=1",
+                "headers": {
+                  "Authorization": "<YOUR_PEXELS_API_KEY>"
+                }
+              },
+              "runAfter": {
+                "Generate_Image_Keyword_AI": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Download_Pexels_Image": {
+              "type": "Http",
+              "inputs": {
+                "method": "GET",
+                "uri": "@body('Search_Pexels_Image')?['photos'][0].src.large2x"
+              },
+              "runAfter": {
+                "Create_WordPress_Post": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Form_End_Post_Generation": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Form: End Post Generation",
+                "n8nNodeType": "n8n-nodes-base.form",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "operation": "completion",
+                  "completionTitle": "END",
+                  "completionMessage": "={{ $items().map(item => \"- \" + item.json.Title).join('\\n') }}"
+                }
+              },
+              "runAfter": {
+                "Update_Google_Sheet": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "Add_Ideas_to_Sheet": {
+                "type": "ApiConnection",
+                "inputs": {
+                  "host": {
+                    "connection": {
+                      "referenceName": "googlesheet_#workflowname#"
+                    }
+                  },
+                  "method": "post",
+                  "path": "/datasets/@{encodeURIComponent(encodeURIComponent('1UDaTATWOnYorewjEF5-G9edgSBjc2_Rb50BZVFbAu8U'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+                  "body": {
+                    "Title": "=",
+                    "Prompt": "@body('Split_Topics')?['Topic']",
+                    "Generated": "no"
+                  }
+                },
+                "metadata": {
+                  "flowSystemMetadata": {
+                    "swaggerOperationId": "PostItem"
+                  }
+                },
+                "runAfter": {
+                  "Split_Topics": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Generate_Blog_Topics_AI": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "Generate Blog Topics AI",
+                  "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "text": "=Prepare a blog topic - Make the title great for SEO.\n\nNOTE.\nGenerate 5 topics.\nIn the response, provide JSON code: \n{\n  \"Topic\": \"Sample topic\"\n}\nDo not add markdown, do not add '''json'.\nDo not add numbers to topics.\n\nWrite about {{ $json.Topic }}",
+                    "options": {},
+                    "promptType": "define",
+                    "hasOutputParser": true
+                  }
+                },
+                "runAfter": {
+                  "Form_Enter_Topic_for_Ideas": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Form_Enter_Topic_for_Ideas": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "Form: Enter Topic for Ideas",
+                  "n8nNodeType": "n8n-nodes-base.form",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "options": {
+                      "buttonLabel": "NEXT"
+                    },
+                    "formFields": {
+                      "values": [
+                        {
+                          "fieldLabel": "Topic"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "runAfter": {
+                  "If_Add_More_Topics": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Form_Add_More_Topics": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "Form: Add More Topics?",
+                  "n8nNodeType": "n8n-nodes-base.form",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "options": {
+                      "buttonLabel": "NEXT",
+                      "formDescription": "={{ $items().map(item => \"- \" + item.json.Prompt).join('\\n') }}"
+                    },
+                    "formFields": {
+                      "values": [
+                        {
+                          "fieldType": "dropdown",
+                          "fieldLabel": "What next?",
+                          "fieldOptions": {
+                            "values": [
+                              {
+                                "option": "END"
+                              },
+                              {
+                                "option": "NEXT"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                "runAfter": {
+                  "Add_Ideas_to_Sheet": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "If_Add_More_Topics": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "If Add More Topics",
+                  "n8nNodeType": "n8n-nodes-base.if",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "options": {},
+                    "conditions": {
+                      "options": {
+                        "version": 2,
+                        "leftValue": "",
+                        "caseSensitive": true,
+                        "typeValidation": "strict"
+                      },
+                      "combinator": "and",
+                      "conditions": [
+                        {
+                          "id": "73836e3b-ce8d-4e69-be29-82971a6bd82c",
+                          "operator": {
+                            "type": "string",
+                            "operation": "contains"
+                          },
+                          "leftValue": "={{ $json[\"What next?\"] }}",
+                          "rightValue": "NEXT"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "runAfter": {
+                  "Form_Add_More_Topics": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Split_Topics": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "Split Topics",
+                  "n8nNodeType": "n8n-nodes-base.splitOut",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "options": {},
+                    "fieldToSplitOut": "output"
+                  }
+                },
+                "runAfter": {
+                  "Generate_Blog_Topics_AI": [
+                    "Succeeded"
+                  ]
+                }
+              },
+              "Form_End_Idea_Generation": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "Form: End Idea Generation",
+                  "n8nNodeType": "n8n-nodes-base.form",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "options": {},
+                    "operation": "completion",
+                    "completionTitle": "END",
+                    "completionMessage": "={{ $items(\"Generate Blog Topics AI\")[0].json.output.map(item => \"- \" + item.Topic).join('\\n') }}"
+                  }
+                },
+                "runAfter": {
+                  "If_Add_More_Topics": [
+                    "Succeeded"
+                  ]
+                }
+              }
+            }
+          },
+          "runAfter": {
+            "Form_Trigger_Select_Action": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Gemini_Model_for_Topics": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Gemini Model for Topics",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "modelName": "models/gemini-1.5-flash-latest"
+            }
+          },
+          "runAfter": {}
+        },
+        "Parse_AI_Topic_Output": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Parse AI Topic Output",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsonSchemaExample": "[\n  {\n    \"Topic\": \"Example topic 1\"\n  },\n  {\n    \"Topic\": \"Example topic 2\"\n  },\n  {\n    \"Topic\": \"Example topic 3\"\n  },\n    {\n    \"Topic\": \"Example topic 4\"\n  },\n  {\n    \"Topic\": \"Example topic 5\"\n  }\n]"
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

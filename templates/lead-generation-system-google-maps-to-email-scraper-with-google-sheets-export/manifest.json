@@ -1,0 +1,365 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "lead-generation-system-google-maps-to-email-scraper-with-google-sheets-export",
+    "name": "Lead generation system: Google Maps to email scraper with Google Sheets export",
+    "description": "# Google Maps Email Scraper System\n\n**Categories:** Lead Generation, Web Scraping, Business Automation\n\nThis workflow creates a completely free Google Maps email scraping system that extracts unlimited business emails without requiring expensive third-party APIs. Built entirely in N8N using simple HTTP requests and JavaScript, this system can generate thousands of targeted leads for any industry or location while operating at 99% free cost structure.\n\n## **Benefits**\n\n- **Zero API Costs** - Operates entirely through free Google Maps scraping without expensive third-party services\n- **Unlimited Lead Generation** - Extract emails from thousands of Google Maps listings across any industry\n- **Geographic Targeting** - Search by specific cities, regions, or business types for precise lead targeting\n- **Complete Automation** - From search query to organized email list with minimal manual intervention\n- **Built-in Data Cleaning** - Automatic duplicate removal, filtering, and data validation\n- **Scalable Processing** - Handle hundreds of businesses per search with intelligent rate limiting\n\n## **How It Works**\n\n**Google Maps Search Integration:**\n- Uses strategic HTTP requests to Google Maps search URLs\n- Processes search queries like \"Calgary + dentist\" to extract business listings\n- Bypasses API restrictions through direct HTML scraping techniques\n\n**Intelligent URL Extraction:**\n- Custom JavaScript regex patterns extract website URLs from Google Maps data\n- Filters out irrelevant domains (Google, schema, static files)\n- Returns clean list of actual business websites for processing\n\n**Smart Website Processing:**\n- Loop-based architecture prevents IP blocking through intelligent batching\n- Built-in delays and redirect handling for reliable scraping\n- Processes each website individually with error handling\n\n**Email Pattern Recognition:**\n- Advanced regex patterns identify email addresses within website HTML\n- Extracts contact emails, info emails, and administrative addresses\n- Handles multiple email formats and validation patterns\n\n**Data Aggregation & Cleaning:**\n- Automatically removes duplicate emails across all processed websites\n- Filters null entries and invalid email formats\n- Exports clean, organized email lists to Google Sheets\n\n## **Required Google Sheets Setup**\n\nCreate a Google Sheet with these exact column headers:\n\n**Search Tracking Sheet:**\n- `searches` - Contains your search queries (e.g., \"Calgary dentist\", \"Miami lawyers\")\n\n**Email Results Sheet:**\n- `emails` - Contains extracted email addresses from all processed websites\n\n**Setup Instructions:**\n1. Create Google Sheet with two tabs: \"searches\" and \"emails\"\n2. Add your target search queries to the searches tab (one per row)\n3. Connect Google Sheets OAuth credentials in n8n\n4. Update the Google Sheets document ID in all sheet nodes\n\nThe workflow reads search queries from the first sheet and exports results to the second sheet automatically.\n\n## **Business Use Cases**\n\n- **Local Service Providers** - Find competitors and potential partners in specific geographic areas\n- **B2B Sales Teams** - Generate targeted prospect lists for cold outreach campaigns  \n- **Marketing Agencies** - Build industry-specific lead databases for client campaigns\n- **Real Estate Professionals** - Identify businesses in target neighborhoods for commercial opportunities\n- **Franchise Development** - Research potential markets and existing competition\n- **Market Research** - Analyze business density and contact information across regions\n\n## **Revenue Potential**\n\nThis system transforms lead generation economics:\n- $0 per lead vs. $2-5 per lead from paid databases\n- Process 1,000+ leads daily without hitting API limits\n- Sell as a service for $500-2,000 per industry/location\n- Perfect for agencies offering lead generation to local businesses\n\n**Difficulty Level:** Intermediate  \n**Estimated Build Time:** 1-2 hours  \n**Monthly Operating Cost:** $0 (completely free)\n\n## **Watch My Complete Build Process**\n\nWant to watch me build this entire system live from scratch? I walk through every single step - including the JavaScript code, regex patterns, error handling, and all the debugging that goes into creating a bulletproof scraping system.\n\n🎥 **Watch My Live Build:** \"[Scrape Unlimited Leads WITHOUT Paying for APIs (99% FREE)](https://www.youtube.com/watch?v=OroDNJl-pyc)\"\n\nThis comprehensive tutorial shows the real development process - including writing custom JavaScript, handling rate limits, and building systems that actually work at scale without getting blocked.\n\n## **Set Up Steps**\n\n**Basic Workflow Architecture:**\n- Set up manual trigger for testing and Google Sheets integration\n- Configure initial HTTP request node for Google Maps searches  \n- Enable SSL ignore and response headers for reliable scraping\n\n**URL Extraction Code Setup:**\n- Configure JavaScript code node with custom regex patterns\n- Set up input data processing from Google Maps HTML responses\n- Implement URL filtering logic to remove irrelevant domains\n\n**Website Processing Pipeline:**\n- Add \"Split in Batches\" node for intelligent loop processing\n- Configure HTTP request nodes with proper delays and redirect handling\n- Set up error handling for websites that can't be scraped\n\n**Email Extraction System:**\n- Implement JavaScript code node with email-specific regex patterns\n- Configure email validation and format checking\n- Set up data aggregation for multiple emails per website\n\n**Data Cleaning & Export:**\n- Configure filtering nodes to remove null entries and duplicates\n- Set up \"Split Out\" node to aggregate emails into single list\n- Connect Google Sheets integration for organized data export\n\n**Testing & Optimization:**\n- Use limit nodes during testing to prevent IP blocking\n- Test with small batches before scaling to full searches\n- Implement proxy integration for high-volume usage\n\n## **Advanced Optimizations**\n\nScale the system with:\n- **Multi-Page Scraping:** Extract URLs from homepages, then scrape contact pages for more emails\n- **Proxy Integration:** Add residential proxies for unlimited scraping without rate limits\n- **Industry Templates:** Create pre-configured searches for different business types\n- **Contact Information Expansion:** Extract phone numbers, addresses, and social media profiles\n- **CRM Integration:** Automatically add leads to sales pipelines and marketing sequences\n\n## **Important Considerations**\n\n- **Rate Limiting:** Built-in delays prevent IP blocking during normal usage\n- **Scalability:** For high-volume usage, consider proxy services for unlimited requests\n- **Compliance:** Ensure proper usage rights for extracted contact information\n- **Data Quality:** System includes filtering but manual verification recommended for critical campaigns\n\n## **Check Out My Channel**\n\nFor more advanced automation systems and business-building strategies that generate real revenue, explore [my YouTube channel](https://www.youtube.com/@nicksaraev) where I share proven automation techniques used by successful agencies and entrepreneurs.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Lead Generation",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "When_clicking_Test_workflow": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Remove_Duplicates": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Remove Duplicates",
+            "n8nNodeType": "n8n-nodes-base.removeDuplicates",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Filter_Google_URLs": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Loop_Over_Items": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Loop Over Items",
+            "n8nNodeType": "n8n-nodes-base.splitInBatches",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Limit": [
+              "Succeeded"
+            ],
+            "Extract_Emails": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 1,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Scrape_Site": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Limit": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Limit",
+            "n8nNodeType": "n8n-nodes-base.limit",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "maxItems": 10
+            }
+          },
+          "runAfter": {
+            "Remove_Duplicates": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait1": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 1,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Loop_Over_Items": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Split_Out": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Split Out",
+            "n8nNodeType": "n8n-nodes-base.splitOut",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "fieldToSplitOut": "emails"
+            }
+          },
+          "runAfter": {
+            "Filter_Out_Empties": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_Emails": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Wait'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst input = $input.first().json.data\nconst regex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.(?!jpeg|jpg|png|gif|webp|svg)[a-zA-Z]{2,}/g\nconst emails = input.match(regex)\nreturn {json: {emails:emails}}\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Wait": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_URLs": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Scrape_Google_Maps'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst input = $input.first().json.data\nconst regex = /https?:\\/\\/[^\\/\\s\"'>]+/g\nconst websites = input.match(regex)\nreturn websites.map(website => ({json:{website}}))\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Scrape_Google_Maps": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Scrape_Google_Maps": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://www.google.com/maps/search/calgary+dentists"
+          },
+          "runAfter": {}
+        },
+        "Scrape_Site": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@body('Loop_Over_Items')?['website']"
+          },
+          "runAfter": {
+            "Loop_Over_Items": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Filter_Out_Empties": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Filter Out Empties",
+            "n8nNodeType": "n8n-nodes-base.filter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "a6786c58-424a-409a-b87f-8a7592cb7944",
+                    "operator": {
+                      "type": "array",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.emails }}",
+                    "rightValue": ""
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Wait1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Filter_Google_URLs": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Filter Google URLs",
+            "n8nNodeType": "n8n-nodes-base.filter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "bf0a5053-9660-457c-9581-964793bb6d7d",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notContains"
+                    },
+                    "leftValue": "={{ $json.website }}",
+                    "rightValue": "schema"
+                  },
+                  {
+                    "id": "9110b9e0-12aa-45cc-bde0-9eda8c10970e",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notContains"
+                    },
+                    "leftValue": "={{ $json.website }}",
+                    "rightValue": "google"
+                  },
+                  {
+                    "id": "fb9b6ed6-96a5-4560-ab10-b8a4b9a61a2b",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notContains"
+                    },
+                    "leftValue": "={{ $json.website }}",
+                    "rightValue": "gg"
+                  },
+                  {
+                    "id": "10500c0b-cdbd-4816-aba3-df60d69845dc",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notContains"
+                    },
+                    "leftValue": "={{ $json.website }}",
+                    "rightValue": "gstatic"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Extract_URLs": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Remove_Duplicates_2": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Remove Duplicates (2)",
+            "n8nNodeType": "n8n-nodes-base.removeDuplicates",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Split_Out": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Add_to_Sheet_or_whatever_you_want": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('1fcijyZM1oU73i2xUbXYJ4j6RshmVEduOkCJji2SJP68'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+            "body": {
+              "emails": "@body('Remove_Duplicates_2')?['emails']"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Remove_Duplicates_2": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "When_clicking_Test_workflow",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

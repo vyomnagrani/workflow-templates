@@ -1,0 +1,226 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "automate-restaurant-customer-service-with-whatsapp-and-llama-ai-chatbot",
+    "name": "Automate restaurant customer service with WhatsApp and Llama AI chatbot",
+    "description": "An intelligent WhatsApp-based chatbot designed for restaurants to automate customer interactions related to table bookings, menu inquiries, opening hours, services, and offers. Built using the n8n automation platform and powered by an AI language model, this solution streamlines communication, boosts efficiency, and improves customer satisfaction.\n\n## Objectives\n\n* Automate replies to common customer queries on WhatsApp\n* Handle table booking requests with confirmation\n* Provide menu item details, pricing, and dietary information\n* Share restaurant timing, location, and service availability\n* Promote offers and handle promotional queries\n* Operate 24/7 without manual intervention\n* Store bookings and conversations for reporting and analytics\n\n## Workflow Summary\n\n### Step 1: Message Reception\n\n**Node:** WhatsApp Trigger (Webhook or API-based)\n**Function:** Listens for incoming customer messages.\n\n### Step 2: Intent Recognition\n\n**Node:** AI Query Processor (e.g., OpenAI API)\n**Function:** Detects customer intent (e.g., booking, menu, timing).\n\n### Step 3: Conditional Routing\n\n**Node:** Switch or IF Node\n**Function:** Routes flow based on detected intent:\n\n* General information (menu, timing, services)\n* Table booking\n\n### Step 4A: Respond to General Info Queries\n\n**Node:** AI Response or Static Reply Node\n**Function:** Returns relevant information (menu, timing, address, etc.).\n\n### Step 4B: Process Booking Requests\n\n**Nodes:**\n\n* **Collect Booking Details** (via chatbot interactions)\n* **Store Booking Info** (to DB or Google Sheets)\n* **Send Booking Confirmation** (to customer)\n\n### Step 5: Context Management\n\n**Node:** Set/Update Customer Data\n**Function:** Maintains conversation state and tracks follow-up messages.\n\n## Database or Google Sheet Columns for Table Booking\n\n| Column Name       | Description                                     |\n| ----------------- | ----------------------------------------------- |\n| reservation\\_id   | Unique reservation identifier                   |\n| guest\\_name       | Full name of the guest                          |\n| contact\\_number   | Customer’s WhatsApp or mobile number            |\n| email             | (Optional) Email address                        |\n| booking\\_date     | Reservation date (YYYY-MM-DD format)            |\n| booking\\_time     | Reservation time (HH\\:MM format)                |\n| party\\_size       | Number of guests                                |\n| table\\_id         | (Optional) Table number or identifier           |\n| special\\_requests | Allergies, seating preferences, etc.            |\n| status            | Booking status: Confirmed / Cancelled / Pending |\n| created\\_at       | Timestamp when booking was made                 |\n| updated\\_at       | Timestamp when booking was last modified        |\n\n## Prerequisites\n\n* Verified WhatsApp Business Account with API access\n* n8n instance (Cloud or self-hosted)\n* Access to an AI service (e.g., OpenAI, Claude)\n* Google Sheets, Airtable, MySQL, or other DB integration\n\n## Setup Instructions\n\n1. **Connect WhatsApp API** using webhook or third-party WhatsApp provider (e.g., 360Dialog, Twilio).\n2. **Integrate AI** using HTTP Request or OpenAI node for response generation.\n3. **Create Data Store** (Google Sheet, Airtable, or MySQL) with defined booking columns.\n4. **Design Workflow in n8n** with intent detection, conditional logic, and response nodes.\n5. **Test End-to-End** by sending different WhatsApp queries and checking logs and stored data.\n\n## Example Conversation\n\n**Customer:** “Can I book a table for 2 people tomorrow at 8 PM?”\n**Bot:** “Sure. Please provide your name and contact number to confirm the reservation for 2 people at 8:00 PM tomorrow.”\n**\\[Booking details are saved, and a confirmation is sent.]**\n\n## Benefits\n\n* Fully automated customer interaction\n* Supports real-time table reservations\n* Accurate and quick responses\n* Scales without increasing staff effort\n* Operates 24/7\n* Centralized booking data for analytics\n\n## Analytics and Reporting\n\nTrack key performance metrics such as:\n\n* Number of bookings per day/week\n* Average response time\n* Customer satisfaction scores (via feedback node)\n* Popular menu items or query types\n* Booking conversion rates\n\n## Security and Compliance\n\n* End-to-end encrypted WhatsApp messages\n* Role-based access to sensitive data\n* Compliance with data protection regulations (e.g., GDPR)\n* Secure API integrations and storage solutions\n\n## Conclusion\n\nThis WhatsApp chatbot serves as a reliable, AI-powered digital front desk for restaurants. Built using n8n and scalable components, it automates customer support, manages bookings, and enhances operational efficiency while offering a seamless customer experience.\n\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Support Chatbot",
+      "AI Chatbot",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Wait_For_Response": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 1,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Extract_Customer_Query": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Receive_WhatsApp_Message": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Receive WhatsApp Message",
+            "n8nNodeType": "n8n-nodes-base.whatsAppTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "updates": [
+                "messages"
+              ]
+            }
+          },
+          "runAfter": {}
+        },
+        "Extract_Customer_Query": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Extract Customer Query",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "={{ $json.messages[0].text.body }}",
+              "options": {
+                "systemMessage": "=**You are a helpful and friendly WhatsApp chatbot for a restaurant.**\nWhen a customer sends a message, greet them politely and provide clear, short replies to their questions about:\n\n* Restaurant timings (opening/closing hours)\n* Table booking or reservation availability\n* Menu items (food types, popular dishes, specials)\n* Restaurant location or directions\n* Services offered (dine-in, takeaway, delivery)\n* Pricing and current offers\n* Confirming or cancelling a reservation\n\nIf the customer asks something unrelated to the restaurant, reply:\n🟢 *“I’m here to help with restaurant-related questions. Would you like to know our timings, menu, or book a table?”*\n\nIf a message is unclear or incomplete, respond with:\n🟢 *“Could you please clarify your question so I can assist you better?”*\n\nAlways keep the conversation short, polite, and informative.\n\n"
+              },
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "Generate_Reply_with_AI": [
+              "Succeeded"
+            ],
+            "Receive_WhatsApp_Message": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Generate_Reply_with_AI": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Generate Reply with AI",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOllama",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": "llama3.2-16000:latest",
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Check_If_Table_Booking_Required": {
+          "type": "If",
+          "expression": {
+            "equals": [
+              "Booking",
+              "add_your_value_here"
+            ]
+          },
+          "actions": {
+            "Create_New_Table_Booking": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Create New Table Booking",
+                "n8nNodeType": "n8n-nodes-base.postgres",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "table": {
+                    "__rl": true,
+                    "mode": "name",
+                    "value": "id"
+                  },
+                  "schema": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "public"
+                  },
+                  "columns": {
+                    "value": {},
+                    "schema": [],
+                    "mappingMode": "autoMapInputData",
+                    "matchingColumns": [],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                  },
+                  "options": {}
+                }
+              },
+              "runAfter": {}
+            },
+            "Send_Booking_Confirmation_to_Customer": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Send Booking Confirmation to Customer",
+                "n8nNodeType": "n8n-nodes-base.whatsApp",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "textBody": "={{ $json.output }}",
+                  "operation": "send",
+                  "phoneNumberId": "550325331503475",
+                  "additionalFields": {},
+                  "recipientPhoneNumber": "={{ $('Receive WhatsApp Message').item.json.contacts[0].wa_id }}"
+                }
+              },
+              "runAfter": {
+                "Create_New_Table_Booking": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "Send_Reply_to_Customer": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "Send Reply to Customer",
+                  "n8nNodeType": "n8n-nodes-base.whatsApp",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "textBody": "={{ $json.output }}",
+                    "operation": "send",
+                    "phoneNumberId": "550325331503475",
+                    "additionalFields": {},
+                    "recipientPhoneNumber": "={{ $('Receive WhatsApp Message').item.json.contacts[0].wa_id }}"
+                  }
+                },
+                "runAfter": {}
+              }
+            }
+          },
+          "runAfter": {
+            "Wait_For_Response": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

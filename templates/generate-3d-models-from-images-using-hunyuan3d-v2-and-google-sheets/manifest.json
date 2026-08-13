@@ -1,0 +1,222 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "generate-3d-models-from-images-using-hunyuan3d-v2-and-google-sheets",
+    "name": "Generate 3D models from images using Hunyuan3D v2 and Google Sheets",
+    "description": "\n*This workflow automates the conversion of 2D images into high-quality 3D models (`.glb` format) by integrating **Google Sheets** with the **Hunyuan3D v2** model on **Fal.ai**. It handles the entire pipeline—from fetching image URLs to polling for completion and saving the final asset—eliminating manual modeling time for artists and developers.*\n\n![WhatsApp Image 20260104 at 8.28.26 PM.jpeg](fileId:3881)\n### How it works\nThis template operates on a schedule to process images in batches or individually:\n1.  **Data Retrieval:** The workflow fetches new rows from a Google Sheet where the `RESULT_GLB` column is empty.\n2.  **AI Generation:** It sends the `IMAGE_URL` to the **Hunyuan3D v2** API on Fal.ai to initiate the 3D generation process.\n3.  **Status Polling:** The workflow automatically enters a loop, checking the job status every 30 seconds until the model is marked \"COMPLETED.\"\n4.  **Result Update:** Once finished, it retrieves the download link for the `.glb` file and writes it back to the specific row in your Google Sheet.\n\n### Use Cases\n* **Game Development:** Rapidly create prototype props and assets from concept art.\n* **E-commerce:** Convert product photos into 3D models for web viewers.\n* **AR/VR:** Generate background assets for immersive environments from simple 2D inputs.\n\n### Setup steps\n1.  **Google Sheet:**\n    * Create a new sheet with two header columns: `IMAGE_URL` and `RESULT_GLB`.\n    * Add the images you want to convert in the first column.\n2.  **Fal.ai Credentials:**\n    * Sign up at [Fal.ai](https://fal.ai) and generate an API Key.\n    * In n8n, create a **Header Auth** credential with the name `Authorization` and value `Key YOUR_API_KEY`.\n3.  **Configure Nodes:**\n    * Update the **Get new image** and **Update Result** nodes to select your specific Google Sheet.\n    * Ensure the **HTTP Request** nodes are using your Fal.ai Header Auth credential.",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "connectionProviders/Http",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "When_clicking_Test_workflow": {
+          "type": "Request",
+          "kind": "Http"
+        },
+        "Schedule_Trigger": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Get_new_image": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_SPREADSHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_WORKSHEET'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {}
+        },
+        "Set_Data": {
+          "type": "Compose",
+          "inputs": {
+            "image_url": "@body('Get_new_image')?['IMAGE_URL']"
+          },
+          "runAfter": {
+            "Get_new_image": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Submit_to_Hunyuan3D": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://queue.fal.run/fal-ai/hunyuan3d/v2",
+            "body": "{\n  \"input_image_url\": \"@{body('Set_Data')?['image_url']}\",\n  \"num_inference_steps\": 50,\n  \"guidance_scale\": 7.5,\n  \"octree_resolution\": 256,\n  \"textured_mesh\": true\n}"
+          },
+          "runAfter": {
+            "Set_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_30_sec": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 30,
+              "unit": "Second"
+            }
+          },
+          "runAfter": {
+            "Is_Completed": [
+              "Succeeded"
+            ],
+            "Submit_to_Hunyuan3D": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Check_Status": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://queue.fal.run/fal-ai/hunyuan3d/v2/requests/@{body('Submit_to_Hunyuan3D')?['request_id']}/status"
+          },
+          "runAfter": {
+            "Wait_30_sec": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Is_Completed": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Is Completed?",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "condition-completed",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "COMPLETED"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Check_Status": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Get_Final_Result": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://queue.fal.run/fal-ai/hunyuan3d/v2/requests/@{body('Submit_to_Hunyuan3D')?['request_id']}"
+          },
+          "runAfter": {
+            "Is_Completed": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Update_Result": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update Result",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "operation": "update",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": "",
+                "cachedResultUrl": ""
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "",
+                "cachedResultUrl": ""
+              }
+            }
+          },
+          "runAfter": {
+            "Get_Final_Result": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "When_clicking_Test_workflow",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    }
+  }
+}

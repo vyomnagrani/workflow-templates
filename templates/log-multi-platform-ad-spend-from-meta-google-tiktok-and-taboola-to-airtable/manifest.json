@@ -1,0 +1,1843 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "log-multi-platform-ad-spend-from-meta-google-tiktok-and-taboola-to-airtable",
+    "name": "Log multi-platform ad spend from Meta, Google, TikTok, and Taboola to Airtable",
+    "description": "## Quick overview\nThis workflow runs hourly to collect campaign spend, clicks, and impressions from Meta (Facebook), Google Ads, TikTok Ads, and Taboola, then upserts the metrics into Airtable and creates a time-stamped snapshot record for Meta campaigns. Get Implementation help via https://nocode.expert\n\n## How it works\n1. Runs every 60 minutes on a schedule.\n2. Builds today’s date values (including a sheet-friendly format and PST-adjusted dates) for use in API queries and Airtable filters.\n3. Pulls ACTIVE and PAUSED campaign lists from up to four Meta ad accounts and searches Airtable for existing rows matching today’s date.\n4. Matches Meta campaigns to Airtable records by Campaign ID, fetches Meta Insights for each campaign for today, and keeps only campaigns with non-zero spend.\n5. Upserts the Meta campaign metrics into the Airtable “Daily Ad Spend” table and creates a separate time-slot snapshot row in a second Airtable table.\n6. Retrieves today’s performance data from Taboola (via OAuth token), Google Ads (GAQL query), and TikTok Ads (integrated report), then normalizes the results into a single campaign list.\n7. Filters out non-spending campaigns and upserts the remaining Google, Taboola, and TikTok campaign metrics into the same Airtable “Daily Ad Spend” table.\n\n## Setup\n1. Create an Airtable personal access token connection and set your Airtable Base ID and both Table IDs for the “Daily Ad Spend” and “Daily Snapshot” tables.\n2. Replace the placeholder Meta ad account IDs and add a valid Meta Graph API access token in the Meta campaign and insights request URLs.\n3. Add Google Ads OAuth2 credentials in n8n and set your Google customer ID, login-customer-id, and developer token headers for the Google Ads API request.\n4. Add your TikTok access token and advertiser ID, and add your Taboola client ID/secret and account name in the Taboola token and report requests.\n5. Ensure your Airtable “Daily Ad Spend” table includes fields matching the mapped columns (for example Date, Spend, Clicks, Impressions, Campaign ID, Campaign Name, Source, and Ad Account) so the upserts succeed.\n\n## Requirements\n- Accounts and API access for Meta Graph API, Google Ads API, TikTok Business API, Taboola Backstage API, and an Airtable base\n\n## Customization\n- change the schedule from hourly to daily, or narrow the campaign-name keyword filter to only the campaigns you want tracked",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "CRM",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Every_Hour_Schedule_Trigger": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Format_Date_for_Campaigns": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.trigger.outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst dateOnly = new Date(($now))\n  .toISOString()\n  .split(\"T\")[0];\n\nconst now = new Date();\nconst mm = String(now.getMonth() + 1).padStart(2, '0');  // getMonth() is 0-based\nconst dd = String(now.getDate()).padStart(2, '0');\nconst yy = String(now.getFullYear()).slice(-2); \n\nconst nowDateOnly = new Date($now).toISOString().split(\"T\")[0];\nconst dateforsheet = `${mm}/${dd}/${yy}`;\n\n// NEW: Generate PST-adjusted date for API use\nconst pstOffsetHours = -7; // Use -8 if not daylight savings\nconst pstNow = new Date(new Date($now).getTime() + pstOffsetHours * 60 * 60 * 1000);\nconst dateforapiPST = pstNow.toISOString().split(\"T\")[0];\n\n// New code to get yesterday's date in PST\nconst yesterdayPST = new Date(pstNow);\nyesterdayPST.setDate(pstNow.getDate() - 1);\nconst dateforapiPST_Yesterday = yesterdayPST.toISOString().split(\"T\")[0];\n\n\nreturn [\n  {\n    json: {\n      dateforfb: nowDateOnly,\n      dateforsheet: dateforsheet,\n      dateforapiPST: dateforapiPST,\n      dateforapiPST_Yesterday: dateforapiPST_Yesterday // <- New PST-adjusted date\n    }\n  }\n];\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {}
+        },
+        "Fetch_FB_Spend_Data": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://graph.facebook.com/v22.0/@{body('Loop_Over_FB_Campaigns_Data')?['id']}/insights?fields=campaign_id,spend,impressions,clicks&time_range={\"since\":\"@{first(body('Format_Date_for_Campaigns'))?['dateforfb']}\",\"until\":\"@{first(body('Format_Date_for_Campaigns'))?['dateforfb']}\"}&access_token=YOUR_META_ACCESS_TOKEN&limit=500"
+          },
+          "runAfter": {
+            "Loop_Over_FB_Campaigns_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Compile_Ad_Spend_Data": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Fetch_FB_Spend_Data'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst __results = items.map(item => {\n  const $json = item.json;\n  const $input = {\n    item,\n    first: () => item,\n    last: () => item,\n    all: () => items\n  };\n  return (() => {\n/***********************************\n * Function Node (Send All Campaigns)\n ***********************************/\n\n// 1) Campaign info from “Loop Over Items” (this iteration).\nconst loopData       = __node('Loop_Over_FB_Campaigns_Data').item.json;\nconst campaignId     = loopData.id || \"\";\nconst campaignName   = loopData.name || \"\";\nconst campaignStatus = loopData.status || \"\";\nconst adAccount      = loopData.ad_account || \"\";\n\n// 2) Retrieve all spend data.\nconst spendItems = $items(\"Get Spend Data\");\n\nlet spendAmount = \"0\";\nlet impressions = \"0\";\nlet clicks = \"0\";\n\n// 3) Find spend, impressions, and clicks for this campaign.\nfor (const spendItem of spendItems) {\n  if (Array.isArray(spendItem.json.data) && spendItem.json.data.length > 0) {\n    const record = spendItem.json.data[0];\n    if (record.campaign_id === campaignId) {\n      spendAmount = record.spend || \"0\";\n      impressions = record.impressions || \"0\";\n      clicks = record.clicks || \"0\";\n      break;\n    }\n  }\n}\n\n// 4) Only return the campaign if spend is non-zero\nif (parseFloat(spendAmount) > 0) {\n  return {\n      campaign_id: campaignId,\n      campaign_name: campaignName,\n      campaign_status: campaignStatus,\n      ad_account: adAccount,\n      spend_amount: spendAmount,\n      impressions: impressions,\n      clicks: clicks,\n      source:\"FACEBOOK\"\n  };\n}\n\n// 5) Otherwise, return nothing (skip this campaign)\nreturn null;\n\n  })();\n});\nreturn { body: __unwrap(__results) };"
+          },
+          "runAfter": {
+            "Fetch_FB_Spend_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fetch_Airtable_Campaign_Records": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Fetch Airtable Campaign Records",
+            "n8nNodeType": "n8n-nodes-base.airtable",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "base": {
+                "__rl": true,
+                "mode": "list",
+                "value": "YOUR_AIRTABLE_BASE_ID",
+                "cachedResultUrl": "https://airtable.com/YOUR_AIRTABLE_BASE_ID",
+                "cachedResultName": "Ad Reporting"
+              },
+              "table": {
+                "__rl": true,
+                "mode": "list",
+                "value": "YOUR_AIRTABLE_TABLE_ID",
+                "cachedResultUrl": "https://airtable.com/YOUR_AIRTABLE_BASE_ID/YOUR_AIRTABLE_TABLE_ID",
+                "cachedResultName": "Daily Ad Spend"
+              },
+              "options": {},
+              "operation": "search",
+              "filterByFormula": "={Date} = '{{ $('Format Date for Campaigns').first().json.dateforsheet }}'"
+            }
+          },
+          "runAfter": {
+            "Fetch_FB_Campaigns_Account_4": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fetch_FB_Campaigns_Account_2": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://graph.facebook.com/v15.0/act_YOUR_AD_ACCOUNT_2/campaigns?effective_status=%5B%22ACTIVE%22%2C%22PAUSED%22%5D&fields=name%2Cid%2Cstatus&access_token=YOUR_TOKEN_HERE&limit=10000"
+          },
+          "runAfter": {
+            "Fetch_FB_Campaigns_Account_1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fetch_FB_Campaigns_Account_1": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://graph.facebook.com/v15.0/act_YOUR_AD_ACCOUNT_1/campaigns?effective_status=%5B%22ACTIVE%22%2C%22PAUSED%22%5D&fields=name%2Cid%2Cstatus&access_token=YOUR_TOKEN_HERE&limit=10000"
+          },
+          "runAfter": {
+            "Format_Date_for_Campaigns": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fetch_FB_Campaigns_Account_3": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://graph.facebook.com/v15.0/act_YOUR_AD_ACCOUNT_3/campaigns?effective_status=%5B%22ACTIVE%22%2C%22PAUSED%22%5D&fields=name%2Cid%2Cstatus&access_token=YOUR_TOKEN_HERE&limit=10000"
+          },
+          "runAfter": {
+            "Fetch_FB_Campaigns_Account_2": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fetch_Taboola_Ads_Data": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://backstage.taboola.com/backstage/api/1.0/YOUR_TABOOLA_ACCOUNT/reports/realtime-campaign-summary/dimensions/by_campaign?start_date=@{first(body('Format_Date_for_Campaigns'))?['dateforfb']}T00:00:00&end_date=@{first(body('Format_Date_for_Campaigns'))?['dateforfb']}T23:59:59",
+            "headers": {
+              "Content-Type": "application/x-www-form-urlencoded",
+              "Authorization": "REPLACE_WITH_SECRET"
+            }
+          },
+          "runAfter": {
+            "Retrieve_Taboola_Access_Token": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fetch_Google_Ads_Data": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://googleads.googleapis.com/v24/customers/YOUR_GOOGLE_CUSTOMER_ID/googleAds:search",
+            "headers": {
+              "developer-token": "YOUR_GOOGLE_DEVELOPER_TOKEN",
+              "login-customer-id": "YOUR_GOOGLE_LOGIN_CUSTOMER_ID",
+              "Content-Type": "application/json"
+            },
+            "body": "{   \"query\": \"SELECT campaign.id, campaign.name, metrics.cost_micros, metrics.clicks, segments.date FROM campaign WHERE segments.date DURING TODAY\" }"
+          },
+          "runAfter": {
+            "Fetch_Taboola_Ads_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_FB_Campaign_Information": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Fetch_Airtable_Campaign_Records'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n/***********************************\n * Function Node (Run Once for All Items)\n ***********************************/\n\n// 1) Define keywords to match in campaign.name\nconst campaignKeywords = [\n  \"BRAND:LIVE\",\n  \"PROSPECT:LIVE\",\n  \"PRD:BRAND\",\n  \"your-offer-slug\",\n  \"PROSPECT:OOO\",\n  \"PROSPECT:AH\",\n  \"PROSPECT:Paused\",\n  \"PROSPECT:paused\",\n  \"PROSPECT:LTB\",\n  \"PROSPECT:24-7\",\n  \"BRAND\"\n];\n\n// 2) Grab all Facebook campaigns from each node and tag them with a source.\nconst fbCampaigns1 = (__node('Fetch_FB_Campaigns_Account_1').first().json.data || [])\n  .map(campaign => ({ ...campaign, source: 'fb1' }));\nconst fbCampaigns2 = (__node('Fetch_FB_Campaigns_Account_2').first().json.data || [])\n  .map(campaign => ({ ...campaign, source: 'fb2' }));\nconst fbCampaigns3 = (__node('Fetch_FB_Campaigns_Account_3').first().json.data || [])\n  .map(campaign => ({ ...campaign, source: 'fb3' }));\nconst fbCampaigns4 = (__node('Fetch_FB_Campaigns_Account_4').first().json.data || [])\n  .map(campaign => ({ ...campaign, source: 'fb4' }));\n\n// Combine all campaigns into one array.\nconst fbCampaigns = [...fbCampaigns1, ...fbCampaigns2, ...fbCampaigns3, ...fbCampaigns4];\n\n// 3) Filter campaigns to only those whose name contains any of the keywords.\nconst filteredCampaigns = fbCampaigns.filter(campaign => \n  campaignKeywords.some(keyword => campaign.name.includes(keyword))\n);\n\n// 4) Load Airtable records from this node’s input.\n//    Each record should have a field \"Campaign ID\" and an Airtable record id.\nconst airtableRecords = $input.all().map(item => item.json);\n\n// 5) For each matching FB campaign, find the corresponding Airtable record by comparing\n//    the Airtable \"Campaign ID\" to the Facebook campaign's id.\n//    Also, assign an extra value based on the source: fb1 -> \"xyz\", fb2 -> \"abc\", fb3 -> \"123\".\nconst results = filteredCampaigns.map(campaign => {\n  const matchingRecord = airtableRecords.find(record => record[\"Campaign ID\"] === campaign.id);\n  const recordId = matchingRecord ? matchingRecord.id : \"\";\n  \n  // Determine the extra value based on the campaign source.\n  let account = \"\";\n  if (campaign.source === 'fb1') {\n    account = 'YOUR_AD_ACCOUNT_1';\n  } else if (campaign.source === 'fb2') {\n    account = 'YOUR_AD_ACCOUNT_2';\n  } else if (campaign.source === 'fb3') {\n    account = 'YOUR_AD_ACCOUNT_3';\n  }else if (campaign.source === 'fb4') {\n    account = 'YOUR_AD_ACCOUNT_4';\n  }\n  \n  return {\n      id: campaign.id,\n      name: campaign.name,\n      status: campaign.status,\n      record: recordId,  // Airtable record id if found; otherwise, an empty string.\n      ad_account: account\n  };\n});\n\n// 6) Return the array of matching campaigns with the Airtable record id and extra value added.\nreturn results;\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Fetch_Airtable_Campaign_Records": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Process_Airtable_Records": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Process Airtable Records",
+            "n8nNodeType": "n8n-nodes-base.airtable",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "base": {
+                "__rl": true,
+                "mode": "list",
+                "value": "YOUR_AIRTABLE_BASE_ID",
+                "cachedResultUrl": "https://airtable.com/YOUR_AIRTABLE_BASE_ID",
+                "cachedResultName": "Ad Reporting"
+              },
+              "table": {
+                "__rl": true,
+                "mode": "list",
+                "value": "YOUR_AIRTABLE_TABLE_ID",
+                "cachedResultUrl": "https://airtable.com/YOUR_AIRTABLE_BASE_ID/YOUR_AIRTABLE_TABLE_ID",
+                "cachedResultName": "Table 1"
+              },
+              "columns": {
+                "value": {
+                  "id": "={{ $json.record }}",
+                  "Date": "={{ $('Format Date for Campaigns').first().json.dateforsheet }}",
+                  "Spend": "={{ $json.spend_amount }}",
+                  "Clicks": "={{ $json.clicks }}",
+                  "Source": "={{ $json.source }}",
+                  "Ad Account": "={{ $json.ad_account }}",
+                  "Campaign ID": "={{ $json.campaign_id.toString() }}",
+                  "Impressions": "=",
+                  "Total Leads": "=",
+                  "Campaign Name": "={{ $json.campaign_name }}",
+                  "Qualified Leads": "=",
+                  "Pause / Activate Campaign": "={{ $json.campaign_status}}"
+                },
+                "schema": [
+                  {
+                    "id": "id",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "id",
+                    "defaultMatch": true
+                  },
+                  {
+                    "id": "Campaign - Date Key",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "Campaign - Date Key",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Campaign Name",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Campaign Name",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Campaign ID",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Campaign ID",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Segment Split",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "Segment Split",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Campaign Type",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "Campaign Type",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Leads",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "Leads",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Total Confirmed",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "Total Confirmed",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "QL",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "QL",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Total Form QL",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "Total Form QL",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "QL to Confirmed %",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "QL to Confirmed %",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Lead to Confirmed %",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "Lead to Confirmed %",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Segment A QL",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "Segment A QL",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Segment B QL",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "Segment B QL",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Spend",
+                    "type": "number",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Spend",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Spend in last hr",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "Spend in last hr",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "CPQL",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "CPQL",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "CPCTC",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "CPCTC",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "CPQL 49-62",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "CPQL 49-62",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "CPQL 40-48",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "CPQL 40-48",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Update Data",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "Update Data",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Pause / Activate Campaign",
+                    "type": "options",
+                    "display": true,
+                    "options": [
+                      {
+                        "name": "ACTIVE",
+                        "value": "ACTIVE"
+                      },
+                      {
+                        "name": "PAUSED",
+                        "value": "PAUSED"
+                      },
+                      {
+                        "name": "TODO",
+                        "value": "TODO"
+                      }
+                    ],
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Pause / Activate Campaign",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Updated at ",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "Updated at ",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Date",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Date",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "BRAND Lead Data",
+                    "type": "array",
+                    "display": true,
+                    "removed": true,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "BRAND Lead Data",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Pacing (Across Campaigns)",
+                    "type": "array",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Pacing (Across Campaigns)",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Impressions",
+                    "type": "number",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Impressions",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Clicks",
+                    "type": "number",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Clicks",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Daily Target",
+                    "type": "array",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Daily Target",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Max Spend (Last Hour)",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "Max Spend (Last Hour)",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Min Spend (Last Hour)",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "Min Spend (Last Hour)",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Daly REport Connect",
+                    "type": "array",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Daly REport Connect",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Source",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Source",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Week",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "Week",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Link Click to Lead %",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "Link Click to Lead %",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Ad Account",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Ad Account",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Total Leads",
+                    "type": "number",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Total Leads",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Region",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "Region",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Region QL",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "Region QL",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Qualified Leads",
+                    "type": "number",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Qualified Leads",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Created",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "Created",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Day",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "Day",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Daily Snapshot",
+                    "type": "array",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": false,
+                    "required": false,
+                    "displayName": "Daily Snapshot",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "if last working day",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "if last working day",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "BH/AH",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "BH/AH",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Formfill CPQCTC",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "Formfill CPQCTC",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "QL %",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "QL %",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "id"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "upsert"
+            }
+          },
+          "runAfter": {
+            "Loop_Over_Google_Taboola_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_Google_Taboola_Data": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Fetch_Tiktok_Ads_Data'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n/***********************************\n * Function Node (Run Once for All Items)\n ***********************************/\n\n// 1) Define keywords to match in campaign.name\nconst campaignKeywords = [];\n\n// 2) Grab all Google campaigns\nconst googleCampaigns = (__node('Fetch_Google_Ads_Data').first().json.results || [])\n  .map(campaign => ({\n    campaign_id: campaign.campaign.id,\n    campaign_name: campaign.campaign.name,\n    campaign_status: \"TODO\",\n    ad_account: \"TODO\",\n    spend_amount: (campaign.metrics.costMicros / 1000000),\n    impressions: 0,\n    clicks: campaign.metrics.clicks,\n    source: \"GOOGLE\"\n  }));\n\n// 3) Grab all Taboola campaigns\nconst taboolaCampaigns = (__node('Fetch_Taboola_Ads_Data').first().json.results || [])\n  .map(campaign => ({\n    campaign_id: campaign.campaign_id,\n    campaign_name: campaign.campaign_name,\n    campaign_status: \"TODO\",\n    ad_account: \"TODO\",\n    spend_amount: campaign.spent,\n    impressions: campaign.impressions,\n    clicks: campaign.clicks,\n    source: \"TABOOLA\"\n  }));\n\n// 4) Grab all TikTok campaigns\nconst tiktokCampaigns = (__node('Fetch_Tiktok_Ads_Data').first().json.data.list || [])\n  .map(campaign => ({\n    campaign_id: campaign.dimensions.campaign_id,\n    campaign_name: \"TODO\",  // TikTok API doesn't provide name here\n    campaign_status: \"TODO\",\n    ad_account: \"TODO\",\n    spend_amount: parseFloat(campaign.metrics.spend || 0),\n    impressions: parseInt(campaign.metrics.impressions || 0),\n    clicks: parseInt(campaign.metrics.clicks || 0),\n    source: \"TIKTOK\"\n  }));\n\n// Combine all campaigns into one array\nconst allCampaigns = [...googleCampaigns, ...taboolaCampaigns, ...tiktokCampaigns];\n\n// 5) Filter campaigns by keywords if needed\nconst filteredCampaigns = allCampaigns.filter(campaign => \n  campaignKeywords.length === 0 || campaignKeywords.some(keyword => campaign.campaign_name.includes(keyword))\n);\n\n// 6) Load Airtable records\nconst airtableRecords = __node('Fetch_Airtable_Campaign_Records').all().map(item => item.json);\n\n// 7) Match campaigns to Airtable records and tag them\nconst results = filteredCampaigns.map(campaign => {\n  const matchingRecord = airtableRecords.find(record =>\n    String(record[\"Campaign ID\"]) === String(campaign.campaign_id)\n  );\n  const recordId = matchingRecord ? matchingRecord.id : \"\";\n\n  return {\n    ...campaign,\n    record: recordId\n  };\n});\n\nreturn results;\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Fetch_Tiktok_Ads_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Loop_Over_Google_Taboola_Data": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Loop Over Google & Taboola Data",
+            "n8nNodeType": "n8n-nodes-base.splitInBatches",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "batchSize": "={{ $json.campaign_id }}"
+            }
+          },
+          "runAfter": {
+            "Filter_Campaign_Data": [
+              "Succeeded"
+            ],
+            "Process_Airtable_Records": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Loop_Over_FB_Campaigns_Data": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Loop Over FB Campaigns Data",
+            "n8nNodeType": "n8n-nodes-base.splitInBatches",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "batchSize": "=1"
+            }
+          },
+          "runAfter": {
+            "Check_Campaign_ID_Exists": [
+              "Succeeded"
+            ],
+            "Extract_FB_Campaign_Information": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Check_Campaign_ID_Exists": {
+          "type": "If",
+          "expression": {
+            "not": {
+              "empty": [
+                "@body('Compile_Ad_Spend_Data')?['campaign_id']"
+              ]
+            }
+          },
+          "actions": {
+            "Prepare_Airtable_Data": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Prepare Airtable Data",
+                "n8nNodeType": "n8n-nodes-base.airtable",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "base": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "YOUR_AIRTABLE_BASE_ID",
+                    "cachedResultUrl": "https://airtable.com/YOUR_AIRTABLE_BASE_ID",
+                    "cachedResultName": "Ad Reporting"
+                  },
+                  "table": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "YOUR_AIRTABLE_TABLE_ID",
+                    "cachedResultUrl": "https://airtable.com/YOUR_AIRTABLE_BASE_ID/YOUR_AIRTABLE_TABLE_ID",
+                    "cachedResultName": "Table 1"
+                  },
+                  "columns": {
+                    "value": {
+                      "id": "={{ $('Loop Over FB Campaigns Data').item.json.record }}",
+                      "Date": "={{ $('Format Date for Campaigns').first().json.dateforsheet }}",
+                      "Spend": "={{ $json.spend_amount }}",
+                      "Clicks": "={{ $json.clicks }}",
+                      "Source": "={{ $json.source }}",
+                      "Ad Account": "={{ $json.ad_account }}",
+                      "Campaign ID": "={{ $json.campaign_id }}",
+                      "Impressions": "={{ $json.impressions }}",
+                      "Total Leads": "=",
+                      "Campaign Name": "={{ $json.campaign_name }}",
+                      "Qualified Leads": "=",
+                      "Pause / Activate Campaign": "={{ $json.campaign_status}}"
+                    },
+                    "schema": [
+                      {
+                        "id": "id",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "id",
+                        "defaultMatch": true
+                      },
+                      {
+                        "id": "Campaign - Date Key",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "Campaign - Date Key",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Campaign Name",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "Campaign Name",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Campaign ID",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "Campaign ID",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Segment Split",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "Segment Split",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Campaign Type",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "Campaign Type",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Leads",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "Leads",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Total Confirmed",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "Total Confirmed",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "QL",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "QL",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Total Form QL",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "Total Form QL",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "QL to Confirmed %",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "QL to Confirmed %",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Lead to Confirmed %",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "Lead to Confirmed %",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Segment A QL",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "Segment A QL",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Segment B QL",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "Segment B QL",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Spend",
+                        "type": "number",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "Spend",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Spend in last hr",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "Spend in last hr",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "CPQL",
+                        "type": "string",
+                        "display": true,
+                        "removed": true,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "CPQL",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "CPCTC",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "CPCTC",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "CPQL 49-62",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "CPQL 49-62",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "CPQL 40-48",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "CPQL 40-48",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Update Data",
+                        "type": "string",
+                        "display": true,
+                        "removed": true,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "Update Data",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Pause / Activate Campaign",
+                        "type": "options",
+                        "display": true,
+                        "options": [
+                          {
+                            "name": "ACTIVE",
+                            "value": "ACTIVE"
+                          },
+                          {
+                            "name": "PAUSED",
+                            "value": "PAUSED"
+                          },
+                          {
+                            "name": "TODO",
+                            "value": "TODO"
+                          }
+                        ],
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "Pause / Activate Campaign",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Updated at ",
+                        "type": "string",
+                        "display": true,
+                        "removed": true,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "Updated at ",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Date",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "Date",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "BRAND Lead Data",
+                        "type": "array",
+                        "display": true,
+                        "removed": true,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "BRAND Lead Data",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Pacing (Across Campaigns)",
+                        "type": "array",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "Pacing (Across Campaigns)",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Impressions",
+                        "type": "number",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "Impressions",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Clicks",
+                        "type": "number",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "Clicks",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Daily Target",
+                        "type": "array",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "Daily Target",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Max Spend (Last Hour)",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "Max Spend (Last Hour)",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Min Spend (Last Hour)",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "Min Spend (Last Hour)",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Daly REport Connect",
+                        "type": "array",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "Daly REport Connect",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Source",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "Source",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Week",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "Week",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Link Click to Lead %",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "Link Click to Lead %",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Ad Account",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "Ad Account",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Total Leads",
+                        "type": "number",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "Total Leads",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Region",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "Region",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Region QL",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "Region QL",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Qualified Leads",
+                        "type": "number",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "Qualified Leads",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Created",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "Created",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Day",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "Day",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Daily Snapshot",
+                        "type": "array",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "Daily Snapshot",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "if last working day",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "if last working day",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "BH/AH",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "BH/AH",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Formfill CPQCTC",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "Formfill CPQCTC",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "QL %",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "QL %",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      }
+                    ],
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [
+                      "id"
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                  },
+                  "options": {},
+                  "operation": "upsert"
+                }
+              },
+              "runAfter": {}
+            },
+            "Store_to_Airtable": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Store to Airtable",
+                "n8nNodeType": "n8n-nodes-base.airtable",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "base": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "YOUR_AIRTABLE_BASE_ID",
+                    "cachedResultUrl": "https://airtable.com/YOUR_AIRTABLE_BASE_ID",
+                    "cachedResultName": "Ad Reporting"
+                  },
+                  "table": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "YOUR_AIRTABLE_TABLE_ID_2",
+                    "cachedResultUrl": "https://airtable.com/YOUR_AIRTABLE_BASE_ID/YOUR_AIRTABLE_TABLE_ID_2",
+                    "cachedResultName": "Daily Snapshot"
+                  },
+                  "columns": {
+                    "value": {
+                      "Slot": "={{ \n  $('Compile Ad Spend Data').item.json.campaign_id \n}}-{{ \n  new Date(Date.now())\n    .toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) \n}}\n",
+                      "spend": "={{ $('Compile Ad Spend Data').item.json.spend_amount }}",
+                      "clicks": "={{ $('Compile Ad Spend Data').item.json.clicks }}",
+                      "impression": "={{ $('Compile Ad Spend Data').item.json.impressions }}",
+                      "Campaign link": "=[\"{{ $('Loop Over FB Campaigns Data').item.json.record }}\"]",
+                      "Campaign name": "={{ $('Prepare Airtable Data').item.json.fields['Campaign Name'] }}"
+                    },
+                    "schema": [
+                      {
+                        "id": "Slot",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "Slot",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "slot time - tz adjusted",
+                        "type": "string",
+                        "display": true,
+                        "removed": true,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "slot time - tz adjusted",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "spend",
+                        "type": "number",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "spend",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "impression",
+                        "type": "number",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "impression",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "clicks",
+                        "type": "number",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "clicks",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Campaign link",
+                        "type": "array",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "Campaign link",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Campaign ID (from Campaign link)",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "Campaign ID (from Campaign link)",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "created",
+                        "type": "string",
+                        "display": true,
+                        "removed": true,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "created",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Pacing Start",
+                        "type": "array",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "Pacing Start",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Pacing End",
+                        "type": "array",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "Pacing End",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Data created",
+                        "type": "string",
+                        "display": true,
+                        "removed": true,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "Data created",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Start date",
+                        "type": "dateTime",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "Start date",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "updated",
+                        "type": "string",
+                        "display": true,
+                        "removed": true,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "updated",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Slot time raw",
+                        "type": "string",
+                        "display": true,
+                        "removed": true,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "Slot time raw",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Last 1 hr link",
+                        "type": "array",
+                        "display": true,
+                        "removed": true,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "Last 1 hr link",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Is in last hour",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "Is in last hour",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "hr of the day",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": true,
+                        "required": false,
+                        "displayName": "hr of the day",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      },
+                      {
+                        "id": "Campaign name",
+                        "type": "string",
+                        "display": true,
+                        "removed": false,
+                        "readOnly": false,
+                        "required": false,
+                        "displayName": "Campaign name",
+                        "defaultMatch": false,
+                        "canBeUsedToMatch": true
+                      }
+                    ],
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                  },
+                  "options": {},
+                  "operation": "create"
+                }
+              },
+              "runAfter": {
+                "Verify_FB_Campaign_Batch": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Verify_FB_Campaign_Batch": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Verify FB Campaign Batch",
+                "n8nNodeType": "n8n-nodes-base.if",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "strict"
+                    },
+                    "combinator": "and",
+                    "conditions": [
+                      {
+                        "id": "497eefc3-13c3-4d7b-9b9a-45f7827bea51",
+                        "operator": {
+                          "type": "string",
+                          "operation": "notEmpty",
+                          "singleValue": true
+                        },
+                        "leftValue": "={{ $('Loop Over FB Campaigns Data').item.json.record }}",
+                        "rightValue": ""
+                      }
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "Prepare_Airtable_Data": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "Compile_Ad_Spend_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Filter_Campaign_Data": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Filter Campaign Data",
+            "n8nNodeType": "n8n-nodes-base.filter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "581474ea-cd4d-4101-9af5-4158d0567a91",
+                    "operator": {
+                      "type": "number",
+                      "operation": "gt"
+                    },
+                    "leftValue": "={{ $json.spend_amount }}",
+                    "rightValue": 0
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Extract_Google_Taboola_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Retrieve_Taboola_Access_Token": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://backstage.taboola.com/backstage/oauth/token",
+            "headers": {
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "body": {
+              "grant_type": "client_credentials",
+              "client_id": "YOUR_TABOOLA_CLIENT_ID",
+              "client_secret": "YOUR_TABOOLA_CLIENT_SECRET"
+            }
+          },
+          "runAfter": {
+            "Loop_Over_FB_Campaigns_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fetch_FB_Campaigns_Account_4": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://graph.facebook.com/v15.0/act_YOUR_AD_ACCOUNT_4/campaigns?effective_status=%5B%22ACTIVE%22%2C%22PAUSED%22%5D&fields=name%2Cid%2Cstatus&access_token=YOUR_TOKEN_HERE&limit=10000"
+          },
+          "runAfter": {
+            "Fetch_FB_Campaigns_Account_3": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fetch_Tiktok_Ads_Data": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/?advertiser_id=YOUR_TIKTOK_ADVERTISER_ID&service_type=AUCTION&report_type=BASIC&data_level=AUCTION_CAMPAIGN&dimensions=[\"campaign_id\"]&metrics=[\"clicks\",\"impressions\",\"spend\"]&start_date=@{first(body('Format_Date_for_Campaigns'))?['dateforfb']}&end_date=@{first(body('Format_Date_for_Campaigns'))?['dateforfb']}",
+            "headers": {
+              "Access-Token": "YOUR_TIKTOK_ACCESS_TOKEN"
+            }
+          },
+          "runAfter": {
+            "Fetch_Google_Ads_Data": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Every_Hour_Schedule_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {
+        "Hour": "08",
+        "Year": "2026",
+        "Month": "June",
+        "Minute": "45",
+        "Second": "59",
+        "Timezone": "America/Los_Angeles (UTC-07:00)",
+        "timestamp": "2026-06-15T08:45:59.004-07:00",
+        "Day of week": "Monday",
+        "Day of month": "15",
+        "Readable date": "June 15th 2026, 8:45:59 am",
+        "Readable time": "8:45:59 am"
+      }
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

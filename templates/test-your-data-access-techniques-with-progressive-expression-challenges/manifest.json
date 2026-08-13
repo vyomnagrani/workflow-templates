@@ -1,0 +1,636 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "test-your-data-access-techniques-with-progressive-expression-challenges",
+    "name": "🧑‍🎓 Test your data access techniques with progressive expression challenges",
+    "description": "## How it works\n\nThis template is a hands-on, practical exam designed to help you master **n8n Expressions**—the key to accessing and manipulating data in your workflows.\n\nIf the `🎓 Expressions Tutorial Template` was the theory lesson, this is the **practical driving test**. You'll learn how to navigate through complex data structures to get the exact piece of information you need. All challenges will reference a single **\"Source Data\"** node, which acts as our data \"map\".\n\nThe test is a series of six sequential challenges that build in complexity:\n1.  **Basic Access:** Getting a simple value from an object.\n2.  **Array Access:** Targeting a specific item in a list.\n3.  **Nested Object Access:** Reaching data inside another object.\n4.  **Array of Objects:** Combining array and object skills to get a specific value from a list of objects.\n5.  **Using JavaScript:** Applying simple JavaScript functions (like `.toUpperCase()`) to your data.\n6.  **Combining Text & Expressions:** Creating dynamic strings that mix static text with data from previous nodes.\n\nFor each challenge, you'll write an expression in a \"Test\" node. When you execute the workflow, an `IF` node will instantly validate your answer, giving you a green path for success or a red path with a hint if you need to try again.\n\n## Set up steps\n\n**Setup time: &lt; 1 minute**\n\nThis workflow is a self-contained test and requires no setup or credentials.\n\n1.  Read the instructions on the main sticky note to understand the goal.\n2.  Start with the first challenge, **\"Test - Basic Access\"**. Modify the node by writing the correct expression in the value field, according to the instructions on the purple sticky note.\n3.  Click **\"Execute Workflow\"**.\n4.  If the execution path is green, you've passed! The next \"Test\" node in the sequence will automatically be enabled for you to continue. If the path is red, read the hint in the error message and try again.\n5.  Repeat the process until you reach the final success message and become an expressions pro.\n\n**Good Luck!**\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Engineering",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Start_Test": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Source_Data": {
+          "type": "Compose",
+          "inputs": {
+            "name": "Clark Kent",
+            "city": "Metropolis",
+            "level": 99,
+            "tools": "[\"Typewriter\",\"Glasses\",\"n8n\"]",
+            "address": "{\"street\":\"123 Main St\",\"zip\":\"10001\"}",
+            "tasks": "[{\"name\":\"Write Article\",\"status\":\"Done\"},{\"name\":\"Review PR\",\"status\":\"Pending\"},{\"name\":\"Save the World\",\"status\":\"Pending\"}]"
+          },
+          "runAfter": {}
+        },
+        "Test_Basic_Access": {
+          "type": "Compose",
+          "inputs": {
+            "user_city": "="
+          },
+          "runAfter": {
+            "Source_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Check_Basic_Access": {
+          "type": "If",
+          "expression": {
+            "and": [
+              {
+                "equals": [
+                  "@body('Test_Basic_Access')?['user_city']",
+                  "@last(body('Source_Data'))?['city']"
+                ]
+              },
+              {
+                "equals": [
+                  "={{ !$('Test - Basic Access').isExecuted || $('Test - Basic Access').params.assignments.assignments[0].value.includes('.city') }}",
+                  true
+                ]
+              }
+            ]
+          },
+          "actions": {
+            "Success_Basic_Access": {
+              "type": "Compose",
+              "inputs": {},
+              "runAfter": {}
+            },
+            "Test_Array_Access": {
+              "type": "Compose",
+              "inputs": {
+                "third_tool": "="
+              },
+              "runAfter": {
+                "Success_Basic_Access": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Check_Array_Access": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Check - Array Access",
+                "n8nNodeType": "n8n-nodes-base.if",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "strict"
+                    },
+                    "combinator": "and",
+                    "conditions": [
+                      {
+                        "id": "5ac1af5c-2769-42f8-9df7-ec092d2fec05",
+                        "operator": {
+                          "type": "string",
+                          "operation": "equals"
+                        },
+                        "leftValue": "={{ $json.third_tool }}",
+                        "rightValue": "={{ $('Source Data').item.json.tools[2] }}"
+                      },
+                      {
+                        "id": "193a01cb-64c3-456a-bee4-4febaae63e66",
+                        "operator": {
+                          "type": "boolean",
+                          "operation": "true",
+                          "singleValue": true
+                        },
+                        "leftValue": "={{ !$('Test - Array Access').isExecuted || $('Test - Array Access').params.assignments.assignments[0].value.includes('.tools') }}",
+                        "rightValue": ""
+                      }
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "Test_Array_Access": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Success_Array_Access": {
+              "type": "Compose",
+              "inputs": {},
+              "runAfter": {
+                "Check_Array_Access": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Error_Array_Access": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Error - Array Access",
+                "n8nNodeType": "n8n-nodes-base.stopAndError",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "errorMessage": "Incorrect. Hint: Remember that arrays are zero-indexed. The third item is at index `[2]`."
+                }
+              },
+              "runAfter": {
+                "Check_Array_Access": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Test_Nested_Object": {
+              "type": "Compose",
+              "inputs": {
+                "street_address": "="
+              },
+              "runAfter": {
+                "Success_Array_Access": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Check_Nested_Object": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Check - Nested Object",
+                "n8nNodeType": "n8n-nodes-base.if",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "strict"
+                    },
+                    "combinator": "and",
+                    "conditions": [
+                      {
+                        "id": "d4e5f6a7-8901-2345-6789-0abcdef12345",
+                        "operator": {
+                          "type": "string",
+                          "operation": "equals"
+                        },
+                        "leftValue": "={{ $json.street_address }}",
+                        "rightValue": "={{ $('Source Data').item.json.address.street }}"
+                      },
+                      {
+                        "id": "b84f01c8-0b9f-4dd5-a983-e7455fafe1ce",
+                        "operator": {
+                          "type": "boolean",
+                          "operation": "true",
+                          "singleValue": true
+                        },
+                        "leftValue": "={{ !$('Test - Nested Object').isExecuted || $('Test - Nested Object').params.assignments.assignments[0].value.includes('.address.street') }}",
+                        "rightValue": ""
+                      }
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "Test_Nested_Object": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Success_Nested_Object": {
+              "type": "Compose",
+              "inputs": {},
+              "runAfter": {
+                "Check_Nested_Object": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Error_Nested_Object": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Error - Nested Object",
+                "n8nNodeType": "n8n-nodes-base.stopAndError",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "errorMessage": "Incorrect. Hint: Chain the keys using dots, like `...json.address.street`."
+                }
+              },
+              "runAfter": {
+                "Check_Nested_Object": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Test_Array_of_Objects": {
+              "type": "Compose",
+              "inputs": {
+                "second_task_name": "="
+              },
+              "runAfter": {
+                "Success_Nested_Object": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Check_Array_of_Objects": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Check - Array of Objects",
+                "n8nNodeType": "n8n-nodes-base.if",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "strict"
+                    },
+                    "combinator": "and",
+                    "conditions": [
+                      {
+                        "id": "e1234567-890a-bcde-f123-456789012345",
+                        "operator": {
+                          "type": "string",
+                          "operation": "equals"
+                        },
+                        "leftValue": "={{ $json.second_task_name }}",
+                        "rightValue": "={{ $('Source Data').item.json.tasks[1].name }}"
+                      },
+                      {
+                        "id": "8ea84d9f-102e-44aa-b87d-96fc413af915",
+                        "operator": {
+                          "type": "boolean",
+                          "operation": "true",
+                          "singleValue": true
+                        },
+                        "leftValue": "={{ !$('Test - Array of Objects').isExecuted || $('Test - Array of Objects').params.assignments.assignments[0].value.includes('.tasks') }}",
+                        "rightValue": ""
+                      }
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "Test_Array_of_Objects": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Success_Array_of_Objects": {
+              "type": "Compose",
+              "inputs": {},
+              "runAfter": {
+                "Check_Array_of_Objects": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Error_Array_of_Objects": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Error - Array of Objects",
+                "n8nNodeType": "n8n-nodes-base.stopAndError",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "errorMessage": "Incorrect. Hint: Combine array access `[1]` with object access `.name`."
+                }
+              },
+              "runAfter": {
+                "Check_Array_of_Objects": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Test_JS_Function": {
+              "type": "Compose",
+              "inputs": {
+                "uppercase_name": "="
+              },
+              "runAfter": {
+                "Success_Array_of_Objects": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Check_JS_Function": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Check - JS Function",
+                "n8nNodeType": "n8n-nodes-base.if",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "strict"
+                    },
+                    "combinator": "and",
+                    "conditions": [
+                      {
+                        "id": "b0123456-7890-abcd-ef12-345678901234",
+                        "operator": {
+                          "type": "string",
+                          "operation": "equals"
+                        },
+                        "leftValue": "={{ $json.uppercase_name }}",
+                        "rightValue": "={{ $('Source Data').item.json.name.toUpperCase() }}"
+                      },
+                      {
+                        "id": "7c1238db-4849-4525-b293-4f453b70fa21",
+                        "operator": {
+                          "type": "boolean",
+                          "operation": "true",
+                          "singleValue": true
+                        },
+                        "leftValue": "={{ !$('Test - JS Function').isExecuted || $('Test - JS Function').params.assignments.assignments[0].value.includes('.toUpperCase()') }}",
+                        "rightValue": "={{ !$('Test - Array of Objects').isExecuted || $('Test - Array of Objects').params.assignments.assignments[0].value.includes('.tasks') }}"
+                      }
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "Test_JS_Function": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Success_JS_Function": {
+              "type": "Compose",
+              "inputs": {},
+              "runAfter": {
+                "Check_JS_Function": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Error_JS_Function": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Error - JS Function",
+                "n8nNodeType": "n8n-nodes-base.stopAndError",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "errorMessage": "Incorrect. Hint: Add `.toUpperCase()` to the end of your expression, inside the `{{ }}`."
+                }
+              },
+              "runAfter": {
+                "Check_JS_Function": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Test_Final": {
+              "type": "Compose",
+              "inputs": {
+                "summary": "="
+              },
+              "runAfter": {
+                "Success_JS_Function": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Check_Final": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Check - Final",
+                "n8nNodeType": "n8n-nodes-base.if",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "options": {},
+                  "conditions": {
+                    "options": {
+                      "version": 2,
+                      "leftValue": "",
+                      "caseSensitive": true,
+                      "typeValidation": "strict"
+                    },
+                    "combinator": "and",
+                    "conditions": [
+                      {
+                        "id": "a1234567-890a-bcde-f123-456789012345",
+                        "operator": {
+                          "type": "string",
+                          "operation": "equals"
+                        },
+                        "leftValue": "={{ $json.summary }}",
+                        "rightValue": "=The status of task '{{ $('Source Data').item.json.tasks[1].name }}' is {{ $('Source Data').item.json.tasks[1].status }}."
+                      },
+                      {
+                        "id": "18e1e8e4-0539-4c4f-85fe-1fa8759717ad",
+                        "operator": {
+                          "type": "boolean",
+                          "operation": "true",
+                          "singleValue": true
+                        },
+                        "leftValue": "={{ !$('Test - Final').isExecuted || ($('Test - Final').params.assignments.assignments[0].value.includes('.name') && $('Test - Final').params.assignments.assignments[0].value.includes('.status')) }}",
+                        "rightValue": ""
+                      }
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "Test_Final": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Success_Final": {
+              "type": "Compose",
+              "inputs": {},
+              "runAfter": {
+                "Check_Final": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Error_Final": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Error - Final",
+                "n8nNodeType": "n8n-nodes-base.stopAndError",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "errorMessage": "Incorrect. Hint: Combine static text and expressions like this: `Some text '{{ expression1 }}' and '{{ expression2 }}`."
+                }
+              },
+              "runAfter": {
+                "Check_Final": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "SUCCESS": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "🎉 SUCCESS 🎉",
+                "n8nNodeType": "n8n-nodes-base.html",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Success</title>\n</head>\n<body style=\"margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f0f2f5; display: flex; align-items: center; justify-content: center; height: 100vh;\">\n\n    <!-- The main success card -->\n    <div style=\"background-color: #ffffff; padding: 40px 50px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1); text-align: center; max-width: 400px; margin: 20px;\">\n\n        <!-- Circular Green Checkmark -->\n        <div style=\"width: 100px; height: 100px; background-color: #28a745; border-radius: 50%; margin: 0 auto 25px auto; display: flex; align-items: center; justify-content: center;\">\n            <span style=\"color: white; font-size: 60px; line-height: 1;\">✔</span>\n        </div>\n\n        <!-- Main Text -->\n        <h1 style=\"font-size: 36px; font-weight: 600; color: #333; margin: 0 0 10px 0;\">\n            Success!\n        </h1>\n\n        <!-- Call to Action Text & Link -->\n        <p style=\"font-size: 16px; color: #555; line-height: 1.5; margin: 0;\">\n            You've mastered n8n expressions!\n         </p>\n        <p style=\"font-size: 16px; color: #555; line-height: 1.5; margin: 0;\">\n            <a href=\"https://n8n.io/creators/lucaspeyrin\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color: #007bff; text-decoration: none; font-weight: 500;\">Check out more templates</a>.\n        </p>\n\n    </div>\n\n</body>\n</html>"
+                }
+              },
+              "runAfter": {
+                "Success_Final": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "Error_Basic_Access": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "Error - Basic Access",
+                  "n8nNodeType": "n8n-nodes-base.stopAndError",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "errorMessage": "Incorrect. Hint: Use the format `{{ $('Source Data').item.json.city }}` to get the city value."
+                  }
+                },
+                "runAfter": {}
+              }
+            }
+          },
+          "runAfter": {
+            "Test_Basic_Access": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Answer_Basic_Access": {
+          "type": "Compose",
+          "inputs": {
+            "user_city": "@body('Source_Data')?['city']",
+            "other_solution": "@triggerBody()?['city']"
+          },
+          "runAfter": {}
+        },
+        "Answer_Array_Access": {
+          "type": "Compose",
+          "inputs": {
+            "third_tool": "@body('Source_Data')?['tools'][2]"
+          },
+          "runAfter": {}
+        },
+        "Answer_Nested_Object": {
+          "type": "Compose",
+          "inputs": {
+            "street_address": "@body('Source_Data')?['address']?['street']"
+          },
+          "runAfter": {}
+        },
+        "Answer_Array_of_Objects": {
+          "type": "Compose",
+          "inputs": {
+            "second_task_name": "@body('Source_Data')?['tasks'][1].name"
+          },
+          "runAfter": {}
+        },
+        "Answer_JS_Function": {
+          "type": "Compose",
+          "inputs": {
+            "uppercase_name": "@body('Source_Data')?['name']?['toUpperCase']()"
+          },
+          "runAfter": {}
+        },
+        "Answer_Final": {
+          "type": "Compose",
+          "inputs": {
+            "summary": "The status of task '@{body('Source_Data')?['tasks'][1].name}' is @{body('Source_Data')?['tasks'][1].status}."
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Start_Test",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

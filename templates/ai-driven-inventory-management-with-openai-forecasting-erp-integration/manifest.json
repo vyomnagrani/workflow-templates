@@ -1,0 +1,247 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "ai-driven-inventory-management-with-openai-forecasting-erp-integration",
+    "name": "AI-driven inventory management with OpenAI forecasting & ERP integration",
+    "description": "This n8n workflow automates the monitoring of warehouse inventory and sales velocity to predict demand, generate purchase orders automatically, send them to suppliers, and record all transactions in ERP and database systems. It uses AI-driven forecasting to ensure timely restocking while maintaining operational efficiency and minimizing stockouts or overstocking.\n\n---\n\n### Key Features\n\n* **Automated Scheduling:** Periodically checks inventory and sales data at defined intervals.\n* **Real-Time Data Fetching:** Retrieves live warehouse stock levels and sales trends.\n* **AI Demand Forecasting:** Uses OpenAI GPT to predict future demand based on sales velocity and stock trends.\n* **Auto-Purchase Orders:** Automatically generates and sends purchase orders to suppliers.\n* **ERP Integration:** Logs completed purchase orders into ERP systems like SAP, Oracle, or Netsuite.\n* **Database Logging:** Saves purchase order details and forecast confidence data into SQL databases (PostgreSQL/MySQL).\n* **Email Notifications:** Notifies relevant teams upon successful order creation and logging.\n* **Modular Configuration:** Each node includes configuration notes and credentials setup instructions.\n\n---\n\n### Workflow Process\n\n1. **Schedule Trigger**\n\n   * Runs every 6 hours to monitor stock and sales data.\n   * Interval can be adjusted for higher or lower frequency checks.\n\n2. **Fetch Current Inventory Data**\n\n   * Retrieves live inventory levels from the warehouse API endpoint.\n   * Requires API credentials and optional GET/POST method setup.\n\n3. **Fetch Sales Velocity**\n\n   * Pulls recent sales data for forecasting analysis.\n   * Used later for AI-based trend prediction.\n\n4. **Merge Inventory & Sales Data**\n\n   * Combines inventory and sales datasets into a unified JSON structure.\n   * Prepares data for AI model input.\n\n5. **AI Demand Forecasting**\n\n   * Sends merged data to OpenAI GPT for demand prediction.\n   * Returns demand score, reorder need, and confidence levels.\n\n6. **Parse AI Response**\n\n   * Extracts and structures forecast results.\n   * Combines AI data with original inventory dataset.\n\n7. **Filter: Reorder Needed**\n\n   * Identifies items flagged for reorder based on AI output.\n   * Passes only reorder-required products to next steps.\n\n8. **Create Purchase Order**\n\n   * Automatically creates a PO document with item details, quantity, and supplier information.\n   * Calculates total cost and applies forecast-based reorder logic.\n\n9. **Send PO to Supplier**\n\n   * Sends the generated purchase order to supplier API endpoints.\n   * Includes response validation for order success/failure.\n\n10. **Log to ERP System**\n\n    * Records confirmed purchase orders into ERP platforms (SAP, Oracle, Netsuite).\n    * Includes timestamps and forecast metrics.\n\n11. **Save to Database**\n\n    * Stores all PO data, supplier responses, and AI forecast metrics into PostgreSQL/MySQL tables.\n    * Useful for long-term audit and analytics.\n\n12. **Send Notification Email**\n\n    * Sends summary emails upon PO creation and logging.\n    * Includes PO ID, supplier, cost, and demand reasoning.\n\n---\n\n### Setup Instructions\n\n* **Schedule Trigger:**\n  Adjust to your preferred interval (e.g., every 6 hours or once daily).\n\n* **API Configuration:**\n\n  * Provide credentials in Inventory, Sales, and Supplier nodes.\n  * Use Authorization headers or API keys as per your system.\n\n* **AI Node (OpenAI):**\n\n  * Add your OpenAI API key in the credentials section.\n  * Modify the prompt if you wish to include additional forecasting parameters.\n\n* **ERP Integration:**\n\n  * Replace placeholder URLs with your ERP system endpoints.\n  * Match fields like purchase order number, date, and cost.\n\n* **Database Connection:**\n\n  * Configure credentials for PostgreSQL/MySQL in the Save to Database node.\n  * Ensure tables (`purchase_orders`) are created as per schema provided in sticky notes.\n\n* **Email Notifications:**\n\n  * Set up SMTP credentials (e.g., Gmail, Outlook, or custom mail server).\n  * Add recipients under workflow notification settings.\n\n---\n\n### Industries That Benefit\n\nThis automation is highly beneficial for:\n\n* **Retail & E-commerce:** Predicts product demand and auto-orders from suppliers.\n* **Manufacturing:** Ensures raw materials are restocked based on production cycles.\n* **Pharmaceuticals:** Maintains optimum inventory for high-demand medicines.\n* **FMCG & Supply Chain:** Balances fast-moving goods availability with minimal overstocking.\n* **Automotive & Electronics:** Prevents delays due to missing components.\n\n---\n\n### Prerequisites\n\n* API access to inventory, sales, supplier, and ERP systems.\n* Valid OpenAI API key for demand forecasting.\n* SQL database (PostgreSQL/MySQL) for record storage.\n* SMTP or mail server credentials for email notifications.\n* n8n environment with required nodes installed (HTTP, AI, Filter, Email, Database).\n\n---\n\n### Modification Options\n\n* Change forecast logic or thresholds for different industries.\n* Integrate Slack/Teams for live notifications.\n* Add approval workflow before sending POs.\n* Extend AI prompt for seasonality or promotional trends.\n* Add dashboard visualization using Grafana or Google Sheets.\n\n---\n\n**Explore More AI Workflows:**\n[Get in touch with us](https://www.oneclickitsolution.com/contact-us/) to build industry-grade n8n automations with predictive intelligence.\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Document Extraction",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Schedule_Trigger": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Hour",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Fetch_Current_Inventory": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://your-warehouse-api.com/api/inventory",
+            "headers": {
+              "Authorization": "Bearer YOUR_TOKEN_HERE"
+            }
+          },
+          "runAfter": {}
+        },
+        "Fetch_Sales_Velocity": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://your-sales-api.com/api/sales/velocity",
+            "headers": {
+              "Authorization": "Bearer YOUR_TOKEN_HERE"
+            }
+          },
+          "runAfter": {
+            "Fetch_Current_Inventory": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Merge_Inventory_Sales_Data": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Fetch_Current_Inventory'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Merge inventory and sales data\nconst inventoryData = $input.first().json;\nconst salesData = $input.last().json;\n\n// Create a map of sales data by product_id\nconst salesMap = {};\nif (Array.isArray(salesData)) {\n  salesData.forEach(sale => {\n    salesMap[sale.product_id] = sale;\n  });\n} else {\n  salesMap[salesData.product_id] = salesData;\n}\n\n// Merge data\nconst mergedData = [];\nconst inventory = Array.isArray(inventoryData) ? inventoryData : [inventoryData];\n\ninventory.forEach(item => {\n  const salesInfo = salesMap[item.product_id] || {\n    units_sold_30days: 0,\n    avg_daily_sales: 0,\n    trend: 'stable'\n  };\n  \n  mergedData.push({\n    product_id: item.product_id,\n    product_name: item.product_name,\n    current_stock: item.current_stock,\n    reorder_point: item.reorder_point,\n    supplier_id: item.supplier_id,\n    units_sold_30days: salesInfo.units_sold_30days,\n    avg_daily_sales: salesInfo.avg_daily_sales,\n    trend: salesInfo.trend,\n    unit_cost: item.unit_cost || 0,\n    lead_time_days: item.lead_time_days || 7\n  });\n});\n\nreturn mergedData.map(item => ({ json: item }));\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Fetch_Current_Inventory": [
+              "Succeeded"
+            ]
+          }
+        },
+        "AI_Demand_Forecasting": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "AI Demand Forecasting",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "resource": "__CUSTOM_API_CALL__"
+            }
+          },
+          "runAfter": {
+            "Merge_Inventory_Sales_Data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Parse_AI_Response": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['AI_Demand_Forecasting'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Parse AI response and prepare data for filtering\nconst item = $input.first().json;\n\nlet aiResponse;\ntry {\n  // Try to parse the AI response\n  const content = item.message?.content || item.content || '{}';\n  aiResponse = typeof content === 'string' ? JSON.parse(content) : content;\n} catch (error) {\n  // If parsing fails, use defaults\n  aiResponse = {\n    should_reorder: false,\n    recommended_quantity: 0,\n    days_until_stockout: 999,\n    forecasted_demand_30days: 0,\n    confidence_level: 'low',\n    reasoning: 'Failed to parse AI response'\n  };\n}\n\n// Combine original data with AI forecast\nconst result = {\n  ...item,\n  ai_forecast: aiResponse,\n  should_reorder: aiResponse.should_reorder,\n  recommended_quantity: aiResponse.recommended_quantity,\n  days_until_stockout: aiResponse.days_until_stockout,\n  forecasted_demand_30days: aiResponse.forecasted_demand_30days,\n  confidence_level: aiResponse.confidence_level,\n  reasoning: aiResponse.reasoning\n};\n\nreturn { json: result };\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "AI_Demand_Forecasting": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Filter_Reorder_Needed": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Filter: Reorder Needed",
+            "n8nNodeType": "n8n-nodes-base.filter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "boolean": [
+                  {
+                    "value1": "={{ $json.should_reorder }}",
+                    "value2": true
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Parse_AI_Response": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Create_Purchase_Order": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Filter_Reorder_Needed'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Generate Purchase Order\nconst items = $input.all();\n\nconst purchaseOrders = items.map((item, index) => {\n  const data = item.json;\n  \n  // Generate unique PO number\n  const poNumber = `PO-${Date.now()}-${String(index + 1).padStart(3, '0')}`;\n  \n  // Calculate order details\n  const quantity = data.recommended_quantity;\n  const unitCost = data.unit_cost || 0;\n  const totalCost = quantity * unitCost;\n  \n  // Create purchase order\n  const purchaseOrder = {\n    po_number: poNumber,\n    product_id: data.product_id,\n    product_name: data.product_name,\n    supplier_id: data.supplier_id,\n    quantity: quantity,\n    unit_cost: unitCost,\n    total_cost: totalCost,\n    currency: 'USD',\n    order_date: new Date().toISOString(),\n    expected_delivery: new Date(Date.now() + (data.lead_time_days * 24 * 60 * 60 * 1000)).toISOString(),\n    status: 'pending',\n    created_by: 'AI_System',\n    notes: data.reasoning,\n    forecast_data: {\n      current_stock: data.current_stock,\n      days_until_stockout: data.days_until_stockout,\n      forecasted_demand_30days: data.forecasted_demand_30days,\n      confidence_level: data.confidence_level\n    }\n  };\n  \n  return { json: purchaseOrder };\n});\n\nreturn purchaseOrders;\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Filter_Reorder_Needed": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_PO_to_Supplier": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://your-supplier-api.com/api/purchase-orders",
+            "headers": {
+              "Authorization": "Bearer YOUR_TOKEN_HERE",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "po_number": "@body('Create_Purchase_Order')?['po_number']",
+              "supplier_id": "@body('Create_Purchase_Order')?['supplier_id']",
+              "product_id": "@body('Create_Purchase_Order')?['product_id']",
+              "quantity": "@body('Create_Purchase_Order')?['quantity']",
+              "total_cost": "@body('Create_Purchase_Order')?['total_cost']",
+              "expected_delivery": "@body('Create_Purchase_Order')?['expected_delivery']"
+            }
+          },
+          "runAfter": {
+            "Create_Purchase_Order": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Log_to_ERP_System": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://your-erp-system.com/api/purchase-orders",
+            "headers": {
+              "Authorization": "Bearer YOUR_TOKEN_HERE",
+              "Content-Type": "application/json"
+            }
+          },
+          "runAfter": {
+            "Send_PO_to_Supplier": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Save_to_Database": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Save to Database",
+            "n8nNodeType": "n8n-nodes-base.postgres",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "query": "INSERT INTO purchase_orders (\n  po_number, product_id, product_name, supplier_id,\n  quantity, unit_cost, total_cost, order_date,\n  expected_delivery, status, created_by, notes,\n  forecast_confidence, days_until_stockout\n) VALUES (\n  '{{ $json.po_number }}',\n  '{{ $json.product_id }}',\n  '{{ $json.product_name }}',\n  '{{ $json.supplier_id }}',\n  {{ $json.quantity }},\n  {{ $json.unit_cost }},\n  {{ $json.total_cost }},\n  '{{ $json.order_date }}',\n  '{{ $json.expected_delivery }}',\n  '{{ $json.status }}',\n  '{{ $json.created_by }}',\n  '{{ $json.notes }}',\n  '{{ $json.forecast_data.confidence_level }}',\n  {{ $json.forecast_data.days_until_stockout }}\n);",
+              "options": {},
+              "operation": "executeQuery"
+            }
+          },
+          "runAfter": {
+            "Log_to_ERP_System": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_Notification_Email": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Send Notification Email",
+            "n8nNodeType": "n8n-nodes-base.emailSend",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "subject": "New Purchase Order Created: {{ $json.po_number }}",
+              "toEmail": "user@example.com",
+              "fromEmail": "user@example.com"
+            }
+          },
+          "runAfter": {
+            "Save_to_Database": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Schedule_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

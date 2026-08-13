@@ -1,0 +1,326 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "generate-ai-trading-alerts-from-coingecko-and-alpha-vantage-via-slack-email-and-sms",
+    "name": "Generate AI trading alerts from CoinGecko and Alpha Vantage via Slack, email and SMS",
+    "description": "Automates real-time market monitoring, technical analysis, AI-powered signal generation for cryptocurrencies (and stocks), filters high-confidence trades, and delivers actionable alerts via multiple channels.\n\n## Good to Know\n- Runs **every 5–30 minutes** (configurable trigger) to catch fresh market opportunities\n- Pulls **real-time price data** from multiple crypto/stock sources in parallel\n- Calculates popular **technical indicators** (RSI, MACD, Moving Averages, etc.)\n- Uses an **AI model** (likely Grok/xAI, OpenAI, or similar) to interpret indicators and generate buy/sell signals with confidence scores\n- Applies **multi-layer filtering** to reduce noise (thresholds, validation rules)\n- Stores signals in a **database**, logs execution history, and sends notifications\n- Supports **email**, **Telegram**, **Discord**, **SMS** (via Twilio), or **trading execution** webhooks\n- Saves significant time compared to manual chart watching\n\n## How It Works\n\n### 1. Trigger\n- **Schedule Trigger** or **Manual Trigger** (every 5–30 minutes)\n- Optional: **Market Hours / Kill-zone** filter (e.g. avoid low-volume periods)\n- Can be webhook-based for on-demand runs\n\n### 2. Fetch & Prepare Data\n- Fetches **real-time / recent OHLCV data** for a watchlist of cryptocurrencies (and possibly stocks)\n- Sources: CoinGecko, Binance, Alpha Vantage, CoinMarketCap, Bybit, Kraken, etc. (multiple in parallel)\n- Combines data from different APIs\n- Prepares structured dataset (candles, volume, current price)\n- Calculates **technical indicators** in parallel or via Code node / community nodes (e.g. RSI(14), MACD, EMA/SMA crossovers, Bollinger Bands, etc.)\n\n### 3. Analysis & Signal Generation\n- Sends prepared market data + calculated indicators to an **AI model**\n- Prompt instructs the model to:\n  - Analyze current market structure\n  - Evaluate indicator confluence\n  - Generate **Buy / Sell / Hold** signal\n  - Assign **confidence score** (e.g. 0–100%)\n  - Provide short reasoning\n- Optional: Rule-based pre-filter (e.g. only proceed if RSI &lt; 30 or MACD crossover)\n\n### 4. Validate, Alert & Store\n- **Filters** signals: minimum confidence threshold, no-duplicate check, max signals per run, etc.\n- **Validates** against additional rules (e.g. volume spike, no recent opposite signal)\n- **Stores** signal in database (PostgreSQL, Supabase, Airtable, Google Sheets, etc.)\n  - Includes: timestamp, symbol, signal type, confidence, price, indicators snapshot, AI reasoning\n- **Logs** full execution trace\n- **Sends alerts**:\n  - Email notification\n  - Telegram / Discord message (with formatting)\n  - SMS (Twilio)\n  - Webhook to trading bot / execution system\n  - Optional: Push to tradingview alert or auto-execute (paper/live)\n\n## Data Sources\n- **Market Data APIs** — CoinGecko, Binance, Alpha Vantage, CoinMarketCap, etc.\n- **Technical Indicators** — Calculated via Code node, community nodes (e.g. phoenix indicators), or external libraries\n- **AI Model** — Grok (xAI), OpenAI (GPT-4o), Claude, Gemini, or local LLM\n- **Notification Channels** — Email (Gmail/SMTP), Telegram, Discord, Twilio, webhook\n- **Storage** — Google Sheets, PostgreSQL, Supabase, Notion, Airtable\n\n## How to Use\n1. **Import** the workflow JSON into your n8n instance\n2. **Configure credentials**:\n   - API keys for market data providers (Alpha Vantage, CoinGecko Pro, Binance, etc.)\n   - AI provider (Grok API key, OpenAI key, etc.)\n   - Notification services (Telegram bot token, email SMTP, Twilio, etc.)\n   - Database connection if used\n3. **Set your watchlist** — edit the symbols in the fetch node(s)\n4. **Tune the schedule** — change interval in the trigger node\n5. **Customize AI prompt** — adjust in the AI node for more aggressive/conservative signals\n6. **Set filters** — confidence threshold, max alerts per cycle, etc.\n7. **Test manually** — use Execute Workflow button with sample data\n8. **Activate & monitor** — check Executions tab for logs\n\n## Requirements\n- n8n (self-hosted or cloud)\n- API keys for at least one market data provider\n- AI API access (Grok, OpenAI, etc.)\n- Notification credentials (Telegram bot, email account, etc.)\n- Optional: Database for persistent signal history\n\n## Customizing This Workflow\n- Add more **exchanges/sources** for better data redundancy\n- Include **on-chain metrics** (whale alerts, funding rates) via additional APIs\n- Switch AI model or fine-tune prompt for your trading style\n- Add **risk management** rules (position sizing, stop-loss levels)\n- Integrate **auto-trading** via exchange API (Binance, Bybit, Alpaca, etc.)\n- Create **dashboard** output (Google Sheets + Looker Studio / Grafana)\n- Add **backtesting mode** using historical data\n- Implement **blackout periods** or news filter to avoid high-impact events\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Crypto Trading",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Market_Data_Trigger_Every_15_minutes": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Minute",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Fetch_cryptocurrency_prices_from_CoinGecko": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.coingecko.com/api/v3/simple/price"
+          },
+          "runAfter": {}
+        },
+        "Fetch_stock_prices_from_Alpha_Vantage": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://www.alphavantage.co/query"
+          },
+          "runAfter": {}
+        },
+        "Combine_crypto_and_stock_market_data": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Combine crypto and stock market data",
+            "n8nNodeType": "n8n-nodes-base.merge",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "mode": "combine",
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Fetch_stock_prices_from_Alpha_Vantage": [
+              "Succeeded"
+            ],
+            "Fetch_cryptocurrency_prices_from_CoinGecko": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Calculate_technical_indicators": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Combine_crypto_and_stock_market_data'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst __results = items.map(item => {\n  const $json = item.json;\n  const $input = {\n    item,\n    first: () => item,\n    last: () => item,\n    all: () => items\n  };\n  return (() => {\n// Calculate technical indicators for trading signals\nconst data = $input.item.json;\n\n// Mock historical price data (in real scenario, fetch from database)\nconst historicalPrices = {\n  'bitcoin': [42000, 42500, 41800, 43200, 43500, 42900, 43100, 43400],\n  'ethereum': [2200, 2250, 2180, 2300, 2350, 2280, 2320, 2380],\n  'AAPL': [150, 151, 149, 152, 153, 151, 152, 154],\n  'GOOGL': [100, 101, 99, 102, 103, 101, 102, 104]\n};\n\nconst currentPrice = data.price || 0;\nconst symbol = data.symbol || 'UNKNOWN';\nconst priceHistory = historicalPrices[symbol.toLowerCase()] || [currentPrice];\n\n// Calculate Simple Moving Average (SMA)\nconst calculateSMA = (prices, period) => {\n  if (prices.length < period) return null;\n  const sum = prices.slice(-period).reduce((a, b) => a + b, 0);\n  return sum / period;\n};\n\n// Calculate Exponential Moving Average (EMA)\nconst calculateEMA = (prices, period) => {\n  if (prices.length < period) return null;\n  const k = 2 / (period + 1);\n  let ema = prices.slice(0, period).reduce((a, b) => a + b, 0) / period;\n  for (let i = period; i < prices.length; i++) {\n    ema = prices[i] * k + ema * (1 - k);\n  }\n  return ema;\n};\n\n// Calculate RSI (Relative Strength Index)\nconst calculateRSI = (prices, period = 14) => {\n  if (prices.length < period + 1) return null;\n  const deltas = [];\n  for (let i = 1; i < prices.length; i++) {\n    deltas.push(prices[i] - prices[i - 1]);\n  }\n  \n  let gains = 0, losses = 0;\n  for (let i = 0; i < period; i++) {\n    if (deltas[i] > 0) gains += deltas[i];\n    else losses -= deltas[i];\n  }\n  \n  let avgGain = gains / period;\n  let avgLoss = losses / period;\n  \n  for (let i = period; i < deltas.length; i++) {\n    if (deltas[i] > 0) gains = deltas[i];\n    else gains = 0;\n    if (deltas[i] < 0) losses = -deltas[i];\n    else losses = 0;\n    avgGain = (avgGain * (period - 1) + gains) / period;\n    avgLoss = (avgLoss * (period - 1) + losses) / period;\n  }\n  \n  const rs = avgGain / (avgLoss || 1);\n  return 100 - (100 / (1 + rs));\n};\n\n// Calculate MACD (Moving Average Convergence Divergence)\nconst calculateMACD = (prices) => {\n  const ema12 = calculateEMA(prices, 12);\n  const ema26 = calculateEMA(prices, 26);\n  if (!ema12 || !ema26) return null;\n  return { macd: ema12 - ema26, signal: (ema12 - ema26) * 0.7 };\n};\n\n// Calculate Bollinger Bands\nconst calculateBollingerBands = (prices, period = 20, stdDev = 2) => {\n  if (prices.length < period) return null;\n  const sma = calculateSMA(prices, period);\n  const slice = prices.slice(-period);\n  const variance = slice.reduce((sum, p) => sum + Math.pow(p - sma, 2), 0) / period;\n  const stdev = Math.sqrt(variance);\n  return {\n    upper: sma + (stdev * stdDev),\n    middle: sma,\n    lower: sma - (stdev * stdDev)\n  };\n};\n\nconst sma50 = calculateSMA(priceHistory, 50) || calculateSMA(priceHistory, Math.min(priceHistory.length - 1, 50));\nconst sma200 = calculateSMA(priceHistory, 200) || calculateSMA(priceHistory, Math.min(priceHistory.length - 1, 200));\nconst ema12 = calculateEMA(priceHistory, 12) || calculateEMA(priceHistory, Math.min(priceHistory.length - 1, 12));\nconst rsi = calculateRSI(priceHistory) || 50;\nconst macd = calculateMACD(priceHistory) || { macd: 0, signal: 0 };\nconst bollingerBands = calculateBollingerBands(priceHistory) || { upper: currentPrice * 1.05, middle: currentPrice, lower: currentPrice * 0.95 };\n\nconst priceChange24h = data.change_24h || 0;\nconst volume24h = data.volume_24h || 0;\nconst marketCap = data.market_cap || 0;\n\nreturn {\n  json: {\n    symbol: symbol,\n    currentPrice: currentPrice,\n    priceChange24h: priceChange24h,\n    volume24h: volume24h,\n    marketCap: marketCap,\n    \n    // Technical Indicators\n    technicalIndicators: {\n      sma50: sma50 ? parseFloat(sma50.toFixed(2)) : null,\n      sma200: sma200 ? parseFloat(sma200.toFixed(2)) : null,\n      ema12: ema12 ? parseFloat(ema12.toFixed(2)) : null,\n      rsi: parseFloat(rsi.toFixed(2)),\n      macd: parseFloat(macd.macd.toFixed(2)),\n      macdSignal: parseFloat(macd.signal.toFixed(2)),\n      bollingerUpper: parseFloat(bollingerBands.upper.toFixed(2)),\n      bollingerMiddle: parseFloat(bollingerBands.middle.toFixed(2)),\n      bollingerLower: parseFloat(bollingerBands.lower.toFixed(2))\n    },\n    \n    // Trend Analysis\n    trend: {\n      shortTerm: currentPrice > sma50 ? 'BULLISH' : 'BEARISH',\n      longTerm: sma50 > sma200 ? 'BULLISH' : 'BEARISH',\n      rsiStatus: rsi > 70 ? 'OVERBOUGHT' : rsi < 30 ? 'OVERSOLD' : 'NEUTRAL',\n      macdTrend: macd.macd > macd.signal ? 'BULLISH' : 'BEARISH'\n    },\n    \n    // Timestamp\n    timestamp: new Date().toISOString(),\n    analysisDate: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })\n  }\n};\n  })();\n});\nreturn { body: __unwrap(__results) };"
+          },
+          "runAfter": {
+            "Combine_crypto_and_stock_market_data": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Call_AI_model_for_signal_prediction": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.example.com/ai/predict-signal",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "symbol": "@body('Calculate_technical_indicators')?['symbol']",
+              "currentPrice": "@body('Calculate_technical_indicators')?['currentPrice']",
+              "technicalIndicators": "@body('Calculate_technical_indicators')?['technicalIndicators']",
+              "trend": "@body('Calculate_technical_indicators')?['trend']",
+              "volume24h": "@body('Calculate_technical_indicators')?['volume24h']"
+            }
+          },
+          "runAfter": {
+            "Calculate_technical_indicators": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Analyze_AI_signals_and_confidence": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Call_AI_model_for_signal_prediction'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst __results = items.map(item => {\n  const $json = item.json;\n  const $input = {\n    item,\n    first: () => item,\n    last: () => item,\n    all: () => items\n  };\n  return (() => {\n// Analyze AI signals and calculate confidence scores\nconst aiResponse = $input.item.json;\nconst signal = aiResponse.signal || 'HOLD';\nconst confidence = aiResponse.confidence || 0.5;\nconst reasoning = aiResponse.reasoning || 'Insufficient data';\n\n// Thresholds\nconst buyThreshold = 0.65;\nconst sellThreshold = 0.65;\nconst holdConfidence = 0.5;\n\n// Determine action based on confidence\nlet action = 'HOLD';\nlet actionConfidence = 0;\nlet riskLevel = 'MEDIUM';\n\nif (signal === 'BUY' && confidence >= buyThreshold) {\n  action = 'BUY';\n  actionConfidence = confidence;\n  riskLevel = confidence > 0.85 ? 'LOW' : 'MEDIUM';\n} else if (signal === 'SELL' && confidence >= sellThreshold) {\n  action = 'SELL';\n  actionConfidence = confidence;\n  riskLevel = confidence > 0.85 ? 'LOW' : 'MEDIUM';\n} else {\n  action = 'HOLD';\n  actionConfidence = confidence;\n  riskLevel = 'LOW';\n}\n\n// Recommended position size based on confidence\nconst positionSize = action === 'HOLD' ? 0 : Math.round(actionConfidence * 100);\n\n// Alert level\nlet alertLevel = 'INFO';\nif (action !== 'HOLD' && actionConfidence > 0.80) {\n  alertLevel = 'CRITICAL';\n} else if (action !== 'HOLD' && actionConfidence > 0.70) {\n  alertLevel = 'HIGH';\n} else if (action !== 'HOLD') {\n  alertLevel = 'MEDIUM';\n}\n\nconst timestamp = new Date().toISOString();\nconst signalId = `SIG-${new Date().getTime()}-${Math.random().toString(36).substr(2, 9)}`;\n\nreturn {\n  json: {\n    signalId: signalId,\n    symbol: aiResponse.symbol,\n    currentPrice: aiResponse.currentPrice,\n    action: action,\n    confidence: parseFloat(actionConfidence.toFixed(4)),\n    riskLevel: riskLevel,\n    positionSize: positionSize,\n    alertLevel: alertLevel,\n    aiReasoning: reasoning,\n    \n    // Recommendation details\n    recommendation: {\n      action: action,\n      entryPrice: aiResponse.currentPrice,\n      targetPrice: action === 'BUY' ? aiResponse.currentPrice * 1.05 : action === 'SELL' ? aiResponse.currentPrice * 0.95 : aiResponse.currentPrice,\n      stopLoss: action === 'BUY' ? aiResponse.currentPrice * 0.98 : action === 'SELL' ? aiResponse.currentPrice * 1.02 : aiResponse.currentPrice,\n      profitTarget: action === 'BUY' ? aiResponse.currentPrice * 1.10 : action === 'SELL' ? aiResponse.currentPrice * 0.90 : aiResponse.currentPrice,\n      timeframe: '15m-1h'\n    },\n    \n    // Validation flags\n    isValidSignal: action !== 'HOLD',\n    shouldAlert: action !== 'HOLD' && actionConfidence >= holdConfidence,\n    shouldExecute: action !== 'HOLD' && actionConfidence >= 0.75,\n    \n    timestamp: timestamp,\n    originalAIResponse: aiResponse\n  }\n};\n  })();\n});\nreturn { body: __unwrap(__results) };"
+          },
+          "runAfter": {
+            "Call_AI_model_for_signal_prediction": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Validate_signal_strength_and_filter": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Validate signal strength and filter",
+            "n8nNodeType": "n8n-nodes-base.filter",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "conditions": {
+                "options": {
+                  "leftValue": "",
+                  "caseSensitive": false,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "signal-validation",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true"
+                    },
+                    "leftValue": "={{ $json.shouldAlert }}"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Analyze_AI_signals_and_confidence": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Store_trade_signal_in_PostgreSQL": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Store trade signal in PostgreSQL",
+            "n8nNodeType": "n8n-nodes-base.postgres",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "table": "trading_signals",
+              "schema": {
+                "__rl": true,
+                "mode": "list",
+                "value": "public"
+              },
+              "columns": {
+                "value": {},
+                "schema": [],
+                "mappingMode": "autoMapInputData",
+                "matchingColumns": [],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {
+            "Validate_signal_strength_and_filter": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Route_by_signal_action": {
+          "type": "If",
+          "expression": {
+            "equals": [
+              "@body('Store_trade_signal_in_PostgreSQL')?['action']",
+              "BUY"
+            ]
+          },
+          "actions": {},
+          "else": {
+            "actions": {
+              "Rule_2": {
+                "type": "If",
+                "expression": {
+                  "equals": [
+                    "@body('Store_trade_signal_in_PostgreSQL')?['action']",
+                    "SELL"
+                  ]
+                },
+                "actions": {},
+                "else": {
+                  "actions": {}
+                },
+                "runAfter": {}
+              }
+            }
+          },
+          "runAfter": {
+            "Store_trade_signal_in_PostgreSQL": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Generate_trading_alert_message": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Route_by_signal_action'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst __results = items.map(item => {\n  const $json = item.json;\n  const $input = {\n    item,\n    first: () => item,\n    last: () => item,\n    all: () => items\n  };\n  return (() => {\n// Generate formatted trading alert message\nconst signal = $input.item.json;\nconst action = signal.action;\nconst emoji = action === 'BUY' ? '📈' : action === 'SELL' ? '📉' : '⏸️';\n\nconst slackMessage = `${emoji} *TRADING ALERT — ${action}*\\n\\n` +\n  `*Symbol:* ${signal.symbol}\\n` +\n  `*Action:* ${action}\\n` +\n  `*Confidence:* ${(signal.confidence * 100).toFixed(1)}%\\n` +\n  `*Current Price:* \\$${signal.currentPrice.toFixed(2)}\\n\\n` +\n  `*Recommendations:*\\n` +\n  `Entry: \\$${signal.recommendation.entryPrice.toFixed(2)}\\n` +\n  `Target: \\$${signal.recommendation.targetPrice.toFixed(2)}\\n` +\n  `Stop Loss: \\$${signal.recommendation.stopLoss.toFixed(2)}\\n` +\n  `Take Profit: \\$${signal.recommendation.profitTarget.toFixed(2)}\\n\\n` +\n  `*Position Size:* ${signal.positionSize}%\\n` +\n  `*Risk Level:* ${signal.riskLevel}\\n` +\n  `*Signal ID:* ${signal.signalId}\\n` +\n  `*AI Reasoning:* ${signal.aiReasoning}\\n\\n` +\n  `*Timeframe:* ${signal.recommendation.timeframe}`;\n\nconst emailSubject = `🚀 ${emoji} Trading Alert: ${action} ${signal.symbol} @ ${signal.currentPrice} - ${(signal.confidence * 100).toFixed(1)}% Confidence`;\n\nconst emailBody = `\n<h2>${emoji} Trading Alert - ${action} Signal</h2>\n<p><strong>Symbol:</strong> ${signal.symbol}</p>\n<p><strong>Action:</strong> ${action}</p>\n<p><strong>Confidence:</strong> ${(signal.confidence * 100).toFixed(1)}%</p>\n<p><strong>Current Price:</strong> $${signal.currentPrice.toFixed(2)}</p>\n\n<h3>📊 Recommendations</h3>\n<ul>\n  <li>Entry Price: $${signal.recommendation.entryPrice.toFixed(2)}</li>\n  <li>Target Price: $${signal.recommendation.targetPrice.toFixed(2)}</li>\n  <li>Stop Loss: $${signal.recommendation.stopLoss.toFixed(2)}</li>\n  <li>Take Profit: $${signal.recommendation.profitTarget.toFixed(2)}</li>\n  <li>Position Size: ${signal.positionSize}%</li>\n  <li>Risk Level: ${signal.riskLevel}</li>\n  <li>Timeframe: ${signal.recommendation.timeframe}</li>\n</ul>\n\n<h3>🤖 AI Analysis</h3>\n<p>${signal.aiReasoning}</p>\n\n<p><strong>Signal ID:</strong> ${signal.signalId}</p>\n<p><strong>Generated:</strong> ${signal.timestamp}</p>\n`;\n\nconst smsMessage = `${emoji} ${action} ${signal.symbol} @ $${signal.currentPrice.toFixed(2)} - Confidence: ${(signal.confidence * 100).toFixed(1)}% - ID: ${signal.signalId}`;\n\nreturn {\n  json: {\n    ...signal,\n    alertMessages: {\n      slack: slackMessage,\n      email: {\n        subject: emailSubject,\n        body: emailBody\n      },\n      sms: smsMessage\n    }\n  }\n};\n  })();\n});\nreturn { body: __unwrap(__results) };"
+          },
+          "runAfter": {
+            "Route_by_signal_action": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_Slack_notification": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "YOUR_SLACK_WEBHOOK_URL",
+            "body": "{\n  \"text\": \"@{body('Generate_trading_alert_message')?['action']} Signal Alert\",\n  \"blocks\": [\n    {\n      \"type\": \"section\",\n      \"text\": {\n        \"type\": \"mrkdwn\",\n        \"text\": \"@{body('Generate_trading_alert_message')?['alertMessages']?['slack']}\"\n      }\n    }\n  ]\n}"
+          },
+          "runAfter": {
+            "Generate_trading_alert_message": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_Email_alert": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Send Email alert",
+            "n8nNodeType": "n8n-nodes-base.emailSend",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "html": "={{ $json.alertMessages.email.body }}",
+              "options": {},
+              "subject": "={{ $json.alertMessages.email.subject }}",
+              "toEmail": "user@example.com",
+              "fromEmail": "user@example.com"
+            }
+          },
+          "runAfter": {
+            "Generate_trading_alert_message": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_SMS_alert_Twilio": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.twilio.com/2010-04-01/Accounts/YOUR_ACCOUNT_SID/Messages.json",
+            "body": {
+              "From": "+1234567890",
+              "To": "+1234567890",
+              "Body": "@body('Generate_trading_alert_message')?['alertMessages']?['sms']"
+            }
+          },
+          "runAfter": {
+            "Generate_trading_alert_message": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Log_trade_execution_and_success": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Send_Email_alert'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst __results = items.map(item => {\n  const $json = item.json;\n  const $input = {\n    item,\n    first: () => item,\n    last: () => item,\n    all: () => items\n  };\n  return (() => {\n// Log successful trade signal execution\nconst timestamp = new Date().toISOString();\nconst signal = $input.item.json;\n\nconsole.log(`✅ TRADE SIGNAL EXECUTED: ${signal.signalId} | ${signal.action} ${signal.symbol} @ $${signal.currentPrice} | Confidence: ${(signal.confidence * 100).toFixed(1)}% | Risk: ${signal.riskLevel} | Time: ${timestamp}`);\n\n// Cumulative statistics\nconst stats = $getWorkflowStaticData('global').stats || {\n  totalSignals: 0,\n  buySignals: 0,\n  sellSignals: 0,\n  totalAlerts: 0,\n  lastSignal: null,\n  averageConfidence: 0\n};\n\nif (signal.action === 'BUY') stats.buySignals++;\nelse if (signal.action === 'SELL') stats.sellSignals++;\nstats.totalSignals++;\nstats.totalAlerts++;\nstats.lastSignal = timestamp;\nstats.averageConfidence = (stats.averageConfidence + signal.confidence) / 2;\n\n$getWorkflowStaticData('global').stats = stats;\n\nreturn {\n  json: {\n    success: true,\n    signalId: signal.signalId,\n    action: signal.action,\n    symbol: signal.symbol,\n    currentPrice: signal.currentPrice,\n    confidence: signal.confidence,\n    timestamp: timestamp,\n    cumulativeStats: stats,\n    alertsSent: {\n      slack: true,\n      email: true,\n      sms: true\n    }\n  }\n};\n  })();\n});\nreturn { body: __unwrap(__results) };"
+          },
+          "runAfter": {
+            "Send_Email_alert": [
+              "Succeeded"
+            ],
+            "Send_SMS_alert_Twilio": [
+              "Succeeded"
+            ],
+            "Send_Slack_notification": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Market_Data_Trigger_Every_15_minutes",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

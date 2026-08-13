@@ -1,0 +1,288 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "create-notion-page-summaries-from-urls-with-snapshot-site-and-slack-alerts",
+    "name": "Create Notion page summaries from URLs with Snapshot Site and Slack alerts",
+    "description": "## Quick Overview\nThis workflow receives a published page URL via webhook, analyzes the page with Snapshot Site, posts failures or quality issues to Slack, and creates a structured summary page in Notion with the extracted summary, topics, headings, and content-quality notes.\n\n## How it works\n1. Receives a POST webhook request (or a manual test payload) containing a page URL.\n2. Sends the URL to Snapshot Site AI Analyze to extract a summary, topics, headings, and quality signals.\n3. If the Snapshot Site request returns an API error, posts an error alert to a Slack channel and stops.\n4. If the page is detected as blank or CAPTCHA-walled, posts a content-quality warning to Slack and skips creating a Notion page.\n5. For valid pages, formats the analysis into Notion-ready fields (title, URL, summary, topics, headings, and quality notes).\n6. Creates a new Notion page under the выбранный parent page with the structured analysis content.\n\n## Setup\n1. Install the community node `n8n-nodes-snapshot-site` and add Snapshot Site API credentials.\n2. Add a Notion connection and set the target parent page ID in the Notion node.\n3. Add a Slack connection and confirm the target channels (for example `#content-ops-alerts` and `#content-quality`) exist or update them.\n4. Copy the webhook Production URL and configure your CMS/page publisher to POST JSON in the shape `{ \"url\": \"https://...\" }` (mapped to `body.url` in the workflow).",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Document Extraction",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/inlineCode",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "When_Page_Published": {
+          "type": "Request",
+          "kind": "Http",
+          "inputs": {
+            "method": "POST"
+          }
+        },
+        "When_clicking_Execute_workflow": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Mock_Webhook_Payload": {
+          "type": "Compose",
+          "inputs": {
+            "body.url": "https://example.com"
+          },
+          "runAfter": {}
+        },
+        "Prepare_Request": {
+          "type": "Compose",
+          "inputs": {},
+          "runAfter": {
+            "Mock_Webhook_Payload": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Analyze_Page": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Analyze Page",
+            "n8nNodeType": "n8n-nodes-snapshot-site.snapshotSite",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "={{ $json.body.url }}",
+              "operation": "analyze",
+              "requestOptions": {},
+              "additionalFields": {
+                "fullSize": true,
+                "enableQuality": true,
+                "enableSummary": true
+              }
+            }
+          },
+          "runAfter": {
+            "Prepare_Request": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Check_for_API_Error": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Check for API Error",
+            "n8nNodeType": "n8n-nodes-base.if",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "conditions": {
+                "boolean": [
+                  {
+                    "value1": "={{ $json.error === true }}",
+                    "value2": true
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Analyze_Page": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Build_Failure_Record": {
+          "type": "Compose",
+          "inputs": {
+            "url": "@body('Prepare_Request')?['body']?['url']",
+            "message": "@body('Analyze_Page')?['error']?.message || body('Analyze_Page')?['message']"
+          },
+          "runAfter": {
+            "Analyze_Page": [
+              "Succeeded"
+            ],
+            "Check_for_API_Error": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Notify_Analysis_Failure": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Notify Analysis Failure",
+            "n8nNodeType": "n8n-nodes-base.slack",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=🔴 Page analysis failed for {{ $json.url }}: {{ $json.message }}",
+              "select": "channel",
+              "channelId": {
+                "__rl": true,
+                "mode": "name",
+                "value": "#content-ops-alerts"
+              },
+              "otherOptions": {
+                "unfurl_links": false,
+                "unfurl_media": false
+              }
+            }
+          },
+          "runAfter": {
+            "Build_Failure_Record": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Check_Content_Quality": {
+          "type": "If",
+          "expression": {
+            "equals": [
+              1,
+              1
+            ]
+          },
+          "actions": {
+            "Notify_Content_Quality_Issue": {
+              "type": "Compose",
+              "inputs": {
+                "conversionStatus": "unsupported",
+                "n8nNodeName": "Notify Content Quality Issue",
+                "n8nNodeType": "n8n-nodes-base.slack",
+                "message": "Replace this placeholder with an equivalent LAA action."
+              },
+              "description": "Generated placeholder for an unsupported n8n node.",
+              "metadata": {
+                "x-n8n-original-parameters": {
+                  "text": "=⚠️ {{ $json.url }} came back {{ $json.quality.isBlank ? 'blank' : 'CAPTCHA-walled' }} — skipped Notion summary. HTTP status: {{ $json.quality.httpStatus }}",
+                  "select": "channel",
+                  "channelId": {
+                    "__rl": true,
+                    "mode": "name",
+                    "value": "#content-quality"
+                  },
+                  "otherOptions": {
+                    "unfurl_links": false,
+                    "unfurl_media": false
+                  }
+                }
+              },
+              "runAfter": {}
+            }
+          },
+          "else": {
+            "actions": {
+              "Build_Notion_Content": {
+                "type": "JavaScriptCode",
+                "inputs": {
+                  "code": "const __inputRaw = workflowContext.trigger.outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst d = $input.item.json;\nconst topics = (d.topics || []).join(', ') || 'None detected';\nconst headingsText = [\n  d.headings?.h1?.length ? `H1: ${d.headings.h1.join(' | ')}` : null,\n  d.headings?.h2?.length ? `H2: ${d.headings.h2.join(' | ')}` : null,\n  d.headings?.h3?.length ? `H3: ${d.headings.h3.join(' | ')}` : null,\n].filter(Boolean).join('\\n') || 'No headings detected';\nconst q = d.quality || {};\nconst qualityText = `Readability: ${q.readabilityScore ?? 'n/a'}/100 | Blank page: ${q.isBlank} | CAPTCHA: ${q.hasCaptcha} | HTTP status: ${q.httpStatus}` +\n  (q.notes?.length ? ` | Notes: ${q.notes.join(', ')}` : '');\nreturn [{\n  json: {\n    pageTitle: d.metadata?.title || d.url,\n    pageUrl: d.url,\n    summary: d.summary || 'No summary generated',\n    topics,\n    headingsText,\n    qualityText,\n  }\n}];\n})();\nreturn { body: __unwrap(__result) };"
+                },
+                "runAfter": {}
+              },
+              "Create_Notion_Page": {
+                "type": "Compose",
+                "inputs": {
+                  "conversionStatus": "unsupported",
+                  "n8nNodeName": "Create Notion Page",
+                  "n8nNodeType": "n8n-nodes-base.notion",
+                  "message": "Replace this placeholder with an equivalent LAA action."
+                },
+                "description": "Generated placeholder for an unsupported n8n node.",
+                "metadata": {
+                  "x-n8n-original-parameters": {
+                    "title": "={{ $json.pageTitle }}",
+                    "pageId": {
+                      "__rl": true,
+                      "mode": "id",
+                      "value": "PLACEHOLDER"
+                    },
+                    "blockUi": {
+                      "blockValues": [
+                        {
+                          "type": "heading_2",
+                          "textContent": "=🔗 {{ $json.pageUrl }}"
+                        },
+                        {
+                          "type": "heading_2",
+                          "textContent": "Summary"
+                        },
+                        {
+                          "textContent": "={{ $json.summary }}"
+                        },
+                        {
+                          "type": "heading_2",
+                          "textContent": "Topics"
+                        },
+                        {
+                          "textContent": "={{ $json.topics }}"
+                        },
+                        {
+                          "type": "heading_2",
+                          "textContent": "Headings Found"
+                        },
+                        {
+                          "textContent": "={{ $json.headingsText }}"
+                        },
+                        {
+                          "type": "heading_2",
+                          "textContent": "Content Quality"
+                        },
+                        {
+                          "textContent": "={{ $json.qualityText }}"
+                        }
+                      ]
+                    },
+                    "options": {}
+                  }
+                },
+                "runAfter": {
+                  "Build_Notion_Content": [
+                    "Succeeded"
+                  ]
+                }
+              }
+            }
+          },
+          "runAfter": {
+            "Check_for_API_Error": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "When_Page_Published",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

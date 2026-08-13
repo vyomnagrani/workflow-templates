@@ -1,0 +1,840 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "clone-viral-tiktoks-with-ai-avatars-auto-post-to-9-platforms-using-perplexity-blotato",
+    "name": "Clone viral TikToks with AI avatars & auto-post to 9 platforms using Perplexity & Blotato",
+    "description": "![Workflow Screenshot](https://www.dr-firas.com/Clone-viral-TikTok.png)\n\n# Clone a viral TikTok with AI and auto-post it to 9 platforms using Perplexity & Blotato\n\n### Who is this for?\n\nThis workflow is perfect for:\n- Content creators looking to repurpose viral content\n- Social media managers who want to scale short-form content across multiple platforms\n- Entrepreneurs and marketers aiming to save time and boost visibility with AI-powered automation\n\n### What problem is this workflow solving?\n\nReproducing viral video formats with your own branding and pushing them to multiple platforms is time-consuming and hard to scale. This workflow solves that by:\n- Cloning a viral TikTok video’s structure\n- Generating a new version with your avatar\n- Rewriting the script, caption, and overlay text\n- Auto-posting it to 9 social media platforms — without manual uploads\n\n### What this workflow does\n\nFrom a simple Telegram message with a TikTok link, the workflow:\n\n1. **Downloads a TikTok video** and extracts its thumbnail, audio, and caption\n2. **Transcribes the audio** and saves original text into Google Sheets\n3. **Uses Perplexity AI** to suggest a new content idea in the same niche\n4. **Rewrites the script, caption, and overlay** using GPT-4o\n5. **Generates a new video** with your avatar using Captions.ai\n6. **Adds subtitles and overlay text** with JSON2Video\n7. **Saves metadata** to Google Sheets for tracking\n8. **Sends the final video to Telegram** for preview\n9. **Auto-publishes the video** to Instagram, YouTube, TikTok, Facebook, LinkedIn, Threads, X (Twitter), Pinterest, and Bluesky via Blotato\n\n### Setup\n\n1. Connect your **Telegram bot** to the trigger node.\n2. Add your **OpenAI, Perplexity, Cloudinary, Captions.ai, and Blotato API keys**.\n3. Make sure your **Google Sheet** is ready with the appropriate columns.\n4. Replace the default **avatar name** in the Captions.ai node with yours.\n5. Fill in your **social media account IDs** in the \"Assign Platform IDs\" node.\n6. Test by sending a TikTok URL to your Telegram bot.\n\n### How to customize this workflow to your needs\n\n- **Change avatar output style**: adjust resolution, voice, or avatar ID.\n- **Refine script structure**: tweak GPT instructions for different tone/format.\n- **Swap Perplexity with ChatGPT or Claude** if needed.\n- **Filter by platform**: disable any Blotato nodes you don’t need.\n- **Add approval step**: insert a Telegram confirmation node before publishing.\n- **Adjust subtitle style or overlay text font** in JSON2Video.\n\n📄 **Documentation**: [Notion Guide](https://automatisation.notion.site/WORKFLOW-n8n-1f13d6550fd980a7ab0dce650796ebaa?pvs=4)\n\n---\n\n### Need help customizing?\nContact me for consulting and support : [Linkedin](https://www.linkedin.com/in/dr-firas/) / [Youtube](https:/https://www.youtube.com/@DRFIRASS)",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "/managedApis/telegrambotip",
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Assign_Social_Media_IDs": {
+          "type": "Compose",
+          "inputs": {
+            "mode": "raw",
+            "options": {},
+            "jsonOutput": "{\n  \"instagram_id\": \"0000\",\n  \"youtube_id\": \"0000\",\n  \"threads_id\": \"0000\",\n  \"tiktok_id\": \"0000\",\n  \"facebook_id\": \"0000\",\n  \"facebook_page_id\": \"+1234567890\",\n  \"twitter_id\": \"0000\",\n  \"linkedin_id\": \"0000\",\n  \"pinterest_id\": \"0000\",\n  \"pinterest_board_id\": \"+1234567890000\",\n  \"bluesky_id\": \"0000\"\n}\n"
+          },
+          "runAfter": {
+            "Send_Final_Video_Preview": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_Video_to_Blotato": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://backend.blotato.com/v2/media",
+            "headers": {
+              "blotato-api-key": "YOUR_API_KEY"
+            },
+            "body": {
+              "url": "@body('Update_Final_Video_URL_in_Sheet')?['URL de la vidéo']"
+            }
+          },
+          "runAfter": {
+            "Assign_Social_Media_IDs": [
+              "Succeeded"
+            ]
+          }
+        },
+        "INSTAGRAM": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://backend.blotato.com/v2/posts",
+            "headers": {
+              "blotato-api-key": "=YOUR_API_KEY"
+            },
+            "body": "{\n  \"post\": {\n    \"accountId\": \"@{body('Assign_Social_Media_IDs')?['instagram_id']}\",\n    \"target\": {\n      \"targetType\": \"instagram\"\n    },\n    \"content\": {\n      \"text\": \"@{body('Save_Rewritten_Video_to_Google_Sheets')?['Caption']}\",\n      \"platform\": \"instagram\",\n      \"mediaUrls\": [\n        \"@{body('Upload_Video_to_Blotato')?['url']}\"\n      ]\n    }\n  }\n}"
+          },
+          "runAfter": {
+            "Upload_Video_to_Blotato": [
+              "Succeeded"
+            ]
+          }
+        },
+        "YOUTUBE": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://backend.blotato.com/v2/posts",
+            "headers": {
+              "blotato-api-key": "YOUR_API_KEY"
+            },
+            "body": "{\n  \"post\": {\n    \"accountId\": \"@{body('Assign_Social_Media_IDs')?['youtube_id']}\",\n    \"target\": {\n      \"targetType\": \"youtube\",\n      \"title\": \"@{body('Save_Rewritten_Video_to_Google_Sheets')?['Texte superposé']}\",\n      \"privacyStatus\": \"unlisted\",\n      \"shouldNotifySubscribers\": \"false\"\n    },\n    \"content\": {\n      \"text\": \"@{body('Save_Rewritten_Video_to_Google_Sheets')?['Caption']}\",\n      \"platform\": \"youtube\",\n      \"mediaUrls\": [\n        \"@{body('Upload_Video_to_Blotato')?['url']}\"\n      ]\n    }\n  }\n}"
+          },
+          "runAfter": {
+            "Upload_Video_to_Blotato": [
+              "Succeeded"
+            ]
+          }
+        },
+        "TIKTOK": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://backend.blotato.com/v2/posts",
+            "headers": {
+              "blotato-api-key": "YOUR_API_KEY"
+            },
+            "body": "{\n  \"post\": {\n    \"accountId\": \"@{body('Assign_Social_Media_IDs')?['tiktok_id']}\",\n    \"target\": {\n      \"targetType\": \"tiktok\",\n      \"isYourBrand\": \"false\", \n      \"disabledDuet\": \"false\",\n      \"privacyLevel\": \"PUBLIC_TO_EVERYONE\",\n      \"isAiGenerated\": \"true\",\n      \"disabledStitch\": \"false\",\n      \"disabledComments\": \"false\",\n      \"isBrandedContent\": \"false\"\n      \n    },\n    \"content\": {\n      \"text\": \"@{body('Save_Rewritten_Video_to_Google_Sheets')?['Caption']}\",\n      \"platform\": \"tiktok\",\n      \"mediaUrls\": [\n        \"@{body('Upload_Video_to_Blotato')?['url']}\"\n      ]\n    }\n  }\n}"
+          },
+          "runAfter": {
+            "Upload_Video_to_Blotato": [
+              "Succeeded"
+            ]
+          }
+        },
+        "FACEBOOK": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://backend.blotato.com/v2/posts",
+            "headers": {
+              "blotato-api-key": "YOUR_API_KEY"
+            },
+            "body": "{\n  \"post\": {\n    \"accountId\": \"@{body('Assign_Social_Media_IDs')?['facebook_id']}\",\n    \"target\": {\n      \"targetType\": \"facebook\",\n      \"pageId\": \"@{body('Assign_Social_Media_IDs')?['facebook_page_id']}\"\n\n      \n    },\n    \"content\": {\n      \"text\": \"@{body('Save_Rewritten_Video_to_Google_Sheets')?['Caption']}\",\n      \"platform\": \"facebook\",\n      \"mediaUrls\": [\n        \"@{body('Upload_Video_to_Blotato')?['url']}\"\n      ]\n    }\n  }\n}"
+          },
+          "runAfter": {
+            "Upload_Video_to_Blotato": [
+              "Succeeded"
+            ]
+          }
+        },
+        "THREADS": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://backend.blotato.com/v2/posts",
+            "headers": {
+              "blotato-api-key": "YOUR_API_KEY"
+            },
+            "body": "{\n  \"post\": {\n    \"accountId\": \"@{body('Assign_Social_Media_IDs')?['threads_id']}\",\n    \"target\": {\n      \"targetType\": \"threads\"\n      \n    },\n    \"content\": {\n      \"text\": \"@{body('Save_Rewritten_Video_to_Google_Sheets')?['Caption']}\",\n      \"platform\": \"threads\",\n      \"mediaUrls\": [\n        \"@{body('Upload_Video_to_Blotato')?['url']}\"\n      ]\n    }\n  }\n}"
+          },
+          "runAfter": {
+            "Upload_Video_to_Blotato": [
+              "Succeeded"
+            ]
+          }
+        },
+        "TWETTER": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://backend.blotato.com/v2/posts",
+            "headers": {
+              "blotato-api-key": "=YOUR_API_KEY"
+            },
+            "body": "{\n  \"post\": {\n    \"accountId\": \"@{body('Assign_Social_Media_IDs')?['twitter_id']}\",\n    \"target\": {\n      \"targetType\": \"twitter\"\n      \n    },\n    \"content\": {\n      \"text\": \"@{body('Save_Rewritten_Video_to_Google_Sheets')?['Caption']}\",\n      \"platform\": \"twitter\",\n      \"mediaUrls\": [\n        \"@{body('Upload_Video_to_Blotato')?['url']}\"\n      ]\n    }\n  }\n}"
+          },
+          "runAfter": {
+            "Upload_Video_to_Blotato": [
+              "Succeeded"
+            ]
+          }
+        },
+        "LINKEDIN": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://backend.blotato.com/v2/posts",
+            "headers": {
+              "blotato-api-key": "YOUR_API_KEY"
+            },
+            "body": "{\n  \"post\": {\n    \"accountId\": \"@{body('Assign_Social_Media_IDs')?['linkedin_id']}\",\n    \"target\": {\n      \"targetType\": \"linkedin\"\n      \n    },\n    \"content\": {\n      \"text\": \"@{body('Save_Rewritten_Video_to_Google_Sheets')?['Caption']}\",\n      \"platform\": \"linkedin\",\n      \"mediaUrls\": [\n        \"@{body('Upload_Video_to_Blotato')?['url']}\"\n      ]\n    }\n  }\n}"
+          },
+          "runAfter": {
+            "Upload_Video_to_Blotato": [
+              "Succeeded"
+            ]
+          }
+        },
+        "BLUESKY": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://backend.blotato.com/v2/posts",
+            "headers": {
+              "blotato-api-key": "YOUR_API_KEY"
+            },
+            "body": "{\n  \"post\": {\n    \"accountId\": \"@{body('Assign_Social_Media_IDs')?['bluesky_id']}\",\n    \"target\": {\n      \"targetType\": \"bluesky\"\n      \n    },\n    \"content\": {\n      \"text\": \"@{body('Save_Rewritten_Video_to_Google_Sheets')?['Caption']}\",\n      \"platform\": \"bluesky\",\n      \"mediaUrls\": [\n        \"https://pbs.twimg.com/media/GE8MgIiWEAAfsK3.jpg\"\n      ]\n    }\n  }\n}"
+          },
+          "runAfter": {
+            "Upload_Video_to_Blotato": [
+              "Succeeded"
+            ]
+          }
+        },
+        "PINTEREST": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://backend.blotato.com/v2/posts",
+            "headers": {
+              "blotato-api-key": "YOUR_API_KEY"
+            },
+            "body": "{\n  \"post\": {\n    \"accountId\": \"@{body('Assign_Social_Media_IDs')?['pinterest_id']}\",\n    \"target\": {\n      \"targetType\": \"pinterest\",\n      \"boardId\": \"@{body('Assign_Social_Media_IDs')?['pinterest_board_id']}\"      \n    },\n    \"content\": {\n      \"text\": \"@{body('Save_Rewritten_Video_to_Google_Sheets')?['Caption']}\",\n      \"platform\": \"pinterest\",\n      \"mediaUrls\": [\n        \"https://pbs.twimg.com/media/GE8MgIiWEAAfsK3.jpg\"\n      ]\n    }\n  }\n}"
+          },
+          "runAfter": {
+            "Upload_Video_to_Blotato": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Trigger_Get_TikTok_URL_via_Telegram": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Trigger: Get TikTok URL via Telegram",
+            "n8nNodeType": "n8n-nodes-base.telegramTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "updates": [
+                "message"
+              ],
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Download_TikTok_Video_RapidAPI": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://tiktok-download-video1.p.rapidapi.com/getVideo?url=@{body('Trigger_Get_TikTok_URL_via_Telegram')?['message']?['text']}",
+            "headers": {
+              "x-rapidapi-host": "tiktok-download-video1.p.rapidapi.com",
+              "x-rapidapi-key": "YOUR_API_KEY"
+            }
+          },
+          "runAfter": {
+            "Trigger_Get_TikTok_URL_via_Telegram": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_Video_Thumbnail": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@body('Download_TikTok_Video_RapidAPI')?['data']?['origin_cover']"
+          },
+          "runAfter": {
+            "Download_TikTok_Video_RapidAPI": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_Thumbnail_to_Cloudinary": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.cloudinary.com/v1_1/YOUR_ID/image/upload",
+            "body": {
+              "file": null,
+              "upload_preset": "n8n_clone"
+            }
+          },
+          "runAfter": {
+            "Extract_Video_Thumbnail": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Analyze_Thumbnail_GPT_4o_Vision": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Analyze Thumbnail (GPT-4o Vision)",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o",
+                "cachedResultName": "GPT-4O"
+              },
+              "options": {},
+              "resource": "image",
+              "imageUrls": "={{ $json.url }}",
+              "operation": "analyze"
+            }
+          },
+          "runAfter": {
+            "Upload_Thumbnail_to_Cloudinary": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_Overlay_Text_GPT_4o": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Extract Overlay Text (GPT-4o)",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o",
+                "cachedResultName": "GPT-4O"
+              },
+              "options": {},
+              "messages": {
+                "values": [
+                  {
+                    "content": "=Identify the primary text located at the top of the image described above:\n{{ $json.content }}\n\nReturn only that specific top text as the output.\n\nDo not include any quotation marks.\n\nFocus only on the top section's text in the image and disregard any other content."
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Analyze_Thumbnail_GPT_4o_Vision": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_TikTok_Audio": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@body('Download_TikTok_Video_RapidAPI')?['data']?['music']"
+          },
+          "runAfter": {
+            "Extract_Overlay_Text_GPT_4o": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Transcribe_Audio_to_Script_GPT": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Transcribe Audio to Script (GPT)",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "resource": "audio",
+              "operation": "transcribe"
+            }
+          },
+          "runAfter": {
+            "Download_TikTok_Audio": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Generate_Unique_Template_ID": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Transcribe_Audio_to_Script_GPT'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Utility to create a random alphanumeric ID\nfunction createUniqueId(length = 12) {\n  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';\n  let id = '';\n  for (let i = 0; i < length; i++) {\n    const randomIndex = Math.floor(Math.random() * characters.length);\n    id += characters[randomIndex];\n  }\n  return id;\n}\n\n// Return the ID in the expected output structure\nreturn [\n  {\n    json: {\n      code: createUniqueId()\n    }\n  }\n];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Transcribe_Audio_to_Script_GPT": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Save_Original_Video_to_Google_Sheets": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_SPREADSHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+            "body": {
+              "Caption": "@body('Download_TikTok_Video_RapidAPI')?['data']?['title']",
+              "ID du modèle": "@body('Generate_Unique_Template_ID')?['code']",
+              "Lien de la vidéo": "@body('Trigger_Get_TikTok_URL_via_Telegram')?['message']?['text']",
+              "Modèle de script vidéo": "@body('Transcribe_Audio_to_Script_GPT')?['text']",
+              "Modèle de texte superposé": "@body('Download_TikTok_Audio')?['message']?['content']"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Generate_Unique_Template_ID": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Suggest_Similar_Idea_Perplexity": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.perplexity.ai/chat/completions",
+            "headers": {
+              "Authorization": "Bearer YOUR_TOKEN_HERE",
+              "Content-Type": "application/json"
+            },
+            "body": "{\n  \"model\": \"sonar-reasoning\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Suggest a content idea different from this video script: \\\"@{body('Save_Original_Video_to_Google_Sheets')?['Modèle de script vidéo']}\\\". It should be in the same niche and on the exact same topic or content idea but offer fresh value. You must pick one idea from your research that matches the topic idea of the video script exactly but is also different and unique from it so it would stand out on social media. Example: if the video script contains a list of tools, your topic must also be a list of tools in that video script topic but slightly different, maybe different tools etc. If the video's script is about a plan, strategies, or whatever, you must also make your topic about that. So you must maintain the nature of the topic in the video script. You absolutely must be specific as the original video script. You can't just mention generic tools or strategies if the original video script contains specific tools. Etc. That is the level of accuracy and perfect matching of the video script original topic. Make sure it appeals to a broad audience like the example.\"\n    }\n  ]\n}"
+          },
+          "runAfter": {
+            "Save_Original_Video_to_Google_Sheets": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Clean_Perplexity_Response": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Suggest_Similar_Idea_Perplexity'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Step 1: Pull raw input\nlet raw = $input.first().json.choices[0].message.content;\n// Step 2: Forcefully remove anything between <think> and </think>\nlet cleaned = raw.replace(/<think>(.|\\n)*?<\\/think>/gi,\n'').trim();\n// Optional cleanup: remove leading/trailing blank lines\ncleaned = cleaned.replace(/^\\s+|\\s+$/g, '');\n// Done\nreturn [\n{\njson: {\ncleanedResponse: cleaned\n}\n}\n];\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Suggest_Similar_Idea_Perplexity": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Rewrite_Script_Caption_Overlay_GPT_4o": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Rewrite Script, Caption, Overlay (GPT-4o)",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o",
+                "cachedResultName": "GPT-4O"
+              },
+              "options": {},
+              "messages": {
+                "values": [
+                  {
+                    "content": "=You are rewriting a TikTok video script, caption, and overlay —\nnot inventing a new one. You must follow this format and obey\nthese rules strictly.\n---\n### CONTEXT:\nHere is the content idea to use:\n{{ $json.cleanedResponse }}\n\n---\n### STEP 1: Rewrite the original video script BELOW using the new\ntopic/context above but maintaiin as stubbornly as possible the\noriginal script structure and style:\nOriginal script: {{ $('Save Original Video to Google Sheets').item.json['Modèle de script vidéo'] }}\n\n\n🛑 DO NOT CHANGE the original structure or style but\nThis includes:\n- Numbered list\n- Sentence breaks\n- \"I\" or first-person narration\n- Colloquial/informal tone (like “you're gonna wanna...”)\n✂️ You MUST keep:\n- first person narration of the orignal script at all costs\n- MUST be under 700 characters (yes \"Characters\" not wordcount)\nthis is an absolute MUST, no more than 700 characters!!! But never\nchange the structure or narration style of the original script. It\nmust be an exact imitation.\n✏️ You MAY change:\n- Tool names\n- Use cases\n- Descriptions\n- Niche-specific keywords\n\n#Rule: never use any characers like \"\" in your generated video\nscript as this will yeild syntax errors.\n---\n### STEP 2: Rewrite the caption text using the new topic.\nKeep:\n- Same structure and tone\n- Same use of #hashtags but space between each hashtag\n- Similar sentence count and layout\nCaption:\n{{ $('Save Original Video to Google Sheets').item.json.Caption }}\n\n---\n### STEP 3: Rewrite the text overlay (short version for the\nthumbnail or first screen)\nKeep:\n- EXACT Same length format, case, structure\n- Do NOT invent new words unless absolutely necessary\nOverlay:\n{{ $('Save Original Video to Google Sheets').item.json['Modèle de texte superposé'] }}\n---\n### FINAL OUTPUT FORMAT (no markdown formatting):\nText Overlay: [REWRITTEN TEXT OVERLAY]\nVideo Script: [REWRITTEN SCRIPT]\nCaption Text: [REWRITTEN CAPTION TEXT]\nDO NOT return any explanations. Only return the rewritten\nsections."
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Clean_Perplexity_Response": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Split_Rewritten_Content_into_Sections": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Rewrite_Script_Caption_Overlay_GPT_4o'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Récupère le contenu du premier item\nconst input = $input.first().json.message.content;\n\n// On tolère les retours à la ligne réels (\\n) ou échappés (\\\\n)\n\n// Text Overlay\nconst textOverlayMatch = input.match(\n  /Text\\s*Overlay:\\s*(.+?)(?:\\r?\\n|\\\\n)/s\n);\n\n// Video Script\nconst videoScriptMatch = input.match(\n  /Video\\s*Script:\\s*(.+?)(?:\\r?\\n|\\\\n)Caption\\s*Text:/s\n);\n\n// Caption Text (jusqu'à la fin)\nconst captionTextMatch = input.match(\n  /Caption\\s*Text:\\s*(.+)/s\n);\n\nreturn [\n  {\n    json: {\n      textOverlay:   textOverlayMatch   ? textOverlayMatch[1].trim()   : null,\n      videoScript:   videoScriptMatch   ? videoScriptMatch[1].trim()   : null,\n      captionText:   captionTextMatch   ? captionTextMatch[1].trim()   : null,\n    }\n  }\n];\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Rewrite_Script_Caption_Overlay_GPT_4o": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Generate_New_Video_ID": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Split_Rewritten_Content_into_Sections'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\n// Utility to create a random alphanumeric ID\nfunction createUniqueId(length = 12) {\n  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';\n  let id = '';\n  for (let i = 0; i < length; i++) {\n    const randomIndex = Math.floor(Math.random() * characters.length);\n    id += characters[randomIndex];\n  }\n  return id;\n}\n\n// Return the ID in the expected output structure\nreturn [\n  {\n    json: {\n      code: createUniqueId()\n    }\n  }\n];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Split_Rewritten_Content_into_Sections": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Save_Rewritten_Video_to_Google_Sheets": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_SPREADSHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('=52679157'))}/items",
+            "body": {
+              "Sujet": "@first(body('Clean_Perplexity_Response'))?['cleanedResponse']",
+              "Script": "@body('Split_Rewritten_Content_into_Sections')?['videoScript']",
+              "Caption": "@body('Split_Rewritten_Content_into_Sections')?['captionText']",
+              "ID du modèle": "@first(body('Generate_Unique_Template_ID'))?['code']",
+              "ID de la vidéo": "@body('Generate_New_Video_ID')?['code']",
+              "Texte superposé": "@body('Split_Rewritten_Content_into_Sections')?['textOverlay']"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Generate_New_Video_ID": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fetch_Available_Avatars": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.captions.ai/api/creator/list",
+            "headers": {
+              "Content-Type": "application/json",
+              "x-api-key": "YOUR_API_KEY"
+            }
+          },
+          "runAfter": {
+            "Save_Rewritten_Video_to_Google_Sheets": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Generate_Video_with_Avatar": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.captions.ai/api/creator/submit",
+            "headers": {
+              "Content-Type": "application/json",
+              "x-api-key": "YOUR_API_KEY"
+            },
+            "body": "{\n\"script\": \"@{body('Save_Rewritten_Video_to_Google_Sheets')?['Script']}\",\n\"creatorName\": \"@{body('Fetch_Available_Avatars')?['supportedCreators'][0]}\",\n\"resolution\": \"fhd\"\n}"
+          },
+          "runAfter": {
+            "Fetch_Available_Avatars": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_for_Avatar_Rendering_3_min": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 3,
+              "unit": "Minute"
+            }
+          },
+          "runAfter": {
+            "Generate_Video_with_Avatar": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fetch_Avatar_Video_URL": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.captions.ai/api/creator/poll",
+            "headers": {
+              "Content-Type": "application/json",
+              "x-api-key": "YOUR_API_KEY"
+            },
+            "body": "{\n \"operationId\": \"@{body('Wait_for_Avatar_Rendering_3_min')?['operationId']}\"\n}"
+          },
+          "runAfter": {
+            "Wait_for_Avatar_Rendering_3_min": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Add_Overlay_Text_with_JSON2Video": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.json2video.com/v2/movies",
+            "body": "{\n\"id\": \"qbaasr7s\",\n\"resolution\": \"instagram-story\",\n\"quality\": \"high\",\n\"scenes\": [\n{\n\"id\": \"qyjh9lwj\",\n\"comment\": \"Scene 1\",\n\"elements\": []\n}\n],\n\"elements\": [\n{\n\"id\": \"q6dznzcv\",\n\"type\": \"video\",\n\"src\": \"@{body('Fetch_Avatar_Video_URL')?['url']}\",\n\"resize\": \"cover\"\n},\n{\n\"id\": \"top-text\",\n\"type\": \"text\",\n\"text\": \"@{body('Save_Rewritten_Video_to_Google_Sheets')?['Texte superposé']}\",\n\"settings\": {\n\"font-family\": \"Arial\",\n\"font-size\": \"60px\",\n\"color\": \"#000000\",\n\"background-color\": \"#FFFFFF\",\n\"horizontal-position\": \"center\",\n\"vertical-position\": \"top\",\n\"margin-top\": \"100px\",\n\"word-break\": \"break-word\",\n\"overflow-wrap\": \"break-word\",\n\"font-weight\": \"bold\",\n\"text-align\": \"center\",\n\"width\": \"80%\",\n\"padding\": \"0px\",\n\"line-height\": \"1.2\",\n\"margin\": \"50px 0 0 0\",\n\"padding\": \"0 10px 0 10px\",\n\"border-radius\": \"15px\"\n}\n},\n{\n\"id\": \"q41n9kxp\",\n\"type\": \"subtitles\",\n\"settings\": {\n\"style\": \"classic\",\n\"position\": \"bottom\",\n\"font-family\": \"Arial\",\n\"font-size\": \"100px\",\n\"word-color\": \"#ffd700\",\n\"shadow-color\": \"#260B1B\",\n\"line-color\": \"#F1E7F4\",\n\"shadow-offset\": 0,\n\"box-color\": \"#260B1B\",\n\"outline-color\": \"#000000\",\n\"outline-width\": 8\n},\n\"language\": \"en\"\n}\n]\n}"
+          },
+          "runAfter": {
+            "Fetch_Avatar_Video_URL": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_for_Caption_Rendering": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 2,
+              "unit": "Minute"
+            }
+          },
+          "runAfter": {
+            "Add_Overlay_Text_with_JSON2Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Fetch_Final_Video_from_JSON2Video": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.json2video.com/v2/movies?id=@{body('Wait_for_Caption_Rendering')?['project']}"
+          },
+          "runAfter": {
+            "Wait_for_Caption_Rendering": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Update_Final_Video_URL_in_Sheet": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Update Final Video URL in Sheet",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "ID de la vidéo": "={{ $('Save Rewritten Video to Google Sheets').item.json['ID de la vidéo'] }}",
+                  "URL de la vidéo": "={{ $json.movie.url }}"
+                },
+                "schema": [
+                  {
+                    "id": "ID du modèle",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "ID du modèle",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "ID de la vidéo",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "ID de la vidéo",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Sujet",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Sujet",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Texte superposé",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Texte superposé",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Script",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Script",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Caption",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Caption",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "URL de la vidéo",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "URL de la vidéo",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Date de publication",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Date de publication",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "Statut",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "Statut",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "ID de la vidéo"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "appendOrUpdate",
+              "sheetName": {
+                "__rl": true,
+                "mode": "list",
+                "value": 52679157,
+                "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SoYJvZbVNn4L1FNfk9eFqx_vGlCsMxgw8bx0DVFgBLY/edit#gid=52679157",
+                "cachedResultName": "MA VIDEO"
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "="
+              }
+            }
+          },
+          "runAfter": {
+            "Fetch_Final_Video_from_JSON2Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_Video_URL_via_Telegram": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "telegrambotip_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/bot@{encodeURIComponent('REPLACE_WITH_TELEGRAM_BOT_TOKEN')}/sendMessage",
+            "body": {
+              "chat_id": "@body('Trigger_Get_TikTok_URL_via_Telegram')?['message']?['chat']?['id']",
+              "text": "Url VIDEO : @{body('Update_Final_Video_URL_in_Sheet')?['URL de la vidéo']}"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendMessage"
+            }
+          },
+          "runAfter": {
+            "Update_Final_Video_URL_in_Sheet": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_Final_Video_Preview": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Send Final Video Preview",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "file": "={{ $('Update Final Video URL in Sheet').item.json['URL de la vidéo'] }}",
+              "chatId": "={{ $json.result.chat.id }}",
+              "operation": "sendVideo",
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {
+            "Send_Video_URL_via_Telegram": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    },
+    "telegrambotip_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/telegrambotip"
+    }
+  }
+}

@@ -1,0 +1,334 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "pdf-invoice-data-extraction-tracking-with-google-drive-claude-ai-telegram",
+    "name": "PDF invoice data extraction & tracking with Google Drive, Claude AI & Telegram",
+    "description": "📥 Invoice Intake & Notification Workflow\n\nThis automated n8n workflow monitors a Google Drive folder for newly uploaded invoice PDFs, extracts essential information (like client name, invoice number, amount, due date), logs the data into a Google Sheet for recordkeeping, and sends a formatted Telegram message to notify the billing team.\n\nFor step-by-step video build of workflows like this:\nhttps://www.youtube.com/@automatewithmarc\n\n✅ What This Workflow Does\n🕵️ Watches a Google Drive folder for new invoice files\n📄 Extracts data from PDF invoices using AI (LangChain Information Extractor)\n📊 Appends extracted data into a structured Google Sheet\n💬 Notifies the billing team via Telegram with invoice details\n🤖 Optionally uses Claude Sonnet AI model to format human-friendly summaries\n\n⚙️ How It Works – Step-by-Step\nTrigger: Workflow starts when a new PDF invoice is added to a specific Google Drive folder.\n\nDownload & Parse: The file is downloaded and its content extracted.\n\nData Extraction: AI-powered extractor pulls invoice details (invoice number, client, date, amount, etc.).\n\nLog to Google Sheets: All extracted data is appended to a predefined Google Sheet.\n\nAI Notification Formatting: An Anthropic Claude model formats a clear invoice notification message.\n\nTelegram Alert: The formatted summary is sent to a Telegram channel or group to alert the billing team.\n\n🧠 AI & Tools Used\nGoogle Drive Trigger & File Download\n\nPDF Text Extraction Node\n\nLangChain Information Extractor\n\nGoogle Sheets Node (Append Data)\n\nAnthropic Claude (Telegram Message Formatter)\n\nTelegram Node (Send Notification)\n\n🛠️ Setup Instructions\nGoogle Drive: Set up OAuth2 credentials and specify the folder ID to watch.\n\nGoogle Sheets: Link the workflow to your invoice tracking sheet.\n\nTelegram: Set up your Telegram bot and obtain the chat ID.\n\nAnthropic & OpenAI: Add your Claude/OpenAI credentials if formatting is enabled.\n\n💡 Use Cases\nAutomated bookkeeping and invoice tracking\n\nReal-time billing alerts for accounting teams\n\nAI-powered invoice ingestion and summary\n\n",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Invoice Processing",
+      "AI Summarization",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "/managedApis/telegrambotip",
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Extract_from_File": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Extract from File",
+            "n8nNodeType": "n8n-nodes-base.extractFromFile",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {},
+              "operation": "pdf"
+            }
+          },
+          "runAfter": {
+            "Google_Drive": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Google_Drive_Trigger": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Drive Trigger",
+            "n8nNodeType": "n8n-nodes-base.googleDriveTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "event": "fileCreated",
+              "options": {},
+              "pollTimes": {
+                "item": [
+                  {
+                    "mode": "everyMinute"
+                  }
+                ]
+              },
+              "triggerOn": "specificFolder",
+              "folderToWatch": {
+                "__rl": true,
+                "mode": "list",
+                "value": "1PgLKqvN8CFFXWAKhZxzjuk6gMnXJ7-np",
+                "cachedResultUrl": "Redacted",
+                "cachedResultName": "n8n Invoices Folder"
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Google_Drive": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Drive",
+            "n8nNodeType": "n8n-nodes-base.googleDrive",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "={{ $json.id }}"
+              },
+              "options": {},
+              "operation": "download"
+            }
+          },
+          "runAfter": {
+            "Google_Drive_Trigger": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Information_Extractor": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Information Extractor",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.informationExtractor",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "={{ $json.text }}",
+              "options": {
+                "systemPromptTemplate": "You are an expert extraction algorithm.\nOnly extract relevant information from the text.\nIf you do not know the value of an attribute asked to extract, you may omit the attribute's value."
+              },
+              "attributes": {
+                "attributes": [
+                  {
+                    "name": "Invoice Number",
+                    "required": true,
+                    "description": "The Number of the Invoice"
+                  },
+                  {
+                    "name": "Client Name",
+                    "required": true,
+                    "description": "Name of the client"
+                  },
+                  {
+                    "name": "Client Email",
+                    "required": true,
+                    "description": "Email address of the client"
+                  },
+                  {
+                    "name": "Total Amount",
+                    "required": true,
+                    "description": "Total Amount Due in the Invoice"
+                  },
+                  {
+                    "name": "Invoice Date",
+                    "required": true,
+                    "description": "Date of the Invoice"
+                  },
+                  {
+                    "name": "Due Date",
+                    "description": "Date with the invoice is due"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Extract_from_File": [
+              "Succeeded"
+            ],
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ]
+          }
+        },
+        "OpenAI_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Google_Sheets": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('1lMMuPAU_rRU6VdybxgiPeVd9KRZrKhlzJ3gVc4Wz7iA'))}/tables/@{encodeURIComponent(encodeURIComponent('gid=0'))}/items",
+            "body": {
+              "Due Date": "@body('Information_Extractor')?['output']?['Due Date']",
+              "Client Name": "@body('Information_Extractor')?['output']?['Client Name']",
+              "Client Email": "@body('Information_Extractor')?['output']?['Client Email']",
+              "Invoice Date": "@body('Information_Extractor')?['output']?['Invoice Date']",
+              "Total Amount": "@body('Information_Extractor')?['output']?['Total Amount']",
+              "Invoice Number": "@body('Information_Extractor')?['output']?['Invoice Number']"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Information_Extractor": [
+              "Succeeded"
+            ]
+          }
+        },
+        "No_Operation_do_nothing": {
+          "type": "Compose",
+          "inputs": {},
+          "runAfter": {
+            "Telegram": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Anthropic_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Anthropic Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "claude-sonnet-4-20250514",
+                "cachedResultName": "Claude 4 Sonnet"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Anthropic_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Anthropic Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chainLlm",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=Invoice Number:{{ $json['Invoice Number'] }}\nClient Name:{{ $json['Client Name'] }}\nClient Email:{{ $json['Client Email'] }}\nTotal Amount:{{ $json['Total Amount'] }}\nInvoice Due Date:{{ $json['Invoice Date'] }}",
+              "batching": {},
+              "messages": {
+                "messageValues": [
+                  {
+                    "message": "#Overview You are an telegram notification expert. You will receive invoice information. You will craft a message notifying the billing team of the invoice and the available information of the invoice. "
+                  }
+                ]
+              },
+              "promptType": "define"
+            }
+          },
+          "runAfter": {
+            "Google_Sheets": [
+              "Succeeded"
+            ],
+            "Anthropic_Chat_Model": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Telegram": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "telegrambotip_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/bot@{encodeURIComponent('REPLACE_WITH_TELEGRAM_BOT_TOKEN')}/sendMessage",
+            "body": {
+              "chat_id": "Redacted",
+              "text": "@body('Anthropic_Agent') [output]"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendMessage"
+            }
+          },
+          "runAfter": {
+            "Anthropic_Agent": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    },
+    "telegrambotip_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/telegrambotip"
+    }
+  }
+}

@@ -1,0 +1,293 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "build-an-interactive-ai-agent-with-chat-interface-and-multiple-tools",
+    "name": "🤖 Build an interactive AI agent with chat interface and multiple tools",
+    "description": "## How it works\n\nThis template is a complete, hands-on tutorial that lets you build and interact with your very first AI Agent.\n\nThink of an AI Agent as a standard AI chatbot with **superpowers**. The agent doesn't just talk; it can **use tools** to perform actions and find information in real-time. This workflow is designed to show you exactly how that works.\n\n1.  **The Chat Interface (Chat Trigger):** This is your window to the agent. It's a fully styled, public-facing chat window where you can have a conversation.\n2.  **The Brain (AI Agent Node):** This is the core of the operation. It takes your message, understands your intent, and intelligently decides which \"superpower\" (or tool) it needs to use to answer your request. The agent's personality and instructions are defined in its extensive system prompt.\n3.  **The Tools (Tool Nodes):** These are the agent's superpowers. We've included a variety of useful and fun tools to showcase its capabilities:\n    *   Get a random joke.\n    *   Search Wikipedia for a summary of any topic.\n    *   Calculate a future date.\n    *   Generate a secure password.\n    *   Calculate a monthly loan payment.\n    *   Fetch the latest articles from the n8n blog.\n4.  **The Memory (Memory Node):** This gives the agent a short-term memory, allowing it to remember the last few messages in your conversation for better context.\n\n\nWhen you send a message, the agent's brain analyzes it, picks the right tool for the job, executes it, and then formulates a helpful response based on the tool's output.\n\n## Set up steps\n\n**Setup time: ~3 minutes**\n\nThis template is nearly ready to go out of the box. You just need to provide the AI's \"brain.\"\n\n1.  **Configure Credentials:** This workflow requires an API key for an AI model. Make sure you have credentials set up in your n8n instance for either **Google AI (Gemini)** or **OpenAI**.\n2.  **Choose Your AI Brain (LLM):**\n    *   By default, the workflow uses the **Google Gemini** node. If you have Google AI credentials, you're all set!\n    *   If you prefer to use **OpenAI**, simply **disable the Gemini node** and **enable the OpenAI node**. You only need one active LLM node. Make sure it is connected to the Agent parent node.\n3.  **Explore the Tools:** Take a moment to look at the different tool nodes connected to the `Your First AI Agent` node. This is where the agent gets its abilities! You can add, remove, or modify these to create your own custom agent.\n4.  **Activate and Test!**\n    *   Activate the workflow.\n    *   Open the **public URL** for the `Example Chat Window` node (you can copy it from the node's panel).\n    *   Start chatting! Try asking it things like:\n        *   \"Tell me a joke.\"\n        *   \"What is n8n?\"\n        *   \"Generate a 16-character password for me.\"\n        *   \"What are the latest posts on the n8n blog?\"\n        *   \"What is the monthly payment for a $300,000 loan at 5% interest over 30 years?\"",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Personal Productivity",
+      "AI Chatbot",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "connectionProviders/request"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Simple_Memory": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Simple Memory",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "contextWindowLength": 30
+            }
+          },
+          "runAfter": {}
+        },
+        "Gemini": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Gemini",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "temperature": 0
+              },
+              "modelName": "models/gemini-2.5-flash"
+            }
+          },
+          "runAfter": {}
+        },
+        "OpenAI": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4.1-mini"
+              },
+              "options": {
+                "temperature": 0
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Example_Chat_Window": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Example Chat Window",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.chatTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "public": true,
+              "options": {
+                "title": "Your first AI Agent 🚀",
+                "subtitle": "This is for demo purposes. Try me out !",
+                "customCss": "/* === THEME OVERRIDE: n8n Glass & Glow (Revised) === */\n\n/*\n  This theme is built upon the default n8n chat CSS variables.\n  We'll use your desired branding and layout, and then add\n  the \"glass\" effect using a semi-transparent background\n  and a backdrop-filter on the main window class.\n*/\n\n:root {\n  /* --- 1. CORE BRANDING & FONTS --- */\n  /* Your choices for font and primary color are applied here. */\n  --chat--font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;\n  --chat--color-primary: #EA4B71; /* n8n Red */\n  --chat--color-primary-shade-50: #D93A60;\n  --chat--color-primary-shade-100: #C82A50;\n  --chat--color-secondary: #20b69e; /* Kept default secondary for things like file uploads */\n  --chat--color-secondary-shade-50: #1ca08a;\n  --chat--color-white: #ffffff;\n  --chat--color-light: #f2f4f8;\n  --chat--color-dark: #1F2937; /* Darker, more modern text color */\n  --chat--color-disabled: #9CA3AF;\n  --chat--color-typing: #404040;\n\n  /* --- 2. WINDOW & LAYOUT --- */\n  /* Your dimensions and rounded corners. The actual glass effect is handled in the class override below. */\n  --chat--window--width: 430px;\n  --chat--window--height: 80vh;\n  --chat--window--border-radius: 16px;\n  --chat--window--border: 1px solid rgba(255, 255, 255, 0.3);\n  --chat--spacing: 1rem; /* 16px base spacing */\n  --chat--window--z-index: 9999;\n  --chat--window--bottom: var(--chat--spacing);\n  --chat--window--right: var(--chat--spacing);\n  --chat--window--margin-bottom: var(--chat--spacing);\n\n  /* --- 3. GLASSMORPHISM BACKGROUNDS --- */\n  /* We make the main sections transparent to let the glass window show through. */\n  --chat--header--background: transparent;\n  --chat--body--background: transparent;\n  --chat--footer--background: transparent;\n\n  /* --- 4. HEADER STYLING --- */\n  --chat--header-height: auto;\n  --chat--header--padding: 20px;\n  --chat--header--color: var(--chat--color-dark);\n  --chat--header--border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Subtle divider */\n  --chat--heading--font-size: 1.5rem;\n  --chat--subtitle--font-size: 0.875rem;\n  --chat--subtitle--line-height: 1.4;\n  --chat--close--button--color-hover: var(--chat--color-primary);\n\n  /* --- 5. MESSAGE BUBBLES --- */\n  --chat--message--font-size: 0.875rem;\n  --chat--message--padding: 12px 16px;\n  --chat--message--border-radius: 12px;\n  --chat--message-line-height: 1.6;\n  --chat--message--margin-bottom: calc(var(--chat--spacing) * 0.75);\n  --chat--messages-list--padding: var(--chat--spacing);\n  --chat--message--bot--background: var(--chat--color-white);\n  --chat--message--bot--color: #111827;\n  --chat--message--bot--border: none;\n  --chat--message--user--background: var(--chat--color-primary);\n  --chat--message--user--color: var(--chat--color-white);\n  --chat--message--user--border: none;\n\n  /* --- 6. INPUT AREA --- */\n  --chat--textarea--height: 50px;\n  --chat--textarea--max-height: 10rem;\n  --chat--input--font-size: 0.9rem;\n  --chat--input--border: 0;\n  --chat--input--border-radius: 12px; /* Rounded input field */\n  --chat--input--padding: 12px 16px;\n  --chat--input--background: rgba(255, 255, 255, 0.5); /* Semi-transparent input */\n  --chat--input--text-color: #111827;\n  --chat--input--line-height: 1.5;\n  --chat--input--border-active: 0;\n\n  /* --- 7. SEND & FILE BUTTONS --- */\n  --chat--input--send--button--background: transparent;\n  --chat--input--send--button--color: var(--chat--color-primary);\n  --chat--input--send--button--background-hover: transparent;\n  --chat--input--send--button--color-hover: var(--chat--color-primary-shade-50);\n  --chat--input--file--button--background: transparent;\n  --chat--input--file--button--color: var(--chat--color-secondary);\n  --chat--input--file--button--background-hover: transparent;\n  --chat--input--file--button--color-hover: var(--chat--color-secondary-shade-50);\n\n  /* --- 8. TOGGLE BUTTON & OTHERS --- */\n  /* Using your primary brand color for the main toggle button */\n  --chat--toggle--size: 64px;\n  --chat--toggle--width: var(--chat--toggle--size);\n  --chat--toggle--height: var(--chat--toggle--size);\n  --chat--toggle--border-radius: 50%;\n  --chat--toggle--background: var(--chat--color-primary);\n  --chat--toggle--hover--background: var(--chat--color-primary-shade-50);\n  --chat--toggle--active--background: var(--chat--color-primary-shade-100);\n  --chat--toggle--color: var(--chat--color-white);\n}\n\n/* === CLASS OVERRIDES === */\n/*\n  These are essential for effects that CSS variables can't control,\n  like the glass blur, shadows, and max-height.\n*/\n\n.chat-window {\n  /* This is the magic for the glass effect! */\n  background-color: rgba(249, 243, 245, 0.6); /* A semi-transparent background color */\n  backdrop-filter: blur(20px);\n  -webkit-backdrop-filter: blur(20px); /* For Safari compatibility */\n\n  /* A subtle shadow helps lift the window off the page */\n  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);\n\n  /* Here we apply the max-height you wanted */\n  max-height: 750px;\n}\n\n/* Make user messages slightly wider for better balance */\n.chat-message.is-user {\n\tmax-width: 70%;\n}\n\n.chat-message.is-bot {\n\tmax-width: 80%;\n}\n\n/* Add a subtle glow to messages on hover */\n.chat-message {\n    transition: transform 0.2s ease, box-shadow 0.2s ease;\n}\n.chat-message:hover {\n    transform: translateY(-2px);\n    box-shadow: 0 0 25px 0 rgba(234, 75, 113, 0.2);\n}\n\n/* === PAGE BACKGROUND === */\n/* Your dotted background to simulate the n8n canvas. Perfect as is! */\nbody {\n    background-color: #FDFBFF;\n    background-image:\n        radial-gradient(circle at 1px 1px, rgba(0,0,0,0.07) 1px, transparent 0),\n        linear-gradient(135deg, #F9F3F5 0%, #EFF3FB 100%);\n    background-size: 25px 25px, 100% 100%;\n}",
+                "responseMode": "lastNode",
+                "inputPlaceholder": "Type your message here..",
+                "showWelcomeScreen": false
+              },
+              "initialMessages": "Hi there! 👋"
+            }
+          },
+          "runAfter": {}
+        },
+        "Your_First_AI_Agent": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Your First AI Agent",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "options": {
+                "systemMessage": "<role>\nYou are the n8n Demo AI Agent, a friendly and helpful assistant designed to showcase the power of AI agents within the n8n automation platform. You were created by Lucas Peyrin as part of the \"Your First AI Agent\" template. Your personality is encouraging, slightly educational, and enthusiastic about automation. Your primary function is to demonstrate your capabilities by using your available tools to answer user questions and fulfill their requests. You also frequently mention the other templates from https://n8n.io/creators/lucaspeyrin and push forward forms to give feedback, asking if they would like coaching or consulting.\n</role>\n\n<instructions>\n<goal>\nYour primary goal is to act as a live demonstration of an AI Agent built with n8n. You will interact with users, answer their questions by intelligently using your available tools, and explain the concepts behind AI agents to help them understand their potential. You should also guide them towards further learning and feedback opportunities provided by the template's creator, Lucas Peyrin.\n</goal>\n\n<context>\n### How I Work\nI am an AI model operating within a simple n8n workflow. This workflow gives me two key things:\n1.  **A set of tools:** These are functions I can call to get information or perform actions.\n2.  **Simple Memory:** I can remember the immediate past of our current conversation to understand context.\n\n### My Purpose\nMy main purpose is to be a showcase. I demonstrate how you can give a chat interface to various functions (my tools) without needing complex UIs. This is a great way to make powerful automations accessible to anyone through simple conversation.\n\n### My Available Tools\nYou must choose one of these tools if the user's request matches its capability. You cannot perform these actions yourself; you must call the tool.\n- **get_a_joke**: Use this when the user asks for a joke.\n- **days_from_now**: Use this to calculate a future date. It requires a number of days as input.\n- **wikipedia**: Use this to search for a summary of a topic on Wikipedia.\n- **create_password**: Use this to generate a strong, random password.\n- **calculate_loan_payment**: Use this to calculate a monthly loan payment. It requires the principal amount, the annual interest rate (e.g., 5 for 5%), and the loan term in years.\n- **n8n_blog_rss_feed**: Use this to fetch the latest articles from the official n8n blog.\n\n### About AI Agents in n8n\n- **Reliability:** While I can use one tool at a time effectively, more advanced agents can perform multi-step tasks. However, for complex, mission-critical processes, it's often more reliable to build structured, step-by-step workflows in n8n rather than relying solely on an agent's reasoning. Agents are fantastic for user-facing interactions, but structured workflows are king for backend reliability.\n- **Best Practices:** A good practice is to keep an agent's toolset focused, typically around 10-15 tools, to ensure reliability and prevent confusion.\n\n### Important Information & Next Steps\nIf the user expresses thanks, asks how they can learn more, or asks for help, you should present the following information from the template's creator, Lucas Peyrin. Here is Lucas' creator link that contains all of his templates that are focused on core n8n skills : [More n8n Templates](https://n8n.io/creators/lucaspeyrin)\n\n**Was this helpful? Let me know!**\nYour feedback is incredibly valuable. You can share your thoughts using this form:\n[Give Feedback about this Template](https://api.ia2s.app/form/templates/feedback?template=First%20AI%20Agent)\n\n**Ready to Build Something Great?**\n- **n8n Coaching:** To master n8n with one-on-one sessions, book a session here: [Get Personalized n8n Coaching](https://api.ia2s.app/form/templates/coaching?template=First%20AI%20Agent)\n- **n8n Consulting:** For complex projects and custom workflows, inquire about consulting services here: [Get an Expert to do my n8n Project](https://api.ia2s.app/form/templates/consulting?template=First%20AI%20Agent)\n</context>\n\n<output_format>\n- Respond in a friendly, conversational, and helpful tone.\n- When a user's request requires a tool, first select the appropriate tool. Then, present the result of the tool's execution to the user in a clear and understandable way.\n- Be proactive. If the user is unsure what to do, suggest some examples of what they can ask you based on your available tools (e.g., Talk about your tools and what you know about yourself).\n- When appropriate, seamlessly integrate the \"Important Information & Next Steps\" into your response.\n</output_format>\n</instructions>"
+              }
+            }
+          },
+          "runAfter": {
+            "Gemini": [
+              "Succeeded"
+            ],
+            "wikipedia": [
+              "Succeeded"
+            ],
+            "get_a_joke": [
+              "Succeeded"
+            ],
+            "Simple_Memory": [
+              "Succeeded"
+            ],
+            "days_from_now": [
+              "Succeeded"
+            ],
+            "create_password": [
+              "Succeeded"
+            ],
+            "n8n_blog_rss_feed": [
+              "Succeeded"
+            ],
+            "Example_Chat_Window": [
+              "Succeeded"
+            ],
+            "calculate_loan_payment": [
+              "Succeeded"
+            ]
+          }
+        },
+        "get_a_joke": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "get_a_joke",
+            "n8nNodeType": "n8n-nodes-base.httpRequestTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "https://v2.jokeapi.dev/joke/Any?blacklistFlags=nsfw,religious,political,racist,sexist,explicit&type=single",
+              "fields": "joke",
+              "options": {},
+              "fieldsToInclude": "selected",
+              "toolDescription": "Gets a joke from the jokeapi.",
+              "optimizeResponse": true
+            }
+          },
+          "runAfter": {}
+        },
+        "days_from_now": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "days_from_now",
+            "n8nNodeType": "n8n-nodes-base.dateTimeTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "endDate": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End_Date', `Put the date to compare with now here.`, 'string') }}",
+              "options": {},
+              "operation": "getTimeBetweenDates",
+              "startDate": "={{ $now }}",
+              "descriptionType": "manual",
+              "outputFieldName": "now_day_difference",
+              "toolDescription": "Gets the difference (in days) between now and a set date."
+            }
+          },
+          "runAfter": {}
+        },
+        "wikipedia": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "wikipedia",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.toolWikipedia",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "create_password": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "create_password",
+            "n8nNodeType": "n8n-nodes-base.cryptoTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "action": "generate",
+              "encodingType": "base64",
+              "stringLength": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Length', `Usually 8 to 16 works well.`, 'number') }}",
+              "toolDescription": "Generate a secure Password.",
+              "dataPropertyName": "password"
+            }
+          },
+          "runAfter": {}
+        },
+        "calculate_loan_payment": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "calculate_loan_payment",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.toolCode",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsCode": "const principal = query.loan_amount;\nconst annualRate = query.annual_rate;\nconst years = query.term_years;\n\n// Convert annual rate percentage to a monthly decimal rate\nconst monthlyRate = (annualRate / 100) / 12;\n// Convert years to total number of payments\nconst numberOfPayments = years * 12;\n\nif (principal <= 0 || annualRate <= 0 || years <= 0) {\n  return { error: \"Loan amount, interest rate, and term must be positive numbers.\" };\n}\n\n// Amortization formula: M = P * [r(1+r)^n] / [(1+r)^n - 1]\nconst monthlyPayment = principal * (monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) / (Math.pow(1 + monthlyRate, numberOfPayments) - 1);\n\nconst result = {\n  monthly_payment: monthlyPayment.toFixed(2), // Format to 2 decimal places for currency\n  total_paid: (monthlyPayment * numberOfPayments).toFixed(2),\n  total_interest: ((monthlyPayment * numberOfPayments) - principal).toFixed(2)\n};\n\nreturn JSON.stringify(result);",
+              "description": "Calculates the fixed monthly payment for a loan using the standard amortization formula. Requires the total loan amount, the annual interest rate as a percentage (e.g., 5 for 5%), and the loan term in years.",
+              "jsonSchemaExample": "{\n\t\"loan_amount\": 250000,\n    \"annual_rate\": 6.5,\n    \"term_years\": 30\n}",
+              "specifyInputSchema": true
+            }
+          },
+          "runAfter": {}
+        },
+        "n8n_blog_rss_feed": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "n8n_blog_rss_feed",
+            "n8nNodeType": "n8n-nodes-base.rssFeedReadTool",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "url": "https://n8n.io/blog/rss",
+              "options": {},
+              "toolDescription": "Gets the latest n8n blog posts."
+            }
+          },
+          "runAfter": {}
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {}
+}

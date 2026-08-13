@@ -1,0 +1,834 @@
+{
+  "kind": "AutoTemplate",
+  "apiVersion": "v1",
+  "metadata": {
+    "id": "create-viral-ads-with-ai-nanobanana-publish-on-socials-via-upload-post",
+    "name": "Create viral ads with AI: NanoBanana & publish on socials via upload-post",
+    "description": "# 💥 Create viral Ads with NanoBanana & Seedance, publish on socials via upload-post\n\n![Workflow Screenshot](https://www.dr-firas.com/upload-postII.png)\n\n### Who is this for?  \nThis workflow is designed for **marketers, content creators, and small businesses** who want to automate the creation of engaging social media ads without spending hours on manual design, video editing, or publishing.\n\n---\n\n### What problem is this workflow solving? / Use case  \nManually creating ads for multiple platforms is **time-consuming and repetitive**. You need to generate visuals, edit videos, add music, and then publish them across social channels.  \nThis workflow automates the **end-to-end ad production pipeline**, saving time while ensuring consistent, professional-quality output.\n\n---\n\n### What this workflow does  \n- Receives ad ideas via **Telegram**.  \n- Uses **NanoBanana** to generate and edit realistic product images.  \n- Transforms images into engaging short videos with **Seedance**.  \n- Generates background music with **Suno**.  \n- Merges video and audio into a polished final ad.  \n- Reads brand info and generates ad copy with **AI (OpenAI)**.  \n- Publishes ads to **Instagram, TikTok, YouTube, Facebook, and X** via **upload-post**.  \n- Stores media and campaign data in **Google Drive** and **Google Sheets** for tracking.  \n- Sends back notifications and previews via **Telegram**.\n\n---\n\n### Setup  \n1. **Connect your accounts**:  \n   - Telegram  \n   - Google Drive  \n   - Google Sheets  \n   - OpenAI API  \n   - NanoBanana API  \n   - Seedance API  \n   - Suno API  \n   - Upload-post  \n\n2. **Prepare Google Sheets**:  \n   - Add a sheet for **brand details** (name, category, features, website).  \n   - Add another sheet for **video logs** (status, links, captions).  \n\n3. **Configure upload-post**:  \n   - Ensure your social accounts (TikTok, Instagram, YouTube, Facebook, X) are linked to upload-post.  \n\n---\n\n### How to customize this workflow to your needs  \n- **Prompts** → Adjust the **image/video/music prompts** to better reflect your brand’s tone and products.  \n- **Ad copy** → Modify the AI prompt inside the **Ads Copywriter Generator** to control wording, style, and structure.  \n- **Publishing scope** → Choose only the platforms you want (TikTok, Instagram, etc.) inside the **upload-post** node.  \n- **Storage** → Update Google Drive folder IDs and Google Sheets document IDs to match your own workspace.  \n\n---\n\n👉 With this template, you get a **fully automated viral ad production system** powered by **AI visuals, video rendering, and auto-publishing** across social platforms. Perfect for scaling your content strategy while saving time.\n\n\n📄 **Documentation**: [Notion Guide](https://automatisation.notion.site/Welcome-to-Upload-Post-2683d6550fd980ffa23ee340fdb3285e?source=copy_link)\n\n## Demo Video\n\n🎥 Watch the full tutorial here: [YouTube Demo](https://youtu.be/4ec9WDCz9CY)\n### Need help customizing?\nContact me for consulting and support : [Linkedin](https://www.linkedin.com/in/dr-firas/) / [Youtube](https:/https://www.youtube.com/@DRFIRASS)",
+    "category": [
+      "automation"
+    ],
+    "tags": [
+      "Content Creation",
+      "Multimodal AI",
+      "n8n-converted"
+    ],
+    "author": "Converted from the public n8n template catalog",
+    "source": "community",
+    "featuredConnectors": [
+      "/managedApis/googlesheet",
+      "/managedApis/telegrambotip",
+      "connectionProviders/Http",
+      "connectionProviders/inlineCode",
+      "connectionProviders/request",
+      "connectionProviders/schedule"
+    ]
+  },
+  "workflow": {
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "triggers": {
+        "Manual_Trigger": {
+          "type": "Request",
+          "kind": "Http"
+        }
+      },
+      "actions": {
+        "Telegram_Get_Image_File": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Telegram: Get Image File",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "fileId": "={{ $json.message.photo[2].file_id }}",
+              "resource": "file",
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {
+            "Trigger_Receive_Idea_via_Telegram": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Trigger_Receive_Idea_via_Telegram": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Trigger: Receive Idea via Telegram",
+            "n8nNodeType": "n8n-nodes-base.telegramTrigger",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "updates": [
+                "message"
+              ],
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "Google_Drive_Upload_Image": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Google Drive: Upload Image",
+            "n8nNodeType": "n8n-nodes-base.googleDrive",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "name": "={{ $('Trigger: Receive Idea via Telegram').item.json.message.photo[2].file_unique_id }}",
+              "driveId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "="
+              },
+              "options": {},
+              "folderId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "="
+              }
+            }
+          },
+          "runAfter": {
+            "Telegram_Get_Image_File": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Parse_Idea_Into_Prompts": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Google_Drive_Upload_Image'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst text = __node('Trigger_Receive_Idea_via_Telegram').first().json.message.caption;\nconst parts = text.split(';').map(part => part.trim());\nreturn {\nimagePrompt: parts[0],\ntextOverlay: parts[1],\nvideoPrompt: parts[2],\nmusicPrompt: parts[3]\n};\n\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Google_Drive_Upload_Image": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Generate_Image_Prompt": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Generate Image Prompt",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.agent",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "text": "=Your task is to create an image prompt following the system guidelines.  \nEnsure that the reference image is represented as **accurately as possible**, including all text elements.  \n\nUse the following inputs:  \n\n- **User’s description:**  \n{{ $json.imagePrompt }}\n",
+              "options": {
+                "systemMessage": "=You are a helpful assistantROLE: UGC Image Prompt Builder  \n\nGOAL:  \nGenerate one concise, natural, and realistic image prompt (≤120 words) from a given product or reference image. The prompt must simulate authentic UGC (user-generated content) photography.  \n\nRULES:  \nYou must always create a professional background for the product image. You must never return the image with a plain white or empty background. The background must always enhance and highlight the product in the photo.\n\n- Always output **one JSON object only** with the key:  \n  - `image_prompt`: (string with full description)  \n- Do **not** add commentary, metadata, or extra keys. JSON only.  \n- User node think to be creative\n\nSTYLE GUIDELINES:  \n- Tone: casual, unstaged, lifelike, handheld snapshot.  \n- Camera cues: include at least 2–3 (e.g., phone snapshot, handheld framing, off-center composition, natural indoor light, soft shadows, slight motion blur, auto exposure, unpolished look, mild grain).  \n- Realism: embrace imperfections (wrinkles, stray hairs, skin texture, clutter, smudges).  \n- Packaging/Text: preserve exactly as visible. Never invent claims, numbers, or badges.  \n- Diversity: if people appear but are unspecified, vary gender/ethnicity naturally; default age range = 21–38.  \n- Setting: default to real-world everyday spaces (home, street, store, gym, office).  \n- User node think to be creative\nYou must always create a professional background for the product image. You must never return the image with a plain white or empty background. The background must always enhance and highlight the product in the photo.\n\nSAFETY:  \n- No copyrighted character names.  \n- No dialogue or scripts. Only describe scenes.  \n\nOUTPUT CONTRACT:  \n- JSON only, no prose outside.  \n- Max 120 words in `image_prompt`.  \n- Must cover: subject, action, mood, setting, background, style/camera, colors, and text accuracy.  \n\nCHECKLIST BEFORE OUTPUT:  \n- Natural handheld tone?  \n- At least 2 camera cues included?  \n- Product text preserved exactly?  \n- Only JSON returned?  \n\n---  \n\n### Example  \n\nGood Example :  \n```json\n{ \"image_prompt\": \"a young adult casually holding a skincare tube near a bathroom mirror; action: dabs small amount on the back of the hand; mood: easy morning; setting: small apartment bathroom with towel on rack and toothbrush cup; background: professional-looking bathroom scene that enhances the product, never plain white or empty, always styled to highlight the tube naturally; style/camera: phone snapshot, handheld framing, off-center composition, natural window light, slight motion blur, mild grain; colors: soft whites and mint label; text accuracy: keep every word on the tube exactly as visible, no added claims\" }\n"
+              },
+              "promptType": "define",
+              "hasOutputParser": true
+            }
+          },
+          "runAfter": {
+            "Think": [
+              "Succeeded"
+            ],
+            "OpenAI_Chat_Model": [
+              "Succeeded"
+            ],
+            "Parse_Idea_Into_Prompts": [
+              "Succeeded"
+            ],
+            "Structured_Output_Parser": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Structured_Output_Parser": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Structured Output Parser",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "jsonSchemaExample": "{\n\t\"image_prompt\": \"string\"\n}"
+            }
+          },
+          "runAfter": {}
+        },
+        "Think": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Think",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.toolThink",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {}
+          },
+          "runAfter": {}
+        },
+        "OpenAI_Chat_Model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "OpenAI Chat Model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "model": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-5-mini",
+                "cachedResultName": "gpt-5-mini"
+              },
+              "options": {}
+            }
+          },
+          "runAfter": {}
+        },
+        "NanoBanana_Create_Image": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://queue.fal.run/fal-ai/nano-banana/edit",
+            "body": "{\n\t\"prompt\": \"@{body('Generate_Image_Prompt')?['output']?['image_prompt']?['replace'](/\\\"/g, '\\\\\\\"').replace(/\\n/g, '\\\\n')}\",\n\"image_urls\": [\"@{body('Google_Drive_Upload_Image')?['webContentLink']}\"]\n\n}"
+          },
+          "runAfter": {
+            "Generate_Image_Prompt": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_for_Image_Edit": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 2,
+              "unit": "Minute"
+            }
+          },
+          "runAfter": {
+            "NanoBanana_Create_Image": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_Edited_Image": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@body('Wait_for_Image_Edit')?['response_url']"
+          },
+          "runAfter": {
+            "Wait_for_Image_Edit": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Rewrite_Caption_TikTok_Instagram": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Rewrite Caption (TikTok/Instagram)",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o",
+                "cachedResultName": "GPT-4O"
+              },
+              "options": {},
+              "messages": {
+                "values": [
+                  {
+                    "content": "=You are rewriting a TikTok video script, caption, and overlay —\nnot inventing a new one. You must follow this format and obey\nthese rules strictly.\n---\n### CONTEXT:\nHere is the content idea to use:{{ $('Parse Idea Into Prompts').item.json.imagePrompt }}\n\nTitle is : {{ $('Parse Idea Into Prompts').item.json.textOverlay }}\n\n\n\nWrite the caption text using the topic.\n\n---\n- MUST be under 200 characters (yes \"Characters\" not wordcount)\nthis is an absolute MUST, no more than 200 characters!!! \n\n### FINAL OUTPUT FORMAT (no markdown formatting):\n\nDO NOT return any explanations. Only return the Caption Text"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Download_Edited_Image": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_Post": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Upload Post",
+            "n8nNodeType": "n8n-nodes-upload-post.uploadPost",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "user": "DRFIRAS",
+              "title": "={{ $('Parse Idea Into Prompts').item.json.textOverlay }}",
+              "photos": "={{ $('Download Edited Image').item.json.images[0].url }}",
+              "caption": "={{ $json.message.content }}",
+              "platform": [
+                "instagram",
+                "x"
+              ]
+            }
+          },
+          "runAfter": {
+            "Rewrite_Caption_TikTok_Instagram": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Seedance_Generate_Video_from_Image": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.kie.ai/api/v1/jobs/createTask",
+            "body": "{\n  \"model\": \"bytedance/v1-pro-image-to-video\",\n  \"input\": {\n    \"prompt\": \"@{body('Parse_Idea_Into_Prompts')?['videoPrompt']}\",\n    \"image_url\": \"@{body('Download_Edited_Image')?['images'][0].url}\",\n    \"resolution\": \"720p\",\n    \"duration\": \"10\",\n    \"aspect_ratio\": \"16:9\",\n    \"camera_fixed\": false,\n    \"seed\": -1,\n    \"enable_safety_checker\": true\n  }\n}"
+          },
+          "runAfter": {
+            "Download_Edited_Image": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_for_Rendering": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 4,
+              "unit": "Minute"
+            }
+          },
+          "runAfter": {
+            "Seedance_Generate_Video_from_Image": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_Video_from_Seedance": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.kie.ai/api/v1/jobs/recordInfo?taskId=@{body('Wait_for_Rendering')?['data']?['taskId']}"
+          },
+          "runAfter": {
+            "Wait_for_Rendering": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Set_Video_URL": {
+          "type": "Compose",
+          "inputs": {
+            "url_video": "@{(body('Download_Video_from_Seedance')?['data']?['resultJson']?['match'](/https:\\/\\/tempfile\\.aiquickdraw\\.com\\/f\\/[^\"]+\\.mp4/) || [])[0]}"
+          },
+          "runAfter": {
+            "Download_Video_from_Seedance": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_Music_Rendering": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 1,
+              "unit": "Minute"
+            }
+          },
+          "runAfter": {
+            "Wait_Music_Rendering1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_Music_Rendering1": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://api.kie.ai/api/v1/generate",
+            "body": "{\n  \"model\": \"V3_5\",\n  \"callBackUrl\": \"https://YOUR_DOMAIN.com/api/kie-callback\",\n  \"customMode\": true,\n  \"instrumental\": true,\n  \"input\": {\n    \"prompt\": \"@{body('Parse_Idea_Into_Prompts')?['musicPrompt']}\",\n    \"style\": \"Classical\",\n    \"title\": \"Peaceful Piano Meditation\",\n    \"styleWeight\": 0.65,\n    \"weirdnessConstraint\": 0.65,\n    \"audioWeight\": 0.65\n  }\n}"
+          },
+          "runAfter": {
+            "Set_Video_URL": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_Music_File": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://api.kie.ai/api/v1/generate/record-info"
+          },
+          "runAfter": {
+            "Wait_Music_Rendering": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Set_Audio_URL": {
+          "type": "Compose",
+          "inputs": {
+            "url_audio": "@body('Download_Music_File')?['data']?['response']?['sunoData'][0].audioUrl"
+          },
+          "runAfter": {
+            "Download_Music_File": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Merge_Audio_Video": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "https://queue.fal.run/fal-ai/ffmpeg-api/merge-audio-video",
+            "body": "{\n\"video_url\": \"@{body('Set_Video_URL')?['url_video']?['trim']()}\",\n  \"audio_url\": \"@{body('Set_Audio_URL')?['url_audio']?['trim']()}\",\n  \"start_offset\": 0\n}"
+          },
+          "runAfter": {
+            "Set_Audio_URL": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Check_Merge_Status": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@body('Wait_Merge_Process')?['response_url']"
+          },
+          "runAfter": {
+            "Wait_Merge_Process": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Wait_Merge_Process": {
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 3,
+              "unit": "Minute"
+            }
+          },
+          "runAfter": {
+            "Merge_Audio_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Download_Final_Video": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "@body('Check_Merge_Status')?['video']?['url']"
+          },
+          "runAfter": {
+            "Check_Merge_Status": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Upload_Final_Video_to_Google_Drive": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Upload Final Video to Google Drive",
+            "n8nNodeType": "n8n-nodes-base.googleDrive",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "name": "={{ $('Trigger: Receive Idea via Telegram').item.json.message.photo[2].file_unique_id }}",
+              "driveId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "="
+              },
+              "options": {},
+              "folderId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "="
+              }
+            }
+          },
+          "runAfter": {
+            "Download_Final_Video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Read_Brand_Settings": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_SPREADSHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_WORKSHEET'))}/items",
+            "body": {}
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Upload_Final_Video_to_Google_Drive": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Extract_Brand_Info": {
+          "type": "JavaScriptCode",
+          "inputs": {
+            "code": "const __inputRaw = workflowContext.actions['Read_Brand_Settings'].outputs.body;\nconst __inputValues = Array.isArray(__inputRaw) ? __inputRaw : [__inputRaw];\nconst items = __inputValues.map(value =>\n  value && typeof value === 'object' && 'json' in value ? value : { json: value }\n);\nconst __unwrap = value => {\n  if (Array.isArray(value)) {\n    return value.map(item =>\n      item && typeof item === 'object' && 'json' in item ? item.json : item\n    );\n  }\n  return value && typeof value === 'object' && 'json' in value ? value.json : value;\n};\nconst __node = name => {\n  const output = workflowContext.actions[name]?.outputs;\n  const raw = output && typeof output === 'object' && 'body' in output\n    ? output.body\n    : output;\n  const values = Array.isArray(raw) ? raw : [raw];\n  const wrapped = values.map(value =>\n    value && typeof value === 'object' && 'json' in value ? value : { json: value }\n  );\n  return {\n    item: wrapped[0],\n    first: () => wrapped[0],\n    last: () => wrapped[wrapped.length - 1],\n    all: () => wrapped\n  };\n};\n\nconst $json = items[0]?.json ?? {};\nconst $input = {\n  item: items[0],\n  first: () => items[0],\n  last: () => items[items.length - 1],\n  all: () => items\n};\nconst __result = (() => {\nconst allRows = $input.all();\nreturn [{\njson: {\nproductName: allRows[0].json.col_2,\nproductCategory: allRows[1].json.col_2,\nmainOffer: allRows[2].json.col_2,\nkeyFeature1: allRows[3].json.col_2,\nkeyFeature2: allRows[4].json.col_2,\nwebsiteURL: allRows[5].json.col_2\n}\n}];\n})();\nreturn { body: __unwrap(__result) };"
+          },
+          "runAfter": {
+            "Read_Brand_Settings": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Message_a_model": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Message a model",
+            "n8nNodeType": "@n8n/n8n-nodes-langchain.openAi",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "modelId": {
+                "__rl": true,
+                "mode": "list",
+                "value": "gpt-4o",
+                "cachedResultName": "GPT-4O"
+              },
+              "options": {},
+              "messages": {
+                "values": [
+                  {
+                    "content": "=You are an expert ad copywriter for social media campaigns.\nYour task: Create compelling ad copy following this exact\nstructure:\n🚨 [Attention-grabbing headline with product benefit]\n✔ [Primary offer/benefit]\n✔ [Key product feature/quality]\n✔ [Trust/credibility element]\n[Call to action] → [website/link]\n# Input Variables:\nProduct Name: {{ $json.productName }}\nProduct Category: {{ $json.productCategory }}\nMain Offer: {{ $json.mainOffer }}\nKey Feature 1: {{ $json.keyFeature1 }}\nKey Feature 2: {{ $json.keyFeature2 }}\nWebsite URL: {{ $json.websiteURL }}\nRules:\n- Keep headline under 35 characters\n- Each checkmark line under 40 characters\n- Use power words that create urgency\n- Include specific product benefits, not generic claims\n- CTA must be action-oriented (Shop Now, Get Yours, Claim Offer,\netc.)\n- Output ONLY the ad copy text, no explanations\n- No quotes around the text\n- Maintain the emoji structure exactly as shown"
+                  }
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Extract_Brand_Info": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Save_Ad_Data_to_Google_Sheets": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "googlesheet_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/datasets/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_SPREADSHEET_ID'))}/tables/@{encodeURIComponent(encodeURIComponent('REPLACE_WITH_WORKSHEET'))}/items",
+            "body": {
+              "STATUS": "CREATE",
+              "ADS TEXT": "@body('Message_a_model')?['message']?['content']",
+              "ID IMAGE": "@first(body('Trigger_Receive_Idea_via_Telegram'))?['message']?['photo'][2].file_unique_id",
+              "URL IMAGE": "@first(body('Download_Edited_Image'))?['images'][0].url",
+              "URL VIDEO": "@first(body('Set_Video_URL'))?['url_video']",
+              "URL FINAL VIDEO": "@first(body('Download_Final_Video'))?['video']?['url']"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "PostItem"
+            }
+          },
+          "runAfter": {
+            "Message_a_model": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_Video_URL_via_Telegram": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "telegrambotip_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/bot@{encodeURIComponent('REPLACE_WITH_TELEGRAM_BOT_TOKEN')}/sendMessage",
+            "body": {
+              "chat_id": "@first(body('Trigger_Receive_Idea_via_Telegram'))?['message']?['chat']?['id']",
+              "text": "Url VIDEO :   @{body('Save_Ad_Data_to_Google_Sheets')?['URL FINAL VIDEO']}"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendMessage"
+            }
+          },
+          "runAfter": {
+            "Save_Ad_Data_to_Google_Sheets": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Send_a_video": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Send a video",
+            "n8nNodeType": "n8n-nodes-base.telegram",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "file": "={{ $('Save Ad Data to Google Sheets').item.json['URL FINAL VIDEO'] }}",
+              "chatId": "={{ $('Trigger: Receive Idea via Telegram').first().json.message.chat.id }}",
+              "operation": "sendVideo",
+              "additionalFields": {}
+            }
+          },
+          "runAfter": {
+            "Send_Video_URL_via_Telegram": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Post_Video_on_Social_Media_FB_TikTok_YT": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Post Video on Social Media (FB, TikTok, YT)",
+            "n8nNodeType": "n8n-nodes-upload-post.uploadPost",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "user": "DRFIRAS",
+              "title": "={{ $('Parse Idea Into Prompts').first().json.textOverlay }}",
+              "video": "={{ $('Upload Final Video to Google Drive').first().json.webContentLink }}",
+              "caption": "={{ $('Message a model').item.json.message.content }}",
+              "platform": [
+                "facebook",
+                "youtube",
+                "x"
+              ],
+              "operation": "uploadVideo",
+              "facebookPageId": "101603614680195",
+              "youtubeDescription": "={{ $('Message a model').item.json.message.content }}",
+              "youtubePrivacyStatus": "private",
+              "facebookVideoDescription": "={{ $('Message a model').item.json.message.content }}"
+            }
+          },
+          "runAfter": {
+            "Send_a_video": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Save_Publishing_Status_to_Google_Sheets": {
+          "type": "Compose",
+          "inputs": {
+            "conversionStatus": "unsupported",
+            "n8nNodeName": "Save Publishing Status to Google Sheets",
+            "n8nNodeType": "n8n-nodes-base.googleSheets",
+            "message": "Replace this placeholder with an equivalent LAA action."
+          },
+          "description": "Generated placeholder for an unsupported n8n node.",
+          "metadata": {
+            "x-n8n-original-parameters": {
+              "columns": {
+                "value": {
+                  "STATUS": "Published",
+                  "ID IMAGE": "={{ $('Trigger: Receive Idea via Telegram').first().json.message.photo[2].file_unique_id }}"
+                },
+                "schema": [
+                  {
+                    "id": "ID IMAGE",
+                    "type": "string",
+                    "display": true,
+                    "removed": false,
+                    "required": false,
+                    "displayName": "ID IMAGE",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "URL IMAGE",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "URL IMAGE",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "URL VIDEO",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "URL VIDEO",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "URL FINAL VIDEO",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "URL FINAL VIDEO",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "ADS TEXT",
+                    "type": "string",
+                    "display": true,
+                    "removed": true,
+                    "required": false,
+                    "displayName": "ADS TEXT",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "STATUS",
+                    "type": "string",
+                    "display": true,
+                    "required": false,
+                    "displayName": "STATUS",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  },
+                  {
+                    "id": "row_number",
+                    "type": "number",
+                    "display": true,
+                    "removed": true,
+                    "readOnly": true,
+                    "required": false,
+                    "displayName": "row_number",
+                    "defaultMatch": false,
+                    "canBeUsedToMatch": true
+                  }
+                ],
+                "mappingMode": "defineBelow",
+                "matchingColumns": [
+                  "ID IMAGE"
+                ],
+                "attemptToConvertTypes": false,
+                "convertFieldsToString": false
+              },
+              "options": {},
+              "operation": "update",
+              "sheetName": {
+                "__rl": true,
+                "mode": "id",
+                "value": "="
+              },
+              "documentId": {
+                "__rl": true,
+                "mode": "id",
+                "value": "="
+              }
+            }
+          },
+          "runAfter": {
+            "Post_Video_on_Social_Media_FB_TikTok_YT": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Telegram_Send_notification": {
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "referenceName": "telegrambotip_#workflowname#"
+              }
+            },
+            "method": "post",
+            "path": "/bot@{encodeURIComponent('REPLACE_WITH_TELEGRAM_BOT_TOKEN')}/sendMessage",
+            "body": {
+              "chat_id": "@first(body('Trigger_Receive_Idea_via_Telegram'))?['message']?['chat']?['id']",
+              "text": "Published"
+            }
+          },
+          "metadata": {
+            "flowSystemMetadata": {
+              "swaggerOperationId": "SendMessage"
+            }
+          },
+          "runAfter": {
+            "Save_Publishing_Status_to_Google_Sheets": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "trigger": {
+    "name": "Manual_Trigger",
+    "outputs": {
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "queries": {},
+      "body": {}
+    }
+  },
+  "mocks": {},
+  "connections": {
+    "googlesheet_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/googlesheet"
+    },
+    "telegrambotip_#workflowname#": {
+      "connectorType": "shared",
+      "apiId": "/managedApis/telegrambotip"
+    }
+  }
+}
